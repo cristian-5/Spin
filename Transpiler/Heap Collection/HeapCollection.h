@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  main.cpp                               |
+ *    |  HeapCollection.h                       |
  *    |                                         |
- *    |                  Main                   |
+ *    |             Heap Collection             |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,18 +16,14 @@
  *
  */
 
-#include <iostream>
+#ifndef HEAPCOLLECTION
+#define HEAPCOLLECTION
 
-#include "Transpiler.h"
+#include "HeapExceptions.h"
+#include "StrongMap.h"
+#include "StrongList.h"
+#include "LinkedList.h"
+#include "HeapStack.h"
+#include "HeapLoop.h"
 
-using namespace std;
-
-using namespace StackTranspiler;
-
-int main(int argc, const char * argv[]) {
-	
-	
-	
-	
-	return EXIT_SUCCESS;
-}
+#endif
