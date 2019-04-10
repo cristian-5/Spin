@@ -22,17 +22,17 @@
 #include <iostream>
 #include <string>
 
+using namespace std;
+
 /*! @brief Namespace Stack */
 namespace StackTranspiler {
 	
 	/*! @brief Transpiler Class. */
 	class Transpiler {
 		
-	private:
-		
-	public:
-		
-		Transpiler() { }
+		static string process(string code) {
+			return "";
+		}
 		
 	};
 	
