@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  main.cpp                               |
+ *    |  transpiler.h                           |
  *    |                                         |
- *    |                  Main                   |
+ *    |               Transpiler                |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,18 +16,29 @@
  *
  */
 
+#ifndef TRANSPILER
+#define TRANSPILER
+
 #include <iostream>
+#include <string>
 
-#include "transpiler.h"
-
-using namespace std;
-
-using namespace StackTranspiler;
-
-int main(int argc, const char * argv[]) {
+/*! @brief Namespace Stack */
+namespace StackTranspiler {
+	
+	/*! @brief Transpiler Class. */
+	class Transpiler {
+		
+	private:
+		
+	public:
+		
+		Transpiler() { }
+		
+	};
 	
 	
 	
-	
-	return EXIT_SUCCESS;
 }
+
+
+#endif
