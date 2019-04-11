@@ -151,9 +151,25 @@ namespace StackTranspiler {
 		static string process(string & code) {
 			
 			Dictionary<regex, string> patterns = Dictionary<regex, string>();
+			
+			// Types Implementation:
 
-			patterns.link(regex("(?:^|[\s\t]+)int8[\s\t]+"), "byte");
-			patterns.link(regex("(?:^|[\s\t]+)Int8[\s\t]+"), "SByte");
+			// Implementation of Int8 and UInt8:
+			patterns.link(regex("(^|[\\s\\t]+)([Ii]nt8)($|[\\s\\t])+"), "$1Byte$3");
+			patterns.link(regex("(^|[\\s\\t]+)((?:UI|ui)nt8)($|[\\s\\t])+"), "$1SByte$3");
+			
+			// Implementation of U?Int(16|32|64):
+			patterns.link(regex("(^|[\\s\\t]+)(int)(16|32|64)($|[\\s\\t])+"), "$1Int$3$4");
+			patterns.link(regex("(^|[\\s\\t]+)(uint)(16|32|64)($|[\\s\\t])+"), "$1UInt$3$4");
+			
+			// Implementation of Character:
+			patterns.link(regex("(^|[\\s\\t]+)([cC]haracter)($|[\\s\\t])+"), "$1Char$3");
+			
+			// Implementation of Boolean:
+			patterns.link(regex("(^|[\\s\\t]+)(boolean|Bool)($|[\\s\\t])+"), "$1Boolean$3");
+			
+			// Implementation of Real and Float:
+			patterns.link(regex("(^|[\\s\\t]+)(Float|Floating|floating|real|Real)($|[\\s\\t])+"), "$1Double$3");
 			
 			
 			return code;
