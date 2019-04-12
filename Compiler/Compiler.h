@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Transpiler.h                           |
+ *    |  Compiler.h                             |
  *    |                                         |
- *    |               Transpiler                |
+ *    |                Compiler                 |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef TRANSPILER
-#define TRANSPILER
+#ifndef STACKCOMPILER
+#define STACKCOMPILER
 
 #include <iostream>
 #include <string>
@@ -30,15 +30,15 @@ using namespace std;
 using namespace HeapCollection;
 
 /*! @brief Namespace Stack */
-namespace StackTranspiler {
-	
-	/*! @brief Transpiler Class. */
-	class Transpiler {
-		
+namespace StackCompiler {
+
+	/*! @brief Compiler Class. */
+	class Compiler {
+
 	private:
-		
+
 		/* MARK: - Regexes */
-		
+
 		/*!
 		 *   @brief Matches a regex.
 		 *   @param rgx Regex string.
@@ -59,7 +59,7 @@ namespace StackTranspiler {
 			}
 			return result;
 		}
-		
+
 		/*!
 		 *   @brief Matches a regex and returns
 		 *   the first capture group.
@@ -81,7 +81,7 @@ namespace StackTranspiler {
 			}
 			return result;
 		}
-		
+
 		/*!
 		 *   @brief Matches a regex and returns
 		 *   all captures group in a list.
@@ -105,7 +105,7 @@ namespace StackTranspiler {
 			}
 			return result;
 		}
-		
+
 		/*!
 		 *   @brief Matches a regex at the
 		 *   beginning of a string.
@@ -116,7 +116,7 @@ namespace StackTranspiler {
 		string matchStart(string rgx, string input) {
 			return match("^" + rgx, input);
 		}
-		
+
 		/*!
 		 *   @brief Matches a regex at the
 		 *   beginning of a string and returns
@@ -128,7 +128,7 @@ namespace StackTranspiler {
 		string matchCloseStart(string rgx, string input) {
 			return matchClose("^" + rgx, input);
 		}
-		
+
 		/*!
 		 *   @brief Replaces every occurrence of the
 		 *   matched regex with the given string.
@@ -145,40 +145,18 @@ namespace StackTranspiler {
 			}
 			return result;
 		}
-		
-	public:
-		
-		static string process(string & code) {
-			
-			Dictionary<regex, string> patterns = Dictionary<regex, string>();
-			
-			// Types Implementation:
 
-			// Implementation of Int8 and UInt8:
-			patterns.link(regex("(^|[\\s\\t]+)([Ii]nt8)($|[\\s\\t])+"), "$1Byte$3");
-			patterns.link(regex("(^|[\\s\\t]+)((?:UI|ui)nt8)($|[\\s\\t])+"), "$1SByte$3");
-			
-			// Implementation of U?Int(16|32|64):
-			patterns.link(regex("(^|[\\s\\t]+)(int)(16|32|64)($|[\\s\\t])+"), "$1Int$3$4");
-			patterns.link(regex("(^|[\\s\\t]+)(uint)(16|32|64)($|[\\s\\t])+"), "$1UInt$3$4");
-			
-			// Implementation of Character:
-			patterns.link(regex("(^|[\\s\\t]+)([cC]haracter)($|[\\s\\t])+"), "$1Char$3");
-			
-			// Implementation of Boolean:
-			patterns.link(regex("(^|[\\s\\t]+)(boolean|Bool)($|[\\s\\t])+"), "$1Boolean$3");
-			
-			// Implementation of Real and Float:
-			patterns.link(regex("(^|[\\s\\t]+)(Float|Floating|floating|real|Real)($|[\\s\\t])+"), "$1Double$3");
-			
-			
+	public:
+
+		static string process(string & code) {
+
 			return code;
 		}
-		
+
 	};
-	
-	
-	
+
+
+
 }
 
 
