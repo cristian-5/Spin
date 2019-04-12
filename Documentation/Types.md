@@ -11,16 +11,16 @@ In Stack the programmer must always specify the number
 of bits reserved for an integer value according to the
 following table.
 
-|       Type | Size     | Description      |        Aliases       |
-|-----------:|----------|------------------|:--------------------:|
-|   **Int8** |  1 Byte  | Signed Integer   |                      |
-|  **UInt8** |  1 Byte  | Unsigned Integer |                      |
-|  **Int16** |  2 Bytes | Signed Integer   |                      |
-| **UInt16** |  2 Bytes | Unsigned Integer |                      |
-|  **Int32** |  4 Bytes | Signed Integer   |                      |
-| **UInt32** |  4 Bytes | Unsigned Integer |                      |
-|  **Int64** |  8 Bytes | Signed Integer   |                      |
-| **UInt64** |  8 Bytes | Unsigned Integer |                      |
+|       Type | Size     | Description      |
+|-----------:|----------|------------------|
+|   **Int8** |  1 Byte  | Signed Integer   |
+|  **UInt8** |  1 Byte  | Unsigned Integer |
+|  **Int16** |  2 Bytes | Signed Integer   |
+| **UInt16** |  2 Bytes | Unsigned Integer |
+|  **Int32** |  4 Bytes | Signed Integer   |
+| **UInt32** |  4 Bytes | Unsigned Integer |
+|  **Int64** |  8 Bytes | Signed Integer   |
+| **UInt64** |  8 Bytes | Unsigned Integer |
 
 ### Types seen as Integers
 
@@ -43,9 +43,9 @@ Every `String` in Stack is a list of characters and contains
 methods and properties as well as attributes meant for string
 manipulation.
 
-|       Type | Size     | Description      |        Aliases       |
-|-----------:|----------|------------------|:--------------------:|
-| **String** | **N**    | ASCII String     |                      |
+|       Type | Size     | Description      |
+|-----------:|----------|------------------|
+| **String** | **N**    | ASCII String     |
 
 ### Object Type
 
@@ -54,9 +54,9 @@ automatically inherits from `Object` hence every type also
 inherits from `Object`. Classes must be instantiated with
 the `new` keyword.
 
-|       Type | Size     | Description      |        Aliases       |
-|-----------:|----------|------------------|:--------------------:|
-| **Object** | **N**    | Class Pointer    |                      |
+|       Type | Size     | Description      |
+|-----------:|----------|------------------|
+| **Object** | **N**    | Class Pointer    |
 
 ### Isomorphic Types
 
