@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Compiler.h                             |
+ *    |  Compiler.hpp                           |
  *    |                                         |
  *    |                Compiler                 |
  *    |                                         |
@@ -23,11 +23,11 @@
 #include <string>
 #include <regex>
 
-#include "HeapCollection.h"
+#include "Collection.h"
 
 using namespace std;
 
-using namespace HeapCollection;
+using namespace Collection;
 
 /*! @brief Namespace Stack */
 namespace StackCompiler {

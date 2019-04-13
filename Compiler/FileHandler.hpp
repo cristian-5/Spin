@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  FileHandler.h                          |
+ *    |  FileHandler.hpp                        |
  *    |                                         |
  *    |               File Handler              |
  *    |                                         |
@@ -23,16 +23,16 @@
 #include <string.h>
 #include <fstream>
 
-#include "HeapCollection.h"
+#include "Collection.h"
 
 using namespace std;
 
-using namespace HeapCollection;
+using namespace Collection;
 
 class FileHandler {
-	
+
 public:
-	
+
 	/*!
 	 *   @brief Bad File Exception.
 	 *   Raised when the input file
@@ -48,11 +48,11 @@ public:
 	public:
 
 		BadFileException(string & path): exception() { _path = & path; }
-		
+
 		const string getPath() const { return * _path; }
 
 	};
-	
+
 	static StrongList<string> linesFromFile(string & path) {
 		StrongList<string> set = StrongList<string>();
 		ifstream file(path.c_str());
@@ -64,7 +64,7 @@ public:
 		} else throw BadFileException(path);
 		return set;
 	}
-	
+
 	static string stringFromFile(string path) {
 		string line = "";
 		ifstream file(path.c_str());
@@ -76,12 +76,12 @@ public:
 		} else throw BadFileException(path);
 		return line;
 	}
-	
+
 	static bool createNewFile(string path = "", string content = "") {
-		
+
 		return true;
 	}
-	
+
 };
 
 
