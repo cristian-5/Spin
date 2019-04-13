@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  HeapCollection.hpp                     |
+ *    |  Collection.hpp                         |
  *    |                                         |
  *    |             Heap Collection             |
  *    |                                         |
@@ -19,7 +19,7 @@
 #ifndef HEAPCOLLECTION
 #define HEAPCOLLECTION
 
-#include "HeapExceptions.hpp"
+#include "Exceptions.hpp"
 #include "StrongMap.hpp"
 #include "StrongList.hpp"
 #include "LinkedList.hpp"

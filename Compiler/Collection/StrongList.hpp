@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "HeapExceptions.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 
@@ -476,7 +476,7 @@ namespace Collection {
 				size--;
 			}
 		}
-		
+
 	};
 
 }

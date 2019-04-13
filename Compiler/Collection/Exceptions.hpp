@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  HeapExceptions.hpp                     |
+ *    |  Exceptions.hpp                         |
  *    |                                         |
  *    |             Heap Exceptions             |
  *    |                                         |
