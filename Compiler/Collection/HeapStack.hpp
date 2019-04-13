@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  HeapStack.h                            |
+ *    |  HeapStack.hpp                          |
  *    |                                         |
  *    |               Heap Stack                |
  *    |                                         |
@@ -21,19 +21,19 @@
 
 #include <iostream>
 
-#include "HeapExceptions.h"
+#include "HeapExceptions.hpp"
 
 using namespace std;
 
 /* MARK: - Heap Stack - */
 
 /*!
- *   @brief Namespace HeapCollection.
+ *   @brief Namespace Collection.
  *   Contains classes designed for
  *   handling collections of elements.
  *   @author Cristian A.
  */
-namespace HeapCollection {
+namespace Collection {
 
 	/*!
 	 *   @brief Heap Stack.
@@ -55,7 +55,7 @@ namespace HeapCollection {
 
 		/*! @brief Size of the stack. */
 		int size = 0;
-		
+
 		/*! @brief Stack element. */
 		struct Node {
 			Type value;
@@ -64,18 +64,18 @@ namespace HeapCollection {
 
 		/*! @brief Root element. */
 		Node * root = NULL;
-		
+
 		/*! @brief Prepares the first element. */
 		void seed(Type val) {
 			root = new Node;
 			root -> value = val;
 			root -> next = NULL;
 		}
-		
+
 	public:
-		
+
 		/* MARK: - Size Related */
-		
+
 		/*!
 		 *   @brief Gets the number of
 		 *   elements inside the stack.
@@ -85,7 +85,7 @@ namespace HeapCollection {
 		 *   @returns The elements' count.
 		 */
 		int count() const { return size; }
-		
+
 		/*!
 		 *   @brief Checks if the stack is empty.
 		 *
@@ -95,9 +95,9 @@ namespace HeapCollection {
 		 *   False if it contains at least an element.
 		 */
 		bool isEmpty() const { return size == 0; }
-		
+
 		/* MARK: - Push and Pop */
-		
+
 		/*!
 		 *   @brief Pushes an element onto
 		 *   the stack. The element is a
@@ -118,7 +118,7 @@ namespace HeapCollection {
 			}
 			size++;
 		}
-		
+
 		/*!
 		 *   @brief Removes (pops) the
 		 *   element on top of the stack.
@@ -136,9 +136,9 @@ namespace HeapCollection {
 			size--;
 			return value;
 		}
-		
+
 		/* MARK: - Cleaning */
-		
+
 		/*!
 		 *   @brief Erases every element
 		 *   inside the stack.
@@ -157,9 +157,9 @@ namespace HeapCollection {
 				size--;
 			}
 		}
-		
+
 	};
-	
+
 }
 
 #endif

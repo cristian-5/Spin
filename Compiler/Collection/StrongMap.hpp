@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  StrongMap.h                            |
+ *    |  StrongMap.hpp                          |
  *    |                                         |
  *    |                Strong Map               |
  *    |                                         |
@@ -21,20 +21,20 @@
 
 #include <iostream>
 
-#include "HeapExceptions.h"
-#include "StrongList.h"
+#include "HeapExceptions.hpp"
+#include "StrongList.hpp"
 
 using namespace std;
 
 /* MARK: - Strong Map - */
 
 /*!
- *   @brief Namespace HeapCollection.
+ *   @brief Namespace Collection.
  *   Contains classes designed for
  *   handling collections of elements.
  *   @author Cristian A.
  */
-namespace HeapCollection {
+namespace Collection {
 
 	/*!
 	 *   @brief Strong Map.
@@ -166,7 +166,7 @@ namespace HeapCollection {
 			try { map.link(val); }
 			catch (exception & e) { throw; }
 		}
-		
+
 		/*!
 		 *   @brief Appends a node to the
 		 *   end of the map.
@@ -232,7 +232,7 @@ namespace HeapCollection {
 			try { map.hang(val); }
 			catch (exception & e) { throw; }
 		}
-		
+
 		/*!
 		 *   @brief Hangs a node at
 		 *   the top of the map.
@@ -317,9 +317,9 @@ namespace HeapCollection {
 			try { map.reduceLeaf(n); }
 			catch (exception & e) { throw; }
 		}
-		
+
 		/* MARK: - Finding */
-		
+
 		/*!
 		 *   @brief Finds the position
 		 *   of the first found key.
@@ -335,7 +335,7 @@ namespace HeapCollection {
 				if (map[i].key == key) return i;
 			} return -1;
 		}
-		
+
 		/*!
 		 *   @brief Finds the position
 		 *   of the first found val.
@@ -351,7 +351,7 @@ namespace HeapCollection {
 				if (map[i].val == val) return i;
 			} return -1;
 		}
-		
+
 		/*!
 		 *   @brief Finds the position
 		 *   of the first found element.
@@ -367,7 +367,7 @@ namespace HeapCollection {
 				if (map[i] == Element(key, val)) return i;
 			} return -1;
 		}
-		
+
 		/*!
 		 *   @brief Finds the position
 		 *   of the first found key.
@@ -383,7 +383,7 @@ namespace HeapCollection {
 				if (map[i] == element) return i;
 			} return -1;
 		}
-		
+
 		/*!
 		 *   @brief Finds the value
 		 *   of the first found key.
@@ -399,7 +399,7 @@ namespace HeapCollection {
 			}
 			throw ElementNotFoundException();
 		}
-		
+
 		/*!
 		 *   @brief Finds the value
 		 *   of the first found key.
@@ -431,7 +431,7 @@ namespace HeapCollection {
 			try { map.clean(); }
 			catch (exception & e) { throw; }
 		}
-		
+
 		/*!
 		 *   @brief Erases every element
 		 *   with the specified key.
@@ -449,7 +449,7 @@ namespace HeapCollection {
 				}
 			}
 		}
-		
+
 		/*!
 		 *   @brief Erases every element
 		 *   with the specified value.
@@ -470,10 +470,10 @@ namespace HeapCollection {
 
 	};
 
-	/* MARK: - Dictionary - */
+}
+
+/* MARK: - Dictionary - */
 
 #define Dictionary StrongMap
-
-}
 
 #endif

@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  StrongList.h                           |
+ *    |  StrongList.hpp                         |
  *    |                                         |
  *    |               Strong List               |
  *    |                                         |
@@ -21,20 +21,20 @@
 
 #include <iostream>
 
-#include "HeapExceptions.h"
+#include "HeapExceptions.hpp"
 
 using namespace std;
 
 /* MARK: - Strong List - */
 
 /*!
- *   @brief Namespace HeapCollection.
+ *   @brief Namespace Collection.
  *   Contains classes designed for
  *   handling collections of elements.
  *   @author Cristian A.
  */
-namespace HeapCollection {
-	
+namespace Collection {
+
 	/*!
 	 *   @brief Strong List.
 	 *   Generally used for collecting elements.
@@ -51,24 +51,24 @@ namespace HeapCollection {
 	 */
 	template <typename Type>
 	class StrongList {
-		
+
 	private:
-		
+
 		/*! @brief Size of the stack. */
 		int size = 0;
-		
+
 		/*! @brief Stack element. */
 		struct Node {
 			Type value;
 			Node * prev;
 			Node * next;
 		};
-		
+
 		/*! @brief Root element. */
 		Node * root = NULL;
 		/*! @brief Leaf element. */
 		Node * leaf = NULL;
-		
+
 		/*! @brief Prepares the first element. */
 		void seed(Type val) {
 			Node * node = new Node;
@@ -77,11 +77,11 @@ namespace HeapCollection {
 			node -> next = NULL;
 			root = node; leaf = node;
 		}
-		
+
 	public:
-		
+
 		/* MARK: - Size Related */
-		
+
 		/*!
 		 *   @brief Gets the number of
 		 *   elements inside the list.
@@ -91,7 +91,7 @@ namespace HeapCollection {
 		 *   @returns The elements' count.
 		 */
 		int count() const { return size; }
-		
+
 		/*!
 		 *   @brief Checks if the list is empty.
 		 *
@@ -101,9 +101,9 @@ namespace HeapCollection {
 		 *   False if it contains at least an element.
 		 */
 		bool isEmpty() const { return size == 0; }
-		
+
 		/* MARK: - Subscript Operator */
-		
+
 		/*!
 		 *   @brief Subscription.
 		 *
@@ -135,9 +135,9 @@ namespace HeapCollection {
 				return pointer -> value;
 			}
 		}
-		
+
 		/* MARK: - Node Operations */
-		
+
 		/*!
 		 *   @brief Gets the node in the
 		 *   specified position.
@@ -170,7 +170,7 @@ namespace HeapCollection {
 				return pointer -> value;
 			}
 		}
-		
+
 		/*!
 		 *   @brief Sets the node in the
 		 *   specified position.
@@ -202,9 +202,9 @@ namespace HeapCollection {
 				pointer -> value = val;
 			}
 		}
-		
+
 		/* MARK: - Linking Operations */
-		
+
 		/*!
 		 *   @brief Appends a node to the
 		 *   end of the list.
@@ -225,7 +225,7 @@ namespace HeapCollection {
 			}
 			size++;
 		}
-		
+
 		/*!
 		 *   @brief Links a node before
 		 *   the specified position.
@@ -268,7 +268,7 @@ namespace HeapCollection {
 			}
 			size++;
 		}
-		
+
 		/*!
 		 *   @brief Links a node after
 		 *   the specified position.
@@ -311,7 +311,7 @@ namespace HeapCollection {
 			}
 			size++;
 		}
-		
+
 		/*!
 		 *   @brief Hangs a node at
 		 *   the top of the list.
@@ -332,7 +332,7 @@ namespace HeapCollection {
 			}
 			size++;
 		}
-		
+
 		/*!
 		 *   @brief Unlinks a node at
 		 *   the specified position.
@@ -379,7 +379,7 @@ namespace HeapCollection {
 				}
 			}
 		}
-		
+
 		/*!
 		 *   @brief Unlinks the first
 		 *   node of the list.
@@ -394,7 +394,7 @@ namespace HeapCollection {
 			root = pointer;
 			size--;
 		}
-		
+
 		/*!
 		 *   @brief Unlinks the last
 		 *   node of the list.
@@ -409,9 +409,9 @@ namespace HeapCollection {
 			leaf = pointer;
 			size--;
 		}
-		
+
 		/* MARK: - Reduce */
-		
+
 		/*!
 		 *   @brief Erases n elements
 		 *   from the start of the list.
@@ -433,7 +433,7 @@ namespace HeapCollection {
 				size--;
 			}
 		}
-		
+
 		/*!
 		 *   @brief Erases n elements
 		 *   from the end of the list.
@@ -455,9 +455,9 @@ namespace HeapCollection {
 				size--;
 			}
 		}
-		
+
 		/* MARK: - Cleaning */
-		
+
 		/*!
 		 *   @brief Erases every element
 		 *   inside the list.
@@ -478,7 +478,7 @@ namespace HeapCollection {
 		}
 		
 	};
-	
+
 }
 
 #endif

@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  HeapExceptions.h                       |
+ *    |  HeapExceptions.hpp                     |
  *    |                                         |
  *    |             Heap Exceptions             |
  *    |                                         |
@@ -26,13 +26,13 @@ using namespace std;
 /* MARK: - Heap Exceptions - */
 
 /*!
- *   @brief Namespace HeapCollection.
+ *   @brief Namespace Collection.
  *   Contains classes designed for
  *   handling collections of elements.
  *   @author Cristian A.
  */
-namespace HeapCollection {
-	
+namespace Collection {
+
 	/*!
 	 *   @brief Invalid Index Exception.
 	 *   Raised when the index overflows
@@ -43,7 +43,7 @@ namespace HeapCollection {
 	public:
 		InvalidIndexException(): exception() { }
 	};
-	
+
 	/*!
 	 *   @brief Invalid Element Count Exception.
 	 *   Raised when the number of elements
@@ -54,7 +54,7 @@ namespace HeapCollection {
 	public:
 		ElementCountException(): exception() { }
 	};
-	
+
 	/*!
 	 *   @brief Element Not Found Exception.
 	 *   Raised when the element can't be found.
@@ -64,7 +64,7 @@ namespace HeapCollection {
 	public:
 		ElementNotFoundException(): exception() { }
 	};
-	
+
 	/*!
 	 *   @brief Empty List Exception.
 	 *   Raised when trying to perform
@@ -75,7 +75,7 @@ namespace HeapCollection {
 	public:
 		EmptyListException(): exception() { }
 	};
-	
+
 	/*!
 	 *   @brief Empty Loop Exception.
 	 *   Raised when trying to perform
@@ -86,7 +86,7 @@ namespace HeapCollection {
 	public:
 		EmptyLoopException(): exception() { }
 	};
-	
+
 	/*!
 	 *   @brief Hanging In Loop Exception.
 	 *   Raised when trying to perform
@@ -98,7 +98,7 @@ namespace HeapCollection {
 	public:
 		HangingInLoopException(): exception() { }
 	};
-	
+
 	/*!
 	 *   @brief Empty Stack Exception.
 	 *   Raised when trying to perform a
