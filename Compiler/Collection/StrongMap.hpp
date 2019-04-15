@@ -24,8 +24,6 @@
 #include "Exceptions.hpp"
 #include "StrongList.hpp"
 
-using namespace std;
-
 /* MARK: - Strong Map - */
 
 /*!

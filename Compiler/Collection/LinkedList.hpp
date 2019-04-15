@@ -23,8 +23,6 @@
 
 #include "Exceptions.hpp"
 
-using namespace std;
-
 /* MARK: - Linked List - */
 
 /*!
