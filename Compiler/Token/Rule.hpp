@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Compiler.hpp                           |
+ *    |  Rule.hpp                               |
  *    |                                         |
- *    |                Compiler                 |
+ *    |                   Rule                  |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,36 +16,34 @@
  *
  */
 
-#ifndef STACKCOMPILER
-#define STACKCOMPILER
+#ifndef STACKRULE
+#define STACKRULE
 
 #include <iostream>
 #include <string>
 
-#include "Collection.hpp"
+#include "Token.hpp"
 
-using namespace std;
-
-using namespace Collection;
+using std::string = String;
 
 /*! @brief Namespace Stack */
 namespace StackCompiler {
 
-	/*! @brief Compiler Class. */
-	class Compiler {
+	/*! @brief Grammar Class. */
+	class Rule {
 
 	public:
 
-		static string process(string & code) {
+		TokenType type = empty;
+		String pattern = "";
 
-			return code;
+		Rule(String pattern, TokenType type) {
+			this.pattern = pattern;
+			this.type = type;
 		}
 
 	};
 
-
-
 }
-
 
 #endif
