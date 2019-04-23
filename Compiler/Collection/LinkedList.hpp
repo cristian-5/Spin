@@ -23,6 +23,8 @@
 
 #include "Exceptions.hpp"
 
+using UInt32 = std::uint32_t;
+
 /* MARK: - Linked List - */
 
 /*!
@@ -52,7 +54,7 @@ namespace Collection {
 	private:
 
 		/*! @brief Size of the stack. */
-		int size = 0;
+		UInt32 size = 0;
 
 		/*! @brief Stack element. */
 		struct Node {
@@ -64,7 +66,7 @@ namespace Collection {
 		Node * root = NULL;
 
 		/*! @brief Prepares the first element. */
-		void seed(Type val) {
+		void seed(Type & val) {
 			root = new Node;
 			root -> value = val;
 			root -> next = NULL;
@@ -82,7 +84,7 @@ namespace Collection {
 		 *
 		 *   @returns The elements' count.
 		 */
-		int count() const { return size; }
+		UInt32 count() const { return size; }
 
 		/*!
 		 *   @brief Checks if the list is empty.
@@ -108,11 +110,11 @@ namespace Collection {
 		 *   @returns The node at the
 		 *   specified index.
 		 */
-		Type & operator [] (int pos) {
+		Type & operator [] (UInt32 pos) {
 			if (size == 0) throw EmptyListException();
-			if (pos < 0 || pos >= size) throw InvalidIndexException();
+			if (pos >= size) throw InvalidIndexException();
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (UInt32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			return pointer -> value;
@@ -133,11 +135,11 @@ namespace Collection {
 		 *   @returns The node at the
 		 *   specified index.
 		 */
-		Type getNode(int pos) {
+		Type getNode(UInt32 pos) {
 			if (size == 0) throw EmptyListException();
-			if (pos < 0 || pos >= size) throw InvalidIndexException();
+			if (pos >= size) throw InvalidIndexException();
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (UInt32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			return pointer -> value;
@@ -155,11 +157,11 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to set.
 		 */
-		void setNode(int pos, Type val) {
+		void setNode(UInt32 pos, Type & val) {
 			if (size == 0) throw EmptyListException();
-			if (pos < 0 || pos >= size) throw InvalidIndexException();
+			if (pos >= size) throw InvalidIndexException();
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (UInt32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			pointer -> value = val;
@@ -178,7 +180,7 @@ namespace Collection {
 		 *
 		 *   @param val Value to link.
 		 */
-		void link(Type val) {
+		void link(Type & val) {
 			if (size == 0) seed(val);
 			else {
 				Node * node = new Node;
@@ -205,14 +207,14 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to link.
 		 */
-		void linkBefore(int pos, Type val) {
+		void linkBefore(UInt32 pos, Type & val) {
 			if (size == 0) throw EmptyListException();
-			if (pos <= 0 || pos >= size) throw InvalidIndexException();
+			if (pos >= size) throw InvalidIndexException();
 			Node * node = new Node;
 			node -> value = val;
 			node -> next = NULL;
 			Node * pointer = root;
-			for (int i = 0; i < pos - 1; i++) {
+			for (UInt32 i = 0; i < pos - 1; i++) {
 				pointer = pointer -> next;
 			}
 			node -> next = pointer -> next;
@@ -232,14 +234,14 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to link.
 		 */
-		void linkAfter(int pos, Type val) {
+		void linkAfter(UInt32 pos, Type & val) {
 			if (size == 0) throw EmptyListException();
-			if (pos < 0 || pos >= size) throw InvalidIndexException();
+			if (pos >= size) throw InvalidIndexException();
 			Node * node = new Node;
 			node -> value = val;
 			node -> next = NULL;
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (UInt32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			node -> next = pointer -> next;
@@ -255,7 +257,7 @@ namespace Collection {
 		 *
 		 *   @param val Value to hang.
 		 */
-		void hang(Type val) {
+		void hang(Type & val) {
 			if (size == 0) seed(val);
 			else {
 				Node * node = new Node;
@@ -276,13 +278,13 @@ namespace Collection {
 		 *   of the node to remove.
 		 *   @param pos Index.
 		 */
-		void unlink(int pos) {
+		void unlink(UInt32 pos) {
 			if (size == 0) throw EmptyListException();
-			if (pos < 0 || pos >= size) throw InvalidIndexException();
+			if (pos >= size) throw InvalidIndexException();
 			if (pos == 0) unlinkFirst();
 			else {
 				Node * pointer = root;
-				for (int i = 0; i < pos - 1; i++) {
+				for (UInt32 i = 0; i < pos - 1; i++) {
 					pointer = pointer -> next;
 				}
 				Node * p = pointer;
@@ -324,7 +326,7 @@ namespace Collection {
 		void unlinkLast() {
 			if (size == 0) throw EmptyListException();
 			Node * pointer = root;
-			for (int i = 0; i < size - 1; i++) {
+			for (UInt32 i = 0; i < size - 1; i++) {
 				pointer = pointer -> next;
 			}
 			Node * last = pointer -> next;

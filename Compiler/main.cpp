@@ -20,19 +20,27 @@
 
 #include "Collection/Collection.hpp"
 
+#include "Lexer/Lexer.hpp"
+
 using namespace std;
 
-//using namespace StackCompiler;
 using namespace Collection;
+using namespace Stack;
+
+using UInt32 = std::uint32_t;
 
 int main(int argc, const char * argv[]) {
 
-	LinkedList<int> c;
-	c.link(39);
-	cout << c[0] << endl;
+	Lexer lexer = Lexer("fdghsjdhgf   345 2746.564 'f' \"dfjgd\" false");
 
-	int cd;
-	cin >> cd;
+	StrongList<Token> tokens = lexer.tokenize();
+
+	for (UInt32 i = 0; i < tokens.count(); i++) {
+		cout << tokens[i].type << ":    " << tokens[i].value << endl;
+	}
+
+	int x = 0;
+	cin >> x;
 
 	return EXIT_SUCCESS;
 }

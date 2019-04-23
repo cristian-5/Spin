@@ -23,6 +23,9 @@
 
 #include "Exceptions.hpp"
 
+using UInt32 = std::uint32_t;
+using Int32 = std::int32_t;
+
 /* MARK: - Heap Loop - */
 
 /*!
@@ -53,7 +56,7 @@ namespace Collection {
 	private:
 
 		/*! @brief Size of the stack. */
-		int size = 0;
+		UInt32 size = 0;
 
 		/*! @brief Stack element. */
 		struct Node {
@@ -65,7 +68,7 @@ namespace Collection {
 		Node * root = NULL;
 
 		/*! @brief Prepares the first element. */
-		void seed(Type val) {
+		void seed(Type & val) {
 			root = new Node;
 			root -> value = val;
 			root -> next = root;
@@ -83,7 +86,7 @@ namespace Collection {
 		 *
 		 *   @returns The elements' count.
 		 */
-		int count() const { return size; }
+		UInt32 count() const { return size; }
 
 		/*!
 		 *   @brief Checks if the loop is empty.
@@ -109,12 +112,12 @@ namespace Collection {
 		 *   @returns The node at the
 		 *   specified index.
 		 */
-		Type & operator [] (int pos) {
+		Type & operator [] (Int32 pos) {
 			if (size == 0) throw EmptyLoopException();
 			if (pos < 0) pos = size - (abs(pos) % size);
 			else if (pos > size) pos = pos % size;
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (Int32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			return pointer -> value;
@@ -135,12 +138,12 @@ namespace Collection {
 		 *   @returns The node at the
 		 *   specified index.
 		 */
-		Type getNode(int pos) {
+		Type getNode(Int32 pos) {
 			if (size == 0) throw EmptyLoopException();
 			if (pos < 0) pos = size - (abs(pos) % size);
 			else if (pos > size) pos = pos % size;
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (Int32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			return pointer -> value;
@@ -158,12 +161,12 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to set.
 		 */
-		void setNode(int pos, Type val) {
+		void setNode(Int32 pos, Type & val) {
 			if (size == 0) throw EmptyLoopException();
 			if (pos < 0) pos = size - (abs(pos) % size);
 			else if (pos > size) pos = pos % size;
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (Int32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			pointer -> value = val;
@@ -182,7 +185,7 @@ namespace Collection {
 		 *
 		 *   @param val Value to link.
 		 */
-		void link(Type val) {
+		void link(Type & val) {
 			if (size == 0) seed(val);
 			else {
 				Node * node = new Node;
@@ -210,13 +213,13 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to link.
 		 */
-		void linkBefore(int pos, Type val) {
+		void linkBefore(Int32 pos, Type & val) {
 			if (size == 0) throw EmptyLoopException();
 			if (pos < 0) pos = size - (abs(pos) % size);
 			else if (pos > size) pos = pos % size;
 			if (pos == 0) throw HangingInLoopException();
 			Node * pointer = root;
-			for (int i = 0; i < pos - 1; i++) {
+			for (Int32 i = 0; i < pos - 1; i++) {
 				pointer = pointer -> next;
 			}
 			Node * node = new Node;
@@ -238,12 +241,12 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to link.
 		 */
-		void linkAfter(int pos, Type val) {
+		void linkAfter(Int32 pos, Type & val) {
 			if (size == 0) throw EmptyLoopException();
 			if (pos < 0) pos = size - (abs(pos) % size);
 			else if (pos > size) pos = pos % size;
 			Node * pointer = root;
-			for (int i = 0; i < pos; i++) {
+			for (Int32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
 			}
 			Node * node = new Node;
@@ -264,12 +267,12 @@ namespace Collection {
 		 *
 		 *   @param pos Index.
 		 */
-		void unlink(int pos) {
+		void unlink(Int32 pos) {
 			if (size == 0) throw EmptyLoopException();
 			if (pos < 0) pos = size - (abs(pos) % size);
 			else if (pos > size) pos = pos % size;
 			Node * pointer = root;
-			for (int i = 0; i < pos - 1; i++) {
+			for (Int32 i = 0; i < pos - 1; i++) {
 				pointer = pointer -> next;
 			}
 			Node * p = pointer;
@@ -292,7 +295,7 @@ namespace Collection {
 		void unlinkFirst() {
 			if (size == 0) throw EmptyLoopException();
 			Node * pointer = root;
-			for (int i = 0; i < size - 1; i++) {
+			for (Int32 i = 0; i < size - 1; i++) {
 				pointer = pointer -> next;
 			}
 			pointer -> next = root -> next;
@@ -313,7 +316,7 @@ namespace Collection {
 		void unlinkLast() {
 			if (size == 0) throw EmptyLoopException();
 			Node * pointer = root;
-			for (int i = 0; i < size - 2; i++) {
+			for (Int32 i = 0; i < size - 2; i++) {
 				pointer = pointer -> next;
 			}
 			Node * last = pointer -> next;

@@ -28,17 +28,21 @@
 #include "../Token/Token.hpp"
 #include "../Token/Rule.hpp"
 
-using std::string = String;
-using std::smatch = SMatch;
-using std::regex = Regex;
-using std::regex_error = RegexError;
-using std::regex_search = regexSearch;
-using std::regex_replace = regexReplace;
+using String = std::string;
+using SMatch = std::smatch;
+using Regex = std::regex;
+using RegexError = std::regex_error;
+using UInt32 = std::uint32_t;
+
+#define regexSearch std::regex_search
+#define regexReplace = std::regex_replace
+
+#define subString substr
 
 using namespace Collection;
 
 /*! @brief Namespace Stack */
-namespace StackCompiler {
+namespace Stack {
 
 	/*! @brief Lexer Class. */
 	class Lexer {
@@ -145,14 +149,14 @@ namespace StackCompiler {
 		 *   @param replace Input Replace.
 		 *   @returns The replaced String.
 		 */
-		String replaceMatches(String rgx, String input, String replace) {
+		/*String replaceMatches(String rgx, String input, String replace) {
 			Regex regex(rgx);
 			String result = input;
 			while (regexSearch(result, regex)) {
-				result = regexReplace(result, regex, replace);
+				regexReplace(result, regex, replace);
 			}
 			return result;
-		}
+		}*/
 
 		/* MARK: - Private Data */
 
@@ -160,12 +164,49 @@ namespace StackCompiler {
 
 	public:
 
-		Lexer() {
+		String data = "";
 
-			grammar.link(Rule("([A-Za-z][A-Za-z0-9_\\-])", identifier));
+		Lexer(String data = "") {
+
+			this -> data = data;
+
+			grammar.link(Rule("([ \\t\\n\\r]+)", empty));
+			grammar.link(Rule("([A-Za-z][A-Za-z0-9_\\-]+)", identifier));
+
+			grammar.link(Rule("(-?[0-9]+\\.[0-9]+)", realLiteral));
 			grammar.link(Rule("(-?[0-9]+)", integerLiteral));
-			grammar.link(Rule("\"(\\.|[^\"\\])*\"", stringLiteral));
+			grammar.link(Rule("\"(\\$\\{.*\\}|\\.|[^\"\\\\])*\"", stringLiteral));
+			grammar.link(Rule("'(\\$\\{.\\}|\\.|[^'\\\\])'", charLiteral));
+			grammar.link(Rule("(true|false)", boolLiteral));
 
+
+		}
+
+		StrongList<Token> tokenize() {
+			StrongList<Token> tokens = StrongList<Token>();
+			String data = this -> data;
+			UInt32 pos = 0;
+			while (data.length() > 0) {
+				bool tokenized = false;
+				for (UInt32 i = 0; i < grammar.count(); i++) {
+					String result = matchCloseStart(grammar[i].pattern, data);
+					if (result.length() != 0) {
+						Token token = Token(result, grammar[i].type, pos);
+						tokens.link(token);
+						pos += result.length();
+						data = data.subString(result.length());
+						std::cout << data << std::endl;
+						tokenized = true;
+						break;
+					}
+				}
+				if (!tokenized) {
+					std::cout << "Error on character: " << pos << std::endl;
+					std::cout << "Found unexpected token." << std::endl;
+					return StrongList<Token>();
+				}
+			}
+			return tokens;
 		}
 
 	};

@@ -24,6 +24,9 @@
 #include "Exceptions.hpp"
 #include "StrongList.hpp"
 
+using UInt32 = std::uint32_t;
+using Int32 = std::int32_t;
+
 /* MARK: - Strong Map - */
 
 /*!
@@ -76,7 +79,7 @@ namespace Collection {
 		 *
 		 *   @returns The elements' count.
 		 */
-		int count() const { return map.count(); }
+		UInt32 count() const { return map.count(); }
 
 		/*!
 		 *   @brief Checks if the map is empty.
@@ -104,7 +107,7 @@ namespace Collection {
 		 *   @returns The node at the
 		 *   specified index.
 		 */
-		Element & operator [] (int pos) {
+		Element & operator [] (UInt32 pos) {
 			try { return map[pos]; }
 			catch (exception & e) { throw; }
 		}
@@ -126,7 +129,7 @@ namespace Collection {
 		 *   @returns The node at the
 		 *   specified index.
 		 */
-		Element getNode(int pos) {
+		Element getNode(UInt32 pos) {
 			try { map.getNode(pos); }
 			catch (exception & e) { throw; }
 		}
@@ -145,7 +148,7 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to set.
 		 */
-		void setNode(int pos, Element val) {
+		void setNode(UInt32 pos, Element & val) {
 			try { map.setNode(pos, val); }
 			catch (exception & e) { throw; }
 		}
@@ -160,7 +163,7 @@ namespace Collection {
 		 *
 		 *   @param val Value to link.
 		 */
-		void link(Element val) {
+		void link(Element & val) {
 			try { map.link(val); }
 			catch (exception & e) { throw; }
 		}
@@ -173,7 +176,7 @@ namespace Collection {
 		 *
 		 *   @param val Value to link.
 		 */
-		void link(KeyType key, ValType val) {
+		void link(KeyType & key, ValType & val) {
 			try {
 				Element node = { key, val };
 				map.link(node);
@@ -194,7 +197,7 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to link.
 		 */
-		void linkBefore(int pos, Element val) {
+		void linkBefore(UInt32 pos, Element & val) {
 			try { map.linkBefore(pos, val); }
 			catch (exception & e) { throw; }
 		}
@@ -213,7 +216,7 @@ namespace Collection {
 		 *   @param pos Index.
 		 *   @param val Value to link.
 		 */
-		void linkAfter(int pos, Element val) {
+		void linkAfter(UInt32 pos, Element & val) {
 			try { map.linkAfter(pos, val); }
 			catch (exception & e) { throw; }
 		}
@@ -226,7 +229,7 @@ namespace Collection {
 		 *
 		 *   @param val Value to hang.
 		 */
-		void hang(Element val) {
+		void hang(Element & val) {
 			try { map.hang(val); }
 			catch (exception & e) { throw; }
 		}
@@ -239,7 +242,7 @@ namespace Collection {
 		 *
 		 *   @param val Value to hang.
 		 */
-		void hang(KeyType key, ValType val) {
+		void hang(KeyType & key, ValType & val) {
 			try {
 				Element node = { key, val };
 				map.hang(node);
@@ -259,7 +262,7 @@ namespace Collection {
 		 *
 		 *   @param pos Index.
 		 */
-		void unlink(int pos) {
+		void unlink(UInt32 pos) {
 			try { map.unlink(pos); }
 			catch (exception & e) { throw; }
 		}
@@ -297,7 +300,7 @@ namespace Collection {
 		 *   Where @b n is the number
 		 *   of elements to remove.
 		 */
-		void reduceRoot(int n) {
+		void reduceRoot(UInt32 n) {
 			try { map.reduceRoot(n); }
 			catch (exception & e) { throw; }
 		}
@@ -311,7 +314,7 @@ namespace Collection {
 		 *   Where @b n is the number
 		 *   of elements to remove.
 		 */
-		void reduceLeaf(int n) {
+		void reduceLeaf(UInt32 n) {
 			try { map.reduceLeaf(n); }
 			catch (exception & e) { throw; }
 		}
@@ -328,9 +331,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		int findPosition(KeyType key) {
-			for (int i = 0; i < map.count(); i++) {
-				if (map[i].key == key) return i;
+		Int32 findPosition(KeyType & key) {
+			for (UInt32 i = 0; i < map.count(); i++) {
+				if (map[i].key == key) return (UInt32)i;
 			} return -1;
 		}
 
@@ -344,9 +347,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		int findPosition(ValType val) {
-			for (int i = 0; i < map.count(); i++) {
-				if (map[i].val == val) return i;
+		Int32 findPosition(ValType & val) {
+			for (UInt32 i = 0; i < map.count(); i++) {
+				if (map[i].val == val) return (UInt32)i;
 			} return -1;
 		}
 
@@ -360,9 +363,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		int findPosition(KeyType key, ValType val) {
-			for (int i = 0; i < map.count(); i++) {
-				if (map[i] == Element(key, val)) return i;
+		Int32 findPosition(KeyType & key, ValType & val) {
+			for (UInt32 i = 0; i < map.count(); i++) {
+				if (map[i] == Element(key, val)) return (UInt32)i;
 			} return -1;
 		}
 
@@ -376,9 +379,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		int findPosition(Element element) {
-			for (int i = 0; i < map.count(); i++) {
-				if (map[i] == element) return i;
+		Int32 findPosition(Element & element) {
+			for (UInt32 i = 0; i < map.count(); i++) {
+				if (map[i] == element) return (Int32)i;
 			} return -1;
 		}
 
@@ -391,8 +394,8 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		ValType findValue(KeyType key) {
-			for (int i = 0; i < map.count(); i++) {
+		ValType findValue(KeyType & key) {
+			for (UInt32 i = 0; i < map.count(); i++) {
 				if (map[i].key == key) return map[i].val;
 			}
 			throw ElementNotFoundException();
@@ -407,8 +410,8 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		KeyType findKey(ValType val) {
-			for (int i = 0; i < map.count(); i++) {
+		KeyType findKey(ValType & val) {
+			for (UInt32 i = 0; i < map.count(); i++) {
 				if (map[i].val == val) return map[i].key;
 			}
 			throw ElementNotFoundException();
@@ -439,8 +442,8 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map.
 		 */
-		void removeKeys(KeyType key) {
-			for (int i = 0; i < map.count(); i++) {
+		void removeKeys(KeyType & key) {
+			for (UInt32 i = 0; i < map.count(); i++) {
 				if (map[i].key == key) {
 					map.unlink(i);
 					i--;
@@ -457,8 +460,8 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map.
 		 */
-		void removeValues(ValType val) {
-			for (int i = 0; i < map.count(); i++) {
+		void removeValues(ValType & val) {
+			for (UInt32 i = 0; i < map.count(); i++) {
 				if (map[i].val == val) {
 					map.unlink(i);
 					i--;

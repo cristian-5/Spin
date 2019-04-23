@@ -22,15 +22,17 @@
 #include <iostream>
 #include <string>
 
-using std::string = String;
+using String = std::string;
+using UInt32 = std::uint32_t;
 
 /*! @brief Namespace Stack */
-namespace StackCompiler {
+namespace Stack {
 
 	enum TokenType {
 
 		empty,
 		identifier,
+		comment,
 
 		integerLiteral,
 		stringLiteral,
@@ -42,6 +44,37 @@ namespace StackCompiler {
 		semicolon,
 		comma,
 		dot,
+
+		equals,
+		different,
+		leftRotation,
+		rightRotation,
+		leftShift,
+		rightShift,
+		minor,
+		major,
+		equal,
+		questionMark,
+		exclamationMark,
+
+		plusplus,
+		plusEqual,
+		plus,
+		minusminus,
+		minusEqual,
+		minus,
+		starEqual,
+		star,
+		backslash,
+		slashEqual,
+		slash,
+		at,
+		hashtag,
+		ampersand,
+		musulusEqual,
+		modulus,
+		dollar,
+		hat,
 
 		openRoundBracket,
 		closeRoundBracket,
@@ -60,11 +93,16 @@ namespace StackCompiler {
 	public:
 
 		TokenType type = empty;
-		String token = "";
+		String value = "";
 
-		Token(String token, TokenType type) {
-			this.token = token;
-			this.type = type;
+		UInt32 position = 0;
+
+		Token() { }
+
+		Token(String token, TokenType type, UInt32 pos) {
+			this -> value = token;
+			this -> type = type;
+			this -> position = pos;
 		}
 
 	};

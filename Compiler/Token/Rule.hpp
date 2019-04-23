@@ -24,10 +24,10 @@
 
 #include "Token.hpp"
 
-using std::string = String;
+using String = std::string;
 
 /*! @brief Namespace Stack */
-namespace StackCompiler {
+namespace Stack {
 
 	/*! @brief Grammar Class. */
 	class Rule {
@@ -37,9 +37,11 @@ namespace StackCompiler {
 		TokenType type = empty;
 		String pattern = "";
 
+		Rule() { }
+
 		Rule(String pattern, TokenType type) {
-			this.pattern = pattern;
-			this.type = type;
+			this -> pattern = pattern;
+			this -> type = type;
 		}
 
 	};

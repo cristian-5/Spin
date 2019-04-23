@@ -29,7 +29,7 @@ using namespace std;
 using namespace Collection;
 
 /*! @brief Namespace Stack */
-namespace StackCompiler {
+namespace Stack {
 
 	/*! @brief Compiler Class. */
 	class Compiler {

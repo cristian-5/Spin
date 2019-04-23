@@ -23,6 +23,8 @@
 
 #include "Exceptions.hpp"
 
+using UInt32 = std::uint32_t;
+
 /* MARK: - Heap Stack - */
 
 /*!
@@ -52,7 +54,7 @@ namespace Collection {
 	private:
 
 		/*! @brief Size of the stack. */
-		int size = 0;
+		UInt32 size = 0;
 
 		/*! @brief Stack element. */
 		struct Node {
@@ -64,7 +66,7 @@ namespace Collection {
 		Node * root = NULL;
 
 		/*! @brief Prepares the first element. */
-		void seed(Type val) {
+		void seed(Type & val) {
 			root = new Node;
 			root -> value = val;
 			root -> next = NULL;
@@ -82,7 +84,7 @@ namespace Collection {
 		 *
 		 *   @returns The elements' count.
 		 */
-		int count() const { return size; }
+		UInt32 count() const { return size; }
 
 		/*!
 		 *   @brief Checks if the stack is empty.
@@ -105,7 +107,7 @@ namespace Collection {
 		 *
 		 *   @param val The value to push.
 		 */
-		void push(Type val) {
+		void push(Type & val) {
 			if (size == 0) {
 				seed(val);
 			} else {
