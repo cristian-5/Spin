@@ -29,7 +29,7 @@ using namespace Stack;
 
 using UInt32 = std::uint32_t;
 
-int main(int argc, const char * argv[]) {
+Int32 main(Int32 argc, const char * argv[]) {
 
 	Lexer lexer = Lexer("fdghsjdhgf   345 2746.564 'f' \"dfjgd\" false");
 
