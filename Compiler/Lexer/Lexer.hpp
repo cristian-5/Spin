@@ -175,8 +175,9 @@ namespace Stack {
 
 			grammar.link(Rule("(-?[0-9]+\\.[0-9]+)", realLiteral));
 			grammar.link(Rule("(-?[0-9]+)", integerLiteral));
-			grammar.link(Rule("\"(\\$\\{.*\\}|\\.|[^\"\\\\])*\"", stringLiteral));
-			grammar.link(Rule("'(\\$\\{.\\}|\\.|[^'\\\\])'", charLiteral));
+			/*grammar.link(Rule("\"(\\$\\{.*\\}|\\.|[^\"\\\\])*\"", stringLiteral));
+			grammar.link(Rule("'(\\$\\{.\\}|\\.|[^'\\\\])'", charLiteral));*/
+
 			grammar.link(Rule("(true|false)", boolLiteral));
 
 
@@ -191,6 +192,7 @@ namespace Stack {
 				for (UInt32 i = 0; i < grammar.count(); i++) {
 					String result = matchCloseStart(grammar[i].pattern, data);
 					if (result.length() != 0) {
+						if (grammar[i].type == empty) break;
 						Token token = Token(result, grammar[i].type, pos);
 						tokens.link(token);
 						pos += result.length();
