@@ -28,7 +28,7 @@ Parameters are separated with a comma and are defined
 with an identifier followed by colon and the type.
 
 ```swift
-proc increment(val: ref Int32) {
+proc increment(val: inout Int32) {
     a++;
 }
 ```
