@@ -61,7 +61,7 @@ the `new` keyword.
 ### Isomorphic Types
 
 The `Isomorphic` type is a special type that identifies a special
-pointer to an object or a class which can mutate its Type based
+pointer to an object or a class which can mutate its type based
 on the current situation. For example we can define an Isomorphic
 variable, give it a value that does not exceed 8 bits and then
 convert that value in a 64 bits Integer or in a Real value, not
