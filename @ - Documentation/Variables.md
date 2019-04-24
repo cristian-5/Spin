@@ -119,7 +119,7 @@ is always the same as the underlying variable.
 *  Within a function member or anonymous function, a reference parameter
 is considered initially assigned.
 
-Within an instance method or instance accessor of a struct type, the `this`
+Within an instance method or instance accessor of a struct type, the `self`
 keyword behaves exactly as a reference parameter of the struct type.
 
 ### Local variables
