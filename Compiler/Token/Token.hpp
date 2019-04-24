@@ -86,16 +86,37 @@ namespace Stack {
 		openCurlyBracket,
 		closeCurlyBracket,
 
-		func,
-		static,
-		final,
-		proc,
-		class,
-		struct,
-		private,
-		public,
-		const,
-		null
+		tryKeyword,
+		catchKeyword,
+		throwKeyword,
+		throwsKeyword,
+		avoidKeyword,
+
+		ifKeyword,
+		switchKeyword,
+		caseKeyword,
+		whileKeyword,
+		doKeyword,
+		loopKeyword,
+		forKeyword,
+		repeatKeyword,
+		untilKeyword,
+		breakKeyword,
+		continueKeyword,
+
+
+		funcKeyword,
+		staticKeyword,
+		finalKeyword,
+		procKeyword,
+		classKeyword,
+		enumKeyword,
+		structKeyword,
+		privateKeyword,
+		publicKeyword,
+		inoutKeyword,
+		constKeyword,
+		nullKeyword
 
 	};
 

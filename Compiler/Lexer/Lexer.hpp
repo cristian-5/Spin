@@ -170,16 +170,58 @@ namespace Stack {
 
 			this -> data = data;
 
-			grammar.link(Rule("([ \\t\\n\\r]+)", empty));
-			grammar.link(Rule("([A-Za-z][A-Za-z0-9_\\-]+)", identifier));
+			grammar.link(Rule(R"([ \t\n\r]+)", empty));
+			grammar.link(Rule(R"([A-Za-z][A-Za-z0-9_\-]+)", identifier));
+			grammar.link(Rule(R"(\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/)|(\/\/.*$)"), comment);
 
-			grammar.link(Rule("(-?[0-9]+\\.[0-9]+)", realLiteral));
-			grammar.link(Rule("(-?[0-9]+)", integerLiteral));
-			/*grammar.link(Rule("\"(\\$\\{.*\\}|\\.|[^\"\\\\])*\"", stringLiteral));
-			grammar.link(Rule("'(\\$\\{.\\}|\\.|[^'\\\\])'", charLiteral));*/
+			grammar.link(Rule(R"(-?[0-9]+\.[0-9]+)", realLiteral));
+			grammar.link(Rule(R"(-?[0-9]+)", integerLiteral));
+			grammar.link(Rule(R"\"((?:[^\\\"]|\\.)*)\"", stringLiteral));
+			grammar.link(Rule(R"\'([^\\\']|\\['\"?\\0abfnrtv]|\\x[0-9A-Fa-f][0-9A-Fa-f])\'", charLiteral));
 
 			grammar.link(Rule("(true|false)", boolLiteral));
 
+			grammar.link(Rule(R"(\:)", colon));
+			grammar.link(Rule(R"(\;)", semicolon));
+			grammar.link(Rule(R"(\,)", comma));
+			grammar.link(Rule(R"(\.)", dot));
+
+			grammar.link(Rule(R"(==)", equals));
+			grammar.link(Rule(R"(!=)", different));
+			grammar.link(Rule(R"(<<<)", leftRotation));
+			grammar.link(Rule(R"(>>>)", rightRotation));
+			grammar.link(Rule(R"(<<)", leftShift));
+			grammar.link(Rule(R"(>>)", rightShift));
+			grammar.link(Rule(R"(<)", minor));
+			grammar.link(Rule(R"(>)", major));
+			grammar.link(Rule(R"(=)", equal));
+			grammar.link(Rule(R"(\?)", questionMark));
+			grammar.link(Rule(R"(\!)", exclamationMark));
+
+			grammar.link(Rule(R"(\+\+)", plusplus));
+			grammar.link(Rule(R"(\+=)", plusEqual));
+			grammar.link(Rule(R"(--)", minusminus));
+			grammar.link(Rule(R"(-=)", minusEqual));
+			grammar.link(Rule(R"(-)", minus));
+			grammar.link(Rule(R"(\*=)", starEqual));
+			grammar.link(Rule(R"(\*)", star));
+			grammar.link(Rule(R"(\\)", backslash));
+			grammar.link(Rule(R"(\/=)", slashEqual));
+			grammar.link(Rule(R"(\/)", slash));
+			grammar.link(Rule(R"(@)", at));
+			grammar.link(Rule(R"(#)", hashtag));
+			grammar.link(Rule(R"(&)", ampersand));
+			grammar.link(Rule(R"(%=)", modulusEqual));
+			grammar.link(Rule(R"(%)", modulus));
+			grammar.link(Rule(R"($)", dollar));
+			grammar.link(Rule(R"(^)", hat));
+
+			grammar.link(Rule(R"(\()", openRoundBracket));
+			grammar.link(Rule(R"(\))", closeRoundBracket));
+			grammar.link(Rule(R"(\[)", openSquareBracket));
+			grammar.link(Rule(R"(\])", closeSquareBracket));
+			grammar.link(Rule(R"(\{)", openCurlyBracket));
+			grammar.link(Rule(R"(\})", closeCurlyBracket));
 
 		}
 
