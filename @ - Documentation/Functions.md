@@ -35,7 +35,7 @@ proc increment(val: ref Int32) {
 
 ## Call
 
-To call a stack function or procedure you must use
+To call a Stack function or procedure you must use
 the identifier followed by evenual parameters
 enclosed in round brackets.
 
