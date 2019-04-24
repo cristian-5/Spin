@@ -60,6 +60,7 @@ namespace Stack {
 		plusplus,
 		plusEqual,
 		plus,
+		arrow,
 		minusminus,
 		minusEqual,
 		minus,
@@ -83,7 +84,16 @@ namespace Stack {
 		closeSquareBracket,
 
 		openCurlyBracket,
-		closeCurlyBracket
+		closeCurlyBracket,
+
+		func,
+		proc,
+		class,
+		struct,
+		private,
+		public,
+		const,
+		null
 
 	};
 
