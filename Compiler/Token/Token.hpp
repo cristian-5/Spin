@@ -87,6 +87,8 @@ namespace Stack {
 		closeCurlyBracket,
 
 		func,
+		static,
+		final,
 		proc,
 		class,
 		struct,
