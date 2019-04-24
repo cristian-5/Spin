@@ -47,17 +47,6 @@ manipulation.
 |-----------:|----------|------------------|
 | **String** | **N**    | ASCII String     |
 
-### Object Type
-
-The `Object` type is a Class Pointer. Every class in Stack
-automatically inherits from `Object` hence every type also
-inherits from `Object`. Classes must be instantiated with
-the `new` keyword.
-
-|       Type | Size     | Description      |
-|-----------:|----------|------------------|
-| **Object** | **N**    | Class Pointer    |
-
 ### Isomorphic Types
 
 The `Isomorphic` type is a special type that identifies a special
