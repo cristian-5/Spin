@@ -170,58 +170,79 @@ namespace Stack {
 
 			this -> data = data;
 
-			grammar.link(Rule(R"([ \t\n\r]+)", empty));
-			grammar.link(Rule(R"([A-Za-z][A-Za-z0-9_\-]+)", identifier));
-			grammar.link(Rule(R"(\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/)|(\/\/.*$)"), comment);
+			grammar.link(Rule("([ \\t\\n\\r]+)", empty));
+			grammar.link(Rule("(\\/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+\\/)|(\\/\\/.*$)", comment));
 
-			grammar.link(Rule(R"(-?[0-9]+\.[0-9]+)", realLiteral));
-			grammar.link(Rule(R"(-?[0-9]+)", integerLiteral));
-			grammar.link(Rule(R"\"((?:[^\\\"]|\\.)*)\"", stringLiteral));
-			grammar.link(Rule(R"\'([^\\\']|\\['\"?\\0abfnrtv]|\\x[0-9A-Fa-f][0-9A-Fa-f])\'", charLiteral));
+			grammar.link(Rule("(-?[0-9]+\\.[0-9]+)", realLiteral));
+			grammar.link(Rule("(-?[0-9]+)", integerLiteral));
+			// str not working, chr to try
+			grammar.link(Rule("\"((?:[^\\\\\"]|\\\\['\"?\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*)\"", stringLiteral));
+			grammar.link(Rule("'([^\\\\']|\\\\['\"?\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])'", charLiteral));
 
-			grammar.link(Rule("(true|false)", boolLiteral));
+			grammar.link(Rule("(true|false)[ \\t\\r\\n\\);]+", boolLiteral));
 
-			grammar.link(Rule(R"(\:)", colon));
-			grammar.link(Rule(R"(\;)", semicolon));
-			grammar.link(Rule(R"(\,)", comma));
-			grammar.link(Rule(R"(\.)", dot));
+			grammar.link(Rule("(\\:)", colon));
+			grammar.link(Rule("(\\;)", semicolon));
+			grammar.link(Rule("(\\,)", comma));
+			grammar.link(Rule("(\\.)", dot));
+			grammar.link(Rule("(<)", minor));
+			grammar.link(Rule("(>)", major));
+			grammar.link(Rule("(=)", equal));
+			grammar.link(Rule("(\\?)", questionMark));
+			grammar.link(Rule("(\\!)", exclamationMark));
 
-			grammar.link(Rule(R"(==)", equals));
-			grammar.link(Rule(R"(!=)", different));
-			grammar.link(Rule(R"(<<<)", leftRotation));
-			grammar.link(Rule(R"(>>>)", rightRotation));
-			grammar.link(Rule(R"(<<)", leftShift));
-			grammar.link(Rule(R"(>>)", rightShift));
-			grammar.link(Rule(R"(<)", minor));
-			grammar.link(Rule(R"(>)", major));
-			grammar.link(Rule(R"(=)", equal));
-			grammar.link(Rule(R"(\?)", questionMark));
-			grammar.link(Rule(R"(\!)", exclamationMark));
+			grammar.link(Rule("(\\+)", plus));
+			grammar.link(Rule("(-)", minus));
+			grammar.link(Rule("(\\*)", star));
+			grammar.link(Rule("(\\\\)", backslash));
+			grammar.link(Rule("(\\/)", slash));
+			grammar.link(Rule("(@)", at));
+			grammar.link(Rule("(#)", hashtag));
+			grammar.link(Rule("(&)", ampersand));
+			grammar.link(Rule("(%)", modulus));
+			grammar.link(Rule("($)", dollar));
+			grammar.link(Rule("(^)", hat));
 
-			grammar.link(Rule(R"(\+\+)", plusplus));
-			grammar.link(Rule(R"(\+=)", plusEqual));
-			grammar.link(Rule(R"(--)", minusminus));
-			grammar.link(Rule(R"(-=)", minusEqual));
-			grammar.link(Rule(R"(-)", minus));
-			grammar.link(Rule(R"(\*=)", starEqual));
-			grammar.link(Rule(R"(\*)", star));
-			grammar.link(Rule(R"(\\)", backslash));
-			grammar.link(Rule(R"(\/=)", slashEqual));
-			grammar.link(Rule(R"(\/)", slash));
-			grammar.link(Rule(R"(@)", at));
-			grammar.link(Rule(R"(#)", hashtag));
-			grammar.link(Rule(R"(&)", ampersand));
-			grammar.link(Rule(R"(%=)", modulusEqual));
-			grammar.link(Rule(R"(%)", modulus));
-			grammar.link(Rule(R"($)", dollar));
-			grammar.link(Rule(R"(^)", hat));
+			grammar.link(Rule("(\\()", openRoundBracket));
+			grammar.link(Rule("(\\))", closeRoundBracket));
+			grammar.link(Rule("(\\[)", openSquareBracket));
+			grammar.link(Rule("(\\])", closeSquareBracket));
+			grammar.link(Rule("(\\{)", openCurlyBracket));
+			grammar.link(Rule("(\\})", closeCurlyBracket));
 
-			grammar.link(Rule(R"(\()", openRoundBracket));
-			grammar.link(Rule(R"(\))", closeRoundBracket));
-			grammar.link(Rule(R"(\[)", openSquareBracket));
-			grammar.link(Rule(R"(\])", closeSquareBracket));
-			grammar.link(Rule(R"(\{)", openCurlyBracket));
-			grammar.link(Rule(R"(\})", closeCurlyBracket));
+			grammar.link(Rule("(try)[ \\t\\r\\n\\{]+", tryKeyword));
+			grammar.link(Rule("(catch)[ \\t\\r\\n\\(]+", catchKeyword));
+			grammar.link(Rule("(throw)[ \\t\\r\\n\\(]+", throwKeyword));
+			grammar.link(Rule("(throws)[ \\t\\r\\n\\-]+", throwsKeyword));
+			grammar.link(Rule("(avoid)[ \\t\\r\\n\\(]+", avoidKeyword));
+
+			grammar.link(Rule("(if)[ \\t\\r\\n\\(]+", ifKeyword));
+			grammar.link(Rule("(switch)[ \\t\\r\\n\\(]+", ifKeyword));
+			grammar.link(Rule("(case)[ \\t\\r\\n\\(]+", caseKeyword));
+			grammar.link(Rule("(default)[ \\t\\r\\n\\(]+", defaultKeyword));
+			grammar.link(Rule("(while)[ \\t\\r\\n\\(]+", whileKeyword));
+			grammar.link(Rule("(do)[ \\t\\r\\n\\{]+", doKeyword));
+			grammar.link(Rule("(loop)[ \\t\\r\\n\\{]+", loopKeyword));
+			grammar.link(Rule("(for)[ \\t\\r\\n\\(]+", forKeyword));
+			grammar.link(Rule("(repeat)[ \\t\\r\\n\\{]+", repeatKeyword));
+			grammar.link(Rule("(until)[ \\t\\r\\n\\(]+", untilKeyword));
+			grammar.link(Rule("(break)[ \\t\\r\\n;]+", breakKeyword));
+			grammar.link(Rule("(continue)[ \\t\\r\\n;]+", continueKeyword));
+
+			grammar.link(Rule("(func)[ \\t\\r\\n]+", funcKeyword));
+			grammar.link(Rule("(proc)[ \\t\\r\\n]+", procKeyword));
+			grammar.link(Rule("(static)[ \\t\\r\\n]+", staticKeyword));
+			grammar.link(Rule("(class)[ \\t\\r\\n]+", classKeyword));
+			grammar.link(Rule("(enum)[ \\t\\r\\n]+", enumKeyword));
+			grammar.link(Rule("(struct)[ \\t\\r\\n]+", structKeyword));
+			grammar.link(Rule("(private)[ \\t\\r\\n]+", privateKeyword));
+			grammar.link(Rule("(public)[ \\t\\r\\n]+", publicKeyword));
+			grammar.link(Rule("(inout)[ \\t\\r\\n]+", inoutKeyword));
+			grammar.link(Rule("(frozen)[ \\t\\r\\n]+", frozenKeyword));
+			grammar.link(Rule("(null)[ \\t\\r\\n;]+", nullKeyword));
+			grammar.link(Rule("(return)[ \\t\\r\\n;\\(]+", returnKeyword));
+
+			grammar.link(Rule("([A-Za-z_][A-Za-z0-9_\\-]+)", identifier));
 
 		}
 
@@ -234,20 +255,20 @@ namespace Stack {
 				for (UInt32 i = 0; i < grammar.count(); i++) {
 					String result = matchCloseStart(grammar[i].pattern, data);
 					if (result.length() != 0) {
+						tokenized = true;
+						data = data.subString(result.length());
+						std::cout << data << std::endl;
+						pos += result.length();
 						if (grammar[i].type == empty) break;
 						Token token = Token(result, grammar[i].type, pos);
 						tokens.link(token);
-						pos += result.length();
-						data = data.subString(result.length());
-						std::cout << data << std::endl;
-						tokenized = true;
 						break;
 					}
 				}
 				if (!tokenized) {
 					std::cout << "Error on character: " << pos << std::endl;
 					std::cout << "Found unexpected token." << std::endl;
-					return StrongList<Token>();
+					return tokens;
 				}
 			}
 			return tokens;

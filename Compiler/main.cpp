@@ -31,7 +31,7 @@ using UInt32 = std::uint32_t;
 
 Int32 main(Int32 argc, const char * argv[]) {
 
-	Lexer lexer = Lexer("fdghsjdhgf   345 2746.564 'f' \"dfjgd\" false");
+	Lexer lexer = Lexer("static func hello(there: Int32) throws -> String { return 34.parse(); }");
 
 	StrongList<Token> tokens = lexer.tokenize();
 
