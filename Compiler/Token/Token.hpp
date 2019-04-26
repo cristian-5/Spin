@@ -30,6 +30,8 @@ namespace Stack {
 
 	enum TokenType {
 
+		newFile,
+
 		empty,
 		identifier,
 		comment,
@@ -57,6 +59,7 @@ namespace Stack {
 		backslash,
 		slash,
 		at,
+		pipe,
 		hashtag,
 		ampersand,
 		modulus,
@@ -97,12 +100,15 @@ namespace Stack {
 		classKeyword,
 		enumKeyword,
 		structKeyword,
+		exceptKeyword,
 		privateKeyword,
 		publicKeyword,
 		inoutKeyword,
 		frozenKeyword,
 		nullKeyword,
-		returnKeyword
+		returnKeyword,
+
+		endOfFile
 
 	};
 

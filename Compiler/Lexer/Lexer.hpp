@@ -35,14 +35,38 @@ using RegexError = std::regex_error;
 using UInt32 = std::uint32_t;
 
 #define regexSearch std::regex_search
-#define regexReplace = std::regex_replace
+#define regexReplace std::regex_replace
 
 #define subString substr
 
 using namespace Collection;
 
+/* MARK: - Macros */
+
+#define INVERTED "[^A-Za-z0-9_]"
+
 /*! @brief Namespace Stack */
 namespace Stack {
+
+	/*!
+	 *   @brief Invalid Token Exception.
+	 *   Raised when the token is not matched.
+	 *   @author Cristian A.
+	 */
+	class InvalidTokenException: public std::exception {
+
+	private:
+
+		UInt32 position = 0;
+
+	public:
+
+		UInt32 getPosition() { return position; }
+
+		InvalidTokenException(UInt32 character):
+		std::exception(), position(character) { }
+
+	};
 
 	/*! @brief Lexer Class. */
 	class Lexer {
@@ -58,7 +82,7 @@ namespace Stack {
 		 *   @returns The matched String.
 		 */
 		String match(String rgx, String input) {
-			String result;
+			String result = "";
 			try {
 				Regex regex(rgx);
 				SMatch match;
@@ -80,7 +104,7 @@ namespace Stack {
 		 *   @returns The first matched group.
 		 */
 		String matchClose(String rgx, String input) {
-			String result;
+			String result = "";
 			try {
 				Regex regex(rgx);
 				SMatch match;
@@ -102,7 +126,7 @@ namespace Stack {
 		 *   @returns The matched groups.
 		 */
 		StrongList<String> matchGroupClose(String rgx, String input) {
-			StrongList<String> result;
+			StrongList<String> result = StrongList<String>();
 			try {
 				Regex regex(rgx);
 				SMatch match;
@@ -143,20 +167,22 @@ namespace Stack {
 
 		/*!
 		 *   @brief Replaces every occurrence of the
-		 *   matched regex with the given String.
-		 *   @param rgx Regex String.
+		 *   match with the given String.
+		 *   @param match Match String.
 		 *   @param input Input String.
 		 *   @param replace Input Replace.
 		 *   @returns The replaced String.
 		 */
-		/*String replaceMatches(String rgx, String input, String replace) {
-			Regex regex(rgx);
-			String result = input;
-			while (regexSearch(result, regex)) {
-				regexReplace(result, regex, replace);
+		String replaceMatches(String match, String input, String replace) {
+			if (match.length() == 0) return input;
+			if (input.length() == 0) return input;
+			Int32 position = input.find(match);
+			while (position != String::npos) {
+				input.replace(position, match.length(), replace);
+				position = input.find(match);
 			}
-			return result;
-		}*/
+			return input;
+		}
 
 		/* MARK: - Private Data */
 
@@ -164,22 +190,21 @@ namespace Stack {
 
 	public:
 
-		String data = "";
+		String input = "";
 
 		Lexer(String data = "") {
 
-			this -> data = data;
+			input = data;
 
-			grammar.link(Rule("([ \\t\\n\\r]+)", empty));
-			grammar.link(Rule("(\\/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+\\/)|(\\/\\/.*$)", comment));
+			grammar.link(Rule("([ \\t\\n]+)", empty));
+			grammar.link(Rule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment));
+			grammar.link(Rule("(\\/[\\/]+.*)", comment));
 
 			grammar.link(Rule("(-?[0-9]+\\.[0-9]+)", realLiteral));
 			grammar.link(Rule("(-?[0-9]+)", integerLiteral));
-			// str not working, chr to try
-			grammar.link(Rule("\"((?:[^\\\\\"]|\\\\['\"?\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*)\"", stringLiteral));
-			grammar.link(Rule("'([^\\\\']|\\\\['\"?\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])'", charLiteral));
-
-			grammar.link(Rule("(true|false)[ \\t\\r\\n\\);]+", boolLiteral));
+			grammar.link(Rule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral));
+			grammar.link(Rule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral));
+			grammar.link(Rule("(true|false)" INVERTED, boolLiteral));
 
 			grammar.link(Rule("(\\:)", colon));
 			grammar.link(Rule("(\\;)", semicolon));
@@ -197,6 +222,7 @@ namespace Stack {
 			grammar.link(Rule("(\\\\)", backslash));
 			grammar.link(Rule("(\\/)", slash));
 			grammar.link(Rule("(@)", at));
+			grammar.link(Rule("(|)", pipe));
 			grammar.link(Rule("(#)", hashtag));
 			grammar.link(Rule("(&)", ampersand));
 			grammar.link(Rule("(%)", modulus));
@@ -210,54 +236,57 @@ namespace Stack {
 			grammar.link(Rule("(\\{)", openCurlyBracket));
 			grammar.link(Rule("(\\})", closeCurlyBracket));
 
-			grammar.link(Rule("(try)[ \\t\\r\\n\\{]+", tryKeyword));
-			grammar.link(Rule("(catch)[ \\t\\r\\n\\(]+", catchKeyword));
-			grammar.link(Rule("(throw)[ \\t\\r\\n\\(]+", throwKeyword));
-			grammar.link(Rule("(throws)[ \\t\\r\\n\\-]+", throwsKeyword));
-			grammar.link(Rule("(avoid)[ \\t\\r\\n\\(]+", avoidKeyword));
+			grammar.link(Rule("(try)" INVERTED, tryKeyword));
+			grammar.link(Rule("(catch)" INVERTED, catchKeyword));
+			grammar.link(Rule("(throw)" INVERTED, throwKeyword));
+			grammar.link(Rule("(throws)" INVERTED, throwsKeyword));
+			grammar.link(Rule("(avoid)" INVERTED, avoidKeyword));
 
-			grammar.link(Rule("(if)[ \\t\\r\\n\\(]+", ifKeyword));
-			grammar.link(Rule("(switch)[ \\t\\r\\n\\(]+", ifKeyword));
-			grammar.link(Rule("(case)[ \\t\\r\\n\\(]+", caseKeyword));
-			grammar.link(Rule("(default)[ \\t\\r\\n\\(]+", defaultKeyword));
-			grammar.link(Rule("(while)[ \\t\\r\\n\\(]+", whileKeyword));
-			grammar.link(Rule("(do)[ \\t\\r\\n\\{]+", doKeyword));
-			grammar.link(Rule("(loop)[ \\t\\r\\n\\{]+", loopKeyword));
-			grammar.link(Rule("(for)[ \\t\\r\\n\\(]+", forKeyword));
-			grammar.link(Rule("(repeat)[ \\t\\r\\n\\{]+", repeatKeyword));
-			grammar.link(Rule("(until)[ \\t\\r\\n\\(]+", untilKeyword));
-			grammar.link(Rule("(break)[ \\t\\r\\n;]+", breakKeyword));
-			grammar.link(Rule("(continue)[ \\t\\r\\n;]+", continueKeyword));
+			grammar.link(Rule("(if)" INVERTED, ifKeyword));
+			grammar.link(Rule("(switch)" INVERTED, ifKeyword));
+			grammar.link(Rule("(case)" INVERTED, caseKeyword));
+			grammar.link(Rule("(default)" INVERTED, defaultKeyword));
+			grammar.link(Rule("(while)" INVERTED, whileKeyword));
+			grammar.link(Rule("(do)" INVERTED, doKeyword));
+			grammar.link(Rule("(loop)" INVERTED, loopKeyword));
+			grammar.link(Rule("(for)" INVERTED, forKeyword));
+			grammar.link(Rule("(repeat)" INVERTED, repeatKeyword));
+			grammar.link(Rule("(until)" INVERTED, untilKeyword));
+			grammar.link(Rule("(break)" INVERTED, breakKeyword));
+			grammar.link(Rule("(continue)" INVERTED, continueKeyword));
 
-			grammar.link(Rule("(func)[ \\t\\r\\n]+", funcKeyword));
-			grammar.link(Rule("(proc)[ \\t\\r\\n]+", procKeyword));
-			grammar.link(Rule("(static)[ \\t\\r\\n]+", staticKeyword));
-			grammar.link(Rule("(class)[ \\t\\r\\n]+", classKeyword));
-			grammar.link(Rule("(enum)[ \\t\\r\\n]+", enumKeyword));
-			grammar.link(Rule("(struct)[ \\t\\r\\n]+", structKeyword));
-			grammar.link(Rule("(private)[ \\t\\r\\n]+", privateKeyword));
-			grammar.link(Rule("(public)[ \\t\\r\\n]+", publicKeyword));
-			grammar.link(Rule("(inout)[ \\t\\r\\n]+", inoutKeyword));
-			grammar.link(Rule("(frozen)[ \\t\\r\\n]+", frozenKeyword));
-			grammar.link(Rule("(null)[ \\t\\r\\n;]+", nullKeyword));
-			grammar.link(Rule("(return)[ \\t\\r\\n;\\(]+", returnKeyword));
+			grammar.link(Rule("(func|function)" INVERTED, funcKeyword));
+			grammar.link(Rule("(proc|procedure)" INVERTED, procKeyword));
+			grammar.link(Rule("(static)" INVERTED, staticKeyword));
+			grammar.link(Rule("(class)" INVERTED, classKeyword));
+			grammar.link(Rule("(enum|enumerator)" INVERTED, enumKeyword));
+			grammar.link(Rule("(struct|structure)" INVERTED, structKeyword));
+			grammar.link(Rule("(except|exception)" INVERTED, exceptionKeyword));
+			grammar.link(Rule("(private)" INVERTED, privateKeyword));
+			grammar.link(Rule("(public)" INVERTED, publicKeyword));
+			grammar.link(Rule("(inout)" INVERTED, inoutKeyword));
+			grammar.link(Rule("(frozen)" INVERTED, frozenKeyword));
+			grammar.link(Rule("(null)" INVERTED, nullKeyword));
+			grammar.link(Rule("(return)" INVERTED, returnKeyword));
 
-			grammar.link(Rule("([A-Za-z_][A-Za-z0-9_\\-]+)", identifier));
+			grammar.link(Rule("([A-Za-z_][A-Za-z0-9_]+)" INVERTED, identifier));
 
 		}
 
 		StrongList<Token> tokenize() {
+			String data = input + " ";
+			data = replaceMatches("\n", input, " ");
+			std::cout << data << std::endl;
 			StrongList<Token> tokens = StrongList<Token>();
-			String data = this -> data;
 			UInt32 pos = 0;
+			tokens.link(Token("newFile", newFile, pos));
 			while (data.length() > 0) {
 				bool tokenized = false;
 				for (UInt32 i = 0; i < grammar.count(); i++) {
 					String result = matchCloseStart(grammar[i].pattern, data);
-					if (result.length() != 0) {
+					if (result.length() > 0) {
 						tokenized = true;
 						data = data.subString(result.length());
-						std::cout << data << std::endl;
 						pos += result.length();
 						if (grammar[i].type == empty) break;
 						Token token = Token(result, grammar[i].type, pos);
@@ -265,12 +294,9 @@ namespace Stack {
 						break;
 					}
 				}
-				if (!tokenized) {
-					std::cout << "Error on character: " << pos << std::endl;
-					std::cout << "Found unexpected token." << std::endl;
-					return tokens;
-				}
+				if (!tokenized) throw InvalidTokenException(pos);
 			}
+			tokens.link(Token("endOfFile", endOfFile, pos + 1));
 			return tokens;
 		}
 

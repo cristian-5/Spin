@@ -17,6 +17,7 @@
  */
 
  #include <iostream>
+ #include <string>
 
 #include "Collection/Collection.hpp"
 
@@ -28,19 +29,33 @@ using namespace Collection;
 using namespace Stack;
 
 using UInt32 = std::uint32_t;
+using String = std::string;
 
-Int32 main(Int32 argc, const char * argv[]) {
+#define Char const char *
 
-	Lexer lexer = Lexer("static func hello(there: Int32) throws -> String { return 34.parse(); }");
+Int32 main(Int32 argc, Char argv[]) {
 
-	StrongList<Token> tokens = lexer.tokenize();
+	String s = "\nfor_ ssh \n for\n";
+	Lexer lexer = Lexer(s);
+	cout << s << endl;
+
+	StrongList<Token> tokens = StrongList<Token>();
+
+	try {
+		tokens = lexer.tokenize();
+	} catch (InvalidTokenException & e) {
+		cout << "Error on character: " << e.getPosition() << endl;
+		cout << "Unrecognized expression!" << endl;
+		int x = 0;
+		cin >> x;
+		return EXIT_FAILURE;
+	}
 
 	for (UInt32 i = 0; i < tokens.count(); i++) {
 		cout << tokens[i].type << ":    " << tokens[i].value << endl;
 	}
 
-	int x = 0;
-	cin >> x;
+	Int32 x = 0; cin >> x;
 
 	return EXIT_SUCCESS;
 }
