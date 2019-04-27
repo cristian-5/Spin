@@ -1,8 +1,6 @@
 
 # Stack Syntax RailRoad
 
-## Statements
-
 Here's a *railway* implementation of statements' syntax.
 
 ### If Statement:
