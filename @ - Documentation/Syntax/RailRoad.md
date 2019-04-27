@@ -1,7 +1,11 @@
 
 # Stack Syntax RailRoad
 
-Here's a *railway* implementation of statements' syntax.
+Here's a **railway** implementation of statements' syntax.
+
+- **Keywords** are defined as characters sequences.
+- **Refereces** to other railways are enclosed in square brackets.
+- **Symbols** are defined as isolated characters.
 
 ### If Statement:
 
