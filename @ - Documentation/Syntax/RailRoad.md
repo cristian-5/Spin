@@ -11,6 +11,8 @@ Here's a **railway** implementation of statements' syntax.
 ### Expression:
 ### Statement:
 
+statement can be empty
+
 ### Statements:
 
     + ─╭─ [Statement] ─╮─ +
@@ -21,13 +23,11 @@ Here's a **railway** implementation of statements' syntax.
     + ── if ── ( ── [Expression] ── ) ─╮
     ╭──────────────────────────────────╯
     ╰──╮─────── [Statement] ────────╭─╮
-       ╰─ { ─╭─ [Statement] ─╮─ } ──╯ |
-             ╰────── < ──────╯        |
+       ╰─ { ─── [Statements] ── } ──╯ |
     ╭─────────────────────────────────╯
-    ╰─ else ─╮── [If Statement] ──╭─────────────╭── +
-             ╰──╮──────── [Statement] ────────╭─╯
-                ╰── { ─╭─ [Statement] ─╮─ } ──╯
-                       ╰────── < ──────╯
+    ╰──╮─────────────────────────────────────╭── +
+       ╰─ else ─╮────── [Statement] ───────╭─╯
+                ╰─ { ── [Statements] ── } ─╯
 
 ### Switch Statement:
 ### Repeat While, Do While Statements:
