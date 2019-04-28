@@ -35,7 +35,7 @@ using String = std::string;
 
 Int32 main(Int32 argc, Char argv[]) {
 
-	String s = "\nfor_ ssh \n for\n";
+	String s = "34//bujjbbjjvjbjb\n//guggiug\nlp";
 	Lexer lexer = Lexer(s);
 	cout << s << endl;
 

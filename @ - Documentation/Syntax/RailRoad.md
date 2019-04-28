@@ -11,7 +11,11 @@ Here's a **railway** implementation of statements' syntax.
 ### Expression:
 ### Statement:
 
-statement can be empty
+statement can be empty?
+can't be empty because we need a ; after a catch if it is empty.
+
+    + ──────────────────────────────────────── +
+
 
 ### Statements:
 

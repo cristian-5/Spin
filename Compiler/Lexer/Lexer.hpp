@@ -132,7 +132,7 @@ namespace Stack {
 				SMatch match;
 				regexSearch(input, match, regex);
 				if (match.size() > 1) {
-					for (int i = 1; i < match.size(); i++) {
+					for (Int32 i = 1; i < match.size(); i++) {
 						result.link(match.str(i));
 					}
 				} else return StrongList<String>();
@@ -184,6 +184,26 @@ namespace Stack {
 			return input;
 		}
 
+		/* MARK: - Handle Comments */
+
+		String handleComments(String input) {
+			if (input.length() == 0) return input;
+			try {
+				Regex regex("\\/[\\/]+.*");
+				SMatch match;
+				regexSearch(input, match, regex);
+				while (match.size() >= 1) {
+					UInt32 len = match.str(0).length();
+					UInt32 pos = match.position(0);
+					for (UInt32 i = pos; i < pos + len; i++) {
+						input[i] = ' ';
+					}
+					regexSearch(input, match, regex);
+				}
+			} catch (RegexError & e) { }
+			return input;
+		}
+
 		/* MARK: - Private Data */
 
 		StrongList<Rule> grammar = StrongList<Rule>();
@@ -198,7 +218,6 @@ namespace Stack {
 
 			grammar.link(Rule("([ \\t\\n]+)", empty));
 			grammar.link(Rule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment));
-			grammar.link(Rule("(\\/[\\/]+.*)", comment));
 
 			grammar.link(Rule("(-?[0-9]+\\.[0-9]+)", realLiteral));
 			grammar.link(Rule("(-?[0-9]+)", integerLiteral));
@@ -255,27 +274,31 @@ namespace Stack {
 			grammar.link(Rule("(break)" INVERTED, breakKeyword));
 			grammar.link(Rule("(continue)" INVERTED, continueKeyword));
 
-			grammar.link(Rule("(func|function)" INVERTED, funcKeyword));
-			grammar.link(Rule("(proc|procedure)" INVERTED, procKeyword));
+			grammar.link(Rule("(func)" INVERTED, funcKeyword));
+			grammar.link(Rule("(proc)" INVERTED, procKeyword));
 			grammar.link(Rule("(static)" INVERTED, staticKeyword));
 			grammar.link(Rule("(class)" INVERTED, classKeyword));
-			grammar.link(Rule("(enum|enumerator)" INVERTED, enumKeyword));
-			grammar.link(Rule("(struct|structure)" INVERTED, structKeyword));
-			grammar.link(Rule("(except|exception)" INVERTED, exceptionKeyword));
+			grammar.link(Rule("(enumerator)" INVERTED, enumKeyword));
+			grammar.link(Rule("(structure)" INVERTED, structKeyword));
+			grammar.link(Rule("(exception)" INVERTED, exceptKeyword));
 			grammar.link(Rule("(private)" INVERTED, privateKeyword));
 			grammar.link(Rule("(public)" INVERTED, publicKeyword));
 			grammar.link(Rule("(inout)" INVERTED, inoutKeyword));
-			grammar.link(Rule("(frozen)" INVERTED, frozenKeyword));
+			grammar.link(Rule("(const)" INVERTED, frozenKeyword));
 			grammar.link(Rule("(null)" INVERTED, nullKeyword));
 			grammar.link(Rule("(return)" INVERTED, returnKeyword));
 
-			grammar.link(Rule("([A-Za-z_][A-Za-z0-9_]+)" INVERTED, identifier));
+			grammar.link(Rule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, identifier));
 
 		}
 
 		StrongList<Token> tokenize() {
-			String data = input + " ";
-			data = replaceMatches("\n", input, " ");
+			// Handle Last Token:
+			String data = input + "\n";
+			// Handle Single Line Comments:
+			data = handleComments(data);
+			// Handle EndLines:
+			data = replaceMatches("\n", data, " ");
 			std::cout << data << std::endl;
 			StrongList<Token> tokens = StrongList<Token>();
 			UInt32 pos = 0;
@@ -289,6 +312,7 @@ namespace Stack {
 						data = data.subString(result.length());
 						pos += result.length();
 						if (grammar[i].type == empty) break;
+						if (grammar[i].type == comment) break;
 						Token token = Token(result, grammar[i].type, pos);
 						tokens.link(token);
 						break;
