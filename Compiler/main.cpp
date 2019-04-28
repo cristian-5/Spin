@@ -35,7 +35,7 @@ using String = std::string;
 
 Int32 main(Int32 argc, Char argv[]) {
 
-	String s = "34//bujjbbjjvjbjb\n//guggiug\nlp";
+	String s = "for (Int32 i = 0; i < x; i++)";
 	Lexer lexer = Lexer(s);
 	cout << s << endl;
 
