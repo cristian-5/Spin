@@ -140,7 +140,7 @@ Here's a **railway** implementation of statements' syntax.
 
 ## Declarations
 
-This part focuses on "objects" declaration.
+This part focuses on *"objects"* declaration.
 
 
 
