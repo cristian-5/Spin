@@ -76,10 +76,10 @@ Here's a **railway** implementation of statements' syntax.
 ### Literal:
 
     + ─╮── > ── stringLiteral ───── > ──╭─ +
-	   ╰── > ── integerLiteral ──── > ──╯
-	   ╰── > ── charLiteral ─────── > ──╯
-	   ╰── > ── boolLiteral ─────── > ──╯
-	   ╰── > ── realLiteral ─────── > ──╯
+       ╰── > ── integerLiteral ──── > ──╯
+       ╰── > ── charLiteral ─────── > ──╯
+       ╰── > ── boolLiteral ─────── > ──╯
+       ╰── > ── realLiteral ─────── > ──╯
 
 ### If Statement:
 
