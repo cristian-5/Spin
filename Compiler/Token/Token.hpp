@@ -108,6 +108,8 @@ namespace Stack {
 		nullKeyword,
 		returnKeyword,
 
+		nop,
+
 		endOfFile
 
 	};
