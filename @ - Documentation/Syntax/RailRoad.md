@@ -31,7 +31,7 @@ Here's a **railway** implementation of statements' syntax.
        ╰── > ── [Avoid Statement] ────────── > ──╯
        ╰── > ── [Throw Statement] ────────── > ──╯
        |                                         |
-       ╰── > ── [Expression] ─────────────── > ──╯
+       ╰── > ── [Expression Statement] ───── > ──╯
        |                                         |
        ╰── > ── [Class Declaration] ──────── > ──╯
        ╰── > ── [Exception Declaration] ──── > ──╯
@@ -45,6 +45,10 @@ Here's a **railway** implementation of statements' syntax.
        ╰── > ── [Return Statement] ───────── > ──╯
        ╰── > ── [Break Statement] ────────── > ──╯
        ╰── > ── [Continue Statement] ─────── > ──╯
+
+### Expression Statement:
+
+    + ── [Expression] ── ; ── +
 
 ### Statements:
 
@@ -69,7 +73,47 @@ Here's a **railway** implementation of statements' syntax.
 
     + ── continue ── ; ── +
 
+### Subscription:
+
+    + ── [Expression] ── [ ── [Expression] ── ] ── +
+
+### Expression Precedence:
+
+    + ── ( ── [Expression] ── ) ── +
+
 ### Expression:
+
+    + ─╮── > ── [Literals] ───────────────── > ──╭─ +
+	   |                                         |
+       ╰── > ── [Expression Precedence] ──── > ──╯
+	   |                                         |
+	   ╰── > ── [Subscription] ───────────── > ──╯
+	   |                                         |
+       ╰── > ── [Assignment] ─────────────── > ──╯
+       |                                         |
+	   ╰── > ── [Prefix Operation] ───────── > ──╯
+       ╰── > ── [Infix Operation] ────────── > ──╯
+	   ╰── > ── [Postfix Operation] ──────── > ──╯
+	   |                                         |
+	   ╰── > ── [Function Call] ──────────── > ──╯
+
+### Assignment:
+
+    + ── [Expression] ── = ── [Expression] ── +
+
+### Prefix Operation:
+
+    + ── prefixOperator ── [Expression] ── +
+
+### Infix Operation:
+
+    + ── [Expression] ── infixOperator ── [Expression] ── +
+
+### Postfix Operation:
+
+    + ── [Expression] ── postfixOperator ── +
+
+### Function Call:
 
 
 
