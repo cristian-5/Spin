@@ -65,16 +65,16 @@ namespace Collection {
 		};
 
 		/*! @brief Root element. */
-		Node * root = NULL;
+		Node * root = nullptr;
 		/*! @brief Leaf element. */
-		Node * leaf = NULL;
+		Node * leaf = nullptr;
 
 		/*! @brief Prepares the first element. */
 		void seed(Type & val) {
 			Node * node = new Node;
 			node -> value = val;
-			node -> prev = NULL;
-			node -> next = NULL;
+			node -> prev = nullptr;
+			node -> next = nullptr;
 			root = node; leaf = node;
 		}
 
@@ -219,7 +219,7 @@ namespace Collection {
 				Node * node = new Node;
 				node -> value = val;
 				node -> prev = leaf;
-				node -> next = NULL;
+				node -> next = nullptr;
 				leaf = node;
 				node -> prev -> next = node;
 			}
@@ -245,8 +245,8 @@ namespace Collection {
 			if (pos >= size) throw InvalidIndexException();
 			Node * node = new Node;
 			node -> value = val;
-			node -> prev = NULL;
-			node -> next = NULL;
+			node -> prev = nullptr;
+			node -> next = nullptr;
 			if (pos < size / 2) {
 				Node * pointer = root;
 				for (UInt32 i = 0; i < pos; i++) {
@@ -288,8 +288,8 @@ namespace Collection {
 			if (pos >= size - 1) throw InvalidIndexException();
 			Node * node = new Node;
 			node -> value = val;
-			node -> prev = NULL;
-			node -> next = NULL;
+			node -> prev = nullptr;
+			node -> next = nullptr;
 			if (pos < size / 2) {
 				Node * pointer = root;
 				for (UInt32 i = 0; i < pos; i++) {
@@ -325,7 +325,7 @@ namespace Collection {
 			else {
 				Node * node = new Node;
 				node -> value = val;
-				node -> prev = NULL;
+				node -> prev = nullptr;
 				node -> next = root;
 				root = node;
 				node -> next -> prev = node;

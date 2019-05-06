@@ -63,13 +63,13 @@ namespace Collection {
 		};
 
 		/*! @brief Root element. */
-		Node * root = NULL;
+		Node * root = nullptr;
 
 		/*! @brief Prepares the first element. */
 		void seed(Type & val) {
 			root = new Node;
 			root -> value = val;
-			root -> next = NULL;
+			root -> next = nullptr;
 		}
 
 	public:
@@ -185,9 +185,9 @@ namespace Collection {
 			else {
 				Node * node = new Node;
 				node -> value = val;
-				node -> next = NULL;
+				node -> next = nullptr;
 				Node * pointer = root;
-				while (pointer -> next != NULL) {
+				while (pointer -> next != nullptr) {
 					pointer = pointer -> next;
 				}
 				pointer -> next = node;
@@ -212,7 +212,7 @@ namespace Collection {
 			if (pos >= size) throw InvalidIndexException();
 			Node * node = new Node;
 			node -> value = val;
-			node -> next = NULL;
+			node -> next = nullptr;
 			Node * pointer = root;
 			for (UInt32 i = 0; i < pos - 1; i++) {
 				pointer = pointer -> next;
@@ -239,7 +239,7 @@ namespace Collection {
 			if (pos >= size) throw InvalidIndexException();
 			Node * node = new Node;
 			node -> value = val;
-			node -> next = NULL;
+			node -> next = nullptr;
 			Node * pointer = root;
 			for (UInt32 i = 0; i < pos; i++) {
 				pointer = pointer -> next;
@@ -289,7 +289,7 @@ namespace Collection {
 				}
 				Node * p = pointer;
 				Node * c = pointer -> next;
-				Node * n = c == NULL ? NULL : c -> next;
+				Node * n = c == nullptr ? nullptr : c -> next;
 				p -> next = n;
 				delete c;
 				size--;
@@ -331,7 +331,7 @@ namespace Collection {
 			}
 			Node * last = pointer -> next;
 			delete last;
-			pointer -> next = NULL;
+			pointer -> next = nullptr;
 			size--;
 		}
 

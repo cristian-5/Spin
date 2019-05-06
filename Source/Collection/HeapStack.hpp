@@ -63,13 +63,13 @@ namespace Collection {
 		};
 
 		/*! @brief Root element. */
-		Node * root = NULL;
+		Node * root = nullptr;
 
 		/*! @brief Prepares the first element. */
 		void seed(Type & val) {
 			root = new Node;
 			root -> value = val;
-			root -> next = NULL;
+			root -> next = nullptr;
 		}
 
 	public:

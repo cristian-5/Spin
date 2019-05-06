@@ -65,7 +65,7 @@ namespace Collection {
 		};
 
 		/*! @brief Root element. */
-		Node * root = NULL;
+		Node * root = nullptr;
 
 		/*! @brief Prepares the first element. */
 		void seed(Type & val) {
@@ -190,7 +190,7 @@ namespace Collection {
 			else {
 				Node * node = new Node;
 				node -> value = val;
-				node -> next = NULL;
+				node -> next = nullptr;
 				Node * pointer = root;
 				while (pointer -> next != root) {
 					pointer = pointer -> next;
