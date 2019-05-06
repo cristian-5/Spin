@@ -5,7 +5,9 @@ Stack Programming Language
 
 High level programming language for quantum
 computing based on C++, Swift C#.
-The documentation contains the language specification.
+The documentation contains the language syntax specification.
+
+- [**Syntax Specification**](Documentation/Syntax/)
 
 ## Compilation
 

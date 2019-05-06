@@ -22,11 +22,6 @@ Here's a **railway** implementation of statements' syntax.
     + ─╭─ [Statement] ─╮─ +
        ╰────── < ──────╯
 
-### Code Block:
-
-    + ── { ─╮────── > ───────╭─ } ── +
-            ╰─ [Statements] ─╯
-
 ### Return Statement:
 
     + ── return ──╮────── > ───────╭── ; ── +
