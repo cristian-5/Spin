@@ -26,7 +26,7 @@ From the *Terminal* app change the current directory to
 the Stack project directory.
 Execute the following to compile using **clang++**:
 
-    cd Compiler
+    cd Source
 	clang++ -o Main Main.cpp -std=c++17
 
 This creates a `Main` file in the same folder;
@@ -38,7 +38,7 @@ Open up Visual Studio Developer Console and change
 the working directory to the Stack project directory.
 Execute the following to compile using **cl**:
 
-    cd Compiler
+    cd Source
     cl /EHsc Main.cpp
 
 This creates a `Main.obj` and a `Main.exe` file in the
