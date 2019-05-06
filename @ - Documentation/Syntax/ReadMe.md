@@ -4,7 +4,7 @@
 Here's a **railway** implementation of statements' syntax.
 
 - **Tokens** are defined as characters sequences.
-- **Refereces** to other railways are enclosed in square brackets.
+- **References** to other railways are enclosed in square brackets.
 - **Symbols** are defined as isolated characters.
 - **Loops** (self references) are defined as loops and arrows.
 

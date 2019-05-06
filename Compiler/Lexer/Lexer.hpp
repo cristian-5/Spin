@@ -285,8 +285,9 @@ namespace Stack {
 			grammar.link(* (new Rule("(private)" INVERTED, privateKeyword)));
 			grammar.link(* (new Rule("(public)" INVERTED, publicKeyword)));
 			grammar.link(* (new Rule("(inout)" INVERTED, inoutKeyword)));
-			grammar.link(* (new Rule("(const)" INVERTED, frozenKeyword)));
+			grammar.link(* (new Rule("(const)" INVERTED, constKeyword)));
 			grammar.link(* (new Rule("(null)" INVERTED, nullKeyword)));
+			grammar.link(* (new Rule("(nope?)" INVERTED, nop)));
 			grammar.link(* (new Rule("(return)" INVERTED, returnKeyword)));
 
 			grammar.link(* (new Rule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, identifier)));

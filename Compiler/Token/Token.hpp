@@ -104,7 +104,7 @@ namespace Stack {
 		privateKeyword,
 		publicKeyword,
 		inoutKeyword,
-		frozenKeyword,
+		constKeyword,
 		nullKeyword,
 		returnKeyword,
 

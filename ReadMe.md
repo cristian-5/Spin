@@ -4,13 +4,13 @@
 Stack Programming Language
 
 High level programming language for quantum
-computing based on C#, C++, Swift.
+computing based on C++, Swift C#.
 The documentation contains the language specification.
 
 ## Compilation
 
-This code is written in c++17 so don't try to build
-it using an older version.
+This code is written in **c++17** so don't try to build
+it using an *older version*.
 
 The Compiler must be compiled using *g++*,
 *clang++* or *Visual Studio*.
