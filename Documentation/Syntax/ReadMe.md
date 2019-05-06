@@ -3,48 +3,15 @@
 
 Here's a **railway** implementation of statements' syntax.
 
-- **Tokens** are defined as characters sequences.
+- **Tokens** are defined as regex objects.
 - **References** to other railways are enclosed in square brackets.
 - **Symbols** are defined as isolated characters.
 - **Loops** (self references) are defined as loops and arrows.
 
-### No Operation:
+### Index
 
-    + ─╮─── > ───╭─ ; ── +
-       ╰── nop ──╯
-
-### Statement:
-
-    + ─╮── > ── [Code Block] ─────────────── > ──╭─ +
-       |                                         |
-       ╰── > ── [If Statement] ───────────── > ──╯
-       ╰── > ── [Switch Statement] ───────── > ──╯
-       |                                         |
-       ╰── > ── [Do While Statement] ─────── > ──╯
-       ╰── > ── [Repeat Until Statement] ─── > ──╯
-       ╰── > ── [Loop Statement] ─────────── > ──╯
-       |                                         |
-       ╰── > ── [For Statement] ──────────── > ──╯
-       ╰── > ── [For Each Statement] ─────── > ──╯
-       |                                         |
-       ╰── > ── [Try Catch Statement] ────── > ──╯
-       ╰── > ── [Avoid Statement] ────────── > ──╯
-       ╰── > ── [Throw Statement] ────────── > ──╯
-       |                                         |
-       ╰── > ── [Expression Statement] ───── > ──╯
-       |                                         |
-       ╰── > ── [Class Declaration] ──────── > ──╯
-       ╰── > ── [Exception Declaration] ──── > ──╯
-       ╰── > ── [Structure Declaration] ──── > ──╯
-       ╰── > ── [Enumerator Declaration] ─── > ──╯
-       ╰── > ── [Function Declaration] ───── > ──╯
-       ╰── > ── [Variable Declaration] ───── > ──╯
-       |                                         |
-       ╰── > ── [No Operation] ───────────── > ──╯
-       |                                         |
-       ╰── > ── [Return Statement] ───────── > ──╯
-       ╰── > ── [Break Statement] ────────── > ──╯
-       ╰── > ── [Continue Statement] ─────── > ──╯
+- [**Statement**](RailRoads/Statement.md)
+- [**No Operation**](RailRoads/No-Operation.md)
 
 ### Expression Statement:
 
