@@ -21,6 +21,8 @@
 
 #include <iostream>
 
+using Exception = std::exception;
+
 /* MARK: - Heap Exceptions - */
 
 /*!
@@ -37,9 +39,9 @@ namespace Collection {
 	 *   or underflows the list bounds.
 	 *   @author Cristian A.
 	 */
-	class InvalidIndexException: public std::exception {
+	class InvalidIndexException: public Exception {
 	public:
-		InvalidIndexException(): std::exception() { }
+		InvalidIndexException(): Exception() { }
 	};
 
 	/*!
@@ -48,9 +50,9 @@ namespace Collection {
 	 *   to remove is invalid.
 	 *   @author Cristian A.
 	 */
-	class ElementCountException: public std::exception {
+	class ElementCountException: public Exception {
 	public:
-		ElementCountException(): std::exception() { }
+		ElementCountException(): Exception() { }
 	};
 
 	/*!
@@ -58,9 +60,9 @@ namespace Collection {
 	 *   Raised when the element can't be found.
 	 *   @author Cristian A.
 	 */
-	class ElementNotFoundException: public std::exception {
+	class ElementNotFoundException: public Exception {
 	public:
-		ElementNotFoundException(): std::exception() { }
+		ElementNotFoundException(): Exception() { }
 	};
 
 	/*!
@@ -69,9 +71,9 @@ namespace Collection {
 	 *   an operation on an empty list.
 	 *   @author Cristian A.
 	 */
-	class EmptyListException: public std::exception {
+	class EmptyListException: public Exception {
 	public:
-		EmptyListException(): std::exception() { }
+		EmptyListException(): Exception() { }
 	};
 
 	/*!
@@ -80,9 +82,9 @@ namespace Collection {
 	 *   an operation on an empty loop.
 	 *   @author Cristian A.
 	 */
-	class EmptyLoopException: public std::exception {
+	class EmptyLoopException: public Exception {
 	public:
-		EmptyLoopException(): std::exception() { }
+		EmptyLoopException(): Exception() { }
 	};
 
 	/*!
@@ -92,9 +94,9 @@ namespace Collection {
 	 *   value of 0 on a loop.
 	 *   @author Cristian A.
 	 */
-	class HangingInLoopException: public std::exception {
+	class HangingInLoopException: public Exception {
 	public:
-		HangingInLoopException(): std::exception() { }
+		HangingInLoopException(): Exception() { }
 	};
 
 	/*!
@@ -103,9 +105,9 @@ namespace Collection {
 	 *   pop operation on an empty stack.
 	 *   @author Cristian A.
 	 */
-	class EmptyStackException: public std::exception {
+	class EmptyStackException: public Exception {
 	public:
-		EmptyStackException(): std::exception() { }
+		EmptyStackException(): Exception() { }
 	};
 
 }

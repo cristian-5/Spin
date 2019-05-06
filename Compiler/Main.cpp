@@ -16,8 +16,8 @@
  *
  */
 
- #include <iostream>
- #include <string>
+#include <iostream>
+#include <string>
 
 #include "Collection/Collection.hpp"
 

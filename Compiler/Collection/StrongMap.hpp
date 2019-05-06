@@ -26,6 +26,7 @@
 
 using UInt32 = std::uint32_t;
 using Int32 = std::int32_t;
+using Exception = std::exception;
 
 /* MARK: - Strong Map - */
 
@@ -109,7 +110,7 @@ namespace Collection {
 		 */
 		Element & operator [] (UInt32 pos) {
 			try { return map[pos]; }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/* MARK: - Node Operations */
@@ -131,7 +132,7 @@ namespace Collection {
 		 */
 		Element getNode(UInt32 pos) {
 			try { map.getNode(pos); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -150,7 +151,7 @@ namespace Collection {
 		 */
 		void setNode(UInt32 pos, Element & val) {
 			try { map.setNode(pos, val); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/* MARK: - Linking Operations */
@@ -165,7 +166,7 @@ namespace Collection {
 		 */
 		void link(Element & val) {
 			try { map.link(val); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -180,7 +181,7 @@ namespace Collection {
 			try {
 				Element node = { key, val };
 				map.link(node);
-			} catch (exception & e) { throw; }
+			} catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -199,7 +200,7 @@ namespace Collection {
 		 */
 		void linkBefore(UInt32 pos, Element & val) {
 			try { map.linkBefore(pos, val); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -218,7 +219,7 @@ namespace Collection {
 		 */
 		void linkAfter(UInt32 pos, Element & val) {
 			try { map.linkAfter(pos, val); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -231,7 +232,7 @@ namespace Collection {
 		 */
 		void hang(Element & val) {
 			try { map.hang(val); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -246,7 +247,7 @@ namespace Collection {
 			try {
 				Element node = { key, val };
 				map.hang(node);
-			} catch (exception & e) { throw; }
+			} catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -264,7 +265,7 @@ namespace Collection {
 		 */
 		void unlink(UInt32 pos) {
 			try { map.unlink(pos); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -275,7 +276,7 @@ namespace Collection {
 		 */
 		void unlinkFirst() {
 			try { map.unlinkFirst(); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -286,7 +287,7 @@ namespace Collection {
 		 */
 		void unlinkLast() {
 			try { map.unlinkLast(); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/* MARK: - Reduce */
@@ -302,7 +303,7 @@ namespace Collection {
 		 */
 		void reduceRoot(UInt32 n) {
 			try { map.reduceRoot(n); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
@@ -316,7 +317,7 @@ namespace Collection {
 		 */
 		void reduceLeaf(UInt32 n) {
 			try { map.reduceLeaf(n); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/* MARK: - Finding */
@@ -430,7 +431,7 @@ namespace Collection {
 		 */
 		void clean() {
 			try { map.clean(); }
-			catch (exception & e) { throw; }
+			catch (Exception & e) { throw; }
 		}
 
 		/*!
