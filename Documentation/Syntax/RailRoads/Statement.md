@@ -40,33 +40,33 @@ A *Declaration* is also considered a **Statement**.
 
 ### Declarations used in this Rail:
 
-- [**Code Block**](RailRoads/Code-Block.md)
+- [**Code Block**](Code-Block.md)
 
-- [**If Statement**](RailRoads/If-Statement.md)
-- [**Switch Statement**](RailRoads/Switch-Statement.md)
+- [**If Statement**](If-Statement.md)
+- [**Switch Statement**](Switch-Statement.md)
 
-- [**Do While Statement**](RailRoads/Do-While-Statement.md)
-- [**Repeat Until Statement**](RailRoads/Repeat-Until-Statement.md)
-- [**Loop Statement**](RailRoads/Loop-Statement.md)
+- [**Do While Statement**](Do-While-Statement.md)
+- [**Repeat Until Statement**](Repeat-Until-Statement.md)
+- [**Loop Statement**](Loop-Statement.md)
 
-- [**For Statement**](RailRoads/For-Statement.md)
-- [**For Each Statement**](RailRoads/For-Each-Statement.md)
+- [**For Statement**](For-Statement.md)
+- [**For Each Statement**](For-Each-Statement.md)
 
-- [**Try Catch Statement**](RailRoads/Try-Catch-Statement.md)
-- [**Avoid Statement**](RailRoads/Avoid-Statement.md)
-- [**Throw Statement**](RailRoads/Throw-Statement.md)
+- [**Try Catch Statement**](Try-Catch-Statement.md)
+- [**Avoid Statement**](Avoid-Statement.md)
+- [**Throw Statement**](Throw-Statement.md)
 
-- [**Expression Statement**](RailRoads/Expression-Statement.md)
+- [**Expression Statement**](Expression-Statement.md)
 
-- [**Class Declaration**](RailRoads/Class-Declaration.md)
-- [**Exception Declaration**](RailRoads/Exception-Declaration.md)
-- [**Structure Declaration**](RailRoads/Structure-Declaration.md)
-- [**Enumerator Declaration**](RailRoads/Enumerator-Declaration.md)
-- [**Function Declaration**](RailRoads/Function-Declaration.md)
-- [**Variable Declaration**](RailRoads/Variable-Declaration.md)
+- [**Class Declaration**](Class-Declaration.md)
+- [**Exception Declaration**](Exception-Declaration.md)
+- [**Structure Declaration**](Structure-Declaration.md)
+- [**Enumerator Declaration**](Enumerator-Declaration.md)
+- [**Function Declaration**](Function-Declaration.md)
+- [**Variable Declaration**](Variable-Declaration.md)
 
-- [**No Operation**](RailRoads/No-Operation.md)
+- [**No Operation**](No-Operation.md)
 
-- [**Return Statement**](RailRoads/Return-Statement.md)
-- [**Break Statement**](RailRoads/Break-Statement.md)
-- [**Continue Statement**](RailRoads/Continue-Statement.md)
+- [**Return Statement**](Return-Statement.md)
+- [**Break Statement**](Break-Statement.md)
+- [**Continue Statement**](Continue-Statement.md)
