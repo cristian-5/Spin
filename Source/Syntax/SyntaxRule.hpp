@@ -71,6 +71,25 @@ namespace Stack {
 
 	};
 
+	class Grammar {
+
+	public:
+
+		StrongList<SyntaxRule *> nextRules = StrongList<SyntaxRule *>();
+
+		Grammar() { }
+
+		Grammar(StrongList<SyntaxRule *> & r) {
+			nextRules = r;
+		}
+		Grammar(SyntaxRule * & r) {
+			nextRules.link(r);
+		}
+
+		Boolean isEmpty() { return nextRules.isEmpty(); }
+
+	};
+
 }
 
 #endif
