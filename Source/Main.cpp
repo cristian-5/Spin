@@ -55,7 +55,7 @@ Int32 main(Int32 argc, Char argv[]) {
 		cout << tokens[i].type << ":    " << tokens[i].value << endl;
 	}*/
 
-	Grammar * ifStatement = new Grammar();
+	/*Grammar * ifStatement = new Grammar();
 
 	Token * ifToken = new Token("if", ifKeyword);
 	Token * forToken = new Token("for", forKeyword);
@@ -64,6 +64,10 @@ Int32 main(Int32 argc, Char argv[]) {
 	Token * semi = new Token(";", semicolon);
 
 	Rule * sR = new Rule(semi);
+	Rule * bR = new Rule(breakToken);
+	bR -> addNextRule(sR);
+	bR -> addNextRule(bR);
+*/
 
 
 
