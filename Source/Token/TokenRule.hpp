@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Syntax.hpp                             |
+ *    |  TokenRule.hpp                          |
  *    |                                         |
- *    |                  Syntax                 |
+ *    |                 TokenRule               |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,28 +16,31 @@
  *
  */
 
-#ifndef STACKSYNTAX
-#define STACKSYNTAX
+#ifndef STACKRULE
+#define STACKRULE
 
 #include <iostream>
 #include <string>
 
-#include "Grammar.hpp"
+#include "Token.hpp"
 
 using String = std::string;
-using UInt32 = std::uint32_t;
 
 /*! @brief Namespace Stack */
 namespace Stack {
 
-	class Syntax {
+	/*! @brief TokenRule Class. */
+	class TokenRule {
 
 	public:
 
+		TokenType type = empty;
+		String pattern = "";
 
+		TokenRule() { }
 
-		Syntax() {
-			
+		TokenRule(String p, TokenType t) {
+			pattern = p; type = t;
 		}
 
 	};

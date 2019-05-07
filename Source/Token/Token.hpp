@@ -82,6 +82,7 @@ namespace Stack {
 		avoidKeyword,
 
 		ifKeyword,
+		elseKeyword,
 		switchKeyword,
 		caseKeyword,
 		defaultKeyword,
@@ -130,7 +131,7 @@ namespace Stack {
 
 		Token() { }
 
-		Token(String token, TokenType type, UInt32 pos) {
+		Token(String token, TokenType type, UInt32 pos = 0) {
 			this -> value = token;
 			this -> type = type;
 			this -> position = pos;

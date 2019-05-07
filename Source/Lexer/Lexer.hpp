@@ -26,7 +26,7 @@
 #include "../Collection/Collection.hpp"
 
 #include "../Token/Token.hpp"
-#include "../Token/Rule.hpp"
+#include "../Token/TokenRule.hpp"
 
 using String = std::string;
 using SMatch = std::smatch;
@@ -65,7 +65,7 @@ namespace Stack {
 		UInt32 getPosition() { return position; }
 
 		InvalidTokenException(UInt32 character):
-		std::exception(), position(character) { }
+		Exception(), position(character) { }
 
 	};
 
@@ -207,7 +207,7 @@ namespace Stack {
 
 		/* MARK: - Private Data */
 
-		StrongList<Rule> grammar = StrongList<Rule>();
+		StrongList<TokenRule> grammar = StrongList<TokenRule>();
 
 	public:
 
@@ -217,80 +217,81 @@ namespace Stack {
 
 			input = data;
 
-			grammar.link(* (new Rule("([ \\t\\n]+)", empty)));
-			grammar.link(* (new Rule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment)));
+			grammar.link(* (new TokenRule("([ \\t\\n]+)", empty)));
+			grammar.link(* (new TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment)));
 
-			grammar.link(* (new Rule("(-?[0-9]+\\.[0-9]+)", realLiteral)));
-			grammar.link(* (new Rule("(-?[0-9]+)", integerLiteral)));
-			grammar.link(* (new Rule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral)));
-			grammar.link(* (new Rule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral)));
-			grammar.link(* (new Rule("(true|false)" INVERTED, boolLiteral)));
+			grammar.link(* (new TokenRule("(-?[0-9]+\\.[0-9]+)", realLiteral)));
+			grammar.link(* (new TokenRule("(-?[0-9]+)", integerLiteral)));
+			grammar.link(* (new TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral)));
+			grammar.link(* (new TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral)));
+			grammar.link(* (new TokenRule("(true|false)" INVERTED, boolLiteral)));
 
-			grammar.link(* (new Rule("(\\:)", colon)));
-			grammar.link(* (new Rule("(\\;)", semicolon)));
-			grammar.link(* (new Rule("(\\,)", comma)));
-			grammar.link(* (new Rule("(\\.)", dot)));
-			grammar.link(* (new Rule("(<)", minor)));
-			grammar.link(* (new Rule("(>)", major)));
-			grammar.link(* (new Rule("(=)", equal)));
-			grammar.link(* (new Rule("(\\?)", questionMark)));
-			grammar.link(* (new Rule("(\\!)", exclamationMark)));
+			grammar.link(* (new TokenRule("(\\:)", colon)));
+			grammar.link(* (new TokenRule("(\\;)", semicolon)));
+			grammar.link(* (new TokenRule("(\\,)", comma)));
+			grammar.link(* (new TokenRule("(\\.)", dot)));
+			grammar.link(* (new TokenRule("(<)", minor)));
+			grammar.link(* (new TokenRule("(>)", major)));
+			grammar.link(* (new TokenRule("(=)", equal)));
+			grammar.link(* (new TokenRule("(\\?)", questionMark)));
+			grammar.link(* (new TokenRule("(\\!)", exclamationMark)));
 
-			grammar.link(* (new Rule("(\\+)", plus)));
-			grammar.link(* (new Rule("(-)", minus)));
-			grammar.link(* (new Rule("(\\*)", star)));
-			grammar.link(* (new Rule("(\\\\)", backslash)));
-			grammar.link(* (new Rule("(\\/)", slash)));
-			grammar.link(* (new Rule("(@)", at)));
-			grammar.link(* (new Rule("(|)", pipe)));
-			grammar.link(* (new Rule("(#)", hashtag)));
-			grammar.link(* (new Rule("(&)", ampersand)));
-			grammar.link(* (new Rule("(%)", modulus)));
-			grammar.link(* (new Rule("($)", dollar)));
-			grammar.link(* (new Rule("(^)", hat)));
+			grammar.link(* (new TokenRule("(\\+)", plus)));
+			grammar.link(* (new TokenRule("(-)", minus)));
+			grammar.link(* (new TokenRule("(\\*)", star)));
+			grammar.link(* (new TokenRule("(\\\\)", backslash)));
+			grammar.link(* (new TokenRule("(\\/)", slash)));
+			grammar.link(* (new TokenRule("(@)", at)));
+			grammar.link(* (new TokenRule("(|)", pipe)));
+			grammar.link(* (new TokenRule("(#)", hashtag)));
+			grammar.link(* (new TokenRule("(&)", ampersand)));
+			grammar.link(* (new TokenRule("(%)", modulus)));
+			grammar.link(* (new TokenRule("($)", dollar)));
+			grammar.link(* (new TokenRule("(^)", hat)));
 
-			grammar.link(* (new Rule("(\\()", openRoundBracket)));
-			grammar.link(* (new Rule("(\\))", closeRoundBracket)));
-			grammar.link(* (new Rule("(\\[)", openSquareBracket)));
-			grammar.link(* (new Rule("(\\])", closeSquareBracket)));
-			grammar.link(* (new Rule("(\\{)", openCurlyBracket)));
-			grammar.link(* (new Rule("(\\})", closeCurlyBracket)));
+			grammar.link(* (new TokenRule("(\\()", openRoundBracket)));
+			grammar.link(* (new TokenRule("(\\))", closeRoundBracket)));
+			grammar.link(* (new TokenRule("(\\[)", openSquareBracket)));
+			grammar.link(* (new TokenRule("(\\])", closeSquareBracket)));
+			grammar.link(* (new TokenRule("(\\{)", openCurlyBracket)));
+			grammar.link(* (new TokenRule("(\\})", closeCurlyBracket)));
 
-			grammar.link(* (new Rule("(try)" INVERTED, tryKeyword)));
-			grammar.link(* (new Rule("(catch)" INVERTED, catchKeyword)));
-			grammar.link(* (new Rule("(throw)" INVERTED, throwKeyword)));
-			grammar.link(* (new Rule("(throws)" INVERTED, throwsKeyword)));
-			grammar.link(* (new Rule("(avoid)" INVERTED, avoidKeyword)));
+			grammar.link(* (new TokenRule("(try)" INVERTED, tryKeyword)));
+			grammar.link(* (new TokenRule("(catch)" INVERTED, catchKeyword)));
+			grammar.link(* (new TokenRule("(throw)" INVERTED, throwKeyword)));
+			grammar.link(* (new TokenRule("(throws)" INVERTED, throwsKeyword)));
+			grammar.link(* (new TokenRule("(avoid)" INVERTED, avoidKeyword)));
 
-			grammar.link(* (new Rule("(if)" INVERTED, ifKeyword)));
-			grammar.link(* (new Rule("(switch)" INVERTED, ifKeyword)));
-			grammar.link(* (new Rule("(case)" INVERTED, caseKeyword)));
-			grammar.link(* (new Rule("(default)" INVERTED, defaultKeyword)));
-			grammar.link(* (new Rule("(while)" INVERTED, whileKeyword)));
-			grammar.link(* (new Rule("(do)" INVERTED, doKeyword)));
-			grammar.link(* (new Rule("(loop)" INVERTED, loopKeyword)));
-			grammar.link(* (new Rule("(for)" INVERTED, forKeyword)));
-			grammar.link(* (new Rule("(repeat)" INVERTED, repeatKeyword)));
-			grammar.link(* (new Rule("(until)" INVERTED, untilKeyword)));
-			grammar.link(* (new Rule("(break)" INVERTED, breakKeyword)));
-			grammar.link(* (new Rule("(continue)" INVERTED, continueKeyword)));
+			grammar.link(* (new TokenRule("(if)" INVERTED, ifKeyword)));
+			grammar.link(* (new TokenRule("(else)" INVERTED, elseKeyword)));
+			grammar.link(* (new TokenRule("(switch)" INVERTED, ifKeyword)));
+			grammar.link(* (new TokenRule("(case)" INVERTED, caseKeyword)));
+			grammar.link(* (new TokenRule("(default)" INVERTED, defaultKeyword)));
+			grammar.link(* (new TokenRule("(while)" INVERTED, whileKeyword)));
+			grammar.link(* (new TokenRule("(do)" INVERTED, doKeyword)));
+			grammar.link(* (new TokenRule("(loop)" INVERTED, loopKeyword)));
+			grammar.link(* (new TokenRule("(for)" INVERTED, forKeyword)));
+			grammar.link(* (new TokenRule("(repeat)" INVERTED, repeatKeyword)));
+			grammar.link(* (new TokenRule("(until)" INVERTED, untilKeyword)));
+			grammar.link(* (new TokenRule("(break)" INVERTED, breakKeyword)));
+			grammar.link(* (new TokenRule("(continue)" INVERTED, continueKeyword)));
 
-			grammar.link(* (new Rule("(func)" INVERTED, funcKeyword)));
-			grammar.link(* (new Rule("(proc)" INVERTED, procKeyword)));
-			grammar.link(* (new Rule("(static)" INVERTED, staticKeyword)));
-			grammar.link(* (new Rule("(class)" INVERTED, classKeyword)));
-			grammar.link(* (new Rule("(enumerator)" INVERTED, enumKeyword)));
-			grammar.link(* (new Rule("(structure)" INVERTED, structKeyword)));
-			grammar.link(* (new Rule("(exception)" INVERTED, exceptKeyword)));
-			grammar.link(* (new Rule("(private)" INVERTED, privateKeyword)));
-			grammar.link(* (new Rule("(public)" INVERTED, publicKeyword)));
-			grammar.link(* (new Rule("(inout)" INVERTED, inoutKeyword)));
-			grammar.link(* (new Rule("(const)" INVERTED, constKeyword)));
-			grammar.link(* (new Rule("(null)" INVERTED, nullKeyword)));
-			grammar.link(* (new Rule("(nope?)" INVERTED, nop)));
-			grammar.link(* (new Rule("(return)" INVERTED, returnKeyword)));
+			grammar.link(* (new TokenRule("(func)" INVERTED, funcKeyword)));
+			grammar.link(* (new TokenRule("(proc)" INVERTED, procKeyword)));
+			grammar.link(* (new TokenRule("(static)" INVERTED, staticKeyword)));
+			grammar.link(* (new TokenRule("(class)" INVERTED, classKeyword)));
+			grammar.link(* (new TokenRule("(enumerator)" INVERTED, enumKeyword)));
+			grammar.link(* (new TokenRule("(structure)" INVERTED, structKeyword)));
+			grammar.link(* (new TokenRule("(exception)" INVERTED, exceptKeyword)));
+			grammar.link(* (new TokenRule("(private)" INVERTED, privateKeyword)));
+			grammar.link(* (new TokenRule("(public)" INVERTED, publicKeyword)));
+			grammar.link(* (new TokenRule("(inout)" INVERTED, inoutKeyword)));
+			grammar.link(* (new TokenRule("(const)" INVERTED, constKeyword)));
+			grammar.link(* (new TokenRule("(null)" INVERTED, nullKeyword)));
+			grammar.link(* (new TokenRule("(nope?)" INVERTED, nop)));
+			grammar.link(* (new TokenRule("(return)" INVERTED, returnKeyword)));
 
-			grammar.link(* (new Rule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, identifier)));
+			grammar.link(* (new TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, identifier)));
 
 		}
 
@@ -301,7 +302,6 @@ namespace Stack {
 			data = handleComments(data);
 			// Handle EndLines:
 			data = replaceMatches("\n", data, " ");
-			std::cout << data << std::endl;
 			StrongList<Token> tokens = StrongList<Token>();
 			UInt32 pos = 0;
 			tokens.link(* (new Token("newFile", newFile, pos)));

@@ -22,6 +22,7 @@
 #include "Collection/Collection.hpp"
 
 #include "Lexer/Lexer.hpp"
+#include "Parser/Parser.hpp"
 
 using namespace std;
 
@@ -37,7 +38,6 @@ Int32 main(Int32 argc, Char argv[]) {
 
 	String s = "for (Int32 i = 0; i < x; i++)";
 	Lexer lexer = Lexer(s);
-	cout << s << endl;
 
 	StrongList<Token> tokens = StrongList<Token>();
 
@@ -51,11 +51,29 @@ Int32 main(Int32 argc, Char argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	for (UInt32 i = 0; i < tokens.count(); i++) {
+	/*for (UInt32 i = 0; i < tokens.count(); i++) {
 		cout << tokens[i].type << ":    " << tokens[i].value << endl;
-	}
+	}*/
 
-	Int32 x = 0; cin >> x;
+	Grammar * ifStatement = new Grammar();
+
+	Token * ifToken = new Token("if", ifKeyword);
+	Token * forToken = new Token("for", forKeyword);
+	Token * elseToken = new Token("else", elseKeyword);
+	Token * breakToken = new Token("break", breakKeyword);
+	Token * semi = new Token(";", semicolon);
+
+	Rule * sR = new Rule(semi);
+
+
+
+
+
+
+
+
+
+	cin.get();
 
 	return EXIT_SUCCESS;
 }

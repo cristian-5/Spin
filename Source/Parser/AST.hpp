@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Rule.hpp                               |
+ *    |  AST.hpp                                |
  *    |                                         |
- *    |                   Rule                  |
+ *    |           Abstract Syntax Tree          |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,33 +16,29 @@
  *
  */
 
-#ifndef STACKRULE
-#define STACKRULE
+#ifndef STACKAST
+#define STACKAST
 
 #include <iostream>
 #include <string>
 
-#include "Token.hpp"
+#include "../Syntax/Grammar.hpp"
 
 using String = std::string;
+using UInt32 = std::uint32_t;
 
 /*! @brief Namespace Stack */
 namespace Stack {
 
-	/*! @brief Grammar Class. */
-	class Rule {
+	class AbstractSyntaxTree {
+
+		StrongList<Token> * tokens = nullptr;
 
 	public:
 
-		TokenType type = empty;
-		String pattern = "";
+		AbstractSyntaxTree(StrongList<Token> * t) { tokens = t; }
 
-		Rule() { }
 
-		Rule(String pattern, TokenType type) {
-			this -> pattern = pattern;
-			this -> type = type;
-		}
 
 	};
 
