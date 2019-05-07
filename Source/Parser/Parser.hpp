@@ -26,7 +26,7 @@
 
 #include "../Syntax/SyntaxRule.hpp"
 
-//#include "AST.hpp"
+#include "AST.hpp"
 
 using String = std::string;
 using UInt32 = std::uint32_t;
@@ -46,22 +46,41 @@ namespace Stack {
 	public: InvalidGrammarException(): Exception() { }
 	};
 
+	/*!
+	 *   @brief Empty Grammar Exception.
+	 *   Raised when the grammar is empty.
+	 *   @author Cristian A.
+	 */
+	class EmptyGrammarException: public Exception {
+	public: EmptyGrammarException(): Exception() { }
+	};
+
 	class Parser {
 
 	private:
 
 		StrongList<Token> tokens = StrongList<Token>();
 
-		StrongList<SyntaxRule *> grammarRules = StrongList<SyntaxRule *>();
+		Grammar grammarRules = Grammar();
 
 		//HeapStack<String> stack = HeapStack<String>();
 
+		void parse(StrongList<Token> & tokens, AbstractSyntaxTree & ast) {
+			
+		}
+
 	public:
 
-		Parser(StrongList<Token> * t, StrongList<SyntaxRule *> & r) {
+		Parser(StrongList<Token> * t, Grammar & g) {
 			tokens = * t;
-			if (r.isEmpty()) throw InvalidGrammarException();
-			grammarRules = r;
+			if (g.isEmpty()) throw EmptyGrammarException();
+			grammarRules = g;
+		}
+
+		AbstractSyntaxTree parse() {
+			AbstractSyntaxTree ast = AbstractSyntaxTree();
+			parse(tokens, ast);
+			return ast;
 		}
 
 		/*Boolean parse(AbstractSyntaxTree & ast) {
