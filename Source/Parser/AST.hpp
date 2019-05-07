@@ -22,6 +22,8 @@
 #include <iostream>
 #include <string>
 
+#include "../Collection/Collection.hpp"
+
 #include "../Syntax/SyntaxRule.hpp"
 
 using String = std::string;
