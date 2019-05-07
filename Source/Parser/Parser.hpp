@@ -24,7 +24,7 @@
 
 #include "../Collection/Collection.hpp"
 
-#include "../Syntax/Grammar.hpp"
+#include "../Syntax/SyntaxRule.hpp"
 
 //#include "AST.hpp"
 
@@ -52,61 +52,16 @@ namespace Stack {
 
 		StrongList<Token> tokens = StrongList<Token>();
 
-		Rule * grammarRules = nullptr;
+		StrongList<SyntaxRule *> grammarRules = StrongList<SyntaxRule *>();
 
 		//HeapStack<String> stack = HeapStack<String>();
 
-		Rule * grammarToRules(Rule * r) {
-			if (r -> isTerminal()) return r;
-			else {
-				Rule * store = new Rule();
-				for (UInt32 i = 0; i < r -> nextGrammars.count(); i++) {
-					Rule * tmp = grammarToRules(r -> nextGrammars[i]);
-					store -> nextRules.link(tmp);
-				}
-				for (UInt32 i = 0; i < r -> nextRules.count(); i++) {
-					Rule * tmp = grammarToRules(r -> nextRules[i]);
-					store -> nextRules.link(tmp);
-				}
-				return store;
-			}
-		}
-
-		Rule * grammarToRules(Grammar * g) {
-			Rule * store = new Rule();
-			for (UInt32 i = 0; i < g -> nextGrammars.count(); i++) {
-				Rule * tmp = grammarToRules(g -> nextGrammars[i]);
-				store -> nextRules.link(tmp);
-			}
-			for (UInt32 i = 0; i < g -> nextRules.count(); i++) {
-				Rule * tmp = grammarToRules(g -> nextRules[i]);
-				store -> nextRules.link(tmp);
-			}
-			return store;
-		}
-
-		void printTree(Rule * r, UInt32 i) {
-			if (r == nullptr) return;
-			if (r -> isTerminal()) {
-				String tabs = String("    ", i);
-				std::cout << tabs << r -> token -> value << std::endl;
-				return;
-			}
-			for (UInt32 i = 0; i < r -> nextRules.count(); i++) {
-				printTree(r -> nextRules[i], i + 1);
-			}
-		}
-
 	public:
 
-		Parser(StrongList<Token> * t, Grammar * g) {
+		Parser(StrongList<Token> * t, StrongList<SyntaxRule *> & r) {
 			tokens = * t;
-			if (g == nullptr) throw InvalidGrammarException();
-			grammarRules = grammarToRules(g);
-		}
-
-		void printRuleTree() {
-			printTree(grammarRules, 0);
+			if (r.isEmpty()) throw InvalidGrammarException();
+			grammarRules = r;
 		}
 
 		/*Boolean parse(AbstractSyntaxTree & ast) {
@@ -116,15 +71,15 @@ namespace Stack {
 
 			stack.push(grammar -> name);
 
-			for (UInt32 i = 0; i < grammar -> nextRules.count(); i++) {
+			for (UInt32 i = 0; i < grammar -> nextSyntaxRules.count(); i++) {
 
-				Rule currentRule = grammar -> nextRules[i];
-				while (currentRule.matches(currentToken)) {
-					if (currentRule.isTerminal()) {
+				SyntaxRule currentSyntaxRule = grammar -> nextSyntaxRules[i];
+				while (currentSyntaxRule.matches(currentToken)) {
+					if (currentSyntaxRule.isTerminal()) {
 						// Stop
 						break;
 					}
-					currentRule
+					currentSyntaxRule
 				}
 
 
