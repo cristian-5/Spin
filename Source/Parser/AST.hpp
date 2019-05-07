@@ -22,7 +22,7 @@
 #include <iostream>
 #include <string>
 
-#include "../Syntax/Grammar.hpp"
+#include "../Syntax/SyntaxRule.hpp"
 
 using String = std::string;
 using UInt32 = std::uint32_t;
@@ -32,11 +32,11 @@ namespace Stack {
 
 	class AbstractSyntaxTree {
 
-		StrongList<Token> * tokens = nullptr;
+		//StrongList<Token> * tokens = nullptr;
 
 	public:
 
-		AbstractSyntaxTree(StrongList<Token> * t) { tokens = t; }
+		//AbstractSyntaxTree(StrongList<Token> * t) { tokens = t; }
 
 
 
