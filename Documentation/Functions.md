@@ -49,7 +49,7 @@ argument lables, you must define them with an
 underscore.
 
 ```swift
-proc decrement(_ a: ref Int32) {
+proc decrement(_ a: inout Int32) {
     a--;
 }
 
