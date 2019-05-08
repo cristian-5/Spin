@@ -92,6 +92,12 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return map.isEmpty(); }
 
+		/* MARK: - Constructor, Destructor */
+
+		StrongMap() { }
+
+		~StrongMap() { clean(); }
+
 		/* MARK: - Subscript Operator */
 
 		/*!

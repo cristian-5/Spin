@@ -96,6 +96,12 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return size == 0; }
 
+		/* MARK: - Constructor, Destructor */
+
+		HeapStack() { }
+
+		~HeapStack() { clean(); }
+
 		/* MARK: - Push and Pop */
 
 		/*!

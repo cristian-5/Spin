@@ -102,6 +102,12 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return size == 0; }
 
+		/* MARK: - Constructor, Destructor */
+
+		StrongList() { }
+
+		~StrongList() { clean(); }
+
 		/* MARK: - Subscript Operator */
 
 		/*!
