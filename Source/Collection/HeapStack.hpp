@@ -51,7 +51,7 @@ namespace Collection {
 	template <typename Type>
 	class HeapStack {
 
-	private:
+		private:
 
 		/*! @brief Size of the stack. */
 		UInt32 size = 0;
@@ -72,7 +72,7 @@ namespace Collection {
 			root -> next = nullptr;
 		}
 
-	public:
+		public:
 
 		/* MARK: - Size Related */
 

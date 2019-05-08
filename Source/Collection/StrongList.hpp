@@ -52,7 +52,7 @@ namespace Collection {
 	template <typename Type>
 	class StrongList {
 
-	private:
+		private:
 
 		/*! @brief Size of the stack. */
 		UInt32 size = 0;
@@ -78,7 +78,7 @@ namespace Collection {
 			root = node; leaf = node;
 		}
 
-	public:
+		public:
 
 		/* MARK: - Size Related */
 

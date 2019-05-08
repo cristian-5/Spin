@@ -55,20 +55,18 @@ namespace Collection {
 	template <typename KeyType, typename ValType>
 	class StrongMap {
 
-	public:
+		private:
+
+		/*! @brief Map. */
+		StrongList<Element> map;
+
+		public:
 
 		/*! @brief Map element. */
 		struct Element {
 			KeyType key;
 			ValType val;
 		};
-
-	private:
-
-		/*! @brief Map. */
-		StrongList<Element> map;
-
-	public:
 
 		/* MARK: - Size Related */
 

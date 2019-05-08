@@ -40,8 +40,7 @@ namespace Collection {
 	 *   @author Cristian A.
 	 */
 	class InvalidIndexException: public Exception {
-	public:
-		InvalidIndexException(): Exception() { }
+		public: InvalidIndexException(): Exception() { }
 	};
 
 	/*!
@@ -51,8 +50,7 @@ namespace Collection {
 	 *   @author Cristian A.
 	 */
 	class ElementCountException: public Exception {
-	public:
-		ElementCountException(): Exception() { }
+		public: ElementCountException(): Exception() { }
 	};
 
 	/*!
@@ -61,8 +59,7 @@ namespace Collection {
 	 *   @author Cristian A.
 	 */
 	class ElementNotFoundException: public Exception {
-	public:
-		ElementNotFoundException(): Exception() { }
+		public: ElementNotFoundException(): Exception() { }
 	};
 
 	/*!
@@ -72,8 +69,7 @@ namespace Collection {
 	 *   @author Cristian A.
 	 */
 	class EmptyListException: public Exception {
-	public:
-		EmptyListException(): Exception() { }
+		public: EmptyListException(): Exception() { }
 	};
 
 	/*!
@@ -83,8 +79,7 @@ namespace Collection {
 	 *   @author Cristian A.
 	 */
 	class EmptyLoopException: public Exception {
-	public:
-		EmptyLoopException(): Exception() { }
+		public: EmptyLoopException(): Exception() { }
 	};
 
 	/*!
@@ -95,8 +90,7 @@ namespace Collection {
 	 *   @author Cristian A.
 	 */
 	class HangingInLoopException: public Exception {
-	public:
-		HangingInLoopException(): Exception() { }
+		public: HangingInLoopException(): Exception() { }
 	};
 
 	/*!
@@ -106,8 +100,7 @@ namespace Collection {
 	 *   @author Cristian A.
 	 */
 	class EmptyStackException: public Exception {
-	public:
-		EmptyStackException(): Exception() { }
+		public: EmptyStackException(): Exception() { }
 	};
 
 }
