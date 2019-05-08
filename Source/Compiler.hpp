@@ -22,7 +22,7 @@
 #include <iostream>
 #include <string>
 
-#include "Collection.hpp"
+#include "Collection/Collection.hpp"
 
 using namespace std;
 
@@ -34,7 +34,7 @@ namespace Stack {
 	/*! @brief Compiler Class. */
 	class Compiler {
 
-	public:
+		public:
 
 		static string process(string & code) {
 
@@ -43,9 +43,6 @@ namespace Stack {
 
 	};
 
-
-
 }
-
 
 #endif

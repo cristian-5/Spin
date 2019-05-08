@@ -56,11 +56,11 @@ namespace Stack {
 	 */
 	class InvalidTokenException: public Exception {
 
-	private:
+		private:
 
 		UInt32 position = 0;
 
-	public:
+		public:
 
 		UInt32 getPosition() { return position; }
 
@@ -72,7 +72,7 @@ namespace Stack {
 	/*! @brief Lexer Class. */
 	class Lexer {
 
-	private:
+		private:
 
 		/* MARK: - Regexes */
 
@@ -209,7 +209,7 @@ namespace Stack {
 
 		StrongList<TokenRule> grammar = StrongList<TokenRule>();
 
-	public:
+		public:
 
 		String input = "";
 

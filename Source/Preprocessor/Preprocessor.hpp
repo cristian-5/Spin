@@ -30,7 +30,7 @@ namespace Stack {
 
 	class Preprocessor {
 
-	private:
+		private:
 
 		/* TODO: Handle TypeAliases */
 		/* TODO: Handle Types */
@@ -38,10 +38,12 @@ namespace Stack {
 		/* TODO: Handle Operators */
 		/* TODO: Handle Eventual Macros */
 
-	public:
+		public:
 
 		Preprocessor() { }
 
-	}
+	};
 
 }
+
+#endif

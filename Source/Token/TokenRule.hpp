@@ -32,7 +32,7 @@ namespace Stack {
 	/*! @brief TokenRule Class. */
 	class TokenRule {
 
-	public:
+		public:
 
 		TokenType type = empty;
 		String pattern = "";

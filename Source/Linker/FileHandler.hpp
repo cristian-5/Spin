@@ -23,14 +23,16 @@
 #include <fstream>
 #include <string>
 
-#include "../Collection/Collection.h"
+#include "../Collection/Collection.hpp"
 
 using namespace Collection;
 
 using String = std::string;
+using Exception = std::exception;
+using IFStream = std::ifstream;
 
-#define IFStream ifstream
-#define Bool bool
+#define Boolean bool
+#define stringValue c_str
 
 /*! @brief Namespace Stack */
 namespace Stack {
@@ -41,27 +43,27 @@ namespace Stack {
 	 *   is corrupted or the path is invalid.
 	 *   @author Cristian A.
 	 */
-	class BadFileException: public std::exception {
+	class BadFileException: public Exception {
 
-	private:
+		private:
 
-		const String * _path;
+		const String * p;
 
-	public:
+		public:
 
-		BadFileException(String & path): std::exception() { _path = & path; }
+		BadFileException(String & path): Exception() { p = & path; }
 
-		const String getPath() const { return * _path; }
+		const String getPath() const { return * p; }
 
 	};
 
 	class FileHandler {
 
-	public:
+		public:
 
-		static StrongList<string> linesFromFile(String & path) {
+		static StrongList<String> linesFromFile(String & path) {
 			StrongList<String> set = StrongList<String>();
-			IFStream file(path.c_str());
+			IFStream file(path.stringValue());
 			if (file.good()) {
 				String line = "";
 				while (getline(file, line)) {
@@ -73,7 +75,7 @@ namespace Stack {
 
 		static String stringFromFile(String path) {
 			String line = "";
-			IFStream file(path.c_str());
+			IFStream file(path.stringValue());
 			if (file.good()) {
 				String tmp = "";
 				while (getline(file, tmp)) {
@@ -83,7 +85,7 @@ namespace Stack {
 			return line;
 		}
 
-		static Bool createNewFile(String path = "", String content = "") {
+		static Boolean createNewFile(String path = "", String content = "") {
 
 			return true;
 		}

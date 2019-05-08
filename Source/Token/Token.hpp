@@ -122,7 +122,7 @@ namespace Stack {
 	/*! @brief Token Class. */
 	class Token {
 
-	public:
+		public:
 
 		TokenType type = empty;
 		String value = "";

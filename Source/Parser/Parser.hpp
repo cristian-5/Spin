@@ -34,6 +34,8 @@ using Exception = std::exception;
 
 #define Boolean bool
 
+using namespace Collection;
+
 /*! @brief Namespace Stack */
 namespace Stack {
 
@@ -43,7 +45,7 @@ namespace Stack {
 	 *   @author Cristian A.
 	 */
 	class InvalidGrammarException: public Exception {
-	public: InvalidGrammarException(): Exception() { }
+		public: InvalidGrammarException(): Exception() { }
 	};
 
 	/*!
@@ -52,12 +54,12 @@ namespace Stack {
 	 *   @author Cristian A.
 	 */
 	class EmptyGrammarException: public Exception {
-	public: EmptyGrammarException(): Exception() { }
+		public: EmptyGrammarException(): Exception() { }
 	};
 
 	class Parser {
 
-	private:
+		private:
 
 		StrongList<Token> tokens = StrongList<Token>();
 
@@ -69,7 +71,7 @@ namespace Stack {
 			
 		}
 
-	public:
+		public:
 
 		Parser(StrongList<Token> * t, Grammar & g) {
 			tokens = * t;
