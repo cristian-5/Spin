@@ -36,7 +36,7 @@ using String = std::string;
 
 Int32 main(Int32 argc, Char argv[]) {
 
-	String s = "for (Int32 i = 0; i < x; i++)";
+	String s = "for (Int32 i = 0; i 	\n< x; i++)";
 	Lexer lexer = Lexer(s);
 
 	StrongList<Token> tokens = StrongList<Token>();

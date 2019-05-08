@@ -22,7 +22,7 @@
 #include <iostream>
 #include <string>
 
-#include "Grammar.hpp"
+#include "SyntaxRule.hpp"
 
 using String = std::string;
 using UInt32 = std::uint32_t;
@@ -32,7 +32,7 @@ namespace Stack {
 
 	class Syntax {
 
-	public:
+		public:
 
 
 

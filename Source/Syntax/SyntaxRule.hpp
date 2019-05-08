@@ -28,23 +28,25 @@
 
 using String = std::string;
 using UInt32 = std::uint32_t;
-
+using Exception = std::exception;
 using Boolean = bool;
+
+using namespace Collection;
 
 /*! @brief Namespace Stack */
 namespace Stack {
 
 	class SyntaxRule {
 
-	private:
+		private:
 
 		Boolean selfRef = false;
 
-	public:
+		public:
 
 		StrongList<SyntaxRule *> nextRules = StrongList<SyntaxRule *>();
 
-		Token * token = new Token();
+		Token * token = nullptr;
 
 		SyntaxRule() { }
 
@@ -63,30 +65,89 @@ namespace Stack {
 			nextRules.link(r);
 		}
 
-		Boolean matches(Token t) { return t.type == token -> type; }
+		Boolean matches(Token * t) {
+			return t -> type == token -> type;
+		}
+
+		SyntaxRule * nextThatMatches(Token * t) {
+			for (UInt32 i = 0; i < nextRules.count(); i++) {
+				if (nextRules[i] -> matches(t)) {
+					return nextRules[i];
+				}
+			}
+			return nullptr;
+		}
 
 		Boolean isSelfRef() { return selfRef; }
 
 		Boolean isTerminal() { return nextRules.isEmpty(); }
 
+		Boolean isEmpty() { return nextRules.isEmpty(); }
+
+	};
+
+	/*!
+	 *   @brief SyntaxErrorException.
+	 *   Raised when a token is unexcepted.
+	 *   @author Cristian A.
+	 */
+	class SyntaxErrorException: public Exception {
+
+		private:
+
+		Token token = Token();
+
+		public:
+
+		Token getToken() { return token; }
+
+		SyntaxErrorException(Token t):
+		Exception(), token(t) { }
+
 	};
 
 	class Grammar {
 
-	public:
+		private:
 
-		StrongList<SyntaxRule *> nextRules = StrongList<SyntaxRule *>();
+		SyntaxRule * rules = new SyntaxRule();
+
+		public:
 
 		Grammar() { }
 
 		Grammar(StrongList<SyntaxRule *> & r) {
-			nextRules = r;
+			rules -> nextRules = r;
 		}
-		Grammar(SyntaxRule * & r) {
-			nextRules.link(r);
+		Grammar(SyntaxRule * r) {
+			rules -> nextRules.link(r);
 		}
 
-		Boolean isEmpty() { return nextRules.isEmpty(); }
+		void addRule(SyntaxRule * r) {
+			rules -> nextRules.link(r);
+		}
+
+		Boolean consume(StrongList<Token> * t) {
+			if (rules -> isEmpty()) return false;
+			if (t -> isEmpty()) return false;
+			// First time: try to match and
+			// return false if it doesn't.
+			Token token = t -> getNode(0);
+			SyntaxRule * cur = rules -> nextThatMatches(& token);
+			if (cur == nullptr) return false;
+			// Deep consume the rule and throw error
+			// if the next token is unexcepted.
+			while (t -> count() > 0) {
+				token = t -> getNode(0);
+				cur = rules -> nextThatMatches(& token);
+				if (cur == nullptr) {
+					throw SyntaxErrorException(token);
+				}
+			}
+			return true;
+		}
+
+		Boolean isEmpty() { return rules -> isEmpty(); }
 
 	};
 
