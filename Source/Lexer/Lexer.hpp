@@ -26,7 +26,7 @@
 #include "../Collection/Collection.hpp"
 
 #include "../Token/Token.hpp"
-#include "../Token/TokenRule.hpp"
+#include "../Token/TRule.hpp"
 
 using String = std::string;
 using SMatch = std::smatch;
