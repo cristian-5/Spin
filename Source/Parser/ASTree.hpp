@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  AST.hpp                                |
+ *    |  ASTree.hpp                             |
  *    |                                         |
  *    |           Abstract Syntax Tree          |
  *    |                                         |
@@ -25,7 +25,7 @@
 #include "../Collection/Collection.hpp"
 
 #include "../Token/Token.hpp"
-#include "../Syntax/SyntaxRule.hpp"
+#include "../Syntax/SRule.hpp"
 
 using String = std::string;
 using UInt32 = std::uint32_t;
