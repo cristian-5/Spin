@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  TokenRule.hpp                          |
+ *    |  TRule.hpp                              |
  *    |                                         |
- *    |                 TokenRule               |
+ *    |                Token Rule               |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
