@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  SyntaxRule.hpp                         |
+ *    |  SRule.hpp                              |
  *    |                                         |
  *    |                SyntaxRule               |
  *    |                                         |
@@ -38,10 +38,6 @@ namespace Stack {
 
 	class SyntaxRule {
 
-		private:
-
-		Boolean selfRef = false;
-
 		public:
 
 		StrongList<SyntaxRule *> nextRules = StrongList<SyntaxRule *>();
@@ -61,7 +57,6 @@ namespace Stack {
 		SyntaxRule(Token * t) { token = t; }
 
 		void addNextRule(SyntaxRule * r) {
-			if (r == this) selfRef = true;
 			nextRules.link(r);
 		}
 
@@ -78,79 +73,14 @@ namespace Stack {
 			return nullptr;
 		}
 
-		Boolean isSelfRef() { return selfRef; }
-
 		Boolean isTerminal() { return nextRules.isEmpty(); }
 
 		Boolean isEmpty() { return nextRules.isEmpty(); }
 
 	};
 
-	/*!
-	 *   @brief SyntaxErrorException.
-	 *   Raised when a token is unexcepted.
-	 *   @author Cristian A.
-	 */
-	class SyntaxErrorException: public Exception {
-
-		private:
-
-		Token token = Token();
-
-		public:
-
-		Token getToken() { return token; }
-
-		SyntaxErrorException(Token t):
-		Exception(), token(t) { }
-
-	};
-
-	class Grammar {
-
-		private:
-
-		SyntaxRule * rules = new SyntaxRule();
-
-		public:
-
-		Grammar() { }
-
-		Grammar(StrongList<SyntaxRule *> & r) {
-			rules -> nextRules = r;
-		}
-		Grammar(SyntaxRule * r) {
-			rules -> nextRules.link(r);
-		}
-
-		void addRule(SyntaxRule * r) {
-			rules -> nextRules.link(r);
-		}
-
-		Boolean consume(StrongList<Token> * t) {
-			if (rules -> isEmpty()) return false;
-			if (t -> isEmpty()) return false;
-			// First time: try to match and
-			// return false if it doesn't.
-			Token token = t -> getNode(0);
-			SyntaxRule * cur = rules -> nextThatMatches(& token);
-			if (cur == nullptr) return false;
-			// Deep consume the rule and throw error
-			// if the next token is unexcepted.
-			while (t -> count() > 0) {
-				token = t -> getNode(0);
-				cur = rules -> nextThatMatches(& token);
-				if (cur == nullptr) {
-					throw SyntaxErrorException(token);
-				}
-			}
-			return true;
-		}
-
-		Boolean isEmpty() { return rules -> isEmpty(); }
-
-	};
-
 }
+
+#define Grammar SyntaxRule
 
 #endif
