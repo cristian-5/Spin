@@ -24,13 +24,14 @@
 
 #include "../Collection/Collection.hpp"
 
-#include "../Syntax/SyntaxRule.hpp"
+#include "../Syntax/SRule.hpp"
 
-#include "AST.hpp"
+#include "ASTree.hpp"
 
 using String = std::string;
 using UInt32 = std::uint32_t;
 using Exception = std::exception;
+using SRule = Stack::SyntaxRule;
 
 #define Boolean bool
 
@@ -57,56 +58,60 @@ namespace Stack {
 		public: EmptyGrammarException(): Exception() { }
 	};
 
+	/*!
+	 *   @brief SyntaxErrorException.
+	 *   Raised when a token is unexcepted.
+	 *   @author Cristian A.
+	 */
+	class SyntaxErrorException: public Exception {
+
+		private:
+
+		Token token = Token();
+
+		public:
+
+		Token getToken() { return token; }
+
+		SyntaxErrorException(Token t):
+		Exception(), token(t) { }
+
+	};
+
 	class Parser {
 
 		private:
 
 		StrongList<Token> tokens = StrongList<Token>();
 
-		Grammar grammarRules = Grammar();
+		SRule * grammarRules;
 
-		//HeapStack<String> stack = HeapStack<String>();
-
-		void parse(StrongList<Token> & tokens, AbstractSyntaxTree & ast) {
-			
+		Boolean parse(SRule * r, UInt32 i, AbstractSyntaxTree & ast) {
+			if (i >= tokens.count()) return false;
+			Token * t = & tokens[i];
+			if (r -> isTerminal() && r -> matches(t)) return true;
+			for (UInt32 j = 0; j < r -> nextRules.count(); j++) {
+				if (parse(r -> nextRules[j], ++i, ast)) {
+					// Rule parsed
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public:
 
-		Parser(StrongList<Token> * t, Grammar & g) {
+		Parser(StrongList<Token> * t, Grammar * g) {
 			tokens = * t;
-			if (g.isEmpty()) throw EmptyGrammarException();
+			if (g -> isEmpty()) throw EmptyGrammarException();
 			grammarRules = g;
 		}
 
 		AbstractSyntaxTree parse() {
 			AbstractSyntaxTree ast = AbstractSyntaxTree();
-			parse(tokens, ast);
+			std::cout << parse(grammarRules, 0, ast) << std::endl;
 			return ast;
 		}
-
-		/*Boolean parse(AbstractSyntaxTree & ast) {
-			if (tokens.isEmpty()) return ast;
-
-			Token currentToken = tokens[0];
-
-			stack.push(grammar -> name);
-
-			for (UInt32 i = 0; i < grammar -> nextSyntaxRules.count(); i++) {
-
-				SyntaxRule currentSyntaxRule = grammar -> nextSyntaxRules[i];
-				while (currentSyntaxRule.matches(currentToken)) {
-					if (currentSyntaxRule.isTerminal()) {
-						// Stop
-						break;
-					}
-					currentSyntaxRule
-				}
-
-
-			}
-
-		}*/
 
 	};
 

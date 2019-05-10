@@ -22,7 +22,7 @@
 #include <iostream>
 #include <string>
 
-#include "SyntaxRule.hpp"
+#include "SRule.hpp"
 
 using String = std::string;
 using UInt32 = std::uint32_t;
