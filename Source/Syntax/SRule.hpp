@@ -82,5 +82,6 @@ namespace Stack {
 }
 
 #define Grammar SyntaxRule
+#define SRule SyntaxRule
 
 #endif

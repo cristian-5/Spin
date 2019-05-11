@@ -36,7 +36,7 @@ using String = std::string;
 
 Int32 main(Int32 argc, Char argv[]) {
 
-	String s = "for (Int32 i = 0; i 	\n< x; i++)";
+	String s = "for else for else"; // for else for else
 	Lexer lexer = Lexer(s);
 
 	StrongList<Token> tokens = StrongList<Token>();
@@ -46,36 +46,44 @@ Int32 main(Int32 argc, Char argv[]) {
 	} catch (InvalidTokenException & e) {
 		cout << "Error on character: " << e.getPosition() << endl;
 		cout << "Unrecognized expression!" << endl;
-		int x = 0;
-		cin >> x;
+		cin.get();
 		return EXIT_FAILURE;
 	}
 
-	/*for (UInt32 i = 0; i < tokens.count(); i++) {
-		cout << tokens[i].type << ":    " << tokens[i].value << endl;
-	}*/
-
-	/*Grammar * ifStatement = new Grammar();
+	Token * bf = new Token("sof", beginFile);
+	Token * ef = new Token("eof", endFile);
 
 	Token * ifToken = new Token("if", ifKeyword);
-	Token * forToken = new Token("for", forKeyword);
+	Token * for1Token = new Token("for", forKeyword);
+	Token * for2Token = new Token("for", forKeyword);
 	Token * elseToken = new Token("else", elseKeyword);
-	Token * breakToken = new Token("break", breakKeyword);
-	Token * semi = new Token(";", semicolon);
 
-	Rule * sR = new Rule(semi);
-	Rule * bR = new Rule(breakToken);
-	bR -> addNextRule(sR);
-	bR -> addNextRule(bR);
-*/
+	SRule * bfR = new SRule(bf);
+	SRule * ifR = new SRule(ifToken);
+	SRule * f1R = new SRule(for1Token);
+	SRule * f2R = new SRule(for2Token);
+	SRule * elR = new SRule(elseToken);
+	SRule * efR = new SRule(ef);
 
+	bfR -> addNextRule(ifR);
+	bfR -> addNextRule(f1R);
 
+	// first path
+	ifR -> addNextRule(f2R);
+	ifR -> addNextRule(ifR);
+	f2R -> addNextRule(efR);
 
+	// second path
+	f2R -> addNextRule(elR);
+	elR -> addNextRule(f2R);
+	elR -> addNextRule(efR);
 
-
-
-
-
+	try {
+		Parser p = Parser(& tokens, bfR);
+		p.parse();
+	} catch (Exception e) {
+		cout << "error" << endl;
+	}
 
 	cin.get();
 

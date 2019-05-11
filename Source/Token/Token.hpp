@@ -30,7 +30,7 @@ namespace Stack {
 
 	enum TokenType {
 
-		newFile,
+		beginFile,
 
 		empty,
 		identifier,
@@ -115,7 +115,7 @@ namespace Stack {
 
 		nop,
 
-		endOfFile
+		endFile
 
 	};
 

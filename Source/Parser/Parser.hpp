@@ -31,7 +31,6 @@
 using String = std::string;
 using UInt32 = std::uint32_t;
 using Exception = std::exception;
-using SRule = Stack::SyntaxRule;
 
 #define Boolean bool
 
@@ -64,18 +63,10 @@ namespace Stack {
 	 *   @author Cristian A.
 	 */
 	class SyntaxErrorException: public Exception {
-
-		private:
-
-		Token token = Token();
-
-		public:
-
-		Token getToken() { return token; }
-
+		private: Token token = Token();
+		public: Token getToken() { return token; }
 		SyntaxErrorException(Token t):
 		Exception(), token(t) { }
-
 	};
 
 	class Parser {
@@ -89,14 +80,14 @@ namespace Stack {
 		Boolean parse(SRule * r, UInt32 i, AbstractSyntaxTree & ast) {
 			if (i >= tokens.count()) return false;
 			Token * t = & tokens[i];
-			if (r -> isTerminal() && r -> matches(t)) return true;
+			Boolean matches = r -> matches(t);
+			if (r -> isTerminal()) return matches;
+			if (!matches) return false;
+			Boolean parsed = true;
 			for (UInt32 j = 0; j < r -> nextRules.count(); j++) {
-				if (parse(r -> nextRules[j], ++i, ast)) {
-					// Rule parsed
-					return true;
-				}
+				parsed = parsed && parse(r -> nextRules[j], ++i, ast);
 			}
-			return false;
+			return parsed;
 		}
 
 		public:
@@ -109,7 +100,7 @@ namespace Stack {
 
 		AbstractSyntaxTree parse() {
 			AbstractSyntaxTree ast = AbstractSyntaxTree();
-			std::cout << parse(grammarRules, 0, ast) << std::endl;
+			std::cout << (parse(grammarRules, 0, ast) ? "p" : "!") << std::endl;
 			return ast;
 		}
 
