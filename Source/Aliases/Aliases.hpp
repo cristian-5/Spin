@@ -20,6 +20,7 @@
 #define ALIASES
 
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <regex>
 
