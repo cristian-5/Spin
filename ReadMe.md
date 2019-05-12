@@ -17,7 +17,7 @@ The documentation contains the language syntax specification.
 ## Code Contribution
 
 If you want to contribute you must follow these 
-[Conventions](../Conventions/ReadMe.md) in order to keep the
+[Conventions](Conventions/) in order to keep the
 file structure organized and the code clean.
 
 ## Compilation
