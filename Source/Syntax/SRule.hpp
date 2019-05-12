@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  SRule.hpp                              |
  *    |                                         |
- *    |                SyntaxRule               |
+ *    |               Syntax Rule               |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -22,20 +22,16 @@
 #include <iostream>
 #include <string>
 
+#include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
-
 #include "../Token/Token.hpp"
-
-using String = std::string;
-using UInt32 = std::uint32_t;
-using Exception = std::exception;
-using Boolean = bool;
 
 using namespace Collection;
 
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
+	/*! @brief Class SyntaxRule. */
 	class SyntaxRule {
 
 		public:

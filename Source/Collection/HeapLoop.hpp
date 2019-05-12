@@ -21,12 +21,9 @@
 
 #include <iostream>
 
+#include "../Aliases/Aliases.hpp"
+
 #include "Exceptions.hpp"
-
-using UInt32 = std::uint32_t;
-using Int32 = std::int32_t;
-
-/* MARK: - Heap Loop - */
 
 /*!
  *   @brief Namespace Collection.
@@ -48,7 +45,6 @@ namespace Collection {
 	 *   requesting or linking a new node.
 	 *   @warning This class must be used within
 	 *   a try catch block. It raises exceptions.
-	 *   @author Cristian A.
 	 */
 	template <typename Type>
 	class HeapLoop {
@@ -76,8 +72,6 @@ namespace Collection {
 
 		public:
 
-		/* MARK: - Size Related */
-
 		/*!
 		 *   @brief Gets the number of
 		 *   elements inside the loop.
@@ -98,13 +92,9 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return size == 0; }
 
-		/* MARK: - Constructor, Destructor */
-
 		HeapLoop() { }
 
 		~HeapLoop() { clean(); }
-
-		/* MARK: - Subscript Operator */
 
 		/*!
 		 *   @brief Subscription.
@@ -128,8 +118,6 @@ namespace Collection {
 			}
 			return pointer -> value;
 		}
-
-		/* MARK: - Node Operations */
 
 		/*!
 		 *   @brief Gets the node in the
@@ -177,8 +165,6 @@ namespace Collection {
 			}
 			pointer -> value = val;
 		}
-
-		/* MARK: - Linking Operations */
 
 		/*!
 		 *   @brief Appends a node to the
@@ -330,8 +316,6 @@ namespace Collection {
 			pointer -> next = root;
 			size--;
 		}
-
-		/* MARK: - Cleaning */
 
 		/*!
 		 *   @brief Erases every element

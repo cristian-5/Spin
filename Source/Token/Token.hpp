@@ -25,7 +25,7 @@
 using String = std::string;
 using UInt32 = std::uint32_t;
 
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
 	enum TokenType {

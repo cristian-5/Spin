@@ -22,23 +22,19 @@
 #include <iostream>
 #include <string>
 
+#include "../Aliases/Aliases.hpp"
+
 #include "SRule.hpp"
 
-using String = std::string;
-using UInt32 = std::uint32_t;
-
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
+	/*! @brief Class Syntax. */
 	class Syntax {
 
 		public:
 
-
-
-		Syntax() {
-			
-		}
+		Syntax() { }
 
 	};
 

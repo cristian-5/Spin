@@ -22,13 +22,12 @@
 #include <iostream>
 #include <string>
 
+#include "Aliases/Aliases.hpp"
 #include "Collection/Collection.hpp"
-
-using namespace std;
 
 using namespace Collection;
 
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*! @brief Compiler Class. */
@@ -36,7 +35,7 @@ namespace Stack {
 
 		public:
 
-		static string process(string & code) {
+		static String process(String & code) {
 
 			return code;
 		}

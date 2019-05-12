@@ -19,8 +19,8 @@
 #include <iostream>
 #include <string>
 
+#include "Aliases/Aliases.hpp"
 #include "Collection/Collection.hpp"
-
 #include "Lexer/Lexer.hpp"
 #include "Parser/Parser.hpp"
 
@@ -29,12 +29,7 @@ using namespace std;
 using namespace Collection;
 using namespace Stack;
 
-using UInt32 = std::uint32_t;
-using String = std::string;
-
-#define Char const char *
-
-Int32 main(Int32 argc, Char argv[]) {
+Int32 main(Int32 argc, Character * argv[]) {
 
 	String s = "for"; // for else for else
 	Lexer lexer = Lexer(s);
@@ -47,7 +42,7 @@ Int32 main(Int32 argc, Char argv[]) {
 		cout << "Error on character: " << e.getPosition() << endl;
 		cout << "Unrecognized expression!" << endl;
 		cin.get();
-		return EXIT_FAILURE;
+		return exitFailure;
 	}
 
 	for (UInt32 i = 0; i < tokens.count(); i++) {
@@ -92,5 +87,5 @@ Int32 main(Int32 argc, Char argv[]) {
 
 	cin.get();
 
-	return EXIT_SUCCESS;
+	return exitSuccess;
 }

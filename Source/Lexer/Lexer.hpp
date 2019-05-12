@@ -23,58 +23,33 @@
 #include <string>
 #include <regex>
 
+#include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
-
 #include "../Token/Token.hpp"
 #include "../Token/TRule.hpp"
 
-using String = std::string;
-using SMatch = std::smatch;
-using Regex = std::regex;
-using RegexError = std::regex_error;
-using UInt32 = std::uint32_t;
-using Exception = std::exception;
-
-#define regexSearch std::regex_search
-#define regexReplace std::regex_replace
-
-#define subString substr
-
 using namespace Collection;
-
-/* MARK: - Macros */
 
 #define INVERTED "[^A-Za-z0-9_]"
 
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*!
 	 *   @brief Invalid Token Exception.
 	 *   Raised when the token is not matched.
-	 *   @author Cristian A.
 	 */
 	class InvalidTokenException: public Exception {
-
-		private:
-
-		UInt32 position = 0;
-
-		public:
-
-		UInt32 getPosition() { return position; }
-
+		private: UInt32 position = 0;
+		public: UInt32 getPosition() { return position; }
 		InvalidTokenException(UInt32 character):
 		Exception(), position(character) { }
-
 	};
 
 	/*! @brief Lexer Class. */
 	class Lexer {
 
 		private:
-
-		/* MARK: - Regexes */
 
 		/*!
 		 *   @brief Matches a regex.
@@ -185,8 +160,6 @@ namespace Stack {
 			return input;
 		}
 
-		/* MARK: - Handle Comments */
-
 		String handleComments(String input) {
 			if (input.length() == 0) return input;
 			try {
@@ -204,8 +177,6 @@ namespace Stack {
 			} catch (RegexError & e) { }
 			return input;
 		}
-
-		/* MARK: - Private Data */
 
 		StrongList<TokenRule> grammar = StrongList<TokenRule>();
 
@@ -304,7 +275,8 @@ namespace Stack {
 			data = replaceMatches("\n", data, " ");
 			StrongList<Token> tokens = StrongList<Token>();
 			UInt32 pos = 0;
-			tokens.link(Token("beginFile", beginFile, pos));
+			Token temp = Token("beginFile", beginFile, pos);
+			tokens.link(temp);
 			while (data.length() > 0) {
 				bool tokenized = false;
 				for (UInt32 i = 0; i < grammar.count(); i++) {
@@ -315,14 +287,15 @@ namespace Stack {
 						pos += result.length();
 						if (grammar[i].type == empty) break;
 						if (grammar[i].type == comment) break;
-						Token token = Token(result, grammar[i].type, pos);
-						tokens.link(token);
+						temp = Token(result, grammar[i].type, pos);
+						tokens.link(temp);
 						break;
 					}
 				}
 				if (!tokenized) throw InvalidTokenException(pos);
 			}
-			tokens.link(Token("endFile", endFile, pos + 1));
+			temp = Token("endFile", endFile, pos + 1);
+			tokens.link(temp);
 			return tokens;
 		}
 

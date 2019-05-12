@@ -26,7 +26,7 @@
 
 using String = std::string;
 
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*! @brief TokenRule Class. */

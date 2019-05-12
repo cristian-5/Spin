@@ -21,14 +21,10 @@
 
 #include <iostream>
 
+#include "../Aliases/Aliases.hpp"
+
 #include "Exceptions.hpp"
 #include "StrongList.hpp"
-
-using UInt32 = std::uint32_t;
-using Int32 = std::int32_t;
-using Exception = std::exception;
-
-/* MARK: - Strong Map - */
 
 /*!
  *   @brief Namespace Collection.
@@ -50,7 +46,6 @@ namespace Collection {
 	 *   requires more memory to store a node.
 	 *   @warning This class must be used within
 	 *   a try catch block. It raises exceptions.
-	 *   @author Cristian A.
 	 */
 	template <typename KeyType, typename ValType>
 	class StrongMap {
@@ -69,8 +64,6 @@ namespace Collection {
 		StrongList<Element> map;
 
 		public:
-
-		/* MARK: - Size Related */
 
 		/*!
 		 *   @brief Gets the number of
@@ -92,13 +85,9 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return map.isEmpty(); }
 
-		/* MARK: - Constructor, Destructor */
-
 		StrongMap() { }
 
 		~StrongMap() { clean(); }
-
-		/* MARK: - Subscript Operator */
 
 		/*!
 		 *   @brief Subscription.
@@ -118,8 +107,6 @@ namespace Collection {
 			try { return map[pos]; }
 			catch (Exception & e) { throw; }
 		}
-
-		/* MARK: - Node Operations */
 
 		/*!
 		 *   @brief Gets the node in the
@@ -296,8 +283,6 @@ namespace Collection {
 			catch (Exception & e) { throw; }
 		}
 
-		/* MARK: - Reduce */
-
 		/*!
 		 *   @brief Erases n elements
 		 *   from the start of the map.
@@ -325,8 +310,6 @@ namespace Collection {
 			try { map.reduceLeaf(n); }
 			catch (Exception & e) { throw; }
 		}
-
-		/* MARK: - Finding */
 
 		/*!
 		 *   @brief Finds the position
@@ -424,8 +407,6 @@ namespace Collection {
 			throw ElementNotFoundException();
 		}
 
-		/* MARK: - Cleaning */
-
 		/*!
 		 *   @brief Erases every element
 		 *   inside the map.
@@ -479,8 +460,6 @@ namespace Collection {
 	};
 
 }
-
-/* MARK: - Dictionary - */
 
 #define Dictionary StrongMap
 

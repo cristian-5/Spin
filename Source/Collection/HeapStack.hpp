@@ -21,11 +21,9 @@
 
 #include <iostream>
 
+#include "../Aliases/Aliases.hpp"
+
 #include "Exceptions.hpp"
-
-using UInt32 = std::uint32_t;
-
-/* MARK: - Heap Stack - */
 
 /*!
  *   @brief Namespace Collection.
@@ -46,7 +44,6 @@ namespace Collection {
 	 *   an element inside the stack.
 	 *   @warning This class must be used within
 	 *   a try catch block. It raises exceptions.
-	 *   @author Cristian A.
 	 */
 	template <typename Type>
 	class HeapStack {
@@ -74,8 +71,6 @@ namespace Collection {
 
 		public:
 
-		/* MARK: - Size Related */
-
 		/*!
 		 *   @brief Gets the number of
 		 *   elements inside the stack.
@@ -96,13 +91,9 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return size == 0; }
 
-		/* MARK: - Constructor, Destructor */
-
 		HeapStack() { }
 
 		~HeapStack() { clean(); }
-
-		/* MARK: - Push and Pop */
 
 		/*!
 		 *   @brief Pushes an element onto
@@ -142,8 +133,6 @@ namespace Collection {
 			size--;
 			return value;
 		}
-
-		/* MARK: - Cleaning */
 
 		/*!
 		 *   @brief Erases every element

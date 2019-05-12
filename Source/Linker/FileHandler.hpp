@@ -23,40 +23,28 @@
 #include <fstream>
 #include <string>
 
+#include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
 
 using namespace Collection;
 
-using String = std::string;
-using Exception = std::exception;
-using IFStream = std::ifstream;
-
-#define Boolean bool
-#define stringValue c_str
-
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*!
 	 *   @brief Bad File Exception.
 	 *   Raised when the input file
 	 *   is corrupted or the path is invalid.
-	 *   @author Cristian A.
 	 */
 	class BadFileException: public Exception {
-
 		private:
-
 		const String * p;
-
 		public:
-
 		BadFileException(String & path): Exception() { p = & path; }
-
 		const String getPath() const { return * p; }
-
 	};
 
+	/*! @brief File Handler Class. */
 	class FileHandler {
 
 		public:

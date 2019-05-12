@@ -22,19 +22,17 @@
 #include <iostream>
 #include <string>
 
+#include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
-
 #include "../Token/Token.hpp"
 #include "../Syntax/SRule.hpp"
 
-using String = std::string;
-using UInt32 = std::uint32_t;
-
 using namespace Collection;
 
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
+	/*! @brief Class TreeNode. */
 	class TreeNode {
 		
 		public:
@@ -67,6 +65,7 @@ namespace Stack {
 
 	};
 
+	/*! @brief Class AbstractSyntaxTree. */
 	class AbstractSyntaxTree {
 
 		public:

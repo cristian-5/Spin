@@ -22,27 +22,20 @@
 #include <iostream>
 #include <string>
 
+#include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
-
 #include "../Syntax/SRule.hpp"
 
 #include "ASTree.hpp"
 
-using String = std::string;
-using UInt32 = std::uint32_t;
-using Exception = std::exception;
-
-#define Boolean bool
-
 using namespace Collection;
 
-/*! @brief Namespace Stack */
+/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*!
 	 *   @brief Invalid Grammar Exception.
 	 *   Raised when the grammar is not invaid.
-	 *   @author Cristian A.
 	 */
 	class InvalidGrammarException: public Exception {
 		public: InvalidGrammarException(): Exception() { }
@@ -51,16 +44,14 @@ namespace Stack {
 	/*!
 	 *   @brief Empty Grammar Exception.
 	 *   Raised when the grammar is empty.
-	 *   @author Cristian A.
 	 */
 	class EmptyGrammarException: public Exception {
 		public: EmptyGrammarException(): Exception() { }
 	};
 
 	/*!
-	 *   @brief SyntaxErrorException.
-	 *   Raised when a token is unexcepted.
-	 *   @author Cristian A.
+	 *   @brief Syntax Error Exception.
+	 *   Raised when a token is unexpected.
 	 */
 	class SyntaxErrorException: public Exception {
 		private: Token token = Token();
@@ -69,6 +60,10 @@ namespace Stack {
 		Exception(), token(t) { }
 	};
 
+	/*!
+	 *   @brief Parser Class.
+	 *   Used to parse a grammar.
+	 */
 	class Parser {
 
 		private:

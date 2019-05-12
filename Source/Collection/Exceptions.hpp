@@ -21,9 +21,7 @@
 
 #include <iostream>
 
-using Exception = std::exception;
-
-/* MARK: - Heap Exceptions - */
+#include "../Aliases/Aliases.hpp"
 
 /*!
  *   @brief Namespace Collection.
@@ -37,7 +35,6 @@ namespace Collection {
 	 *   @brief Invalid Index Exception.
 	 *   Raised when the index overflows
 	 *   or underflows the list bounds.
-	 *   @author Cristian A.
 	 */
 	class InvalidIndexException: public Exception {
 		public: InvalidIndexException(): Exception() { }
@@ -47,7 +44,6 @@ namespace Collection {
 	 *   @brief Invalid Element Count Exception.
 	 *   Raised when the number of elements
 	 *   to remove is invalid.
-	 *   @author Cristian A.
 	 */
 	class ElementCountException: public Exception {
 		public: ElementCountException(): Exception() { }
@@ -56,7 +52,6 @@ namespace Collection {
 	/*!
 	 *   @brief Element Not Found Exception.
 	 *   Raised when the element can't be found.
-	 *   @author Cristian A.
 	 */
 	class ElementNotFoundException: public Exception {
 		public: ElementNotFoundException(): Exception() { }
@@ -66,7 +61,6 @@ namespace Collection {
 	 *   @brief Empty List Exception.
 	 *   Raised when trying to perform
 	 *   an operation on an empty list.
-	 *   @author Cristian A.
 	 */
 	class EmptyListException: public Exception {
 		public: EmptyListException(): Exception() { }
@@ -76,7 +70,6 @@ namespace Collection {
 	 *   @brief Empty Loop Exception.
 	 *   Raised when trying to perform
 	 *   an operation on an empty loop.
-	 *   @author Cristian A.
 	 */
 	class EmptyLoopException: public Exception {
 		public: EmptyLoopException(): Exception() { }
@@ -87,7 +80,6 @@ namespace Collection {
 	 *   Raised when trying to perform
 	 *   a linkBefore operation with a
 	 *   value of 0 on a loop.
-	 *   @author Cristian A.
 	 */
 	class HangingInLoopException: public Exception {
 		public: HangingInLoopException(): Exception() { }
@@ -97,7 +89,6 @@ namespace Collection {
 	 *   @brief Empty Stack Exception.
 	 *   Raised when trying to perform a
 	 *   pop operation on an empty stack.
-	 *   @author Cristian A.
 	 */
 	class EmptyStackException: public Exception {
 		public: EmptyStackException(): Exception() { }

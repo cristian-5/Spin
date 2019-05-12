@@ -21,11 +21,9 @@
 
 #include <iostream>
 
+#include "../Aliases/Aliases.hpp"
+
 #include "Exceptions.hpp"
-
-using UInt32 = std::uint32_t;
-
-/* MARK: - Strong List - */
 
 /*!
  *   @brief Namespace Collection.
@@ -47,7 +45,6 @@ namespace Collection {
 	 *   requires more memory to store a node.
 	 *   @warning This class must be used within
 	 *   a try catch block. It raises exceptions.
-	 *   @author Cristian A.
 	 */
 	template <typename Type>
 	class StrongList {
@@ -80,8 +77,6 @@ namespace Collection {
 
 		public:
 
-		/* MARK: - Size Related */
-
 		/*!
 		 *   @brief Gets the number of
 		 *   elements inside the list.
@@ -102,13 +97,9 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return size == 0; }
 
-		/* MARK: - Constructor, Destructor */
-
 		StrongList() { }
 
 		~StrongList() { clean(); }
-
-		/* MARK: - Subscript Operator */
 
 		/*!
 		 *   @brief Subscription.
@@ -141,8 +132,6 @@ namespace Collection {
 				return pointer -> value;
 			}
 		}
-
-		/* MARK: - Node Operations */
 
 		/*!
 		 *   @brief Gets the node in the
@@ -208,8 +197,6 @@ namespace Collection {
 				pointer -> value = val;
 			}
 		}
-
-		/* MARK: - Linking Operations */
 
 		/*!
 		 *   @brief Appends a node to the
@@ -416,8 +403,6 @@ namespace Collection {
 			size--;
 		}
 
-		/* MARK: - Reduce */
-
 		/*!
 		 *   @brief Erases n elements
 		 *   from the start of the list.
@@ -457,8 +442,6 @@ namespace Collection {
 				size--;
 			}
 		}
-
-		/* MARK: - Cleaning */
 
 		/*!
 		 *   @brief Erases every element
