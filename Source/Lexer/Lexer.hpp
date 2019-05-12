@@ -278,7 +278,7 @@ namespace Stack {
 			Token temp = Token("beginFile", beginFile, pos);
 			tokens.link(temp);
 			while (data.length() > 0) {
-				bool tokenized = false;
+				Boolean tokenized = false;
 				for (UInt32 i = 0; i < grammar.count(); i++) {
 					String result = matchCloseStart(grammar[i].pattern, data);
 					if (result.length() > 0) {
