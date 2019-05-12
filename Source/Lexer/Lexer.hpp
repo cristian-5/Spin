@@ -304,7 +304,7 @@ namespace Stack {
 			data = replaceMatches("\n", data, " ");
 			StrongList<Token> tokens = StrongList<Token>();
 			UInt32 pos = 0;
-			tokens.link(* (new Token("beginFile", beginFile, pos)));
+			tokens.link(Token("beginFile", beginFile, pos));
 			while (data.length() > 0) {
 				bool tokenized = false;
 				for (UInt32 i = 0; i < grammar.count(); i++) {
@@ -315,14 +315,14 @@ namespace Stack {
 						pos += result.length();
 						if (grammar[i].type == empty) break;
 						if (grammar[i].type == comment) break;
-						Token * token = new Token(result, grammar[i].type, pos);
-						tokens.link(* token);
+						Token token = Token(result, grammar[i].type, pos);
+						tokens.link(token);
 						break;
 					}
 				}
 				if (!tokenized) throw InvalidTokenException(pos);
 			}
-			tokens.link(* (new Token("endFile", endFile, pos + 1)));
+			tokens.link(Token("endFile", endFile, pos + 1));
 			return tokens;
 		}
 
