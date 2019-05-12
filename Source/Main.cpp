@@ -36,7 +36,7 @@ using String = std::string;
 
 Int32 main(Int32 argc, Char argv[]) {
 
-	String s = "for else for else"; // for else for else
+	String s = "for"; // for else for else
 	Lexer lexer = Lexer(s);
 
 	StrongList<Token> tokens = StrongList<Token>();
@@ -49,6 +49,11 @@ Int32 main(Int32 argc, Char argv[]) {
 		cin.get();
 		return EXIT_FAILURE;
 	}
+
+	for (UInt32 i = 0; i < tokens.count(); i++) {
+		cout << tokens[i].value << " ";
+	}
+	cout << endl;
 
 	Token * bf = new Token("sof", beginFile);
 	Token * ef = new Token("eof", endFile);
@@ -66,12 +71,12 @@ Int32 main(Int32 argc, Char argv[]) {
 	SRule * efR = new SRule(ef);
 
 	bfR -> addNextRule(ifR);
-	bfR -> addNextRule(f1R);
+	bfR -> addNextRule(f2R);
 
 	// first path
-	ifR -> addNextRule(f2R);
+	ifR -> addNextRule(f1R);
 	ifR -> addNextRule(ifR);
-	f2R -> addNextRule(efR);
+	f1R -> addNextRule(efR);
 
 	// second path
 	f2R -> addNextRule(elR);
