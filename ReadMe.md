@@ -37,8 +37,8 @@ the Stack project directory.
 Execute the following to compile using **clang++**:
 
 ``` bash
-    cd Source
-	clang++ -o Main Main.cpp -std=c++17
+cd Source
+clang++ -o Main Main.cpp -std=c++17
 ```
 
 This creates a `Main` file in the same folder;
