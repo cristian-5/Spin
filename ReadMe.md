@@ -11,9 +11,9 @@ The documentation contains the language syntax specification.
 
 ## Code Contribution
 
-If you want to contribute you must follow this 
-[Conventions](Conventions.md) in order to keep
-the code clean and an organized file structure.
+If you want to contribute you must follow the standard 
+[Conventions](Conventions.md) in order to keep the
+file structure organized and the code clean.
 
 ## Compilation
 
