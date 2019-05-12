@@ -77,30 +77,32 @@ namespace Stack {
 
 		SRule * grammarRules;
 
-		Boolean parse(SRule * r, UInt32 i, AbstractSyntaxTree & ast) {
-			if (i >= tokens.count()) return false;
-			Token * t = & tokens[i];
+		Boolean parse(SRule * r, UInt32 index) {
+			if (index >= tokens.count()) return false;
+			Token * t = & tokens[index];
 			Boolean matches = r -> matches(t);
 			if (r -> isTerminal()) return matches;
 			if (!matches) return false;
-			Boolean parsed = true;
+			index += 1;
 			for (UInt32 j = 0; j < r -> nextRules.count(); j++) {
-				parsed = parsed && parse(r -> nextRules[j], ++i, ast);
+				if (parse(r -> nextRules[j], index)) return true;
 			}
-			return parsed;
+			return false;
 		}
 
 		public:
 
 		Parser(StrongList<Token> * t, Grammar * g) {
 			tokens = * t;
-			if (g -> isEmpty()) throw EmptyGrammarException();
+			if (g -> isEmpty()) {
+				throw EmptyGrammarException();
+			}
 			grammarRules = g;
 		}
 
 		AbstractSyntaxTree parse() {
 			AbstractSyntaxTree ast = AbstractSyntaxTree();
-			std::cout << (parse(grammarRules, 0, ast) ? "p" : "!") << std::endl;
+			std::cout << (parse(grammarRules, 0) ? "p" : "!") << std::endl;
 			return ast;
 		}
 
