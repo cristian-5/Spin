@@ -22,8 +22,7 @@
 #include <iostream>
 #include <string>
 
-using String = std::string;
-using UInt32 = std::uint32_t;
+#include "../Aliases/Aliases.hpp"
 
 /*! @brief Namespace Stack. */
 namespace Stack {

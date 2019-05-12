@@ -22,14 +22,14 @@
 #include <iostream>
 #include <string>
 
-#include "Token.hpp"
+#include "../Aliases/Aliases.hpp"
 
-using String = std::string;
+#include "Token.hpp"
 
 /*! @brief Namespace Stack. */
 namespace Stack {
 
-	/*! @brief TokenRule Class. */
+	/*! @brief Class TokenRule. */
 	class TokenRule {
 
 		public:
