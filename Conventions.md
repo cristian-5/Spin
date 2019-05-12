@@ -60,6 +60,20 @@ for one statement (`if (true) { i++; }` -> `if (true) i++;`).
 
 Function identifiers should be camelCased and Objects TitleCased.
 
+Includes should be divided in System, Local and Grouped;
+in this order, divided by one empty line:
+
+``` cpp
+#include <iostream>
+#include <string>
+
+#include "../Aliases/Aliases.hpp"
+#include "../Collection/Collection.hpp"
+#include "../Syntax/SRule.hpp"
+
+#include "ASTree.hpp"
+```
+
 ## Documentation Conventions
 
 Always write documentation for your code in the multiline doxygen style.
