@@ -3,8 +3,8 @@
 
 Stack Programming Language
 
-High level programming language for research and
-quantum computing based on C++, Swift and C#.
+High level programming language for *research* and
+**Quantum Computing** based on C++, Swift and C#.
 
 This language is also suitable for Biologists,
 Engineers, Mathematicians (Libraries in progress)
