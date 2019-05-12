@@ -46,7 +46,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	}
 
 	for (UInt32 i = 0; i < tokens.count(); i++) {
-		cout << tokens[i].value << " ";
+		cout << tokens[i].type << " : " << tokens[i].value << endl;
 	}
 	cout << endl;
 
