@@ -61,7 +61,7 @@ for one statement (`if (true) { i++; }` -> `if (true) i++;`).
 Function identifiers should be camelCased and Objects TitleCased.
 
 Includes should be divided in System, Local and Grouped;
-in this order, divided by one empty line:
+in this order, separated by one empty line:
 
 ``` cpp
 #include <iostream>
