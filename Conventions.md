@@ -58,6 +58,8 @@ Always use the aliases defined instead of the **Type Keywords**.
 Try to wrap code when necessary and don't use context braces
 for one statement (`if (true) { i++; }` -> `if (true) i++;`).
 
+Function identifiers should be cameCased and Objects TitleCased.
+
 ## Documentation Conventions
 
 Always write documentation for your code in the multiline doxygen style.
