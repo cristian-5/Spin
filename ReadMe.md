@@ -11,7 +11,7 @@ The documentation contains the language syntax specification.
 
 ## Code Contribution
 
-If you want to contribute you must follow the standard 
+If you want to contribute you must follow these 
 [Conventions](Conventions.md) in order to keep the
 file structure organized and the code clean.
 
@@ -51,8 +51,8 @@ the working directory to the Stack project directory.
 Execute the following to compile with **cl**:
 
 ``` bat
-    cd Source
-    cl /EHsc Main.cpp
+cd Source
+cl /EHsc Main.cpp
 ```
 
 This creates a `Main.obj` and a `Main.exe` file in the
@@ -61,8 +61,8 @@ same folder; double click is sufficient to run the code.
 In addition you can build the project with **clang++**:
 
 ``` bat
-    cd Source
-	clang++ -o Main.exe Main.cpp -std=c++17
+cd Source
+clang++ -o Main.exe Main.cpp -std=c++17
 ```
 
 Just make sure you have *clang++ LLVM* installed and
