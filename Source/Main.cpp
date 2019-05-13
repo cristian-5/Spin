@@ -31,7 +31,7 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String s = "for"; // for else for else
+	String s = "for else for else"; // for else for else
 	Lexer lexer = Lexer(s);
 
 	StrongList<Token> tokens = StrongList<Token>();
@@ -46,7 +46,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	}
 
 	for (UInt32 i = 0; i < tokens.count(); i++) {
-		cout << tokens[i].type << " : " << tokens[i].value << endl;
+		cout << tokens[i].type << " : " << tokens[i].position << endl;
 	}
 	cout << endl;
 
