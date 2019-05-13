@@ -28,7 +28,10 @@
 #include "../Token/Token.hpp"
 #include "../Token/TRule.hpp"
 
+#include "Regex.hpp"
+
 using namespace Collection;
+using namespace RegexTools;
 
 #define INVERTED "[^A-Za-z0-9_]"
 
@@ -50,115 +53,6 @@ namespace Stack {
 	class Lexer {
 
 		private:
-
-		/*!
-		 *   @brief Matches a regex.
-		 *   @param rgx Regex String.
-		 *   @param input Input String.
-		 *   @returns The matched String.
-		 */
-		String match(String rgx, String input) {
-			String result = "";
-			try {
-				Regex regex(rgx);
-				SMatch match;
-				regexSearch(input, match, regex);
-				if (match.size() > 0) {
-					result = match.str(0);
-				} else return "";
-			} catch (RegexError & e) {
-				return "";
-			}
-			return result;
-		}
-
-		/*!
-		 *   @brief Matches a regex and returns
-		 *   the first capture group.
-		 *   @param rgx Regex String.
-		 *   @param input Input String.
-		 *   @returns The first matched group.
-		 */
-		String matchClose(String rgx, String input) {
-			String result = "";
-			try {
-				Regex regex(rgx);
-				SMatch match;
-				regexSearch(input, match, regex);
-				if (match.size() > 1) {
-					result = match.str(1);
-				} else return "";
-			} catch (RegexError & e) {
-				return "";
-			}
-			return result;
-		}
-
-		/*!
-		 *   @brief Matches a regex and returns
-		 *   all captures group in a list.
-		 *   @param rgx Regex String.
-		 *   @param input Input String.
-		 *   @returns The matched groups.
-		 */
-		StrongList<String> matchGroupClose(String rgx, String input) {
-			StrongList<String> result = StrongList<String>();
-			try {
-				Regex regex(rgx);
-				SMatch match;
-				regexSearch(input, match, regex);
-				if (match.size() > 1) {
-					for (Int32 i = 1; i < match.size(); i++) {
-						result.link(* (new String(match.str(i))));
-					}
-				} else return StrongList<String>();
-			} catch (RegexError & e) {
-				return StrongList<String>();
-			}
-			return result;
-		}
-
-		/*!
-		 *   @brief Matches a regex at the
-		 *   beginning of a String.
-		 *   @param rgx Regex String.
-		 *   @param input Input String.
-		 *   @returns The matched String.
-		 */
-		String matchStart(String rgx, String input) {
-			return match("^" + rgx, input);
-		}
-
-		/*!
-		 *   @brief Matches a regex at the
-		 *   beginning of a String and returns
-		 *   the first capture group.
-		 *   @param rgx Regex String.
-		 *   @param input Input String.
-		 *   @returns The first matched group.
-		 */
-		String matchCloseStart(String rgx, String input) {
-			return matchClose("^" + rgx, input);
-		}
-
-		/*!
-		 *   @brief Replaces every occurrence of the
-		 *   match with the given String.
-		 *   @param match Match String.
-		 *   @param input Input String.
-		 *   @param replace Input Replace.
-		 *   @returns The replaced String.
-		 */
-		String replaceMatches(String match, String input, String replace) {
-			if (match.length() == 0) return input;
-			if (input.length() == 0) return input;
-			Int32 position = input.find(match);
-			while (position != String::npos) {
-				input.replace(position, match.length(), replace);
-				position = input.find(match);
-			}
-			return input;
-		}
 
 		String handleComments(String input) {
 			if (input.length() == 0) return input;
@@ -188,81 +82,92 @@ namespace Stack {
 
 			input = data;
 
-			grammar.link(* (new TokenRule("([ \\t\\n]+)", empty)));
-			grammar.link(* (new TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment)));
+			const UInt32 tokenCount = 67;
 
-			grammar.link(* (new TokenRule("(-?[0-9]+\\.[0-9]+)", realLiteral)));
-			grammar.link(* (new TokenRule("(-?[0-9]+)", integerLiteral)));
-			grammar.link(* (new TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral)));
-			grammar.link(* (new TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral)));
-			grammar.link(* (new TokenRule("(true|false)" INVERTED, boolLiteral)));
+			TokenRule rules[tokenCount] = {
 
-			grammar.link(* (new TokenRule("(\\:)", colon)));
-			grammar.link(* (new TokenRule("(\\;)", semicolon)));
-			grammar.link(* (new TokenRule("(\\,)", comma)));
-			grammar.link(* (new TokenRule("(\\.)", dot)));
-			grammar.link(* (new TokenRule("(<)", minor)));
-			grammar.link(* (new TokenRule("(>)", major)));
-			grammar.link(* (new TokenRule("(=)", equal)));
-			grammar.link(* (new TokenRule("(\\?)", questionMark)));
-			grammar.link(* (new TokenRule("(\\!)", exclamationMark)));
+				TokenRule("([ \\t\\n]+)", empty),
+				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment),
 
-			grammar.link(* (new TokenRule("(\\+)", plus)));
-			grammar.link(* (new TokenRule("(-)", minus)));
-			grammar.link(* (new TokenRule("(\\*)", star)));
-			grammar.link(* (new TokenRule("(\\\\)", backslash)));
-			grammar.link(* (new TokenRule("(\\/)", slash)));
-			grammar.link(* (new TokenRule("(@)", at)));
-			grammar.link(* (new TokenRule("(|)", pipe)));
-			grammar.link(* (new TokenRule("(#)", hashtag)));
-			grammar.link(* (new TokenRule("(&)", ampersand)));
-			grammar.link(* (new TokenRule("(%)", modulus)));
-			grammar.link(* (new TokenRule("($)", dollar)));
-			grammar.link(* (new TokenRule("(^)", hat)));
+				TokenRule("(-?[0-9]+\\.[0-9]+)", realLiteral),
+				TokenRule("(-?[0-9]+)", integerLiteral),
+				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral),
+				TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral),
+				TokenRule("(true|false)" INVERTED, boolLiteral),
 
-			grammar.link(* (new TokenRule("(\\()", openRoundBracket)));
-			grammar.link(* (new TokenRule("(\\))", closeRoundBracket)));
-			grammar.link(* (new TokenRule("(\\[)", openSquareBracket)));
-			grammar.link(* (new TokenRule("(\\])", closeSquareBracket)));
-			grammar.link(* (new TokenRule("(\\{)", openCurlyBracket)));
-			grammar.link(* (new TokenRule("(\\})", closeCurlyBracket)));
+				TokenRule("(\\:)", colon),
+				TokenRule("(\\;)", semicolon),
+				TokenRule("(\\,)", comma),
+				TokenRule("(\\.)", dot),
+				TokenRule("(<)", minor),
+				TokenRule("(>)", major),
+				TokenRule("(=)", equal),
+				TokenRule("(\\?)", questionMark),
+				TokenRule("(\\!)", exclamationMark),
 
-			grammar.link(* (new TokenRule("(try)" INVERTED, tryKeyword)));
-			grammar.link(* (new TokenRule("(catch)" INVERTED, catchKeyword)));
-			grammar.link(* (new TokenRule("(throw)" INVERTED, throwKeyword)));
-			grammar.link(* (new TokenRule("(throws)" INVERTED, throwsKeyword)));
-			grammar.link(* (new TokenRule("(avoid)" INVERTED, avoidKeyword)));
+				TokenRule("(\\+)", plus),
+				TokenRule("(-)", minus),
+				TokenRule("(\\*)", star),
+				TokenRule("(\\\\)", backslash),
+				TokenRule("(\\/)", slash),
+				TokenRule("(@)", at),
+				TokenRule("(|)", pipe),
+				TokenRule("(#)", hashtag),
+				TokenRule("(&)", ampersand),
+				TokenRule("(%)", modulus),
+				TokenRule("($)", dollar),
+				TokenRule("(^)", hat),
 
-			grammar.link(* (new TokenRule("(if)" INVERTED, ifKeyword)));
-			grammar.link(* (new TokenRule("(else)" INVERTED, elseKeyword)));
-			grammar.link(* (new TokenRule("(switch)" INVERTED, ifKeyword)));
-			grammar.link(* (new TokenRule("(case)" INVERTED, caseKeyword)));
-			grammar.link(* (new TokenRule("(default)" INVERTED, defaultKeyword)));
-			grammar.link(* (new TokenRule("(while)" INVERTED, whileKeyword)));
-			grammar.link(* (new TokenRule("(do)" INVERTED, doKeyword)));
-			grammar.link(* (new TokenRule("(loop)" INVERTED, loopKeyword)));
-			grammar.link(* (new TokenRule("(for)" INVERTED, forKeyword)));
-			grammar.link(* (new TokenRule("(repeat)" INVERTED, repeatKeyword)));
-			grammar.link(* (new TokenRule("(until)" INVERTED, untilKeyword)));
-			grammar.link(* (new TokenRule("(break)" INVERTED, breakKeyword)));
-			grammar.link(* (new TokenRule("(continue)" INVERTED, continueKeyword)));
+				TokenRule("(\\()", openRoundBracket),
+				TokenRule("(\\))", closeRoundBracket),
+				TokenRule("(\\[)", openSquareBracket),
+				TokenRule("(\\])", closeSquareBracket),
+				TokenRule("(\\{)", openCurlyBracket),
+				TokenRule("(\\})", closeCurlyBracket),
 
-			grammar.link(* (new TokenRule("(func)" INVERTED, funcKeyword)));
-			grammar.link(* (new TokenRule("(proc)" INVERTED, procKeyword)));
-			grammar.link(* (new TokenRule("(static)" INVERTED, staticKeyword)));
-			grammar.link(* (new TokenRule("(class)" INVERTED, classKeyword)));
-			grammar.link(* (new TokenRule("(enumerator)" INVERTED, enumKeyword)));
-			grammar.link(* (new TokenRule("(structure)" INVERTED, structKeyword)));
-			grammar.link(* (new TokenRule("(exception)" INVERTED, exceptKeyword)));
-			grammar.link(* (new TokenRule("(private)" INVERTED, privateKeyword)));
-			grammar.link(* (new TokenRule("(public)" INVERTED, publicKeyword)));
-			grammar.link(* (new TokenRule("(inout)" INVERTED, inoutKeyword)));
-			grammar.link(* (new TokenRule("(const)" INVERTED, constKeyword)));
-			grammar.link(* (new TokenRule("(null)" INVERTED, nullKeyword)));
-			grammar.link(* (new TokenRule("(nope?)" INVERTED, nop)));
-			grammar.link(* (new TokenRule("(return)" INVERTED, returnKeyword)));
+				TokenRule("(try)" INVERTED, tryKeyword),
+				TokenRule("(catch)" INVERTED, catchKeyword),
+				TokenRule("(throw)" INVERTED, throwKeyword),
+				TokenRule("(throws)" INVERTED, throwsKeyword),
+				TokenRule("(avoid)" INVERTED, avoidKeyword),
 
-			grammar.link(* (new TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, identifier)));
+				TokenRule("(if)" INVERTED, ifKeyword),
+				TokenRule("(else)" INVERTED, elseKeyword),
+				TokenRule("(switch)" INVERTED, ifKeyword),
+				TokenRule("(case)" INVERTED, caseKeyword),
+				TokenRule("(default)" INVERTED, defaultKeyword),
+				TokenRule("(while)" INVERTED, whileKeyword),
+				TokenRule("(do)" INVERTED, doKeyword),
+				TokenRule("(loop)" INVERTED, loopKeyword),
+				TokenRule("(for)" INVERTED, forKeyword),
+				TokenRule("(repeat)" INVERTED, repeatKeyword),
+				TokenRule("(until)" INVERTED, untilKeyword),
+				TokenRule("(break)" INVERTED, breakKeyword),
+				TokenRule("(continue)" INVERTED, continueKeyword),
+
+				TokenRule("(func)" INVERTED, funcKeyword),
+				TokenRule("(proc)" INVERTED, procKeyword),
+				TokenRule("(static)" INVERTED, staticKeyword),
+				TokenRule("(class)" INVERTED, classKeyword),
+				TokenRule("(enumerator)" INVERTED, enumKeyword),
+				TokenRule("(structure)" INVERTED, structKeyword),
+				TokenRule("(exception)" INVERTED, exceptKeyword),
+				TokenRule("(private)" INVERTED, privateKeyword),
+				TokenRule("(public)" INVERTED, publicKeyword),
+				TokenRule("(inout)" INVERTED, inoutKeyword),
+				TokenRule("(const)" INVERTED, constKeyword),
+				TokenRule("(null)" INVERTED, nullKeyword),
+				TokenRule("(nope?)" INVERTED, nop),
+				TokenRule("(return)" INVERTED, returnKeyword),
+
+				TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, identifier),
+
+			};
+
+			for (UInt32 i = 0; i < tokenCount; i++) {
+				TokenRule temp = rules[i];
+				grammar.link(temp);
+			}
 
 		}
 
