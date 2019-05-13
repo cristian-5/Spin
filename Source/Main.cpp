@@ -31,22 +31,24 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String s = "for else for else"; // for else for else
-	Lexer lexer = Lexer(s);
+	String s = "for else for"; // for else for else
+	Lexer lexer = Lexer();
 
-	StrongList<Token> tokens = StrongList<Token>();
+	StrongList<Token> * tokens = nullptr;
 
 	try {
-		tokens = lexer.tokenize();
+		tokens = lexer.tokenize(& s);
 	} catch (InvalidTokenException & e) {
-		cout << "Error on character: " << e.getPosition() << endl;
+		FilePosition f = e.getPosition();
+		cout << "Error in Main.stk [row: " << f.row;
+		cout << ", col:" << f.col << "];" << endl;
 		cout << "Unrecognized expression!" << endl;
 		cin.get();
 		return exitFailure;
 	}
 
-	for (UInt32 i = 0; i < tokens.count(); i++) {
-		cout << tokens[i].type << " : " << tokens[i].position << endl;
+	for (UInt32 i = 0; i < tokens -> count(); i++) {
+		cout << tokens -> getNode(i).type << " : " << tokens -> getNode(i).value << endl;
 	}
 	cout << endl;
 
@@ -79,13 +81,18 @@ Int32 main(Int32 argc, Character * argv[]) {
 	elR -> addNextRule(efR);
 
 	try {
-		Parser p = Parser(& tokens, bfR);
+		Parser p = Parser(tokens, bfR);
 		p.parse();
-	} catch (Exception e) {
-		cout << "error" << endl;
+		cout << "Parsed Successfully!" << endl;
+	} catch (Exception & e) {
+		cout << "Syntax Error!" << endl;
+		cin.get();
+		return exitFailure;
 	}
 
 	cin.get();
+
+	/* TODO: Delete Pointers! */
 
 	return exitSuccess;
 }
