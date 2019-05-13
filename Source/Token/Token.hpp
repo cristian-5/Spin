@@ -123,16 +123,14 @@ namespace Stack {
 
 		public:
 
-		TokenType type;
-		String value;
-		UInt32 position;
+		TokenType type = empty;
+		String value = "";
+		UInt32 position = 0;
 
 		Token() { }
 
-		Token(String val, TokenType t, UInt32 pos = 0) {
-			value = val;
-			type = t;
-			position = pos;
+		Token(String v, TokenType t, UInt32 p = 0) {
+			value = v; type = t; position = p;
 		}
 
 	};
