@@ -42,11 +42,27 @@ namespace Stack {
 	};
 
 	/*!
+	 *   @brief Invalid Pointer Exception.
+	 *   Raised when the pointer is not invaid.
+	 */
+	class InvalidPointerException: public Exception {
+		public: InvalidPointerException(): Exception() { }
+	};
+
+	/*!
 	 *   @brief Empty Grammar Exception.
 	 *   Raised when the grammar is empty.
 	 */
 	class EmptyGrammarException: public Exception {
 		public: EmptyGrammarException(): Exception() { }
+	};
+
+	/*!
+	 *   @brief Empty Token Exception.
+	 *   Raised when the grammar is empty.
+	 */
+	class EmptyTokenException: public Exception {
+		public: EmptyTokenException(): Exception() { }
 	};
 
 	/*!
@@ -56,7 +72,7 @@ namespace Stack {
 	class SyntaxErrorException: public Exception {
 		private: Token token = Token();
 		public: Token getToken() { return token; }
-		SyntaxErrorException(Token t):
+		SyntaxErrorException(Token t = Token()):
 		Exception(), token(t) { }
 	};
 
@@ -68,14 +84,14 @@ namespace Stack {
 
 		private:
 
-		StrongList<Token> tokens = StrongList<Token>();
+		StrongList<Token> * tokens = nullptr;
 
-		SRule * grammarRules;
+		Grammar * grammar = nullptr;
 
 		Boolean parse(SRule * r, UInt32 index) {
-			if (index >= tokens.count()) return false;
-			Token * t = & tokens[index];
-			Boolean matches = r -> matches(t);
+			if (index >= tokens -> count()) return false;
+			Token t = tokens -> getNode(index);
+			Boolean matches = r -> matches(& t);
 			if (r -> isTerminal()) return matches;
 			if (!matches) return false;
 			index += 1;
@@ -88,17 +104,17 @@ namespace Stack {
 		public:
 
 		Parser(StrongList<Token> * t, Grammar * g) {
-			tokens = * t;
-			if (g -> isEmpty()) {
-				throw EmptyGrammarException();
-			}
-			grammarRules = g;
+			if (t == nullptr) throw InvalidPointerException();
+			if (g == nullptr) throw InvalidPointerException();
+			if (t -> isEmpty()) throw EmptyTokenException();
+			if (g -> isEmpty()) throw EmptyGrammarException();
+			tokens = t; grammar = g;
 		}
 
-		AbstractSyntaxTree parse() {
-			AbstractSyntaxTree ast = AbstractSyntaxTree();
-			std::cout << (parse(grammarRules, 0) ? "p" : "!") << std::endl;
-			return ast;
+		void parse() {
+			if (!parse(grammar, 0)) {
+				throw SyntaxErrorException();
+			}
 		}
 
 	};
