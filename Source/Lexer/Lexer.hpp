@@ -39,14 +39,25 @@ using namespace RegexTools;
 namespace Stack {
 
 	/*!
+	 *   @brief File Position Structure.
+	 *   Used to determine a specific
+	 *   line and column position of a
+	 *   character.
+	 */
+	struct FilePosition {
+		UInt32 col = 0;
+		UInt32 row = 0;
+	};
+
+	/*!
 	 *   @brief Invalid Token Exception.
 	 *   Raised when the token is not matched.
 	 */
 	class InvalidTokenException: public Exception {
-		private: UInt32 position = 0;
-		public: UInt32 getPosition() { return position; }
-		InvalidTokenException(UInt32 character):
-		Exception(), position(character) { }
+		private: FilePosition pos = { 0, 0 };
+		public: FilePosition getPosition() { return pos; }
+		InvalidTokenException(FilePosition position):
+		Exception(), pos(position) { }
 	};
 
 	/*! @brief Lexer Class. */
@@ -72,15 +83,7 @@ namespace Stack {
 			return input;
 		}
 
-		StrongList<TokenRule> grammar = StrongList<TokenRule>();
-
-		public:
-
-		String input = "";
-
-		Lexer(String data = "") {
-
-			input = data;
+		void generateTokens() {
 
 			const UInt32 tokenCount = 67;
 
@@ -171,17 +174,28 @@ namespace Stack {
 
 		}
 
-		StrongList<Token> tokenize() {
+		FilePosition getPosition(String * input, UInt32 cursor) {
+			FilePosition result = { 0, 0 };
+			return result;
+		}
+
+		StrongList<TokenRule> grammar = StrongList<TokenRule>();
+
+		public:
+
+		Lexer() { generateTokens(); }
+
+		StrongList<Token> * tokenize(String * input) {
 			// Handle Last Token:
-			String data = input + "\n";
+			String data = (* input) + "\n";
 			// Handle Single Line Comments:
 			data = handleComments(data);
 			// Handle EndLines:
 			data = replaceMatches("\n", data, " ");
-			StrongList<Token> tokens = StrongList<Token>();
+			StrongList<Token> * tokens = new StrongList<Token>();
 			UInt32 pos = 0;
 			Token temp = Token("beginFile", beginFile, 0);
-			tokens.link(temp);
+			tokens -> link(temp);
 			while (data.length() > 0) {
 				Boolean tokenized = false;
 				for (UInt32 i = 0; i < grammar.count(); i++) {
@@ -193,14 +207,15 @@ namespace Stack {
 						pos += result.length();
 						if (grammar[i].type == empty) break;
 						if (grammar[i].type == comment) break;
-						tokens.link(temp);
+						tokens -> link(temp);
 						break;
 					}
 				}
-				if (!tokenized) throw InvalidTokenException(pos);
+				FilePosition fp = getPosition(input, pos);
+				if (!tokenized) throw InvalidTokenException(fp);
 			}
-			temp = Token("endFile", endFile, 0);
-			tokens.link(temp);
+			temp = Token("beginFile", endFile, 0);
+			tokens -> link(temp);
 			return tokens;
 		}
 
