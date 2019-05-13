@@ -67,7 +67,7 @@ In addition you can build the project with **clang++**:
 
 ``` bat
 cd Source
-clang++ -o Main.exe Main.cpp -std=c++17
+clang++ -o Main.exe Main.cpp -std=c++17 -Xclang -flto-visibility-public-std
 ```
 
 Just make sure you have *clang++ LLVM* installed and
