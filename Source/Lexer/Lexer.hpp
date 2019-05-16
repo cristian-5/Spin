@@ -163,7 +163,7 @@ namespace Stack {
 				TokenRule("(nope?)" INVERTED, nop),
 				TokenRule("(return)" INVERTED, returnKeyword),
 
-				TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, identifier),
+				TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, symbol),
 
 			};
 

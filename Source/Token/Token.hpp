@@ -32,8 +32,11 @@ namespace Stack {
 		beginFile,
 
 		empty,
-		identifier,
 		comment,
+
+		type,
+		symbol,
+		identifier,
 
 		integerLiteral,
 		stringLiteral,
