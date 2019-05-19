@@ -11,11 +11,6 @@
 High level programming language for *research* and
 **Quantum Computing** based on C++, Swift and C#.
 
-**Attention!** This project is currently under development and
-we only completed 10% of the tasks required.
-**New Contributors are WELCOME**, so if you're a skilled dev
-feel free to contact me for joining our team. We are Desperate...
-
 This language is also suitable for Biologists,
 Engineers, Mathematicians (libraries coming soon)
 and hobbyists. We aim to create a powerful language.
@@ -25,6 +20,11 @@ The documentation contains the language syntax specification.
 - [**Syntax Specification**](Documentation/Syntax/)
 
 ## Code Contribution
+
+**Attention!** This project is currently under development and
+we only completed 10% of the tasks required.
+**New Contributors are WELCOME**, so if you're a skilled dev
+feel free to contact me for joining our team. We are Desperate...
 
 If you want to contribute you must follow these 
 [Conventions](Conventions/) in order to keep the
