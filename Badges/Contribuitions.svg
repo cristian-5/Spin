@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="144" height="20">
+	<clipPath id="a">
+		<rect width="144" height="20" rx="3" fill="#fff"/>
+	</clipPath>
+	<g clip-path="url(#a)">
+		<path fill="#000" d="M0 0h85v20H0z"/>
+		<path fill="#ff00b6" d="M85 0h59v20H85z"/>
+	</g>
+	<g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="110">
+		<text x="435" y="140" transform="scale(.1)" textLength="750">contributions</text>
+		<text x="1135" y="140" transform="scale(.1)" textLength="490">welcome</text>
+	</g>
+</svg>
