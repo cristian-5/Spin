@@ -2,7 +2,7 @@
 # Stack Language
 
 [![license](Badges/License.svg)](License)
-[![version](Badges/Version.svg)](commits/master)
+[![version](Badges/Version.svg)](ReadMe.md)
 
 Stack Programming Language
 
