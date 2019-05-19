@@ -4,7 +4,7 @@
 [![license](Badges/License.svg)](License)
 [![version](Badges/Version.svg)](ReadMe.md)
 
-Stack Programming Language
+**Stack Programming Language**
 
 High level programming language for *research* and
 **Quantum Computing** based on C++, Swift and C#.
