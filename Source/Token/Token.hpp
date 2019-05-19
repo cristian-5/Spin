@@ -38,7 +38,8 @@ namespace Stack {
 		symbol,
 		identifier,
 
-		integerLiteral,
+		uIntLiteral,
+		intLiteral,
 		stringLiteral,
 		charLiteral,
 		boolLiteral,
@@ -97,6 +98,7 @@ namespace Stack {
 		breakKeyword,
 		continueKeyword,
 
+		libKeyword,
 		funcKeyword,
 		procKeyword,
 		staticKeyword,
@@ -106,7 +108,8 @@ namespace Stack {
 		exceptKeyword,
 		privateKeyword,
 		publicKeyword,
-		inoutKeyword,
+		refKeyword,
+		cpyKeyword,
 		constKeyword,
 		nullKeyword,
 		returnKeyword,
