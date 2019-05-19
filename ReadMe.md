@@ -1,6 +1,8 @@
 
 # Stack Language
 
+[![license](Badges/License.svg)](License)
+
 Stack Programming Language
 
 High level programming language for *research* and
