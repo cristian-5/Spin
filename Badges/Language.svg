@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="94" height="20">
+	<clipPath id="a">
+		<rect width="94" height="20" rx="3" fill="#fff"/>
+	</clipPath>
+	<g clip-path="url(#a)">
+		<path fill="#000" d="M0 0h61v20H0z"/>
+		<path fill="#0077ff" d="M61 0h33v20H61z"/>
+	</g>
+	<g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="110">
+		<text x="315" y="140" transform="scale(.1)" textLength="510">language</text>
+		<text x="765" y="140" transform="scale(.1)" textLength="230">c++</text>
+	</g>
+</svg>
