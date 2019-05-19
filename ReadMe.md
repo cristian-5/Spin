@@ -23,6 +23,7 @@ The documentation contains the language syntax specification.
 
 **Attention!** This project is currently under development and
 we only completed 10% of the tasks required.
+
 **New Contributors are WELCOME**, so if you're a skilled dev
 feel free to contact me for joining our team. We are Desperate...
 
