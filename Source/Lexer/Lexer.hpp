@@ -93,7 +93,8 @@ namespace Stack {
 				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment),
 
 				TokenRule("(-?[0-9]+\\.[0-9]+)", realLiteral),
-				TokenRule("(-?[0-9]+)", integerLiteral),
+				TokenRule("(-[0-9]+)", uIntLiteral),
+				TokenRule("(+?[0-9]+)", intLiteral),
 				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral),
 				TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral),
 				TokenRule("(true|false)" INVERTED, boolLiteral),
@@ -148,6 +149,7 @@ namespace Stack {
 				TokenRule("(break)" INVERTED, breakKeyword),
 				TokenRule("(continue)" INVERTED, continueKeyword),
 
+				TokenRule("(library)" INVERTED, libKeyword),
 				TokenRule("(func)" INVERTED, funcKeyword),
 				TokenRule("(proc)" INVERTED, procKeyword),
 				TokenRule("(static)" INVERTED, staticKeyword),
@@ -157,7 +159,8 @@ namespace Stack {
 				TokenRule("(exception)" INVERTED, exceptKeyword),
 				TokenRule("(private)" INVERTED, privateKeyword),
 				TokenRule("(public)" INVERTED, publicKeyword),
-				TokenRule("(inout)" INVERTED, inoutKeyword),
+				TokenRule("(ref)" INVERTED, refKeyword),
+				TokenRule("(cpy)" INVERTED, cpyKeyword),
 				TokenRule("(const)" INVERTED, constKeyword),
 				TokenRule("(null)" INVERTED, nullKeyword),
 				TokenRule("(nope?)" INVERTED, nop),
