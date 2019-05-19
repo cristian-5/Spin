@@ -50,6 +50,9 @@ using RegexError = std::regex_error;
 #define stringValue c_str
 
 #define Character char
+#define Double double
+#define Float float
+#define Real long double
 #define Boolean bool
 
 const Int32 exitSuccess = 0;
