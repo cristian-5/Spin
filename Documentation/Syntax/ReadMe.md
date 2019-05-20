@@ -11,7 +11,11 @@ Here's a **railway** implementation of statements' syntax.
 ### Index
 
 - [**Statement**](RailRoads/Statement.md)
+
 - [**No Operation**](RailRoads/No-Operation.md)
+
+- [**If Statement**](If-Statement.md)
+- [**Switch Statement**](Switch-Statement.md)
 
 ### Expression Statement:
 
@@ -87,20 +91,13 @@ Here's a **railway** implementation of statements' syntax.
        ╰── > ── boolLiteral ─────── > ──╯
        ╰── > ── realLiteral ─────── > ──╯
 
-### If Statement:
-
-    + ──── if ──── ( ──── [Expression] ──── ) ────╮
-    ╭── < ───────────────── < ─────────────── < ──╯
-    ╰── [Statement] ──╮────────── > ──────────╭── +
-                      ╰─ else ── [Statement] ─╯
-
 ### Switch Statement:
 
     + ──── switch ─── ( ── [Expression] ── ) ─── > ───╮
     ╭─── < ────────────────── < ──────────────── < ───╯
-    ╰── { ─╭─ case ── [Literal] ─ : ─ [Statement] ─╮──╮
-           ╰─────────────────── < ─────────────────╯  |
-    ╭──────── < ─────────── < ───────────── < ────────╯
+    ╰── { ─╭─ case ── [Expression] ─ : ─ [Statement] ─╮──╮
+           ╰─────────────────── < ────────────────────╯  |
+    ╭────────── < ───────────── < ───────────── < ───────╯
     ╰─── > ────╮───────────── > ─────────────╭── } ── +
                ╰─ default ─ : ─ [Statement] ─╯
 

@@ -10,6 +10,6 @@ optimisation is turned off.
     + ─╮─── > ───╭─ ; ── +
        ╰── nop ──╯
 
-### Tokens used in this Rail:
+### Tokens used in this Rail (Regexes):
 
 - **nop** - Defined as `nope?`
