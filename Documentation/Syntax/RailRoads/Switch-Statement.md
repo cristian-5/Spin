@@ -12,7 +12,7 @@ once but the other are compared as they go.
 The [break statement](Break-Statement.md) is
 not required as long as you don't want to
 skip instructions and exit the switch.
-Since statement contains [**Code Block**](Code-Block.md)
+Since statement contains [code block](Code-Block.md)
 you can create a context when you need declarations.
 
 ### Syntax:
