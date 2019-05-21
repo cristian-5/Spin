@@ -85,7 +85,7 @@ namespace Stack {
 
 		void generateTokens() {
 
-			const UInt32 tokenCount = 67;
+			const UInt32 tokenCount = 70;
 
 			TokenRule rules[tokenCount] = {
 
@@ -93,8 +93,8 @@ namespace Stack {
 				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment),
 
 				TokenRule("(-?[0-9]+\\.[0-9]+)", realLiteral),
-				TokenRule("(-[0-9]+)", uIntLiteral),
-				TokenRule("(+?[0-9]+)", intLiteral),
+				TokenRule("([0-9]+)", uIntLiteral),
+				TokenRule("([+-]?[0-9]+)", intLiteral),
 				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral),
 				TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral),
 				TokenRule("(true|false)" INVERTED, boolLiteral),
@@ -179,6 +179,18 @@ namespace Stack {
 
 		FilePosition getPosition(String * input, UInt32 cursor) {
 			FilePosition result = { 0, 0 };
+			if (cursor == 0 ||
+			    input -> length() == 0 ||
+				cursor > input -> length()) return result;
+			for (UInt32 i = 0; i < cursor; i++) {
+				if (input -> at(i) == '\n') {
+					result.row++;
+					result.col = 0;
+				} else {
+					result.col++;
+				}
+			}
+			result.row++;
 			return result;
 		}
 
@@ -214,10 +226,12 @@ namespace Stack {
 						break;
 					}
 				}
-				FilePosition fp = getPosition(input, pos);
-				if (!tokenized) throw InvalidTokenException(fp);
+				if (!tokenized) {
+					FilePosition fp = getPosition(input, pos);
+					throw InvalidTokenException(fp);
+				}
 			}
-			temp = Token("beginFile", endFile, 0);
+			temp = Token("endFile", endFile, 0);
 			tokens -> link(temp);
 			return tokens;
 		}

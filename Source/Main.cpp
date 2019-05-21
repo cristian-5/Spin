@@ -31,7 +31,7 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String s = "for else for"; // for else for else
+	String s = "for else for \n\n\nif £ 'g' 56565677"; // for else for else
 	Lexer lexer = Lexer();
 
 	StrongList<Token> * tokens = nullptr;
@@ -41,7 +41,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	} catch (InvalidTokenException & e) {
 		FilePosition f = e.getPosition();
 		cout << "Error in Main.stk [row: " << f.row;
-		cout << ", col:" << f.col << "];" << endl;
+		cout << ", col: " << f.col << "];" << endl;
 		cout << "Unrecognized expression!" << endl;
 		cin.get();
 		return exitFailure;
