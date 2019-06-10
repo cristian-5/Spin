@@ -31,26 +31,25 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String s = "for else for \n\n\nif £ 'g' 56565677"; // for else for else
+	String test = "";
+
+	cout << "Insert test String: ";
+	cin >> test;
+
 	Lexer lexer = Lexer();
 
 	StrongList<Token> * tokens = nullptr;
 
 	try {
-		tokens = lexer.tokenize(& s);
+		tokens = lexer.tokenize(& test);
 	} catch (InvalidTokenException & e) {
 		FilePosition f = e.getPosition();
 		cout << "Error in Main.stk [row: " << f.row;
 		cout << ", col: " << f.col << "];" << endl;
-		cout << "Unrecognized expression!" << endl;
+		cout << "Unrecognized Token!" << endl;
 		cin.get();
 		return exitFailure;
 	}
-
-	for (UInt32 i = 0; i < tokens -> count(); i++) {
-		cout << tokens -> getNode(i).type << " : " << tokens -> getNode(i).value << endl;
-	}
-	cout << endl;
 
 	Token * bf = new Token("sof", beginFile);
 	Token * ef = new Token("eof", endFile);

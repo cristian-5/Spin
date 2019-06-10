@@ -26,8 +26,6 @@
 #include "../Collection/Collection.hpp"
 #include "../Syntax/SRule.hpp"
 
-#include "ASTree.hpp"
-
 using namespace Collection;
 
 /*! @brief Namespace Stack. */

@@ -34,7 +34,9 @@ namespace Stack {
 
 		public:
 
-		Syntax() { }
+		
+
+		private: Syntax() { }
 
 	};
 
