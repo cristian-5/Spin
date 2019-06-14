@@ -53,10 +53,14 @@ namespace Stack {
 	 *   Raised when the token is not matched.
 	 */
 	class InvalidTokenException: public Exception {
-		private: FilePosition pos = { 0, 0 };
-		public: FilePosition getPosition() { return pos; }
-		InvalidTokenException(FilePosition position):
-		Exception(), pos(position) { }
+		private:
+		FilePosition pos = { 0, 0 };
+		String fileName = "";
+		public:
+		FilePosition getPosition() { return pos; }
+		String getFileName() { return fileName; }
+		InvalidTokenException(FilePosition position, String name):
+		Exception(), pos(position), fileName(name) { }
 	};
 
 	/*! @brief Lexer Class. */
@@ -199,7 +203,7 @@ namespace Stack {
 
 		Lexer() { generateTokens(); }
 
-		StrongList<Token> * tokenize(String * input) {
+		StrongList<Token> * tokenize(String * input, String fileName = "unknown") {
 			// Handle Last Token:
 			String data = (* input) + "\n";
 			// Handle Single Line Comments:
@@ -227,7 +231,7 @@ namespace Stack {
 				}
 				if (!tokenized) {
 					FilePosition fp = getPosition(input, pos);
-					throw InvalidTokenException(fp);
+					throw InvalidTokenException(fp, fileName);
 				}
 			}
 			temp = Token("endFile", endFile, 0);
