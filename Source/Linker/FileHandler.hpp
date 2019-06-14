@@ -43,6 +43,19 @@ namespace Stack {
 		const String getPath() const { return * p; }
 	};
 
+	/*!
+	 *   @brief Bad Access Exception.
+	 *   Raised when the output file
+	 *   is corrupted or the path is invalid.
+	 */
+	class BadAccessException: public Exception {
+		private:
+		const String * p;
+		public:
+		BadAccessException(String & path): Exception() { p = & path; }
+		const String getPath() const { return * p; }
+	};
+
 	/*! @brief File Handler Class. */
 	class FileHandler {
 
@@ -72,9 +85,13 @@ namespace Stack {
 			return line;
 		}
 
-		static Boolean createNewFile(String path = "", String content = "") {
-
-			return true;
+		static void createNewFile(String path = "", String content = "") {
+			OFStream file(path.stringValue());
+			try {
+				file << content;
+			} catch (Exception & e) {
+				throw BadAccessException(path);
+			}
 		}
 
 	};
