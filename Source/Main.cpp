@@ -21,8 +21,7 @@
 
 #include "Aliases/Aliases.hpp"
 #include "Collection/Collection.hpp"
-#include "Lexer/Lexer.hpp"
-#include "Parser/Parser.hpp"
+#include "Transpiler/Transpiler.hpp"
 
 using namespace std;
 
@@ -31,67 +30,34 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String test = "";
+	StrongList<String> files = StrongList<String>();
+	String s = "main.stk"; files.link(s);
+	s = "library.stk"; files.link(s);
 
-	cout << "Insert test String: ";
-	cin >> test;
+	Transpiler transpiler = Transpiler();
 
-	Lexer lexer = Lexer();
-
-	StrongList<Token> * tokens = nullptr;
+	cout << "Transpiling Files ..." << endl;
 
 	try {
-		tokens = lexer.tokenize(& test);
-	} catch (InvalidTokenException & e) {
-		FilePosition f = e.getPosition();
-		cout << "Error in Main.stk [row: " << f.row;
-		cout << ", col: " << f.col << "];" << endl;
+		transpiler.processFiles(files);
+	} catch (InvalidTokenException & i) {
+		FilePosition f = i.getPosition();
+		cout << "Error in '" << i.getFileName();
+		cout << "' [row: " << f.row << ", col: "
+		     << f.col << "];" << endl;
 		cout << "Unrecognized Token!" << endl;
 		cin.get();
 		return exitFailure;
-	}
-
-	Token * bf = new Token("sof", beginFile);
-	Token * ef = new Token("eof", endFile);
-
-	Token * ifToken = new Token("if", ifKeyword);
-	Token * for1Token = new Token("for", forKeyword);
-	Token * for2Token = new Token("for", forKeyword);
-	Token * elseToken = new Token("else", elseKeyword);
-
-	SRule * bfR = new SRule(bf);
-	SRule * ifR = new SRule(ifToken);
-	SRule * f1R = new SRule(for1Token);
-	SRule * f2R = new SRule(for2Token);
-	SRule * elR = new SRule(elseToken);
-	SRule * efR = new SRule(ef);
-
-	bfR -> addNextRule(ifR);
-	bfR -> addNextRule(f2R);
-
-	// first path
-	ifR -> addNextRule(f1R);
-	ifR -> addNextRule(ifR);
-	f1R -> addNextRule(efR);
-
-	// second path
-	f2R -> addNextRule(elR);
-	elR -> addNextRule(f2R);
-	elR -> addNextRule(efR);
-
-	try {
-		Parser p = Parser(tokens, bfR);
-		p.parse();
-		cout << "Parsed Successfully!" << endl;
+	} catch (BadFileException & b) {
+		cout << "Invalid File '" << b.getPath() << "'!" << endl;
+		cin.get();
+		return exitFailure;
 	} catch (Exception & e) {
-		cout << "Syntax Error!" << endl;
+		cout << "We encountered an unknown exception!" << endl;
 		cin.get();
 		return exitFailure;
 	}
 
 	cin.get();
-
-	/* TODO: Delete Pointers! */
-
 	return exitSuccess;
 }
