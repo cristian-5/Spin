@@ -1,5 +1,17 @@
 
-import Foundation;
+
+void main() {
+	hello();
+}
+
+
+
+
+
+
+
+
+/*import Foundation;
 
 enumerator E: String {
 	case hello = "hello";
@@ -60,5 +72,5 @@ func Main(args: [String]) -> Int32 {
 	}
 
 	return ExitCodes.Success;
-}
+}*/
 
