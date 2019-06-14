@@ -27,6 +27,7 @@
 using Exception = std::exception;
 
 using IFStream = std::ifstream;
+using OFStream = std::ofstream;
 
 using UInt8 = std::uint8_t;
 using Int8 = std::int8_t;
