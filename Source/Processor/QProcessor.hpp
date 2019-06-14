@@ -23,7 +23,6 @@
 
 #include "../Aliases/Aliases.hpp"
 
-/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*!

@@ -35,7 +35,6 @@ using namespace RegexTools;
 
 #define INVERTED "[^A-Za-z0-9_]"
 
-/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*!

@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Compiler.hpp                           |
+ *    |  Complex.hpp                            |
  *    |                                         |
- *    |                Compiler                 |
+ *    |              Complex Numbers            |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,28 +16,35 @@
  *
  */
 
-#ifndef STACKCOMPILER
-#define STACKCOMPILER
+#ifndef COMPLEXNUMBERS
+#define COMPLEXNUMBERS
 
-#include <iostream>
-#include <string>
+#define Real long double
 
-#include "Aliases/Aliases.hpp"
-#include "Collection/Collection.hpp"
+#define Complex ComplexReal
 
-using namespace Collection;
+namespace Mathematics {
 
-namespace Stack {
+	class ComplexReal {
 
-	/*! @brief Compiler Class. */
-	class Compiler {
+        private:
+
+            Real a = 0;
+            Real b = 0;
 
 		public:
 
-		static String process(String & code) {
+        ComplexNumber(Real a, Real b) {
 
-			return code;
-		}
+        }
+
+        Real getReal() {
+
+        }
+
+        void setReal() {
+            
+        }
 
 	};
 

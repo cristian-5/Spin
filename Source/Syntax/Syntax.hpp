@@ -26,7 +26,6 @@
 
 #include "SRule.hpp"
 
-/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*! @brief Class Syntax. */

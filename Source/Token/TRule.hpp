@@ -26,7 +26,6 @@
 
 #include "Token.hpp"
 
-/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*! @brief Class TokenRule. */

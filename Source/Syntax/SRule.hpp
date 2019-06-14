@@ -28,7 +28,6 @@
 
 using namespace Collection;
 
-/*! @brief Namespace Stack. */
 namespace Stack {
 
 	/*! @brief Class SyntaxRule. */
