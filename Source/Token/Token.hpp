@@ -98,6 +98,7 @@ namespace Stack {
 		continueKeyword,
 
 		libKeyword,
+		importKeyword,
 		funcKeyword,
 		procKeyword,
 		staticKeyword,
