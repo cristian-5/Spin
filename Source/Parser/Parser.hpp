@@ -63,17 +63,6 @@ namespace Stack {
 	};
 
 	/*!
-	 *   @brief Syntax Error Exception.
-	 *   Raised when a token is unexpected.
-	 */
-	class SyntaxErrorException: public Exception {
-		private: Token token = Token();
-		public: Token getToken() { return token; }
-		SyntaxErrorException(Token t = Token()):
-		Exception(), token(t) { }
-	};
-
-	/*!
 	 *   @brief Parser Class.
 	 *   Used to parse a grammar.
 	 */
@@ -85,11 +74,16 @@ namespace Stack {
 
 		Grammar * grammar = nullptr;
 
+		UInt32 lastTerminal = 0;
+
 		Boolean parse(SRule * r, UInt32 index) {
 			if (index >= tokens -> count()) return false;
 			Token t = tokens -> getNode(index);
 			Boolean matches = r -> matches(& t);
-			if (r -> isTerminal()) return matches;
+			if (r -> isTerminal()) {
+				if (matches) lastTerminal = index;
+				return matches;
+			}
 			if (!matches) return false;
 			index += 1;
 			for (UInt32 j = 0; j < r -> nextRules.count(); j++) {
@@ -108,10 +102,14 @@ namespace Stack {
 			tokens = t; grammar = g;
 		}
 
-		void parse() {
-			if (!parse(grammar, 0)) {
-				throw SyntaxErrorException();
-			}
+		Boolean parse(UInt32 start = 0) {
+			return parse(grammar, start);
+		}
+
+		Boolean parse(UInt32 start, UInt32 & end) {
+			Boolean result = parse(grammar, start);
+			end = lastTerminal;
+			return result;
 		}
 
 	};
