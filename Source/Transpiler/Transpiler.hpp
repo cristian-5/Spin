@@ -23,9 +23,10 @@
 #include <string>
 
 #include "../Aliases/Aliases.hpp"
-
 #include "../Linker/FileHandler.hpp"
 #include "../Lexer/Lexer.hpp"
+#include "../Parser/Parser.hpp"
+#include "../Syntax/Syntax.hpp"
 
 #define TList StrongList<Token>
 
@@ -81,6 +82,39 @@ namespace Stack {
 			}
 		}
 
+		UInt32 tokenCount(TList * tokens, TokenType t,
+						  UInt32 start, UInt32 end) {
+			UInt32 count = 0;
+			if (start > end) {
+				UInt32 t = start;
+				start = end;
+				end = t;
+			}
+			for (UInt32 i = start; i < end; i++) {
+				if (tokens -> getNode(i).type == t) {
+					count++;
+				}
+			}
+			return count;
+		}
+
+		void tokenReplace(TList * tokens, TokenType t,
+						  String value, UInt32 start,
+						  UInt32 end) {
+			if (start > end) {
+				UInt32 t = start;
+				start = end;
+				end = t;
+			}
+			for (UInt32 i = start; i < end; i++) {
+				Token token = tokens -> getNode(i);
+				if (token.type == t) {
+					token.value = value;
+					tokens -> setNode(i, token);
+				}
+			}
+		}
+
 		void processLibraries(TList * tokens) {
 			for (UInt32 i = 0; i < tokens -> count(); i++) {
 				Token t = tokens -> getNode(i);
@@ -92,60 +126,24 @@ namespace Stack {
 			for (UInt32 i = 0; i < tokens -> count(); i++) {
 				Token t = tokens -> getNode(i);
 				if (t.type == importKeyword) {
-					Token * token = getNext(tokens, i);
-					if (token != nullptr) {
-						i++;
-						token = getNext(tokens, i);
-						UInt32 idCount = 0;
-						while (token -> type == identifier) {
-							idCount++;
-							i++;
-							token = getNext(tokens, i);
-							if (token -> type == dot) {
-								token -> value = "::";
-								i++;
-								token = getNext(tokens, i);
-							} else if (token -> type == semicolon) {
-								break;
-							} else {
-								throw SyntaxErrorException(
-									token -> value, ";",
-									FilePosition(
-										getPosition(currentFile, token -> position)
-									),
-									* currentFileName
-								);
-							}
-						}
-						if (idCount == 0) {
-							throw SyntaxErrorException(
-								token -> value, "identifier",
-								FilePosition(
-									getPosition(currentFile, token -> position)
-								),
-								* currentFileName
-							);
-						}
-						if (token -> type == semicolon) {
-							if (idCount > 1) t.value = "using";
-							else t.value = "using namespace";
-						} else {
-							throw SyntaxErrorException(
-								token -> value, ";",
-								FilePosition(
-									getPosition(currentFile, token -> position)
-								),
-								* currentFileName
-							);
-						}
-					} else {
-						throw SyntaxErrorException(
-							"end of file", ";",
-							FilePosition(
-								getPosition(currentFile, t.position)
-							),
-							* currentFileName
+					UInt32 end = 0;
+					Grammar * g = Syntax::importGrammar();
+					Parser parser = Parser(tokens, g);
+					if (parser.parse(i, end)) {
+						// Replace based on id count:
+						UInt32 count = tokenCount(
+							tokens, identifier, i, end
 						);
+						tokenReplace(
+							tokens,
+							importKeyword,
+							(count > 1 ?
+								"using" :
+								"using namespace"),
+							i, end
+						);
+						// Skip Tokens:
+						i = end;
 					}
 				}
 			}
