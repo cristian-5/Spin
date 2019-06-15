@@ -50,9 +50,7 @@ namespace Stack {
 			if (input -> at(i) == '\n') {
 				result.row++;
 				result.col = 0;
-			} else {
-				result.col++;
-			}
+			} else result.col++;
 		}
 		result.col++;
 		return result;
