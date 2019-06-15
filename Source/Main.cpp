@@ -45,18 +45,29 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Error in '" << i.getFileName();
 		cout << "' [row: " << f.row << ", col: "
 		     << f.col << "];" << endl;
-		cout << "Unrecognized Token!" << endl;
+		cout << "Unrecognized Token!";
 		cin.get();
 		return exitFailure;
 	} catch (BadFileException & b) {
-		cout << "Invalid File '" << b.getPath() << "'!" << endl;
+		cout << "Invalid File '" << b.getPath() << "'!";
+		cin.get();
+		return exitFailure;
+	} catch (SyntaxErrorException & s) {
+		FilePosition f = s.getPosition();
+		cout << "Error in '" << s.getFileName();
+		cout << "' [row: " << f.row << ", col: "
+		     << f.col << "];" << endl;
+		cout << "Expected " << s.getExpected() << " but found '"
+			 << s.getToken() << "'.";
 		cin.get();
 		return exitFailure;
 	} catch (Exception & e) {
-		cout << "We encountered an unknown exception!" << endl;
+		cout << "We encountered an unknown exception!";
 		cin.get();
 		return exitFailure;
 	}
+
+	cout << "Successfully Transpiled!";
 
 	cin.get();
 	return exitSuccess;

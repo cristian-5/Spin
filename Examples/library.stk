@@ -1,4 +1,6 @@
 
-void hello() {
-    
+library World {
+    void hello() {
+        
+    }
 }

@@ -1,1 +1,1 @@
-void hello ( ) { } 
+namespace World { void hello ( ) { } } 
