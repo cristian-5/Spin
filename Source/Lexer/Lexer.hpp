@@ -25,6 +25,7 @@
 
 #include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
+#include "../Linker/FileHandler.hpp"
 #include "../Token/Token.hpp"
 #include "../Token/TRule.hpp"
 
@@ -36,17 +37,6 @@ using namespace RegexTools;
 #define INVERTED "[^A-Za-z0-9_]"
 
 namespace Stack {
-
-	/*!
-	 *   @brief File Position Structure.
-	 *   Used to determine a specific
-	 *   line and column position of a
-	 *   character.
-	 */
-	struct FilePosition {
-		UInt32 col = 0;
-		UInt32 row = 0;
-	};
 
 	/*!
 	 *   @brief Invalid Token Exception.
@@ -88,7 +78,7 @@ namespace Stack {
 
 		void generateTokens() {
 
-			const UInt32 tokenCount = 70;
+			const UInt32 tokenCount = 71;
 
 			TokenRule rules[tokenCount] = {
 
@@ -153,6 +143,7 @@ namespace Stack {
 				TokenRule("(continue)" INVERTED, continueKeyword),
 
 				TokenRule("(library)" INVERTED, libKeyword),
+				TokenRule("(import)" INVERTED, importKeyword),
 				TokenRule("(func)" INVERTED, funcKeyword),
 				TokenRule("(proc)" INVERTED, procKeyword),
 				TokenRule("(static)" INVERTED, staticKeyword),
@@ -178,23 +169,6 @@ namespace Stack {
 				grammar.link(temp);
 			}
 
-		}
-
-		FilePosition getPosition(String * input, UInt32 cursor) {
-			FilePosition result = { 0, 0 };
-			if (cursor == 0 ||
-			    input -> length() == 0 ||
-				cursor > input -> length()) return result;
-			for (UInt32 i = 0; i < cursor; i++) {
-				if (input -> at(i) == '\n') {
-					result.row++;
-					result.col = 0;
-				} else {
-					result.col++;
-				}
-			}
-			result.row++;
-			return result;
 		}
 
 		StrongList<TokenRule> grammar = StrongList<TokenRule>();
