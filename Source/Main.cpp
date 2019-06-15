@@ -57,8 +57,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Error in '" << s.getFileName();
 		cout << "' [row: " << f.row << ", col: "
 		     << f.col << "];" << endl;
-		cout << "Expected " << s.getExpected() << " but found '"
-			 << s.getToken() << "'.";
+		cout << "Expected '" << s.getExpected() << "' but found '"
+			 << s.getToken() << "'!";
 		cin.get();
 		return exitFailure;
 	} catch (Exception & e) {

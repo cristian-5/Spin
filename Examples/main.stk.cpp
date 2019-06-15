@@ -1,1 +1,1 @@
-void main ( ) { hello ( ) ; } 
+import World ; void main ( ) { hello ( ) ; } 
