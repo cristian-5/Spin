@@ -177,7 +177,7 @@ namespace Stack {
 
 		Lexer() { generateTokens(); }
 
-		StrongList<Token> * tokenize(String * input, String fileName = "unknown") {
+		StrongList<Token> * tokenize(String * input, String fileName = "Unknown File") {
 			// Handle Last Token:
 			String data = (* input) + "\n";
 			// Handle Single Line Comments:
