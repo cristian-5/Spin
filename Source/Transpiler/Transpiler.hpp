@@ -92,7 +92,7 @@ namespace Stack {
 			}
 			for (UInt32 i = start; i < end; i++) {
 				if (tokens -> getNode(i).type == t) {
-					count++;
+					count += 1;
 				}
 			}
 			return count;
@@ -129,10 +129,9 @@ namespace Stack {
 					UInt32 end = 0;
 					Grammar * g = Syntax::importGrammar();
 					Parser parser = Parser(tokens, g);
-					if (parser.parse(i, end)) {
-						// Replace based on id count:
+					if (parser.parseRange(i, end)) {
 						UInt32 count = tokenCount(
-							tokens, identifier, i, end
+							tokens, symbol, i, end
 						);
 						tokenReplace(
 							tokens,
@@ -142,7 +141,7 @@ namespace Stack {
 								"using namespace"),
 							i, end
 						);
-						// Skip Tokens:
+						tokenReplace(tokens, dot, "::", i, end);
 						i = end;
 					}
 				}
