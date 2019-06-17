@@ -33,24 +33,18 @@ namespace Stack {
 		public:
 
 		static Grammar * importGrammar() {
-
 			Token * im = new Token("import", importKeyword);
-			Token * id = new Token("id", identifier);
+			Token * id = new Token("id", symbol);
 			Token * dt = new Token("dot", dot);
 			Token * sm = new Token("semicolon", semicolon);
-
 			SRule * imR = new SRule(im);
 			SRule * idR = new SRule(id);
 			SRule * dtR = new SRule(dt);
 			SRule * smR = new SRule(sm);
-
 			imR -> addNextRule(idR);
-
 			idR -> addNextRule(smR);
 			idR -> addNextRule(dtR);
-
 			dtR -> addNextRule(idR);
-
 			return imR;
 		}
 
