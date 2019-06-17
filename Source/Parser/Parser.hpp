@@ -102,11 +102,11 @@ namespace Stack {
 			tokens = t; grammar = g;
 		}
 
-		Boolean parse(UInt32 start = 0) {
+		Boolean parseFrom(UInt32 start = 0) {
 			return parse(grammar, start);
 		}
 
-		Boolean parse(UInt32 start, UInt32 & end) {
+		Boolean parseRange(UInt32 start, UInt32 & end) {
 			Boolean result = parse(grammar, start);
 			end = lastTerminal;
 			return result;
