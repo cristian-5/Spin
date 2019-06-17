@@ -1,1 +1,1 @@
-import World ; void main ( ) { hello ( ) ; } 
+using namespace World ; using World :: G ; void main ( ) { hello ( ) ; } 
