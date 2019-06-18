@@ -57,6 +57,31 @@ namespace Stack {
 		pos(position), fileName(name) { }
 	};
 
+	/*!
+	 *   @brief Invalid Syntax Exception.
+	 *   Raised when the syntax is invalid.
+	 */
+	class InvalidSyntaxException: public Exception {
+		private:
+		String token = "";
+		String expected = "";
+		FilePosition pos = { 0, 0 };
+		String fileName = "";
+		public:
+		String getToken() { return token; }
+		String getExpected() { return expected; }
+		FilePosition getPosition() { return pos; }
+		String getFileName() { return fileName; }
+		InvalidSyntaxException(
+			String t,
+			String e,
+			FilePosition position,
+			String name
+		):
+		Exception(), token(t), expected(e),
+		pos(position), fileName(name) { }
+	};
+
 	class Transpiler {
 
 		private:
@@ -143,6 +168,59 @@ namespace Stack {
 						);
 						tokenReplace(tokens, dot, "::", i, end);
 						i = end;
+					} else {
+						throw InvalidSyntaxException(
+							"import", "import symbol ;",
+							getPosition(currentFile, t.position),
+							* currentFileName
+						);
+					}
+				}
+			}
+		}
+
+		void processBrakets(TList * tokens) {
+			HeapStack<Token> stack = HeapStack<Token>();
+			for (UInt32 i = 0; i < tokens -> count(); i++) {
+				Token t = tokens -> getNode(i);
+				if (t.type == openRoundBracket) {
+					t.type = closeRoundBracket;
+					t.value = ")";
+					stack.push(t);
+				} else if (t.type == openSquareBracket) {
+					t.type = closeSquareBracket;
+					t.value = "]";
+					stack.push(t);
+				} else if (t.type == openCurlyBracket) {
+					t.type = closeCurlyBracket;
+					t.value = "}";
+					stack.push(t);
+				} else if (t.type == closeRoundBracket) {
+					Token Andrea = stack.pop();
+					if (Andrea.type != closeRoundBracket) {
+						throw SyntaxErrorException(
+							")", Andrea.value,
+							getPosition(currentFile, t.position),
+							* currentFileName
+						);
+					}
+				} else if (t.type == closeSquareBracket) {
+					Token Andrea = stack.pop();
+					if (Andrea.type != closeSquareBracket) {
+						throw SyntaxErrorException(
+							")", Andrea.value,
+							getPosition(currentFile, t.position),
+							* currentFileName
+						);
+					}
+				} else if (t.type == closeCurlyBracket) {
+					Token Andrea = stack.pop();
+					if (Andrea.type != closeCurlyBracket) {
+						throw SyntaxErrorException(
+							")", Andrea.value,
+							getPosition(currentFile, t.position),
+							* currentFileName
+						);
 					}
 				}
 			}
@@ -164,6 +242,7 @@ namespace Stack {
 		}
 
 		void processTokens(TList * tokens) {
+			processBrakets(tokens);
 			removeBeginEnd(tokens);
 			processLibraries(tokens);
 			// Include all files together
