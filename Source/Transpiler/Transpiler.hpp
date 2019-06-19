@@ -179,7 +179,7 @@ namespace Stack {
 			}
 		}
 
-		void processBrakets(TList * tokens) {
+		void processBrackets(TList * tokens) {
 			HeapStack<Token> stack = HeapStack<Token>();
 			for (UInt32 i = 0; i < tokens -> count(); i++) {
 				Token t = tokens -> getNode(i);
@@ -242,7 +242,7 @@ namespace Stack {
 		}
 
 		void processTokens(TList * tokens) {
-			processBrakets(tokens);
+			processBrackets(tokens);
 			removeBeginEnd(tokens);
 			processLibraries(tokens);
 			// Include all files together
