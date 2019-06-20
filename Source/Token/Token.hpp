@@ -120,7 +120,9 @@ namespace Stack {
 
 		nop,
 
-		endFile
+		endFile,
+
+		everything
 
 	};
 

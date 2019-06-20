@@ -26,6 +26,8 @@
 #include "../Collection/Collection.hpp"
 #include "../Syntax/SRule.hpp"
 
+#include "ASTree.hpp"
+
 using namespace Collection;
 
 namespace Stack {
@@ -62,10 +64,6 @@ namespace Stack {
 		public: EmptyTokenException(): Exception() { }
 	};
 
-	/*!
-	 *   @brief Parser Class.
-	 *   Used to parse a grammar.
-	 */
 	class Parser {
 
 		private:

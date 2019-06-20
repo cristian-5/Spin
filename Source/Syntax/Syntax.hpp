@@ -48,6 +48,64 @@ namespace Stack {
 			return imR;
 		}
 
+		static Grammar * procGrammar() {
+			Token * pr = new Token("proc", procKeyword);
+			Token * id = new Token("id", symbol);
+			Token * ob = new Token("(", openRoundBracket);
+			SRule * prR = new SRule(pr);
+			SRule * idR = new SRule(id);
+			SRule * obR = new SRule(ob);
+			prR -> addNextRule(idR);
+			idR -> addNextRule(obR);
+			return prR;
+		}
+
+		static Grammar * argsGrammar() {
+			Token * nm = new Token("name", symbol);
+			Token * ty = new Token("type", symbol);
+			
+
+
+		}
+
+		static Grammar * funcGrammar() {
+			Token * fc = new Token("func", procKeyword);
+			Token * id = new Token("id", symbol);
+			Token * ob = new Token("(", openRoundBracket);
+
+			Token * ty = new Token("type", symbol);
+			Token * nm = new Token("name", symbol);
+
+			Token * eq = new Token("=", equal);
+
+			Token * bl = new Token("bool", boolLiteral);
+			Token * cl = new Token("char", charLiteral);
+			Token * il = new Token("int", integerLiteral);
+			Token * rl = new Token("real", realLiteral);
+			Token * sl = new Token("string", stringLiteral);
+
+
+
+			SRule * fcR = new SRule(fc);
+			SRule * idR = new SRule(id);
+			SRule * obR = new SRule(ob);
+			fcR -> addNextRule(idR);
+			idR -> addNextRule(obR);
+			return fcR;
+		}
+
+		static Grammar * fTypeGrammar() {
+			Token * ar = new Token("-", minus);
+			Token * rw = new Token(">", major);
+			Token * sy = new Token("type", symbol);
+			SRule * arR = new SRule(ar);
+			SRule * rwR = new SRule(rw);
+			SRule * syR = new SRule(sy);
+			arR -> addNextRule(rwR);
+			rwR -> addNextRule(syR);
+			return arR;
+		}
+
 		private: Syntax() { }
 
 	};

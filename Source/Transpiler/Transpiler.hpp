@@ -115,7 +115,7 @@ namespace Stack {
 				start = end;
 				end = t;
 			}
-			for (UInt32 i = start; i < end; i++) {
+			for (UInt32 i = start; i <= end; i++) {
 				if (tokens -> getNode(i).type == t) {
 					count += 1;
 				}
@@ -131,7 +131,7 @@ namespace Stack {
 				start = end;
 				end = t;
 			}
-			for (UInt32 i = start; i < end; i++) {
+			for (UInt32 i = start; i <= end; i++) {
 				Token token = tokens -> getNode(i);
 				if (token.type == t) {
 					token.value = value;
@@ -226,6 +226,81 @@ namespace Stack {
 			}
 		}
 
+		void processProcedures(TList * tokens) {
+			for (UInt32 i = 0; i < tokens -> count(); i++) {
+				Token t = tokens -> getNode(i);
+				if (t.type == procKeyword) {
+					UInt32 end = 0;
+					Grammar * g = Syntax::procGrammar();
+					Parser parser = Parser(tokens, g);
+					if (parser.parseRange(i, end)) {
+						tokenReplace(tokens, procKeyword, "void", i, end);
+						i = end;
+					} else {
+						throw InvalidSyntaxException(
+							"proc", "proc identifier(arguments) { }",
+							getPosition(currentFile, t.position),
+							* currentFileName
+						);
+					}
+				}
+			}
+		}
+
+		void processFunctions(TList * tokens) {
+			for (UInt32 i = 0; i < tokens -> count(); i++) {
+				Token t = tokens -> getNode(i);
+				if (t.type == funcKeyword) {
+					UInt32 end = 0;
+					Grammar * g = Syntax::funcGrammar();
+					Parser parser = Parser(tokens, g);
+					if (parser.parseRange(i, end)) {
+						//tokenReplace(tokens, funcKeyword, "void", i, end);
+						i = end;
+					} else {
+						throw InvalidSyntaxException(
+							"import", "import symbol ;",
+							getPosition(currentFile, t.position),
+							* currentFileName
+						);
+					}
+					Boolean foundTag = false;
+					Grammar * f = Syntax::fTypeGrammar();
+					Parser fParser = Parser(tokens, g);
+					UInt32 fEnd = 0;
+					for (UInt32 j = i; j < tokens -> count(); j++) {
+						if (fParser.parseRange(j, fEnd)) {
+							foundTag = true;
+							break;
+						}
+					}
+					if (foundTag) {
+						String returnType = "";
+						for (UInt32 j = i; j <= fEnd; j++) {
+							Token tmp = tokens -> getNode(j);
+							if (tmp.type == symbol) {
+								returnType = tmp.value;
+							}
+						}
+						tokenReplace(
+							tokens,
+							funcKeyword,
+							returnType,
+							i, fEnd
+						);
+						tokenReplace(tokens, minus, "", i, fEnd);
+						tokenReplace(tokens, major, "", i, fEnd);
+					} else {
+						throw InvalidSyntaxException(
+							"function", "func symbol(args) -> returnType { }",
+							getPosition(currentFile, t.position),
+							* currentFileName
+						);
+					}
+				}
+			}
+		}
+
 		Token * getNext(TList * tokens, UInt32 i) {
 			if (isNextAvailable(tokens, i)) {
 				Token * t = new Token();
@@ -245,9 +320,10 @@ namespace Stack {
 			processBrackets(tokens);
 			removeBeginEnd(tokens);
 			processLibraries(tokens);
-			// Include all files together
+			processFunctions(tokens);
 			// Functions Procedures
 			// Entry Point
+			// Include Foundation and other libs
 		}
 
 		String * currentFileName = nullptr;
