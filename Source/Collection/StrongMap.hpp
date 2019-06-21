@@ -85,7 +85,7 @@ namespace Collection {
 		 */
 		bool isEmpty() const { return map.isEmpty(); }
 
-		StrongMap() { }
+		StrongMap() { map = StrongList<Element>(); }
 
 		~StrongMap() { clean(); }
 
@@ -321,9 +321,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		Int32 findPosition(KeyType & key) {
+		Int64 findPosition(KeyType & key) {
 			for (UInt32 i = 0; i < map.count(); i++) {
-				if (map[i].key == key) return (UInt32)i;
+				if (map[i].key == key) return (Int64)i;
 			} return -1;
 		}
 
@@ -337,9 +337,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		Int32 findPosition(ValType & val) {
+		Int64 findPosition(ValType & val) {
 			for (UInt32 i = 0; i < map.count(); i++) {
-				if (map[i].val == val) return (UInt32)i;
+				if (map[i].val == val) return (Int64)i;
 			} return -1;
 		}
 
@@ -353,9 +353,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		Int32 findPosition(KeyType & key, ValType & val) {
+		Int64 findPosition(KeyType & key, ValType & val) {
 			for (UInt32 i = 0; i < map.count(); i++) {
-				if (map[i] == Element(key, val)) return (UInt32)i;
+				if (map[i] == Element(key, val)) return (Int64)i;
 			} return -1;
 		}
 
@@ -369,9 +369,9 @@ namespace Collection {
 		 *   Where @b n is the size
 		 *   of the map, in the worse case.
 		 */
-		Int32 findPosition(Element & element) {
+		Int64 findPosition(Element & element) {
 			for (UInt32 i = 0; i < map.count(); i++) {
-				if (map[i] == element) return (Int32)i;
+				if (map[i] == element) return (Int64)i;
 			} return -1;
 		}
 
