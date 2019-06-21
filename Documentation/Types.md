@@ -22,7 +22,7 @@ following table.
 |  **Int64** |  8 Bytes | Signed Integer   |
 | **UInt64** |  8 Bytes | Unsigned Integer |
 
-### Types seen as Integers
+### Types internally seen as Integers
 
 |       Type | Size     | Description      |        Aliases       |
 |-----------:|----------|------------------|:--------------------:|
