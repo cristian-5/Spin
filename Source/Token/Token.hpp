@@ -126,7 +126,6 @@ namespace Stack {
 
 	};
 
-	/*! @brief Token Class. */
 	class Token {
 
 		public:
@@ -156,6 +155,40 @@ namespace Stack {
 			pattern = p; type = t;
 		}
 
+	};
+
+	enum ParseDataType {
+		UInt8Type,
+		UInt16Type,
+		UInt32Type,
+		UInt64Type,
+		Int8Type,
+		Int16Type,
+		Int32Type,
+		Int64Type,
+		CharacterType,
+		BooleanType,
+		FloatType,
+		DoubleType,
+		RealType,
+		StringType,
+		ArrayType,
+		FunctionType,  // Not Sure if we need proc
+		ClassType,
+		VoidType, // Not Sure
+		AnyType,
+		InvalidType
+	};
+
+	union Data {
+		UInt64 integer;
+		Real real;
+		void * allocated;
+	};
+
+	struct ParseData {
+		ParseDataType type;
+		Data value;
 	};
 
 }
