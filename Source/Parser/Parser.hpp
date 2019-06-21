@@ -26,7 +26,7 @@
 #include "../Collection/Collection.hpp"
 #include "../Syntax/SRule.hpp"
 
-#include "ASTree.hpp"
+#include "Context.hpp"
 
 using namespace Collection;
 
@@ -108,6 +108,29 @@ namespace Stack {
 			Boolean result = parse(grammar, start);
 			end = lastTerminal;
 			return result;
+		}
+
+	};
+
+	class TreeParser {
+
+		private:
+
+		UInt32 index = 0;
+
+		StrongList<Token> * tokens = nullptr;
+
+		Token consume() { return tokens -> getNode(index++); }
+		void stepBack() { index--; }
+		Token peek() { return tokens -> getNode(index); }
+		Token peekAhead(UInt32 offset) {
+			return tokens -> getNode(index + offset);
+		}
+
+		public:
+
+		TreeParser(StrongList<Token> * t) {
+			tokens = t;
 		}
 
 	};

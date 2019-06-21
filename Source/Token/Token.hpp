@@ -143,6 +143,21 @@ namespace Stack {
 
 	};
 
+	class TokenRule {
+
+		public:
+
+		TokenType type = empty;
+		String pattern = "";
+
+		TokenRule() { }
+
+		TokenRule(String p, TokenType t) {
+			pattern = p; type = t;
+		}
+
+	};
+
 }
 
 #endif

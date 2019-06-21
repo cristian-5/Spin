@@ -27,7 +27,6 @@
 #include "../Collection/Collection.hpp"
 #include "../Linker/FileHandler.hpp"
 #include "../Token/Token.hpp"
-#include "../Token/TRule.hpp"
 
 #include "Regex.hpp"
 
