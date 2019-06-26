@@ -24,6 +24,8 @@
 
 #include "../Aliases/Aliases.hpp"
 
+#include "PData.hpp"
+
 namespace Stack {
 
 	enum TokenType {
@@ -33,7 +35,7 @@ namespace Stack {
 		empty,
 		comment,
 
-		type,
+		basicType,
 		symbol,
 		identifier,
 
@@ -43,6 +45,7 @@ namespace Stack {
 		charLiteral,
 		boolLiteral,
 		realLiteral,
+		nullLiteral,
 
 		colon,
 		semicolon,
@@ -97,7 +100,6 @@ namespace Stack {
 		breakKeyword,
 		continueKeyword,
 
-		libKeyword,
 		importKeyword,
 		funcKeyword,
 		procKeyword,
@@ -111,7 +113,6 @@ namespace Stack {
 		refKeyword,
 		cpyKeyword,
 		constKeyword,
-		nullKeyword,
 		returnKeyword,
 
 		prefixOperator,
@@ -120,9 +121,7 @@ namespace Stack {
 
 		nop,
 
-		endFile,
-
-		everything
+		endFile
 
 	};
 
@@ -140,6 +139,24 @@ namespace Stack {
 			value = v; type = t; position = p;
 		}
 
+		Boolean isTypeTokenType() {
+			if (type != symbol) return false;
+			return value == "Int8"      ||
+				   value == "Int16"     ||
+				   value == "Int32"     ||
+				   value == "Int64"     ||
+				   value == "UInt8"     ||
+				   value == "UInt16"    ||
+				   value == "UInt32"    ||
+				   value == "UInt64"    ||
+				   value == "Character" ||
+				   value == "Float"     ||
+				   value == "Double"    ||
+				   value == "Real"      ||
+				   value == "Boolean"   ||
+				   value == "String";
+		}
+
 	};
 
 	class TokenRule {
@@ -155,40 +172,6 @@ namespace Stack {
 			pattern = p; type = t;
 		}
 
-	};
-
-	enum ParseDataType {
-		UInt8Type,
-		UInt16Type,
-		UInt32Type,
-		UInt64Type,
-		Int8Type,
-		Int16Type,
-		Int32Type,
-		Int64Type,
-		CharacterType,
-		BooleanType,
-		FloatType,
-		DoubleType,
-		RealType,
-		StringType,
-		ArrayType,
-		FunctionType,  // Not Sure if we need proc
-		ClassType,
-		VoidType, // Not Sure
-		AnyType,
-		InvalidType
-	};
-
-	union Data {
-		UInt64 integer;
-		Real real;
-		void * allocated;
-	};
-
-	struct ParseData {
-		ParseDataType type;
-		Data value;
 	};
 
 }

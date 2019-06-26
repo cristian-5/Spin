@@ -141,7 +141,6 @@ namespace Stack {
 				TokenRule("(break)" INVERTED, breakKeyword),
 				TokenRule("(continue)" INVERTED, continueKeyword),
 
-				TokenRule("(library)" INVERTED, libKeyword),
 				TokenRule("(import)" INVERTED, importKeyword),
 				TokenRule("(func)" INVERTED, funcKeyword),
 				TokenRule("(proc)" INVERTED, procKeyword),
@@ -155,7 +154,7 @@ namespace Stack {
 				TokenRule("(ref)" INVERTED, refKeyword),
 				TokenRule("(cpy)" INVERTED, cpyKeyword),
 				TokenRule("(const)" INVERTED, constKeyword),
-				TokenRule("(null)" INVERTED, nullKeyword),
+				TokenRule("(null)" INVERTED, nullLiteral),
 				TokenRule("(nope?)" INVERTED, nop),
 				TokenRule("(return)" INVERTED, returnKeyword),
 
