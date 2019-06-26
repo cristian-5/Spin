@@ -45,7 +45,9 @@ namespace Stack {
 		charLiteral,
 		boolLiteral,
 		realLiteral,
+		colourLiteral,
 		nullLiteral,
+
 		bra_ketLiteral,
 		braLiteral,
 		ketLiteral,
