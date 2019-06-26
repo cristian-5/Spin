@@ -77,7 +77,7 @@ namespace Stack {
 
 		void generateTokens() {
 
-			const UInt32 tokenCount = 71;
+			const UInt32 tokenCount = 73;
 
 			TokenRule rules[tokenCount] = {
 
@@ -90,6 +90,10 @@ namespace Stack {
 				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral),
 				TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral),
 				TokenRule("(true|false)" INVERTED, boolLiteral),
+
+				TokenRule("(<[01]+\\|[01]+>)", bra_ketLiteral),
+				TokenRule("(<[01]+\\|)", braLiteral),
+				TokenRule("(\\|[01]+>)", ketLiteral),
 
 				TokenRule("(\\:)", colon),
 				TokenRule("(\\;)", semicolon),

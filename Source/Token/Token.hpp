@@ -46,6 +46,9 @@ namespace Stack {
 		boolLiteral,
 		realLiteral,
 		nullLiteral,
+		bra_ketLiteral,
+		braLiteral,
+		ketLiteral,
 
 		colon,
 		semicolon,
