@@ -19,8 +19,6 @@
 #ifndef STRONGLIST
 #define STRONGLIST
 
-#include <iostream>
-
 #include "../Aliases/Aliases.hpp"
 
 #include "Exceptions.hpp"

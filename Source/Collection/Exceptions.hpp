@@ -19,8 +19,6 @@
 #ifndef HEAPEXCEPTIONS
 #define HEAPEXCEPTIONS
 
-#include <iostream>
-
 #include "../Aliases/Aliases.hpp"
 
 /*!

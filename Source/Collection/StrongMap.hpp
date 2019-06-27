@@ -19,8 +19,6 @@
 #ifndef STRONGMAP
 #define STRONGMAP
 
-#include <iostream>
-
 #include "../Aliases/Aliases.hpp"
 
 #include "Exceptions.hpp"

@@ -19,8 +19,6 @@
 #ifndef HEAPSTACK
 #define HEAPSTACK
 
-#include <iostream>
-
 #include "../Aliases/Aliases.hpp"
 
 #include "Exceptions.hpp"

@@ -19,8 +19,6 @@
 #ifndef LINKEDLIST
 #define LINKEDLIST
 
-#include <iostream>
-
 #include "../Aliases/Aliases.hpp"
 
 #include "Exceptions.hpp"

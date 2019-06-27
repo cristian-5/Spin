@@ -19,8 +19,6 @@
 #ifndef HEAPLOOP
 #define HEAPLOOP
 
-#include <iostream>
-
 #include "../Aliases/Aliases.hpp"
 
 #include "Exceptions.hpp"
