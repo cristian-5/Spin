@@ -22,12 +22,15 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <regex>
 
 using Exception = std::exception;
 
 using IFStream = std::ifstream;
 using OFStream = std::ofstream;
+
+using StringStream = std::stringstream;
 
 using UInt8 = std::uint8_t;
 using Int8 = std::int8_t;
