@@ -30,10 +30,10 @@ namespace Stack {
 		public:
 
 		static Grammar * importGrammar() {
-			Token * im = new Token("import", importKeyword);
-			Token * id = new Token("id", symbol);
-			Token * dt = new Token("dot", dot);
-			Token * sm = new Token("semicolon", semicolon);
+			Token * im = new Token("import", TokenType::importKeyword);
+			Token * id = new Token("id", TokenType::symbol);
+			Token * dt = new Token("dot", TokenType::dot);
+			Token * sm = new Token("semicolon", TokenType::semicolon);
 			SRule * imR = new SRule(im);
 			SRule * idR = new SRule(id);
 			SRule * dtR = new SRule(dt);
@@ -46,9 +46,9 @@ namespace Stack {
 		}
 
 		static Grammar * procGrammar() {
-			Token * pr = new Token("proc", procKeyword);
-			Token * id = new Token("id", symbol);
-			Token * ob = new Token("(", openRoundBracket);
+			Token * pr = new Token("proc", TokenType::procKeyword);
+			Token * id = new Token("id", TokenType::symbol);
+			Token * ob = new Token("(", TokenType::openRoundBracket);
 			SRule * prR = new SRule(pr);
 			SRule * idR = new SRule(id);
 			SRule * obR = new SRule(ob);
@@ -58,26 +58,26 @@ namespace Stack {
 		}
 
 		static Grammar * argsGrammar() {
-			Token * nm = new Token("name", symbol);
-			Token * ty = new Token("type", symbol);
+			Token * nm = new Token("name", TokenType::symbol);
+			Token * ty = new Token("type", TokenType::symbol);
 			return nullptr;
 		}
 
 		static Grammar * funcGrammar() {
-			Token * fc = new Token("func", procKeyword);
-			Token * id = new Token("id", symbol);
-			Token * ob = new Token("(", openRoundBracket);
+			Token * fc = new Token("func", TokenType::procKeyword);
+			Token * id = new Token("id", TokenType::symbol);
+			Token * ob = new Token("(", TokenType::openRoundBracket);
 
-			Token * ty = new Token("type", symbol);
-			Token * nm = new Token("name", symbol);
+			Token * ty = new Token("type", TokenType::symbol);
+			Token * nm = new Token("name", TokenType::symbol);
 
-			Token * eq = new Token("=", equal);
+			Token * eq = new Token("=", TokenType::equal);
 
-			Token * bl = new Token("bool", boolLiteral);
-			Token * cl = new Token("char", charLiteral);
-			Token * il = new Token("int", uIntLiteral);
-			Token * rl = new Token("real", realLiteral);
-			Token * sl = new Token("string", stringLiteral);
+			Token * bl = new Token("bool", TokenType::boolLiteral);
+			Token * cl = new Token("char", TokenType::charLiteral);
+			Token * il = new Token("int", TokenType::uIntLiteral);
+			Token * rl = new Token("real", TokenType::realLiteral);
+			Token * sl = new Token("string", TokenType::stringLiteral);
 
 
 
@@ -90,9 +90,9 @@ namespace Stack {
 		}
 
 		static Grammar * fTypeGrammar() {
-			Token * ar = new Token("-", minus);
-			Token * rw = new Token(">", major);
-			Token * sy = new Token("type", symbol);
+			Token * ar = new Token("-", TokenType::minus);
+			Token * rw = new Token(">", TokenType::major);
+			Token * sy = new Token("type", TokenType::symbol);
 			SRule * arR = new SRule(ar);
 			SRule * rwR = new SRule(rw);
 			SRule * syR = new SRule(sy);
