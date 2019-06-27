@@ -19,12 +19,8 @@
 #ifndef STACKLEXER
 #define STACKLEXER
 
-#include <iostream>
-#include <string>
-#include <regex>
-
 #include "../Aliases/Aliases.hpp"
-#include "../Collection/Collection.hpp"
+#include "../Collection/StrongList.hpp"
 #include "../Linker/FileHandler.hpp"
 #include "../Token/Token.hpp"
 

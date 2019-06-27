@@ -19,9 +19,6 @@
 #ifndef STACKSYNTAXRULE
 #define STACKSYNTAXRULE
 
-#include <iostream>
-#include <string>
-
 #include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
 #include "../Token/Token.hpp"

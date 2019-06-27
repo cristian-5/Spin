@@ -19,10 +19,6 @@
 #ifndef FILEHANDLER
 #define FILEHANDLER
 
-#include <iostream>
-#include <fstream>
-#include <string>
-
 #include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
 

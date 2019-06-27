@@ -19,9 +19,6 @@
 #ifndef STACKTRANSPILER
 #define STACKTRANSPILER
 
-#include <iostream>
-#include <string>
-
 #include "../Aliases/Aliases.hpp"
 #include "../Linker/FileHandler.hpp"
 #include "../Lexer/Lexer.hpp"
@@ -31,31 +28,6 @@
 #define TList StrongList<Token>
 
 namespace Stack {
-
-	/*!
-	 *   @brief Syntax Error Exception.
-	 *   Raised when a token is unexpected.
-	 */
-	class SyntaxErrorException: public Exception {
-		private:
-		String token = "";
-		String expected = "";
-		FilePosition pos = { 0, 0 };
-		String fileName = "";
-		public:
-		String getToken() { return token; }
-		String getExpected() { return expected; }
-		FilePosition getPosition() { return pos; }
-		String getFileName() { return fileName; }
-		SyntaxErrorException(
-			String t,
-			String e,
-			FilePosition position,
-			String name
-		):
-		Exception(), token(t), expected(e),
-		pos(position), fileName(name) { }
-	};
 
 	/*!
 	 *   @brief Invalid Syntax Exception.
@@ -91,7 +63,7 @@ namespace Stack {
 			if (tokens -> isEmpty()) return "";
 			String file = "";
 			for (UInt32 i = 0; i < tokens -> count(); i++) {
-				file += tokens -> getNode(i).value + " ";
+				file += tokens -> getNode(i).lexeme + " ";
 			}
 			return file;
 		}
@@ -134,47 +106,8 @@ namespace Stack {
 			for (UInt32 i = start; i <= end; i++) {
 				Token token = tokens -> getNode(i);
 				if (token.type == t) {
-					token.value = value;
+					token.lexeme = value;
 					tokens -> setNode(i, token);
-				}
-			}
-		}
-
-		void processLibraries(TList * tokens) {
-			for (UInt32 i = 0; i < tokens -> count(); i++) {
-				Token t = tokens -> getNode(i);
-				if (t.type == libKeyword) {
-					t.value = "namespace";
-					tokens -> setNode(i, t);
-				}
-			}
-			for (UInt32 i = 0; i < tokens -> count(); i++) {
-				Token t = tokens -> getNode(i);
-				if (t.type == importKeyword) {
-					UInt32 end = 0;
-					Grammar * g = Syntax::importGrammar();
-					Parser parser = Parser(tokens, g);
-					if (parser.parseRange(i, end)) {
-						UInt32 count = tokenCount(
-							tokens, symbol, i, end
-						);
-						tokenReplace(
-							tokens,
-							importKeyword,
-							(count > 1 ?
-								"using" :
-								"using namespace"),
-							i, end
-						);
-						tokenReplace(tokens, dot, "::", i, end);
-						i = end;
-					} else {
-						throw InvalidSyntaxException(
-							"import", "import symbol ;",
-							getPosition(currentFile, t.position),
-							* currentFileName
-						);
-					}
 				}
 			}
 		}
@@ -185,21 +118,21 @@ namespace Stack {
 				Token t = tokens -> getNode(i);
 				if (t.type == openRoundBracket) {
 					t.type = closeRoundBracket;
-					t.value = ")";
+					t.lexeme = ")";
 					stack.push(t);
 				} else if (t.type == openSquareBracket) {
 					t.type = closeSquareBracket;
-					t.value = "]";
+					t.lexeme = "]";
 					stack.push(t);
 				} else if (t.type == openCurlyBracket) {
 					t.type = closeCurlyBracket;
-					t.value = "}";
+					t.lexeme = "}";
 					stack.push(t);
 				} else if (t.type == closeRoundBracket) {
 					Token Andrea = stack.pop();
 					if (Andrea.type != closeRoundBracket) {
 						throw SyntaxErrorException(
-							")", Andrea.value,
+							")", Andrea.lexeme,
 							getPosition(currentFile, t.position),
 							* currentFileName
 						);
@@ -208,7 +141,7 @@ namespace Stack {
 					Token Andrea = stack.pop();
 					if (Andrea.type != closeSquareBracket) {
 						throw SyntaxErrorException(
-							")", Andrea.value,
+							")", Andrea.lexeme,
 							getPosition(currentFile, t.position),
 							* currentFileName
 						);
@@ -217,82 +150,7 @@ namespace Stack {
 					Token Andrea = stack.pop();
 					if (Andrea.type != closeCurlyBracket) {
 						throw SyntaxErrorException(
-							")", Andrea.value,
-							getPosition(currentFile, t.position),
-							* currentFileName
-						);
-					}
-				}
-			}
-		}
-
-		void processProcedures(TList * tokens) {
-			for (UInt32 i = 0; i < tokens -> count(); i++) {
-				Token t = tokens -> getNode(i);
-				if (t.type == procKeyword) {
-					UInt32 end = 0;
-					Grammar * g = Syntax::procGrammar();
-					Parser parser = Parser(tokens, g);
-					if (parser.parseRange(i, end)) {
-						tokenReplace(tokens, procKeyword, "void", i, end);
-						i = end;
-					} else {
-						throw InvalidSyntaxException(
-							"proc", "proc identifier(arguments) { }",
-							getPosition(currentFile, t.position),
-							* currentFileName
-						);
-					}
-				}
-			}
-		}
-
-		void processFunctions(TList * tokens) {
-			for (UInt32 i = 0; i < tokens -> count(); i++) {
-				Token t = tokens -> getNode(i);
-				if (t.type == funcKeyword) {
-					UInt32 end = 0;
-					Grammar * g = Syntax::funcGrammar();
-					Parser parser = Parser(tokens, g);
-					if (parser.parseRange(i, end)) {
-						//tokenReplace(tokens, funcKeyword, "void", i, end);
-						i = end;
-					} else {
-						throw InvalidSyntaxException(
-							"import", "import symbol ;",
-							getPosition(currentFile, t.position),
-							* currentFileName
-						);
-					}
-					Boolean foundTag = false;
-					Grammar * f = Syntax::fTypeGrammar();
-					Parser fParser = Parser(tokens, g);
-					UInt32 fEnd = 0;
-					for (UInt32 j = i; j < tokens -> count(); j++) {
-						if (fParser.parseRange(j, fEnd)) {
-							foundTag = true;
-							break;
-						}
-					}
-					if (foundTag) {
-						String returnType = "";
-						for (UInt32 j = i; j <= fEnd; j++) {
-							Token tmp = tokens -> getNode(j);
-							if (tmp.type == symbol) {
-								returnType = tmp.value;
-							}
-						}
-						tokenReplace(
-							tokens,
-							funcKeyword,
-							returnType,
-							i, fEnd
-						);
-						tokenReplace(tokens, minus, "", i, fEnd);
-						tokenReplace(tokens, major, "", i, fEnd);
-					} else {
-						throw InvalidSyntaxException(
-							"function", "func symbol(args) -> returnType { }",
+							")", Andrea.lexeme,
 							getPosition(currentFile, t.position),
 							* currentFileName
 						);
@@ -319,11 +177,6 @@ namespace Stack {
 		void processTokens(TList * tokens) {
 			processBrackets(tokens);
 			removeBeginEnd(tokens);
-			processLibraries(tokens);
-			processFunctions(tokens);
-			// Functions Procedures
-			// Entry Point
-			// Include Foundation and other libs
 		}
 
 		String * currentFileName = nullptr;

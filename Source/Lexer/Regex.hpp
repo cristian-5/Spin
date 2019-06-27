@@ -19,10 +19,6 @@
 #ifndef REGEXTOOLS
 #define REGEXTOOLS
 
-#include <iostream>
-#include <string>
-#include <regex>
-
 #include "../Aliases/Aliases.hpp"
 #include "../Collection/StrongList.hpp"
 

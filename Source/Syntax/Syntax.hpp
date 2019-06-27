@@ -19,9 +19,6 @@
 #ifndef STACKSYNTAX
 #define STACKSYNTAX
 
-#include <iostream>
-#include <string>
-
 #include "../Aliases/Aliases.hpp"
 
 #include "SRule.hpp"
@@ -63,9 +60,7 @@ namespace Stack {
 		static Grammar * argsGrammar() {
 			Token * nm = new Token("name", symbol);
 			Token * ty = new Token("type", symbol);
-			
-
-
+			return nullptr;
 		}
 
 		static Grammar * funcGrammar() {
@@ -80,7 +75,7 @@ namespace Stack {
 
 			Token * bl = new Token("bool", boolLiteral);
 			Token * cl = new Token("char", charLiteral);
-			Token * il = new Token("int", integerLiteral);
+			Token * il = new Token("int", uIntLiteral);
 			Token * rl = new Token("real", realLiteral);
 			Token * sl = new Token("string", stringLiteral);
 

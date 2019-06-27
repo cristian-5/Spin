@@ -19,14 +19,12 @@
 #ifndef STACKPARSER
 #define STACKPARSER
 
-#include <iostream>
-#include <string>
-
 #include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
 #include "../Syntax/SRule.hpp"
 
-#include "Context.hpp"
+#include "ASTree.hpp"
+#include "Exceptions.hpp"
 
 using namespace Collection;
 
@@ -112,28 +110,7 @@ namespace Stack {
 
 	};
 
-	class TreeParser {
-
-		private:
-
-		UInt32 index = 0;
-
-		StrongList<Token> * tokens = nullptr;
-
-		Token consume() { return tokens -> getNode(index++); }
-		void stepBack() { index--; }
-		Token peek() { return tokens -> getNode(index); }
-		Token peekAhead(UInt32 offset) {
-			return tokens -> getNode(index + offset);
-		}
-
-		public:
-
-		TreeParser(StrongList<Token> * t) {
-			tokens = t;
-		}
-
-	};
+	class TreeParser { };
 
 }
 

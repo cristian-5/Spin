@@ -19,12 +19,7 @@
 #ifndef STACKTOKEN
 #define STACKTOKEN
 
-#include <iostream>
-#include <string>
-
 #include "../Aliases/Aliases.hpp"
-
-#include "PData.hpp"
 
 namespace Stack {
 
@@ -36,6 +31,7 @@ namespace Stack {
 		comment,
 
 		basicType,
+		customType,
 		symbol,
 		identifier,
 
@@ -135,32 +131,32 @@ namespace Stack {
 		public:
 
 		TokenType type = empty;
-		String value = "";
+		String lexeme = "";
 		UInt32 position = 0;
 
 		Token() { }
 
-		Token(String v, TokenType t, UInt32 p = 0) {
-			value = v; type = t; position = p;
+		Token(String l, TokenType t, UInt32 p = 0) {
+			lexeme = l; type = t; position = p;
 		}
 
-		Boolean isTypeTokenType() {
+		/*Boolean isTypeTokenType() {
 			if (type != symbol) return false;
-			return value == "Int8"      ||
-				   value == "Int16"     ||
-				   value == "Int32"     ||
-				   value == "Int64"     ||
-				   value == "UInt8"     ||
-				   value == "UInt16"    ||
-				   value == "UInt32"    ||
-				   value == "UInt64"    ||
-				   value == "Character" ||
-				   value == "Float"     ||
-				   value == "Double"    ||
-				   value == "Real"      ||
-				   value == "Boolean"   ||
-				   value == "String";
-		}
+			return lexeme == "Int8"      ||
+				   lexeme == "Int16"     ||
+				   lexeme == "Int32"     ||
+				   lexeme == "Int64"     ||
+				   lexeme == "UInt8"     ||
+				   lexeme == "UInt16"    ||
+				   lexeme == "UInt32"    ||
+				   lexeme == "UInt64"    ||
+				   lexeme == "Character" ||
+				   lexeme == "Float"     ||
+				   lexeme == "Double"    ||
+				   lexeme == "Real"      ||
+				   lexeme == "Boolean"   ||
+				   lexeme == "String";
+		}*/
 
 	};
 
