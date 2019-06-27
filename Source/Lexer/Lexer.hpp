@@ -77,89 +77,89 @@ namespace Stack {
 
 			TokenRule rules[tokenCount] = {
 
-				TokenRule("([ \\t\\n]+)", empty),
-				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", comment),
+				TokenRule("([ \\t\\n]+)", TokenType::empty),
+				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment),
 
-				TokenRule("(-?[0-9]+\\.[0-9]+)", realLiteral),
-				TokenRule("([0-9]+)", uIntLiteral),
-				TokenRule("([+-]?[0-9]+)", intLiteral),
-				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", stringLiteral),
-				TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", charLiteral),
-				TokenRule("(#[A-Fa-f0-9]{6}|#[A-Fa-f0-9]{3})" INVERTED, colourLiteral),
-				TokenRule("(true|false)" INVERTED, boolLiteral),
+				TokenRule("(-?[0-9]+\\.[0-9]+)", TokenType::realLiteral),
+				TokenRule("([0-9]+)", TokenType::uIntLiteral),
+				TokenRule("([+-]?[0-9]+)", TokenType::intLiteral),
+				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", TokenType::stringLiteral),
+				TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral),
+				TokenRule("(#[A-Fa-f0-9]{6}|#[A-Fa-f0-9]{3})" INVERTED, TokenType::colourLiteral),
+				TokenRule("(true|false)" INVERTED, TokenType::boolLiteral),
 
-				TokenRule("(<[01]+\\|[01]+>)", bra_ketLiteral),
-				TokenRule("(<[01]+\\|)", braLiteral),
-				TokenRule("(\\|[01]+>)", ketLiteral),
+				TokenRule("(<[01]+\\|[01]+>)", TokenType::bra_ketLiteral),
+				TokenRule("(<[01]+\\|)", TokenType::braLiteral),
+				TokenRule("(\\|[01]+>)", TokenType::ketLiteral),
 
-				TokenRule("(\\:)", colon),
-				TokenRule("(\\;)", semicolon),
-				TokenRule("(\\,)", comma),
-				TokenRule("(\\.)", dot),
-				TokenRule("(<)", minor),
-				TokenRule("(>)", major),
-				TokenRule("(=)", equal),
-				TokenRule("(\\?)", questionMark),
-				TokenRule("(\\!)", exclamationMark),
+				TokenRule("(\\:)", TokenType::colon),
+				TokenRule("(\\;)", TokenType::semicolon),
+				TokenRule("(\\,)", TokenType::comma),
+				TokenRule("(\\.)", TokenType::dot),
+				TokenRule("(<)", TokenType::minor),
+				TokenRule("(>)", TokenType::major),
+				TokenRule("(=)", TokenType::equal),
+				TokenRule("(\\?)", TokenType::questionMark),
+				TokenRule("(\\!)", TokenType::exclamationMark),
 
-				TokenRule("(\\+)", plus),
-				TokenRule("(-)", minus),
-				TokenRule("(\\*)", star),
-				TokenRule("(\\\\)", backslash),
-				TokenRule("(\\/)", slash),
-				TokenRule("(@)", at),
-				TokenRule("(|)", pipe),
-				TokenRule("(#)", hashtag),
-				TokenRule("(&)", ampersand),
-				TokenRule("(%)", modulus),
-				TokenRule("($)", dollar),
-				TokenRule("(^)", hat),
+				TokenRule("(\\+)", TokenType::plus),
+				TokenRule("(-)", TokenType::minus),
+				TokenRule("(\\*)", TokenType::star),
+				TokenRule("(\\\\)", TokenType::backslash),
+				TokenRule("(\\/)", TokenType::slash),
+				TokenRule("(@)", TokenType::at),
+				TokenRule("(|)", TokenType::pipe),
+				TokenRule("(#)", TokenType::hashtag),
+				TokenRule("(&)", TokenType::ampersand),
+				TokenRule("(%)", TokenType::modulus),
+				TokenRule("($)", TokenType::dollar),
+				TokenRule("(^)", TokenType::hat),
 
-				TokenRule("(\\()", openRoundBracket),
-				TokenRule("(\\))", closeRoundBracket),
-				TokenRule("(\\[)", openSquareBracket),
-				TokenRule("(\\])", closeSquareBracket),
-				TokenRule("(\\{)", openCurlyBracket),
-				TokenRule("(\\})", closeCurlyBracket),
+				TokenRule("(\\()", TokenType::openRoundBracket),
+				TokenRule("(\\))", TokenType::closeRoundBracket),
+				TokenRule("(\\[)", TokenType::openSquareBracket),
+				TokenRule("(\\])", TokenType::closeSquareBracket),
+				TokenRule("(\\{)", TokenType::openCurlyBracket),
+				TokenRule("(\\})", TokenType::closeCurlyBracket),
 
-				TokenRule("(try)" INVERTED, tryKeyword),
-				TokenRule("(catch)" INVERTED, catchKeyword),
-				TokenRule("(throw)" INVERTED, throwKeyword),
-				TokenRule("(throws)" INVERTED, throwsKeyword),
-				TokenRule("(avoid)" INVERTED, avoidKeyword),
+				TokenRule("(try)" INVERTED, TokenType::tryKeyword),
+				TokenRule("(catch)" INVERTED, TokenType::catchKeyword),
+				TokenRule("(throw)" INVERTED, TokenType::throwKeyword),
+				TokenRule("(throws)" INVERTED, TokenType::throwsKeyword),
+				TokenRule("(avoid)" INVERTED, TokenType::avoidKeyword),
 
-				TokenRule("(if)" INVERTED, ifKeyword),
-				TokenRule("(else)" INVERTED, elseKeyword),
-				TokenRule("(switch)" INVERTED, ifKeyword),
-				TokenRule("(case)" INVERTED, caseKeyword),
-				TokenRule("(default)" INVERTED, defaultKeyword),
-				TokenRule("(while)" INVERTED, whileKeyword),
-				TokenRule("(do)" INVERTED, doKeyword),
-				TokenRule("(loop)" INVERTED, loopKeyword),
-				TokenRule("(for)" INVERTED, forKeyword),
-				TokenRule("(repeat)" INVERTED, repeatKeyword),
-				TokenRule("(until)" INVERTED, untilKeyword),
-				TokenRule("(break)" INVERTED, breakKeyword),
-				TokenRule("(continue)" INVERTED, continueKeyword),
+				TokenRule("(if)" INVERTED, TokenType::ifKeyword),
+				TokenRule("(else)" INVERTED, TokenType::elseKeyword),
+				TokenRule("(switch)" INVERTED, TokenType::ifKeyword),
+				TokenRule("(case)" INVERTED, TokenType::caseKeyword),
+				TokenRule("(default)" INVERTED, TokenType::defaultKeyword),
+				TokenRule("(while)" INVERTED, TokenType::whileKeyword),
+				TokenRule("(do)" INVERTED, TokenType::doKeyword),
+				TokenRule("(loop)" INVERTED, TokenType::loopKeyword),
+				TokenRule("(for)" INVERTED, TokenType::forKeyword),
+				TokenRule("(repeat)" INVERTED, TokenType::repeatKeyword),
+				TokenRule("(until)" INVERTED, TokenType::untilKeyword),
+				TokenRule("(break)" INVERTED, TokenType::breakKeyword),
+				TokenRule("(continue)" INVERTED, TokenType::continueKeyword),
 
-				TokenRule("(import)" INVERTED, importKeyword),
-				TokenRule("(func)" INVERTED, funcKeyword),
-				TokenRule("(proc)" INVERTED, procKeyword),
-				TokenRule("(static)" INVERTED, staticKeyword),
-				TokenRule("(class)" INVERTED, classKeyword),
-				TokenRule("(enumerator)" INVERTED, enumKeyword),
-				TokenRule("(structure)" INVERTED, structKeyword),
-				TokenRule("(exception)" INVERTED, exceptKeyword),
-				TokenRule("(private)" INVERTED, privateKeyword),
-				TokenRule("(public)" INVERTED, publicKeyword),
-				TokenRule("(ref)" INVERTED, refKeyword),
-				TokenRule("(cpy)" INVERTED, cpyKeyword),
-				TokenRule("(const)" INVERTED, constKeyword),
-				TokenRule("(null)" INVERTED, nullLiteral),
-				TokenRule("(nope?)" INVERTED, nop),
-				TokenRule("(return)" INVERTED, returnKeyword),
+				TokenRule("(import)" INVERTED, TokenType::importKeyword),
+				TokenRule("(func)" INVERTED, TokenType::funcKeyword),
+				TokenRule("(proc)" INVERTED, TokenType::procKeyword),
+				TokenRule("(static)" INVERTED, TokenType::staticKeyword),
+				TokenRule("(class)" INVERTED, TokenType::classKeyword),
+				TokenRule("(enumerator)" INVERTED, TokenType::enumKeyword),
+				TokenRule("(structure)" INVERTED, TokenType::structKeyword),
+				TokenRule("(exception)" INVERTED, TokenType::exceptKeyword),
+				TokenRule("(private)" INVERTED, TokenType::privateKeyword),
+				TokenRule("(public)" INVERTED, TokenType::publicKeyword),
+				TokenRule("(ref)" INVERTED, TokenType::refKeyword),
+				TokenRule("(cpy)" INVERTED, TokenType::cpyKeyword),
+				TokenRule("(const)" INVERTED, TokenType::constKeyword),
+				TokenRule("(null)" INVERTED, TokenType::nullLiteral),
+				TokenRule("(nope?)" INVERTED, TokenType::nop),
+				TokenRule("(return)" INVERTED, TokenType::returnKeyword),
 
-				TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, symbol),
+				TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, TokenType::symbol),
 
 			};
 
@@ -185,7 +185,7 @@ namespace Stack {
 			data = replaceMatches("\n", data, " ");
 			StrongList<Token> * tokens = new StrongList<Token>();
 			UInt32 pos = 0;
-			Token temp = Token("beginFile", beginFile, 0);
+			Token temp = Token("beginFile", TokenType::beginFile, 0);
 			tokens -> link(temp);
 			while (data.length() > 0) {
 				Boolean tokenized = false;
@@ -196,8 +196,8 @@ namespace Stack {
 						data = data.subString(result.length());
 						temp = Token(result, grammar[i].type, pos);
 						pos += result.length();
-						if (grammar[i].type == empty) break;
-						if (grammar[i].type == comment) break;
+						if (grammar[i].type == TokenType::empty) break;
+						if (grammar[i].type == TokenType::comment) break;
 						tokens -> link(temp);
 						break;
 					}
@@ -207,7 +207,7 @@ namespace Stack {
 					throw InvalidTokenException(fp, fileName);
 				}
 			}
-			temp = Token("endFile", endFile, 0);
+			temp = Token("endFile", TokenType::endFile, 0);
 			tokens -> link(temp);
 			return tokens;
 		}
