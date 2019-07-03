@@ -86,6 +86,16 @@ namespace Stack {
 			parenthesise(e -> o -> lexeme, exes);
 			delete exes;
 		}
+		void visitSetExpression(Set * e) override {
+			StrongList<Expression *> * exes = new StrongList<Expression *>();
+			exes -> link(e -> object); exes -> link(e -> value);
+			parenthesise("set " + e -> name -> lexeme, exes);
+			delete exes;
+		}
+		void visitSuperExpression(Super * e) override {
+			stream << e -> keyword -> lexeme << ' ';
+			stream << e -> method -> lexeme;
+		}
 		void visitUnaryExpression(Unary * e) override {
 			parenthesise(e -> o -> lexeme, e -> r);
 		}

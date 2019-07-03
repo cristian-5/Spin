@@ -32,6 +32,8 @@ namespace Stack {
 	class Grouping;
 	class Literal;
 	class Logical;
+	class Set;
+	class Super;
 	class Unary;
 
 	class Expression {
@@ -49,6 +51,8 @@ namespace Stack {
 			virtual void visitGroupingExpression(Grouping * e) = 0;
 			virtual void visitLiteralExpression(Literal * e) = 0;
 			virtual void visitLogicalExpression(Logical * e) = 0;
+			virtual void visitSetExpression(Set * e) = 0;
+			virtual void visitSuperExpression(Super * e) = 0;
 			virtual void visitUnaryExpression(Unary * e) = 0;
 		};
 
@@ -153,6 +157,32 @@ namespace Stack {
 			visitor -> visitUnaryExpression(this);
 		}
 	};
+
+	class Set: public Expression {
+		public:
+		Expression * object = nullptr;
+		Token * name = nullptr;
+		Expression * value = nullptr;
+		Set(Expression * o, Token * n, Expression * v) {
+			object = o; name = n; value = v;
+		}
+		void accept(Visitor * visitor) override {
+			visitor -> visitSetExpression(this);
+		}
+	};
+
+	class Super: public Expression {
+		public:
+		Token * keyword = nullptr;
+		Token * method = nullptr;
+		Super(Token * k, Token * m) {
+			keyword = k; method = m;
+		}
+		void accept(Visitor * visitor) override {
+			visitor -> visitSuperExpression(this);
+		}
+	};
+
 
 }
 
