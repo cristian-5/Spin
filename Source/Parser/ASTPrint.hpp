@@ -32,37 +32,84 @@ namespace Stack {
 		UInt32 indentLevel = 0;
 		String indent = "";
 
+		StringStream stream = StringStream();
 
-		void parenthesise(const String & name, StrongList<Expression *> e) {
-			String s = "(" + name;
-			for (UInt32 i = 0; i < e.count(); i++) {
-				if (e[i] == nullptr) continue;
-				s += " ";
-				e[i] -> accept(* this);
-			}
-			s += ")";
+		void parenthesise(const String & name, Expression * e) {
+			if (e == nullptr) return;
+			stream << '(' << name << ' ';
+			e -> accept(this);
+			stream << ')';
 		}
 
-		/*void visitBinaryExpression(const Binary & e) {
-			paranthesise(e.op.lexeme(), { e.left.get(), e.right.get() });
-		}*/
+		void parenthesise(const String & name, StrongList<Expression *> * e) {
+			stream << '(' << name;
+			for (UInt32 i = 0; i < e -> count(); i++) {
+				if (e -> getNode(i) == nullptr) continue;
+				stream << ' ';
+				e -> getNode(i) -> accept(this);
+			}
+			stream << ')';
+		}
 
+		void visitBinaryExpression(Binary * e) override {
+			StrongList<Expression *> * exes = new StrongList<Expression *>();
+			exes -> link(e -> l); exes -> link(e -> r);
+			parenthesise(e -> o -> lexeme, exes);
+			delete exes;
+		}
+		void visitAssignmentExpression(Assignment * e) override {
+			const String name = "setq " + e -> name -> lexeme;
+
+			parenthesise(name, e -> value);
+		}
+		void visitCallExpression(Call * e) override {
+			stream << '(';
+    		e -> callee -> accept(this);
+			for (UInt32 i = 0; i < e -> arguments.count(); i++) {
+				stream << ' ';
+				e -> arguments[i] -> accept(this);
+			}
+			stream << ')';
+		}
+		void visitGetExpression(Get * e) override {
+			parenthesise("get " + e -> name -> lexeme, e -> object);
+		}
+		void visitGroupingExpression(Grouping * e) override {
+			parenthesise("group", e -> expression);
+		}
+		void visitLiteralExpression(Literal * e) override {
+			stream << e -> lexeme;
+		}
+		void visitLogicalExpression(Logical * e) override {
+			StrongList<Expression *> * exes = new StrongList<Expression *>();
+			exes -> link(e -> l); exes -> link(e -> r);
+			parenthesise(e -> o -> lexeme, exes);
+			delete exes;
+		}
+		void visitUnaryExpression(Unary * e) override {
+			parenthesise(e -> o -> lexeme, e -> r);
+		}
 
 		public:
 
-		template <typename T>
-		String print(StrongList<T> * statements) {
-			String s = "";
-			for (UInt32 i = 0; i < statements.count(); i++) {
-				s += indent;
+		ASTPrinter() { }
+
+		String print(StrongList<Expression *> * statements) {
+			for (UInt32 i = 0; i < statements -> count(); i++) {
+				stream << indent;
 				// This might not work because of reference:
-				statements[i] -> accept(* this);
-				s += "\n";
+				statements -> getNode(i) -> accept(this);
+				stream << '\n';
 			}
-			return s;
+			return stream.str();
 		}
 
-		
+		String print(Expression * statement) {
+			stream << indent;
+			statement -> accept(this);
+			stream << '\n';
+			return stream.str();
+		}
 
 	};
 
