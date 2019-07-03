@@ -96,8 +96,14 @@ namespace Stack {
 			stream << e -> keyword -> lexeme << ' ';
 			stream << e -> method -> lexeme;
 		}
+		void visitThisExpression(This * e) override {
+			stream << e -> keyword -> lexeme;
+		}
 		void visitUnaryExpression(Unary * e) override {
 			parenthesise(e -> o -> lexeme, e -> r);
+		}
+		void visitVariableExpression(Variable * e) override {
+			stream << e -> name -> lexeme;
 		}
 
 		public:

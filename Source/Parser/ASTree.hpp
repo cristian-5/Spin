@@ -34,7 +34,9 @@ namespace Stack {
 	class Logical;
 	class Set;
 	class Super;
+	class This;
 	class Unary;
+	class Variable;
 
 	class Expression {
 
@@ -53,7 +55,9 @@ namespace Stack {
 			virtual void visitLogicalExpression(Logical * e) = 0;
 			virtual void visitSetExpression(Set * e) = 0;
 			virtual void visitSuperExpression(Super * e) = 0;
+			virtual void visitThisExpression(This * e) = 0;
 			virtual void visitUnaryExpression(Unary * e) = 0;
+			virtual void visitVariableExpression(Variable * e) = 0;
 		};
 
 		virtual void accept(Visitor *) { }
@@ -146,18 +150,6 @@ namespace Stack {
 		}
 	};
 
-	class Unary: public Expression {
-		public:
-		Expression * r = nullptr;
-		Token * o = nullptr;
-		Unary(Token * op, Expression * rs) {
-			o = op; r = rs;
-		}
-		void accept(Visitor * visitor) override {
-			visitor -> visitUnaryExpression(this);
-		}
-	};
-
 	class Set: public Expression {
 		public:
 		Expression * object = nullptr;
@@ -183,6 +175,35 @@ namespace Stack {
 		}
 	};
 
+	class This: public Expression {
+		public:
+		Token * keyword = nullptr;
+		This(Token * k) { keyword = k; }
+		void accept(Visitor * visitor) override {
+			visitor -> visitThisExpression(this);
+		}
+	};
+
+	class Unary: public Expression {
+		public:
+		Expression * r = nullptr;
+		Token * o = nullptr;
+		Unary(Token * op, Expression * rs) {
+			o = op; r = rs;
+		}
+		void accept(Visitor * visitor) override {
+			visitor -> visitUnaryExpression(this);
+		}
+	};
+
+	class Variable: public Expression {
+		public:
+		Token * name = nullptr;
+		Variable(Token * n) { name = n; }
+		void accept(Visitor * visitor) override {
+			visitor -> visitVariableExpression(this);
+		}
+	};
 
 }
 
