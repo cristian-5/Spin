@@ -38,7 +38,7 @@ namespace Stack {
 
 		public:
 
-		//virtual ~Expression() = default;
+		virtual ~Expression() = default;
 
 		class Visitor {
 			public:
