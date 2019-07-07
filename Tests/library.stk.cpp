@@ -1,1 +1,0 @@
-namespace World { void hello ( ) { } class G { public : int z = 0 ; } ; } 

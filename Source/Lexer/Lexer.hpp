@@ -48,7 +48,6 @@ namespace Stack {
 		Exception(), pos(position), fileName(name) { }
 	};
 
-	/*! @brief Lexer Class. */
 	class Lexer {
 
 		private:

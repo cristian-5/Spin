@@ -18,7 +18,7 @@
 
 #include "Aliases/Aliases.hpp"
 #include "Collection/Collection.hpp"
-#include "Transpiler/Transpiler.hpp"
+#include "Compiler/Compiler.hpp"
 #include "Parser/ASTPrint.hpp"
 
 using namespace std;

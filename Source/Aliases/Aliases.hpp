@@ -20,6 +20,7 @@
 #define ALIASES
 
 #include <iostream>
+#include <stdio.h>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -59,7 +60,15 @@ using RegexError = std::regex_error;
 #define Real long double
 #define Boolean bool
 
+#define waitKeyPress getchar
+
 const Int32 exitSuccess = 0;
 const Int32 exitFailure = 1;
+
+String getInput() {
+    String input = "";
+    getline(std::cin, input);
+    return input;
+}
 
 #endif

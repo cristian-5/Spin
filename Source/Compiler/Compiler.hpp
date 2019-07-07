@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Transpiler.hpp                         |
+ *    |  Compiler.hpp                           |
  *    |                                         |
- *    |                Transpiler               |
+ *    |              Stack Compiler             |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef STACKTRANSPILER
-#define STACKTRANSPILER
+#ifndef STACKCOMPILER
+#define STACKCOMPILER
 
 #include "../Aliases/Aliases.hpp"
 #include "../Linker/FileHandler.hpp"
@@ -54,7 +54,7 @@ namespace Stack {
 		pos(position), fileName(name) { }
 	};
 
-	class Transpiler {
+	class Compiler {
 
 		private:
 
@@ -184,7 +184,7 @@ namespace Stack {
 
 		public:
 
-		Transpiler() { }
+		Compiler() { }
 
 		void processFile(String file) {
 			StrongList<String> files = StrongList<String>();

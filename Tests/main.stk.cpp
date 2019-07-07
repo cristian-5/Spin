@@ -1,1 +1,0 @@
-using namespace World ; using World :: G ; void main ( ) { hello ( ) ; [ ] [ ] [ ] { } ( { } [ ] ) ( ) } 

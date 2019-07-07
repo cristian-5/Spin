@@ -29,9 +29,6 @@ namespace Stack {
 
 		private:
 
-		UInt32 indentLevel = 0;
-		String indent = "";
-
 		StringStream stream = StringStream();
 
 		void parenthesise(const String & name, Expression * e) {
@@ -112,7 +109,6 @@ namespace Stack {
 
 		String print(StrongList<Expression *> * statements) {
 			for (UInt32 i = 0; i < statements -> count(); i++) {
-				stream << indent;
 				// This might not work because of reference:
 				statements -> getNode(i) -> accept(this);
 				stream << '\n';
@@ -121,9 +117,7 @@ namespace Stack {
 		}
 
 		String print(Expression * statement) {
-			stream << indent;
 			statement -> accept(this);
-			stream << '\n';
 			return stream.str();
 		}
 
