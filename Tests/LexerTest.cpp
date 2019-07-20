@@ -35,7 +35,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	StrongList<Token> * tokens = nullptr;
 
 	try {
-		tokens = lexer -> tokenize(& test, "Virtual File");
+		tokens = lexer -> tokenise(& test, "Virtual File");
 	} catch (InvalidTokenException & e) {
 		cout << "Error in " << e.getFileName() << "!" << endl;
 		cout << "Position [row: " << e.getPosition().row << ", ";

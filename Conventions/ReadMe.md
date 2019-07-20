@@ -1,7 +1,7 @@
 
 # Conventions
 
-This section helps developers organize their code following
+This section helps developers organise their code following
 the same code conventions.
 
 ## File Conventions

@@ -29,7 +29,7 @@ feel free to contact me for joining our team. We are Desperate...
 
 If you want to contribute you must follow these 
 [Conventions](Conventions/) in order to keep the
-file structure organized and the code clean.
+file structure organised and the code clean.
 
 ## Compilation
 

@@ -175,7 +175,7 @@ namespace Stack {
 
 		Lexer() { generateTokens(); }
 
-		StrongList<Token> * tokenize(String * input, String fileName = "Unknown File") {
+		StrongList<Token> * tokenise(String * input, String fileName = "Unknown File") {
 			// Handle Last Token:
 			String data = (* input) + "\n";
 			// Handle Single Line Comments:
@@ -187,11 +187,11 @@ namespace Stack {
 			Token temp = Token("beginFile", TokenType::beginFile, 0);
 			tokens -> link(temp);
 			while (data.length() > 0) {
-				Boolean tokenized = false;
+				Boolean tokenised = false;
 				for (UInt32 i = 0; i < grammar.count(); i++) {
 					String result = matchCloseStart(grammar[i].pattern, data);
 					if (result.length() > 0) {
-						tokenized = true;
+						tokenised = true;
 						data = data.subString(result.length());
 						temp = Token(result, grammar[i].type, pos);
 						pos += result.length();
@@ -201,7 +201,7 @@ namespace Stack {
 						break;
 					}
 				}
-				if (!tokenized) {
+				if (!tokenised) {
 					FilePosition fp = getPosition(input, pos);
 					throw InvalidTokenException(fp, fileName);
 				}

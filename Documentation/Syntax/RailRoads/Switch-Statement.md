@@ -3,7 +3,7 @@
 
 Basic example of a `switch` statement.
 Note that the switch statement will result
-in an optimized version of consecutive
+in an optimised version of consecutive
 [if statements](If-Statement.md) comparing
 the top expression with every other case,
 using the **comparison operator** `==`.

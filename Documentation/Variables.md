@@ -96,7 +96,7 @@ A parameter declared without an `inout` modifier is a *value parameter*.
 
 A value parameter comes into existence upon invocation of the function
 member (method, instance constructor, accessor, or operator) or
-anonymous function to which the parameter belongs, and is initialized
+anonymous function to which the parameter belongs, and is initialised
 with the value of the argument given in the invocation. A value parameter
 normally ceases to exist upon return of the function member or anonymous
 function. However, if the value parameter is captured by an anonymous

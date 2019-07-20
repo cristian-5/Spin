@@ -56,7 +56,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Error in '" << i.getFileName();
 		cout << "' [row: " << f.row << ", col: "
 		     << f.col << "];" << endl;
-		cout << "Unrecognized Token!";
+		cout << "Unrecognised Token!";
 		cin.get();
 		return exitFailure;
 	} catch (BadFileException & b) {
