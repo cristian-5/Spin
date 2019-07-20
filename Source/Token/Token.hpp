@@ -130,7 +130,7 @@ namespace Stack {
 
 		public:
 
-		TokenType type = empty;
+		TokenType type = TokenType::empty;
 		String lexeme = "";
 		UInt32 position = 0;
 
@@ -138,6 +138,20 @@ namespace Stack {
 
 		Token(String l, TokenType t, UInt32 p = 0) {
 			lexeme = l; type = t; position = p;
+		}
+
+		Boolean isTypeLiteral() {
+			return type == TokenType::boolLiteral ||
+				   type == TokenType::uIntLiteral ||
+				   type == TokenType::intLiteral ||
+				   type == TokenType::stringLiteral ||
+				   type == TokenType::charLiteral ||
+				   type == TokenType::realLiteral ||
+				   type == TokenType::colourLiteral ||
+				   type == TokenType::nullLiteral ||
+				   type == TokenType::braLiteral ||
+				   type == TokenType::ketLiteral ||
+				   type == TokenType::bra_ketLiteral;
 		}
 
 		/*Boolean isTypeTokenType() {
