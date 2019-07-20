@@ -125,12 +125,45 @@ namespace Stack {
 			s = "!="; ops -> link(s);
 			while (match(TokenType::infixOperator)
 				   && matchOperators(ops)) {
-				Token op = previous();
+				Token * op = new Token();
+				* op = previous();
 				Expression * rs = comparison();
-				//ex = new Binary(ex, op, rs); // TODO: Fix!
+				ex = new Binary(ex, op, rs);
 			}
 			delete ops;
 			return ex;
+		}
+
+		/*  Parses Low Priority infix Operators [N + M]. */
+		Expression * lowPriorityOperator() {
+			return nullptr;
+		}
+
+		/*  Parses Medium Priority infix Operators [N * M]. */
+		Expression * mediumPriorityOperator() {
+			return nullptr;
+		}
+
+		/*  Parses High Priority Unary Operators [-N]. */
+		Expression * highPriorityOperator() {
+			StrongList<TokenType> * ops = new StrongList<TokenType>();
+			TokenType t = TokenType::minus; ops -> link(t);
+			t = TokenType::exclamationMark; ops -> link(t);
+			if (match(ops)) {
+				Token * op = new Token();
+				* op = previous();
+				Expression * rs = highPriorityOperator();
+				Expression * ex = new Unary(op, rs);
+				delete ops;
+				return ex;
+			}
+			delete ops;
+			return primary();
+		}
+
+		Expression * primary() {
+			// TODO: PARSE LITERALS
+			return nullptr;
 		}
 
 		Expression * comparison() {
