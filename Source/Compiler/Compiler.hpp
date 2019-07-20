@@ -202,7 +202,7 @@ namespace Stack {
 					currentFile = & file;
 					currentFileName = & path;
 					TList * tokens = nullptr;
-					tokens = lexer.tokenize(& file, path);
+					tokens = lexer.tokenise(& file, path);
 					processTokens(tokens);
 					file = tokensToFile(tokens);
 					FileHandler::createNewFile(path + ".cpp", file);
