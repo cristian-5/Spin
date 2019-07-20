@@ -31,19 +31,43 @@ namespace Stack {
 
 	class PreProcessor {
 
+		private:
+
+		StrongList<Token> * tokens = nullptr;
+
+		String * inputFile = nullptr;
+
+		String fileName = "";
+
+		void processBras() {
+			
+		}
+		void processKets() {
+			
+		}
+		void processBraKets() {
+			
+		}
+
+		void processVectors() {
+			
+		}
+
+		void processCombinedOperators() {
+			
+		}
+
 		public:
 
 		PreProcessor() { }
 
-		void processIncludes() { }
-
-		void processBras() { }
-		void processKets() { }
-		void processBraKets() { }
-
-		void processVectors() { }
-
-		void processCombinedOperators() { }
+		StrongList<Token> * process(StrongList<Token> * t,
+								    String * i = nullptr,
+									String f = "Unknown File") {
+			tokens = t; inputFile = i; fileName = f;
+			processVectors();
+			processCombinedOperators();
+		}
 
 
 	};
