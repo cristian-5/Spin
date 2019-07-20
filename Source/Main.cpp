@@ -28,19 +28,6 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	Token * m = new Token("-", TokenType::minus);
-	Literal * o = new Literal("123");
-
-	Unary * u = new Unary(m, o);
-	Token * t = new Token("*", TokenType::star);
-	Literal * l = new Literal("22.2");
-	Grouping * g = new Grouping(l);
-
-	Expression * expression = new Binary(u, t, g);
-
-	ASTPrinter astPrinter = ASTPrinter();
-    cout << astPrinter.print(expression) << endl;
-
 	/*StrongList<String> files = StrongList<String>();
 	String s = "main.stk"; files.link(s);
 	s = "library.stk"; files.link(s);
@@ -80,6 +67,5 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	cout << "Successfully Transpiled!";*/
 
-	cin.get();
 	return exitSuccess;
 }

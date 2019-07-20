@@ -43,6 +43,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Press any key to exit. ";
 		waitKeyPress();
 		delete lexer;
+		delete tokens;
 		return exitFailure;
 	}
 
