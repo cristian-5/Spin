@@ -49,53 +49,6 @@ namespace Stack {
 		pos(position), fileName(name) { }
 	};
 
-    /*!
-	 *   @brief Static Scope Exception.
-	 *   Raised when a the scope is violated.
-	 */
-	class StaticScopeException: public Exception {
-		private:
-		String token = "";
-		FilePosition pos = { 0, 0 };
-		String fileName = "";
-        String message = "";
-		public:
-		String getToken() { return token; }
-		FilePosition getPosition() { return pos; }
-		String getFileName() { return fileName; }
-        String getMessage() { return message; }
-		StaticScopeException(
-			String t,
-			String m,
-			FilePosition position,
-			String name
-		):
-		Exception(), token(t), message(m),
-		pos(position), fileName(name) { }
-	};
-
-    /*!
-	 *   @brief Static Cast Exception.
-	 *   Raised when implicit casting fails.
-	 */
-	class StaticCastException: public Exception {
-		private:
-		FilePosition pos = { 0, 0 };
-		String fileName = "";
-        String message = "";
-		public:
-		FilePosition getPosition() { return pos; }
-		String getFileName() { return fileName; }
-        String getMessage() { return message; }
-		StaticCastException(
-			String m,
-			FilePosition position,
-			String name
-		):
-		Exception(), message(m),
-		pos(position), fileName(name) { }
-	};
-
 }
 
 #endif
