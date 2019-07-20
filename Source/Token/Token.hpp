@@ -35,7 +35,6 @@ namespace Stack {
 		symbol,
 		identifier,
 
-		uIntLiteral,
 		intLiteral,
 		stringLiteral,
 		charLiteral,
@@ -142,7 +141,6 @@ namespace Stack {
 
 		Boolean isTypeLiteral() {
 			return type == TokenType::boolLiteral ||
-				   type == TokenType::uIntLiteral ||
 				   type == TokenType::intLiteral ||
 				   type == TokenType::stringLiteral ||
 				   type == TokenType::charLiteral ||
