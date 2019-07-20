@@ -128,7 +128,7 @@ namespace Stack {
 	class Literal: public Expression {
 		public:
 		Token * token = nullptr;
-		Literal(Token t) { token = t; }
+		Literal(Token * t) { token = t; }
 		void accept(Visitor * visitor) override {
 			visitor -> visitLiteralExpression(this);
 		}
