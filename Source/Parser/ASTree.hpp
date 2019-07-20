@@ -74,6 +74,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitAssignmentExpression(this);
 		}
+		~Assignment() { delete name; delete value; }
 	};
 
 	class Binary: public Expression {
@@ -87,6 +88,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitBinaryExpression(this);
 		}
+		~Binary() { delete r; delete l; delete o; }
 	};
 
 	class Call: public Expression {
@@ -100,6 +102,12 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitCallExpression(this);
 		}
+		~Call() {
+			delete paren; delete callee;
+			for (UInt32 i = 0; i < arguments.count(); i++) {
+				delete arguments.getNode(i);
+			}
+		}
 	};
 
 	class Get: public Expression {
@@ -112,6 +120,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitGetExpression(this);
 		}
+		~Get() { delete object; delete name; }
 	};
 
 	class Grouping: public Expression {
@@ -123,6 +132,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitGroupingExpression(this);
 		}
+		~Grouping() { delete expression; }
 	};
 
 	class Literal: public Expression {
@@ -132,6 +142,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitLiteralExpression(this);
 		}
+		~Literal() { delete token; }
 	};
 
 	class Logical: public Expression {
@@ -145,6 +156,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitLogicalExpression(this);
 		}
+		~Logical() { delete r; delete l; delete o; }
 	};
 
 	class Set: public Expression {
@@ -158,6 +170,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitSetExpression(this);
 		}
+		~Set() { delete object; delete name; delete value; }
 	};
 
 	class Super: public Expression {
@@ -170,6 +183,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitSuperExpression(this);
 		}
+		~Super() { delete keyword; delete method; }
 	};
 
 	class This: public Expression {
@@ -179,6 +193,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitThisExpression(this);
 		}
+		~This() { delete keyword; }
 	};
 
 	class Unary: public Expression {
@@ -191,6 +206,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitUnaryExpression(this);
 		}
+		~Unary() { delete r; delete o; }
 	};
 
 	class Variable: public Expression {
@@ -200,6 +216,7 @@ namespace Stack {
 		void accept(Visitor * visitor) override {
 			visitor -> visitVariableExpression(this);
 		}
+		~Variable() { delete name; }
 	};
 
 }
