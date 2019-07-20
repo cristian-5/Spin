@@ -127,11 +127,8 @@ namespace Stack {
 
 	class Literal: public Expression {
 		public:
-		String lexeme = "";
-		// Value value
-		Literal(String l) {
-			lexeme = l;
-		}
+		Token * token = nullptr;
+		Literal(Token t) { token = t; }
 		void accept(Visitor * visitor) override {
 			visitor -> visitLiteralExpression(this);
 		}
