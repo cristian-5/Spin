@@ -56,7 +56,6 @@ namespace Stack {
 		}
 		void visitAssignmentExpression(Assignment * e) override {
 			const String name = "setq " + e -> name -> lexeme;
-
 			parenthesise(name, e -> value);
 		}
 		void visitCallExpression(Call * e) override {
