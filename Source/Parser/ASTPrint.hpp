@@ -75,7 +75,7 @@ namespace Stack {
 			parenthesise("group", e -> expression);
 		}
 		void visitLiteralExpression(Literal * e) override {
-			stream << e -> token -> lexeme;
+			stream << "(literal " << e -> token -> lexeme << ")";
 		}
 		void visitLogicalExpression(Logical * e) override {
 			StrongList<Expression *> * exes = new StrongList<Expression *>();

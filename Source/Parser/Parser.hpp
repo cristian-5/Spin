@@ -21,7 +21,6 @@
 
 #include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
-#include "../Syntax/SRule.hpp"
 
 #include "ASTree.hpp"
 #include "Exceptions.hpp"
@@ -30,96 +29,28 @@ using namespace Collection;
 
 namespace Stack {
 
-	/*!
-	 *   @brief Invalid Grammar Exception.
-	 *   Raised when the grammar is not invaid.
-	 */
-	class InvalidGrammarException: public Exception {
-		public: InvalidGrammarException(): Exception() { }
-	};
-
-	/*!
-	 *   @brief Invalid Pointer Exception.
-	 *   Raised when the pointer is not invaid.
-	 */
-	class InvalidPointerException: public Exception {
-		public: InvalidPointerException(): Exception() { }
-	};
-
-	/*!
-	 *   @brief Empty Grammar Exception.
-	 *   Raised when the grammar is empty.
-	 */
-	class EmptyGrammarException: public Exception {
-		public: EmptyGrammarException(): Exception() { }
-	};
-
-	/*!
-	 *   @brief Empty Token Exception.
-	 *   Raised when the grammar is empty.
-	 */
-	class EmptyTokenException: public Exception {
-		public: EmptyTokenException(): Exception() { }
-	};
-
 	class Parser {
 
 		private:
 
-		StrongList<Token> * tokens = nullptr;
-
-		Grammar * grammar = nullptr;
-
-		UInt32 lastTerminal = 0;
-
-		Boolean parse(SRule * r, UInt32 index) {
-			if (index >= tokens -> count()) return false;
-			Token t = tokens -> getNode(index);
-			Boolean matches = r -> matches(& t);
-			if (r -> isTerminal()) {
-				if (matches) lastTerminal = index;
-				return matches;
-			}
-			if (!matches) return false;
-			index += 1;
-			for (UInt32 j = 0; j < r -> nextRules.count(); j++) {
-				if (parse(r -> nextRules[j], index)) return true;
-			}
-			return false;
-		}
-
-		public:
-
-		Parser(StrongList<Token> * t, Grammar * g) {
-			if (t == nullptr) throw InvalidPointerException();
-			if (g == nullptr) throw InvalidPointerException();
-			if (t -> isEmpty()) throw EmptyTokenException();
-			if (g -> isEmpty()) throw EmptyGrammarException();
-			tokens = t; grammar = g;
-		}
-
-		Boolean parseFrom(UInt32 start = 0) {
-			return parse(grammar, start);
-		}
-
-		Boolean parseRange(UInt32 start, UInt32 & end) {
-			Boolean result = parse(grammar, start);
-			end = lastTerminal;
-			return result;
-		}
-
-	};
-
-	class TreeParser {
-
-		private:
+		String fileName = "";
+		String * inputFile = nullptr;
 		
 		StrongList<Token> * tokens = nullptr;
 
 		UInt32 index = 0;
 
+		inline Expression * expression() {
+			try {
+				return equality();
+			} catch (Exception & e) { throw; }
+		}
+
 		Expression * equality() {
-			Expression * ex = comparison();
+			Expression * ex = nullptr;
+			try {
+				ex = comparison();
+			} catch (Exception & e) { throw; }
 			StrongList<String> * ops = new StrongList<String>();
 			String s = "=="; ops -> link(s);
 			s = "!="; ops -> link(s);
@@ -127,7 +58,10 @@ namespace Stack {
 				   && matchOperators(ops)) {
 				Token * op = new Token();
 				* op = previous();
-				Expression * rs = comparison();
+				Expression * rs = nullptr;
+				try {
+					rs = comparison();
+				} catch (Exception & e) { throw; }
 				ex = new Binary(ex, op, rs);
 			}
 			delete ops;
@@ -136,12 +70,47 @@ namespace Stack {
 
 		/*  Parses Low Priority infix Operators [N + M]. */
 		Expression * lowPriorityOperator() {
-			return nullptr;
+			Expression * ex = nullptr;
+			try {
+				ex = mediumPriorityOperator();
+			} catch (Exception & e) { throw; }
+			StrongList<TokenType> * ops = new StrongList<TokenType>();
+			TokenType t = TokenType::minus; ops -> link(t);
+			t = TokenType::plus; ops -> link(t);
+			while (match(ops)) {
+				Token * op = new Token();
+				* op = previous();
+				Expression * rs = nullptr;
+				try {
+					rs = mediumPriorityOperator();
+				} catch (Exception & e) { throw; }
+				ex = new Binary(ex, op, rs);
+			}
+			delete ops;
+			return ex;
 		}
 
 		/*  Parses Medium Priority infix Operators [N * M]. */
 		Expression * mediumPriorityOperator() {
-			return nullptr;
+			Expression * ex = nullptr;
+			try {
+				ex = highPriorityOperator();
+			} catch (Exception & e) { throw; }
+			StrongList<TokenType> * ops = new StrongList<TokenType>();
+			TokenType t = TokenType::star; ops -> link(t);
+			t = TokenType::slash; ops -> link(t);
+			t = TokenType::modulus; ops -> link(t);
+			while (match(ops)) {
+				Token * op = new Token();
+				* op = previous();
+				Expression * rs = nullptr;
+				try {
+					rs = highPriorityOperator();
+				} catch (Exception & e) { throw; }
+				ex = new Binary(ex, op, rs);
+			}
+			delete ops;
+			return ex;
 		}
 
 		/*  Parses High Priority Unary Operators [-N]. */
@@ -153,21 +122,53 @@ namespace Stack {
 				Token * op = new Token();
 				* op = previous();
 				Expression * rs = highPriorityOperator();
-				Expression * ex = new Unary(op, rs);
 				delete ops;
-				return ex;
+				return new Unary(op, rs);
 			}
 			delete ops;
-			return primary();
+			try {
+				return primary();
+			} catch(Exception & e) { throw; }
 		}
 
+		/*  Parses Nested Expressions and Literals. */
 		Expression * primary() {
-			// TODO: PARSE LITERALS
-			return nullptr;
+			Token * t = new Token();
+			* t = peek();
+			if (t -> isTypeLiteral()) {
+				return new Literal(t);
+			} else if (match(TokenType::openRoundBracket)) {
+				Expression * ex = expression();
+				try {
+					consume(TokenType::closeRoundBracket);
+				} catch (Exception & e) { throw; }
+				return new Grouping(ex);
+			}
+			FilePosition fp = getPosition(inputFile, t -> position);
+			throw UnexpectedEndException(t -> lexeme, fp, fileName);
 		}
 
 		Expression * comparison() {
-			return nullptr;
+			Expression * ex = nullptr;
+			try {
+				ex = lowPriorityOperator();
+			} catch (Exception & e) { throw; }
+			StrongList<String> * ops = new StrongList<String>();
+			String s = ">"; ops -> link(s);
+			s = ">="; ops -> link(s);
+			s = "<"; ops -> link(s);
+			s = "<="; ops -> link(s);
+			while (matchOperators(ops)) {
+				Token * op = new Token();
+				* op = previous();
+				Expression * rs = nullptr;
+				try {
+					rs = lowPriorityOperator();
+				} catch (Exception & e) { throw; }
+				ex = new Binary(ex, op, rs);
+			}
+			delete ops;
+			return ex;
 		}
 
 		Boolean matchOperator(String op) {
@@ -218,23 +219,79 @@ namespace Stack {
 			return peek().type == TokenType::endFile;
 		}
 
-		Token peek() {
-			return tokens -> getNode(index);
-		}
+		Token peek() { return tokens -> getNode(index); }
 
-		Token previous() {
-			return tokens -> getNode(index - 1);
-		}
+		Token previous() { return tokens -> getNode(index - 1); }
 
 		Token advance() {
 			if (!isAtEnd()) index++;
 			return previous();
 		}
 
+		Token consume(TokenType type) {
+			if (check(type)) return advance();
+			Token t = peek();
+			FilePosition fp = getPosition(inputFile, t.position);
+			throw SyntaxErrorException(t.lexeme, ")", fp, fileName);
+		}
+
+		void synchronise() {
+			advance();
+			while (!isAtEnd()) {
+				if (previous().type == TokenType::semicolon) {
+					return;
+				}
+				switch (peek().type) {
+					case TokenType::tryKeyword:
+					case TokenType::catchKeyword:
+					case TokenType::throwKeyword:
+					case TokenType::throwsKeyword:
+					case TokenType::avoidKeyword:
+					case TokenType::ifKeyword:
+					case TokenType::elseKeyword:
+					case TokenType::switchKeyword:
+					case TokenType::caseKeyword:
+					case TokenType::defaultKeyword:
+					case TokenType::whileKeyword:
+					case TokenType::doKeyword:
+					case TokenType::loopKeyword:
+					case TokenType::forKeyword:
+					case TokenType::repeatKeyword:
+					case TokenType::untilKeyword:
+					case TokenType::breakKeyword:
+					case TokenType::continueKeyword:
+					case TokenType::importKeyword:
+					case TokenType::funcKeyword:
+					case TokenType::procKeyword:
+					case TokenType::staticKeyword:
+					case TokenType::classKeyword:
+					case TokenType::enumKeyword:
+					case TokenType::structKeyword:
+					case TokenType::exceptKeyword:
+					case TokenType::privateKeyword:
+					case TokenType::publicKeyword:
+					case TokenType::refKeyword:
+					case TokenType::cpyKeyword:
+					case TokenType::constKeyword:
+					case TokenType::returnKeyword: return;
+					default: break;
+				}
+				advance();
+			}
+		}
+
 		public:
 
-		TreeParser(StrongList<Token> * t) {
-			tokens = t;
+		Parser() { }
+
+		Expression * parse(StrongList<Token> * t,
+						   String * i = nullptr,
+						   String f = "Unknown File") {
+			if (t == nullptr) return nullptr;
+			tokens = t; inputFile = i; fileName = f;
+			try {
+				return expression();
+			} catch (Exception & e) { throw; }
 		}
 
 	};

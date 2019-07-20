@@ -49,6 +49,28 @@ namespace Stack {
 		pos(position), fileName(name) { }
 	};
 
+	/*!
+	 *   @brief Unexpected End Exception.
+	 *   Raised when the code ends unexpectedly.
+	 */
+	class UnexpectedEndException: public Exception {
+		private:
+		String token = "";
+		FilePosition pos = { 0, 0 };
+		String fileName = "";
+		public:
+		String getToken() { return token; }
+		FilePosition getPosition() { return pos; }
+		String getFileName() { return fileName; }
+		UnexpectedEndException(
+			String t,
+			FilePosition position,
+			String name
+		):
+		Exception(), token(t),
+		pos(position), fileName(name) { }
+	};
+
 }
 
 #endif
