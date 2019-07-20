@@ -42,6 +42,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
 		cout << "Press any key to exit. ";
 		waitKeyPress();
+		delete lexer;
 		return exitFailure;
 	}
 
@@ -52,6 +53,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	cout << "Press any key to exit. ";
 	waitKeyPress();
+
+	delete lexer;
+	delete tokens;
 	
 	return exitSuccess;
 }
