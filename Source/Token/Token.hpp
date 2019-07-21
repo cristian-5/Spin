@@ -39,6 +39,7 @@ namespace Stack {
 		stringLiteral,
 		charLiteral,
 		boolLiteral,
+		imaginaryLiteral,
 		realLiteral,
 		colourLiteral,
 		nullLiteral,

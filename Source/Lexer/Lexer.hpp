@@ -72,13 +72,14 @@ namespace Stack {
 
 		void generateTokens() {
 
-			const UInt32 tokenCount = 73;
+			const UInt32 tokenCount = 74;
 
 			TokenRule rules[tokenCount] = {
 
 				TokenRule("([ \\t\\n]+)", TokenType::empty),
 				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment),
 
+				TokenRule("([0-9]+(?:\\.[0-9]+)?i)", TokenType::imaginaryLiteral),
 				TokenRule("([0-9]+\\.[0-9]+)", TokenType::realLiteral),
 				TokenRule("([0-9]+)", TokenType::intLiteral),
 				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", TokenType::stringLiteral),
