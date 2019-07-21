@@ -21,6 +21,7 @@ following table.
 | **UInt32** |  4 Bytes | Unsigned Integer |
 |  **Int64** |  8 Bytes | Signed Integer   |
 | **UInt64** |  8 Bytes | Unsigned Integer |
+| **Colour** |  4 Bytes | Unsigned Integer |
 
 ### Types internally seen as Integers
 
@@ -31,11 +32,21 @@ following table.
 
 ### Real Number Types
 
-|       Type | Size     | Description      |        Aliases       |
-|-----------:|----------|------------------|:--------------------:|
-|  **Float** |  4 Bytes | Floating Point   |     *Floating*       |
-| **Double** |  8 Bytes | Double Precision |                      |
-|   **Real** | 12 Bytes | Real Number      |                      |
+|          Type | Size     | Description           |        Aliases       |
+|--------------:|----------|-----------------------|:--------------------:|
+|     **Float** |  4 Bytes | Floating Point        |     *Floating*       |
+|    **Double** |  8 Bytes | Double Precision      |                      |
+|      **Real** | 12 Bytes | Real Number           |                      |
+| **Imaginary** | 12 Bytes | Imaginary Real Number |                      |
+
+### Complex Type
+
+Every `Complex` Number ins Stack is made of a Real part and
+an Imaginary one.
+
+|        Type | Size     | Description      |
+|------------:|----------|------------------|
+| **Complex** | 24 Bytes | Complex Number   |
 
 ### String Type
 
@@ -60,5 +71,3 @@ If the value can't be casted then it mutates to the default value.
 |       Type | Size     | Description      |        Aliases       |
 |-----------:|----------|------------------|:--------------------:|
 |    **Iso** | **N**    | Class Pointer    |      *Isomorphic*    |
-
-
