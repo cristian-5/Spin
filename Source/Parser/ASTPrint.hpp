@@ -108,7 +108,6 @@ namespace Stack {
 
 		String print(StrongList<Expression *> * statements) {
 			for (UInt32 i = 0; i < statements -> count(); i++) {
-				// This might not work because of reference:
 				statements -> getNode(i) -> accept(this);
 				stream << '\n';
 			}
