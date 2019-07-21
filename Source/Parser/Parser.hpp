@@ -136,6 +136,7 @@ namespace Stack {
 			Token * t = new Token();
 			* t = peek();
 			if (t -> isTypeLiteral()) {
+				advance();
 				return new Literal(t);
 			} else if (match(TokenType::openRoundBracket)) {
 				Expression * ex = expression();
@@ -288,6 +289,7 @@ namespace Stack {
 						   String * i = nullptr,
 						   String f = "Unknown File") {
 			if (t == nullptr) return nullptr;
+			if (t -> isEmpty()) throw EmptyUnitException(f);
 			tokens = t; inputFile = i; fileName = f;
 			try {
 				return expression();
