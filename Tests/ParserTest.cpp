@@ -70,7 +70,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "' [row: " << f.row << ", col: "
 		     << f.col << "];" << endl;
 		cout << "Expected '" << s.getExpected() << "' but found '"
-			 << s.getToken() << "'!";
+			 << s.getToken() << "'!" << endl;
 		cout << "Press any key to exit. ";
 	    waitKeyPress();
 		delete parser;
@@ -83,14 +83,23 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "' [row: " << f.row << ", col: "
 		     << f.col << "];" << endl;
 		cout << "Sequence ended unexpectedly with token '"
-             << u.getToken() << "'!";
+             << u.getToken() << "'!" << endl;
 		cout << "Press any key to exit. ";
     	waitKeyPress();
 		delete parser;
 		delete lexer;
 		delete tokens;
 		return exitFailure;
-    }
+    } catch (EmptyUnitException & e) {
+		cout << "Error in '" << e.getFileName() << "'!"
+			 << endl << "The code unit is empty!" << endl;
+		cout << "Press any key to exit. ";
+		waitKeyPress();
+		delete parser;
+		delete lexer;
+		delete tokens;
+		return exitFailure;
+	}
 
     if (ex != nullptr) {
         cout << "Syntax Tree:" << endl;
@@ -107,7 +116,7 @@ Int32 main(Int32 argc, Character * argv[]) {
         return exitFailure;
     }
 
-	cout << "Press any key to exit. ";
+	cout << endl << "Press any key to exit. ";
 	waitKeyPress();
 
 	delete lexer;

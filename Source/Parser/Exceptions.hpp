@@ -71,6 +71,17 @@ namespace Stack {
 		pos(position), fileName(name) { }
 	};
 
+	/*!
+	 *   @brief Empty Unit Exception.
+	 *   Raised when the code unit is empty.
+	 */
+	class EmptyUnitException: public Exception {
+		private: String fileName = "";
+		public: EmptyUnitException(String name):
+		Exception(), fileName(name) { }
+		String getFileName() { return fileName; }
+	};
+
 }
 
 #endif
