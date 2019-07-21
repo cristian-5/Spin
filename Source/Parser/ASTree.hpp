@@ -20,8 +20,7 @@
 #define STACKASTREE
 
 #include "../Aliases/Aliases.hpp"
-
-#include "STable.hpp"
+#include "../Token/Token.hpp"
 
 namespace Stack {
 
