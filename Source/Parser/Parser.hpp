@@ -118,6 +118,7 @@ namespace Stack {
 			StrongList<TokenType> * ops = new StrongList<TokenType>();
 			TokenType t = TokenType::minus; ops -> link(t);
 			t = TokenType::exclamationMark; ops -> link(t);
+			t = TokenType::plus; ops -> link(t);
 			if (match(ops)) {
 				Token * op = new Token();
 				* op = previous();
@@ -205,19 +206,25 @@ namespace Stack {
 		}
 
 		Boolean checkOperator(String op) {
-			if (isAtEnd()) return false;
+			if (isOutOfRange()) return false;
 			return peek().lexeme == op;
 		}
 
 		Boolean check(TokenType type) {
-			if (isAtEnd()) return false;
+			if (isOutOfRange()) return false;
 			return peek().type == type;
 		}
 
-		Boolean isAtEnd() {
-			if (tokens -> count() <= index) return true;
+		Boolean isOutOfRange() {
 			if (tokens -> isEmpty()) return true;
-			return peek().type == TokenType::endFile;
+			if (index >= tokens -> count()) return true;
+			return false;
+		}
+
+		Boolean isAtEnd() {
+			if (tokens -> count() <= index + 1) return true;
+			if (tokens -> isEmpty()) return true;
+			return false;
 		}
 
 		Token peek() { return tokens -> getNode(index); }
@@ -230,8 +237,8 @@ namespace Stack {
 		}
 
 		Token consume(TokenType type) {
-			if (check(type)) return advance();
 			Token t = peek();
+			if (check(type)) return advance();
 			FilePosition fp = getPosition(inputFile, t.position);
 			throw SyntaxErrorException(t.lexeme, ")", fp, fileName);
 		}
