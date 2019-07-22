@@ -39,6 +39,53 @@ namespace Stack {
 
 		String fileName = "";
 
+		void processParentesis() {
+			HeapStack<Token> stack = HeapStack<Token>();
+			for (UInt32 i = 0; i < tokens -> count(); i++) {
+				Token t = tokens -> getNode(i);
+				if (t.type == openRoundBracket) {
+					t.type = closeRoundBracket;
+					t.lexeme = ")";
+					stack.push(t);
+				} else if (t.type == openSquareBracket) {
+					t.type = closeSquareBracket;
+					t.lexeme = "]";
+					stack.push(t);
+				} else if (t.type == openCurlyBracket) {
+					t.type = closeCurlyBracket;
+					t.lexeme = "}";
+					stack.push(t);
+				} else if (t.type == closeRoundBracket) {
+					Token Andrea = stack.pop();
+					if (Andrea.type != closeRoundBracket) {
+						throw SyntaxErrorException(
+							")", Andrea.lexeme,
+							getPosition(inputFile, t.position),
+							fileName
+						);
+					}
+				} else if (t.type == closeSquareBracket) {
+					Token Andrea = stack.pop();
+					if (Andrea.type != closeSquareBracket) {
+						throw SyntaxErrorException(
+							")", Andrea.lexeme,
+							getPosition(inputFile, t.position),
+							fileName
+						);
+					}
+				} else if (t.type == closeCurlyBracket) {
+					Token Andrea = stack.pop();
+					if (Andrea.type != closeCurlyBracket) {
+						throw SyntaxErrorException(
+							")", Andrea.lexeme,
+							getPosition(inputFile, t.position),
+							fileName
+						);
+					}
+				}
+			}
+		}
+
 		void processBras() {
 			
 		}
