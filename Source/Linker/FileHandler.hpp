@@ -108,7 +108,7 @@ namespace Stack {
 			return line;
 		}
 
-		static void createNewFile(String path = "", String content = "") {
+		static void createNewFile(String path, String content = "") {
 			OFStream file(path.stringValue());
 			try {
 				file << content;
