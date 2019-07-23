@@ -84,7 +84,7 @@ namespace Stack {
 				TokenRule("((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))", TokenType::intLiteral),
 				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\x[0-9A-Fa-f][0-9A-Fa-f])*\")", TokenType::stringLiteral),
 				TokenRule("('(?:[^\\\\]|\\\\x[0-9A-Fa-f][0-9A-Fa-f]|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral),
-				TokenRule("(#[A-Fa-f0-9]{6}|#[A-Fa-f0-9]{3})" INVERTED, TokenType::colourLiteral),
+				TokenRule("(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})" INVERTED, TokenType::colourLiteral),
 				TokenRule("(true|false)" INVERTED, TokenType::boolLiteral),
 
 				TokenRule("(<[01]+\\|[01]+>)", TokenType::bra_ketLiteral),
