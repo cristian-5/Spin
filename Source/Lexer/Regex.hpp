@@ -145,7 +145,7 @@ namespace RegexTools {
 	 *   match with the given String.
 	 *   @param mtc Match String.
 	 *   @param input Input String.
-	 *   @param replace Input Replace.
+	 *   @param rpl Input Replace.
 	 *   @returns The replaced String.
 	 */
 	String replaceMatches(String mtc, String & input, String rpl) {
