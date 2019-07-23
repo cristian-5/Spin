@@ -141,15 +141,16 @@ namespace Stack {
 		}
 
 		Boolean isTypeLiteral() {
-			return type == TokenType::boolLiteral ||
-				   type == TokenType::intLiteral ||
-				   type == TokenType::stringLiteral ||
-				   type == TokenType::charLiteral ||
-				   type == TokenType::realLiteral ||
-				   type == TokenType::colourLiteral ||
-				   type == TokenType::nullLiteral ||
-				   type == TokenType::braLiteral ||
-				   type == TokenType::ketLiteral ||
+			return type == TokenType::boolLiteral       ||
+				   type == TokenType::intLiteral        ||
+				   type == TokenType::stringLiteral     ||
+				   type == TokenType::charLiteral       ||
+				   type == TokenType::realLiteral       ||
+				   type == TokenType::imaginaryLiteral  ||
+				   type == TokenType::colourLiteral     ||
+				   type == TokenType::nullLiteral       ||
+				   type == TokenType::braLiteral        ||
+				   type == TokenType::ketLiteral        ||
 				   type == TokenType::bra_ketLiteral;
 		}
 
