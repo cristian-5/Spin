@@ -143,20 +143,18 @@ namespace RegexTools {
 	/*!
 	 *   @brief Replaces every occurrence of the
 	 *   match with the given String.
-	 *   @param match Match String.
+	 *   @param mtc Match String.
 	 *   @param input Input String.
 	 *   @param replace Input Replace.
 	 *   @returns The replaced String.
 	 */
-	String replaceMatches(String & match,
-						  String & input,
-						  String & replace) {
-		if (match.length() == 0) return input;
+	String replaceMatches(String mtc, String & input, String rpl) {
+		if (mtc.length() == 0) return input;
 		if (input.length() == 0) return input;
-		Int32 position = input.find(match);
+		Int32 position = input.find(mtc);
 		while (position != String::npos) {
-			input.replace(position, match.length(), replace);
-			position = input.find(match);
+			input.replace(position, mtc.length(), rpl);
+			position = input.find(mtc);
 		}
 		return input;
 	}
