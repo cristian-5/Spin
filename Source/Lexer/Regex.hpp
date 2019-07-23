@@ -33,12 +33,29 @@ using Collection::StrongList;
 namespace RegexTools {
 
 	/*!
+	 *   @brief Tests a regex against a String.
+	 *   @param rgx Regex String.
+	 *   @param input Input String.
+	 *   @returns true if it matches the regex.
+	 */
+	Boolean test(String rgx, String & input) {
+		try {
+			Regex regex(rgx);
+			SMatch match;
+			regexSearch(input, match, regex);
+			if (match.size() > 0) return true;
+			else return false;
+		} catch (RegexError & e) { return false; }
+		return false;
+	}
+
+	/*!
 	 *   @brief Matches a regex.
 	 *   @param rgx Regex String.
 	 *   @param input Input String.
 	 *   @returns The matched String.
 	 */
-	String match(String rgx, String input) {
+	String match(String rgx, String & input) {
 		String result = "";
 		try {
 			Regex regex(rgx);
@@ -60,7 +77,7 @@ namespace RegexTools {
 	 *   @param input Input String.
 	 *   @returns The first matched group.
 	 */
-	String matchClose(String rgx, String input) {
+	String matchClose(String rgx, String & input) {
 		String result = "";
 		try {
 			Regex regex(rgx);
@@ -82,7 +99,7 @@ namespace RegexTools {
 	 *   @param input Input String.
 	 *   @returns The matched groups.
 	 */
-	StrongList<String> matchGroupClose(String rgx, String input) {
+	StrongList<String> matchGroupClose(String rgx, String & input) {
 		StrongList<String> result = StrongList<String>();
 		try {
 			Regex regex(rgx);
@@ -107,7 +124,7 @@ namespace RegexTools {
 	 *   @param input Input String.
 	 *   @returns The matched String.
 	 */
-	inline String matchStart(String rgx, String input) {
+	inline String matchStart(String rgx, String & input) {
 		return match("^" + rgx, input);
 	}
 
@@ -119,7 +136,7 @@ namespace RegexTools {
 	 *   @param input Input String.
 	 *   @returns The first matched group.
 	 */
-	inline String matchCloseStart(String rgx, String input) {
+	inline String matchCloseStart(String rgx, String & input) {
 		return matchClose("^" + rgx, input);
 	}
 
@@ -131,7 +148,9 @@ namespace RegexTools {
 	 *   @param replace Input Replace.
 	 *   @returns The replaced String.
 	 */
-	String replaceMatches(String match, String input, String replace) {
+	String replaceMatches(String & match,
+						  String & input,
+						  String & replace) {
 		if (match.length() == 0) return input;
 		if (input.length() == 0) return input;
 		Int32 position = input.find(match);
