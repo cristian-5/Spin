@@ -60,15 +60,17 @@ using RegexError = std::regex_error;
 #define Real long double
 #define Boolean bool
 
-#define waitKeyPress getchar
+inline void waitKeyPress() {
+	std::cin.get();
+}
 
 const Int32 exitSuccess = 0;
 const Int32 exitFailure = 1;
 
 String getInput() {
-    String input = "";
-    getline(std::cin, input);
-    return input;
+	String input = "";
+	getline(std::cin, input);
+	return input;
 }
 
 #endif
