@@ -24,6 +24,8 @@
 
 #include "Object.hpp"
 
+#define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
+
 namespace Stack {
 
 	class Converter {
@@ -34,6 +36,16 @@ namespace Stack {
 
 		static Boolean checkBase(String base, String & s) {
 			return RegexTools::test(base, s);
+		}
+
+		static Character hexToChar(String & s) {
+			if (s.length() == 0) return 0x00;
+			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0x00;
+			Character result = 0;
+    		for (UInt32 i = 0; i < s.length(); i++) {
+				result = result * 16 + s[i] - '0';
+			}
+			return result;
 		}
 
 		static UInt64 decToUInt64(String & s) {
@@ -103,7 +115,7 @@ namespace Stack {
 							String dec = s.subString(2, s.length() - 3);
 							return decToUInt64(dec);
 						} break;
-						default: return decToUInt64(s); break;
+						default: return decToUInt64(s);
 					}
 				}
 			}
@@ -115,7 +127,33 @@ namespace Stack {
 		}
 
 		static Character escapeChar(String & s) {
-			return s[0]; // TODO: Properly Escape.
+			if (s.length() == 0) return 0x00;
+			if (RegexTools::test(ESCAPESEQUENCE, s)) {
+				if (s == "\\\\") return '\\';
+				if (s == "\\0") return 0x00;
+				if (s.length() < 2) return 0x00;
+				if (s[0] == '\\') {
+					switch (s[1]) {
+						case '0': {
+							if (s.length() != 5) return 0x00;
+							if (s[2] != 'x') return 0x00;
+							String hex = "";
+							hex += s[3]; hex += s[4];
+							return hexToChar(hex);
+						} break;
+						case 'a': return '\a';
+						case 'b': return '\b';
+						case 'f': return '\f';
+						case 'n': return '\n';
+						case 'r': return '\r';
+						case 't': return '\t';
+						case 'v': return '\v';
+						default: return 0x00;
+					}
+				}
+				return 0x00;
+			}
+			return s[0];
 		}
 
 	};
