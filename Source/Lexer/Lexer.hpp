@@ -72,7 +72,7 @@ namespace Stack {
 
 		void generateTokens() {
 
-			const UInt32 tokenCount = 74;
+			const UInt32 tokenCount = 77;
 
 			TokenRule rules[tokenCount] = {
 
@@ -87,7 +87,11 @@ namespace Stack {
 				TokenRule("(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})" INVERTED, TokenType::colourLiteral),
 				TokenRule("(true|false)" INVERTED, TokenType::boolLiteral),
 
-				TokenRule("(<[01]+\\|[01]+>)", TokenType::bra_ketLiteral),
+				TokenRule("(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::braketSymbol),
+				TokenRule("(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol),
+				TokenRule("(\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::ketSymbol),
+				
+				TokenRule("(<[01]+\\|[01]+>)", TokenType::braketLiteral),
 				TokenRule("(<[01]+\\|)", TokenType::braLiteral),
 				TokenRule("(\\|[01]+>)", TokenType::ketLiteral),
 

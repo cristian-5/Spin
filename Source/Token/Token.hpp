@@ -35,6 +35,10 @@ namespace Stack {
 		symbol,
 		identifier,
 
+		braketSymbol,
+		braSymbol,
+		ketSymbol,
+
 		intLiteral,
 		stringLiteral,
 		charLiteral,
@@ -44,7 +48,7 @@ namespace Stack {
 		colourLiteral,
 		nullLiteral,
 
-		bra_ketLiteral,
+		braketLiteral,
 		braLiteral,
 		ketLiteral,
 
@@ -151,7 +155,7 @@ namespace Stack {
 				   type == TokenType::nullLiteral       ||
 				   type == TokenType::braLiteral        ||
 				   type == TokenType::ketLiteral        ||
-				   type == TokenType::bra_ketLiteral;
+				   type == TokenType::braketLiteral;
 		}
 
 		/*Boolean isTypeTokenType() {
