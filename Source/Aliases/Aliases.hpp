@@ -42,6 +42,8 @@ using Int32 = std::int32_t;
 using UInt64 = std::uint64_t;
 using Int64 = std::int64_t;
 
+using SizeType = std::size_t;
+
 using String = std::string;
 
 using SMatch = std::smatch;
