@@ -71,7 +71,9 @@ namespace Stack {
 			name = n; value = v;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitAssignmentExpression(this);
+			try {
+				visitor -> visitAssignmentExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Assignment() { delete name; delete value; }
 	};
@@ -85,7 +87,9 @@ namespace Stack {
 			r = rs, l = ls; o = op;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitBinaryExpression(this);
+			try {
+				visitor -> visitBinaryExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Binary() { delete r; delete l; delete o; }
 	};
@@ -99,7 +103,9 @@ namespace Stack {
 			paren = p; callee = c; arguments = a;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitCallExpression(this);
+			try {
+				visitor -> visitCallExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Call() {
 			delete paren; delete callee;
@@ -117,7 +123,9 @@ namespace Stack {
 			object = o; name = n;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitGetExpression(this);
+			try {
+				visitor -> visitGetExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Get() { delete object; delete name; }
 	};
@@ -129,7 +137,9 @@ namespace Stack {
 			expression = e;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitGroupingExpression(this);
+			try {
+				visitor -> visitGroupingExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Grouping() { delete expression; }
 	};
@@ -139,7 +149,9 @@ namespace Stack {
 		Token * token = nullptr;
 		Literal(Token * t) { token = t; }
 		void accept(Visitor * visitor) override {
-			visitor -> visitLiteralExpression(this);
+			try {
+				visitor -> visitLiteralExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Literal() { delete token; }
 	};
@@ -153,7 +165,9 @@ namespace Stack {
 			r = rs, l = ls; o = op;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitLogicalExpression(this);
+			try {
+				visitor -> visitLogicalExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Logical() { delete r; delete l; delete o; }
 	};
@@ -167,7 +181,9 @@ namespace Stack {
 			object = o; name = n; value = v;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitSetExpression(this);
+			try {
+				visitor -> visitSetExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Set() { delete object; delete name; delete value; }
 	};
@@ -180,7 +196,9 @@ namespace Stack {
 			keyword = k; method = m;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitSuperExpression(this);
+			try {
+				visitor -> visitSuperExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Super() { delete keyword; delete method; }
 	};
@@ -190,7 +208,9 @@ namespace Stack {
 		Token * keyword = nullptr;
 		This(Token * k) { keyword = k; }
 		void accept(Visitor * visitor) override {
-			visitor -> visitThisExpression(this);
+			try {
+				visitor -> visitThisExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~This() { delete keyword; }
 	};
@@ -203,7 +223,9 @@ namespace Stack {
 			o = op; r = rs;
 		}
 		void accept(Visitor * visitor) override {
-			visitor -> visitUnaryExpression(this);
+			try {
+				visitor -> visitUnaryExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Unary() { delete r; delete o; }
 	};
@@ -213,7 +235,9 @@ namespace Stack {
 		Token * name = nullptr;
 		Variable(Token * n) { name = n; }
 		void accept(Visitor * visitor) override {
-			visitor -> visitVariableExpression(this);
+			try {
+				visitor -> visitVariableExpression(this);
+			} catch (Exception & e) { throw; }
 		}
 		~Variable() { delete name; }
 	};
