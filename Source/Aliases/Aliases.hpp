@@ -55,6 +55,8 @@ using RegexError = std::regex_error;
 
 #define reallocation std::realloc
 
+#define toString std::to_string
+
 #define subString substr
 #define stringValue c_str
 
