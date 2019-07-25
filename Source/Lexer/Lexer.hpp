@@ -79,8 +79,8 @@ namespace Stack {
 				TokenRule("([ \\t\\n]+)", TokenType::empty),
 				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment),
 
-				TokenRule("([0-9]+(?:\\.[0-9]+)?i)", TokenType::imaginaryLiteral),
-				TokenRule("([0-9]+\\.[0-9]+)", TokenType::realLiteral),
+				TokenRule("([0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i)", TokenType::imaginaryLiteral),
+				TokenRule("([0-9]+\\.[0-9]+(?:[eE][0-9]+)?)", TokenType::realLiteral),
 				TokenRule("((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))", TokenType::intLiteral),
 				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")", TokenType::stringLiteral),
 				TokenRule("('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral),
