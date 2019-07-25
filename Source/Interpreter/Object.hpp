@@ -48,15 +48,15 @@ namespace Stack {
 
 		StringType,
 
-		ArrayList,
+		ArrayListType,
 
-		Vector,
+		VectorType,
 
-		Class,
-		Structure,
-		Exception,
+		ClassType,
+		StructureType,
+		ExceptionType,
 
-		Unknown
+		UnknownType
 
 	};
 
@@ -66,7 +66,7 @@ namespace Stack {
 
 		void * value = nullptr;
 
-		BasicType type = BasicType::Unknown;
+		BasicType type = BasicType::UnknownType;
 
 		Object() { }
 

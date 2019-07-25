@@ -31,6 +31,8 @@ namespace Stack {
 
 		private:
 
+		Object value = Object();
+
 		Object literalToObject(Token * t) {
 			Object o = Object();
 			if (t == nullptr) return o;
@@ -60,22 +62,45 @@ namespace Stack {
 					* v = Converter::escapeChar(t -> lexeme);
 					o.value = v;
 				} break;
+				case TokenType::realLiteral: {
+					o.type = BasicType::RealType;
+					Real * v = new Real;
+					* v = Converter::stringToReal(t -> lexeme);
+					o.value = v;
+				} break;
+				case TokenType::nullLiteral: {
+					o.type = BasicType::ClassType;
+					o.value = nullptr;
+				} break;
 				default: return o;
 			}
 
+		}
+
+		void evaluate(Expression * e) {
+			try { e -> accept(this); }
+			catch (Exception & e) { throw; }
 		}
 
 		void visitBinaryExpression(Binary * e) override { }
 		void visitAssignmentExpression(Assignment * e) override { }
 		void visitCallExpression(Call * e) override { }
 		void visitGetExpression(Get * e) override { }
-		void visitGroupingExpression(Grouping * e) override { }
-		void visitLiteralExpression(Literal * e) override { }
+		void visitGroupingExpression(Grouping * e) override {
+			evaluate(e);
+		}
+		void visitLiteralExpression(Literal * e) override {
+			value = literalToObject(e -> token);
+		}
 		void visitLogicalExpression(Logical * e) override { }
 		void visitSetExpression(Set * e) override { }
 		void visitSuperExpression(Super * e) override { }
 		void visitThisExpression(This * e) override { }
-		void visitUnaryExpression(Unary * e) override { }
+		void visitUnaryExpression(Unary * e) override {
+			evaluate(e -> r);
+			Object rs = value;
+			//value = value.applyOperand(TokenType::minus);
+		}
 		void visitVariableExpression(Variable * e) override { }
 
 		public:
