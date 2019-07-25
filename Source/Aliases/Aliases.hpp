@@ -53,6 +53,8 @@ using RegexError = std::regex_error;
 #define regexSearch std::regex_search
 #define regexReplace std::regex_replace
 
+#define reallocation std::realloc
+
 #define subString substr
 #define stringValue c_str
 
