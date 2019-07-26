@@ -72,7 +72,7 @@ namespace Stack {
 
 		void generateTokens() {
 
-			const UInt32 tokenCount = 77;
+			const UInt32 tokenCount = 78;
 
 			TokenRule rules[tokenCount] = {
 
@@ -107,6 +107,7 @@ namespace Stack {
 
 				TokenRule("(\\+)", TokenType::plus),
 				TokenRule("(-)", TokenType::minus),
+				TokenRule("(\\~)", TokenType::tilde),
 				TokenRule("(\\*)", TokenType::star),
 				TokenRule("(\\\\)", TokenType::backslash),
 				TokenRule("(\\/)", TokenType::slash),

@@ -65,6 +65,7 @@ namespace Stack {
 
 		plus,
 		minus,
+		tilde,
 		star,
 		backslash,
 		slash,
