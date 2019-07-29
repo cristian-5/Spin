@@ -54,8 +54,10 @@ using RegexError = std::regex_error;
 #define regexReplace std::regex_replace
 
 #define reallocation std::realloc
+#define allocation std::malloc
 
 #define toString std::to_string
+#define stringToLongDouble std::stold
 
 #define subString substr
 #define stringValue c_str
