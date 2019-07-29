@@ -39,6 +39,15 @@ namespace Collection {
 	};
 
 	/*!
+	 *   @brief Invalid Factor Exception.
+	 *   Raised when the grow factor is
+	 *   not valid.
+	 */
+	class InvalidFactorException: public Exception {
+		public: InvalidFactorException(): Exception() { }
+	};
+
+	/*!
 	 *   @brief Invalid Element Count Exception.
 	 *   Raised when the number of elements
 	 *   to remove is invalid.
@@ -62,6 +71,24 @@ namespace Collection {
 	 */
 	class EmptyListException: public Exception {
 		public: EmptyListException(): Exception() { }
+	};
+
+	/*!
+	 *   @brief Empty Array Exception.
+	 *   Raised when trying to perform
+	 *   an operation on an empty array.
+	 */
+	class EmptyArrayException: public Exception {
+		public: EmptyArrayException(): Exception() { }
+	};
+
+	/*!
+	 *   @brief Bad Allocation Exception.
+	 *   Raised when failing to perform
+	 *   a memory allocation operation.
+	 */
+	class BadAllocationException: public Exception {
+		public: BadAllocationException(): Exception() { }
 	};
 
 	/*!

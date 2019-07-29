@@ -24,6 +24,7 @@
 #include "StrongList.hpp"
 #include "LinkedList.hpp"
 #include "HeapStack.hpp"
+#include "HeapArray.hpp"
 #include "HeapLoop.hpp"
 
 #endif
