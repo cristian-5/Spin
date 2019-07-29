@@ -49,7 +49,7 @@ namespace Collection {
 
 		private:
 
-		/*! @brief Size of the stack. */
+		/*! @brief Size of the loop. */
 		UInt32 size = 0;
 
 		/*! @brief Stack element. */
