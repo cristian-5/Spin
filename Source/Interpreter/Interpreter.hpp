@@ -22,7 +22,7 @@
 #include "../Aliases/Aliases.hpp"
 #include "../Parser/ASTree.hpp"
 
-#include "Object.hpp"
+#include "Processor.hpp"
 #include "Converter.hpp"
 
 namespace Stack {
@@ -72,14 +72,9 @@ namespace Stack {
 					o.type = BasicType::ClassType;
 					o.value = nullptr;
 				} break;
-				default: return o;
+				default: return o; break;
 			}
-
-		}
-
-		void evaluate(Expression * e) {
-			try { e -> accept(this); }
-			catch (Exception & e) { throw; }
+			return o;
 		}
 
 		void visitBinaryExpression(Binary * e) override { }
@@ -87,19 +82,22 @@ namespace Stack {
 		void visitCallExpression(Call * e) override { }
 		void visitGetExpression(Get * e) override { }
 		void visitGroupingExpression(Grouping * e) override {
-			evaluate(e);
+			try { evaluate(e); }
+			catch (Exception & e) { throw; }
 		}
 		void visitLiteralExpression(Literal * e) override {
-			value = literalToObject(e -> token);
+			try { value = literalToObject(e -> token); }
+			catch (Exception & e) { throw; }
 		}
 		void visitLogicalExpression(Logical * e) override { }
 		void visitSetExpression(Set * e) override { }
 		void visitSuperExpression(Super * e) override { }
 		void visitThisExpression(This * e) override { }
 		void visitUnaryExpression(Unary * e) override {
-			evaluate(e -> r);
-			Object rs = value;
-			//value = value.applyOperand(TokenType::minus);
+			try {
+				evaluate(e -> r);
+				value = Processor::applyUnaryOperand(e -> o, & value);
+			} catch (Exception & e) { throw; }
 		}
 		void visitVariableExpression(Variable * e) override { }
 
@@ -107,7 +105,13 @@ namespace Stack {
 
 		Interpreter() { }
 
-
+		Object evaluate(Expression * e) {
+			try {
+				e -> accept(this);
+				return value;
+			}
+			catch (Exception & e) { throw; }
+		}
 
 	};
 

@@ -25,6 +25,7 @@
 #include "Object.hpp"
 
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
+#define REAL "^[0-9]+\\.[0-9]+(?:[eE][0-9]+)?$"
 
 namespace Stack {
 
@@ -120,6 +121,11 @@ namespace Stack {
 				}
 			}
 			return decToUInt64(s);
+		}
+
+		static Real stringToReal(String & s) {
+			if (!RegexTools::test(REAL, s)) return 0.0;
+			return stringToLongDouble(s);
 		}
 
 		static String escapeString(String & s) {
