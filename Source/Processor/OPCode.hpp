@@ -24,13 +24,7 @@
 #include "../Interpreter/Object.hpp"
 
 using Collection::StrongList;
-
-#define growArray(ptr, type, oldCount, count) \
-(type *) reallocate(ptr, sizeof(type) * (oldCount), sizeof(type) * (count))
-#define freeArray(type, ptr, oldCount) \
-reallocate(ptr, sizeof(type) * (oldCount), 0)
-#define growCapacity(old) \
-((old) < 8 ? 8 : (old) * 2)
+using Collection::HeapArray;
 
 namespace Stack {
 
@@ -43,23 +37,12 @@ namespace Stack {
 
 		private:
 
-		UInt8 * code = nullptr;
-
-		UInt32 capacity = 0;
-		UInt32 count = 0;
+		HeapArray<UInt8> code = HeapArray<UInt8>(8);
 
 		StrongList<Object> constants = StrongList<Object>();
 
-		void * reallocate(void * ptr, SizeType oldSize, SizeType newSize) {
-			if (newSize == 0) {
-				delete ptr;
-				return nullptr;
-			}
-			return reallocation(ptr, newSize);
-		}
-
 		String disassemblyOPCode(UInt32 & of) {
-			if (of >= count) return "";
+			if (of >= code.count()) return "";
 			UInt8 op = code[of];
 			switch (op) {
 				case OPCode::CST: {
@@ -82,20 +65,7 @@ namespace Stack {
 		CodeChunk() { }
 
 		void append(UInt8 byte) {
-			if (capacity < count + 1) {
-				UInt32 oldCapacity = capacity;
-				capacity = growCapacity(oldCapacity);
-				code = growArray(code, UInt8, oldCapacity, capacity);
-			}
-			code[count] = byte;
-			count++;
-		}
-
-		void free() {
-			freeArray(UInt8, code, capacity);
-			code = nullptr;
-			capacity = 0;
-			count = 0;
+			code.push(byte);
 		}
 
 		UInt32 addConstant(Object value) {
@@ -106,14 +76,12 @@ namespace Stack {
 		String disassembly() {
 			String result = "";
 			UInt32 offset = 0;
-			while (offset < count) {
+			while (offset < code.count()) {
 				result += disassemblyOPCode(offset);
 				result += '\n';
 			}
 			return result;
 		}
-
-		~CodeChunk() { free(); }
 
 	};
 

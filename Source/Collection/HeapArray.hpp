@@ -88,7 +88,7 @@ namespace Collection {
 		 *
 		 *   @returns The current capacity.
 		 */
-		UInt32 capacity() const { return capacity; }
+		UInt32 currentCapacity() const { return capacity; }
 
 		/*!
 		 *   @brief Gets the current grow factor.
@@ -97,7 +97,7 @@ namespace Collection {
 		 *
 		 *   @returns The grow factor.
 		 */
-		UInt32 factor() const { return factor; }
+		UInt32 currentFactor() const { return factor; }
 
 		/*!
 		 *   @brief Checks if the array is empty.

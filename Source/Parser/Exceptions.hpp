@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef STACKEXCEPTIONS
-#define STACKEXCEPTIONS
+#ifndef STACKPARSEREXCEPTIONS
+#define STACKPARSEREXCEPTIONS
 
 #include "../Aliases/Aliases.hpp"
 #include "../Linker/FileHandler.hpp"
