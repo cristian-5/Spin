@@ -82,7 +82,7 @@ namespace Stack {
 		void visitCallExpression(Call * e) override { }
 		void visitGetExpression(Get * e) override { }
 		void visitGroupingExpression(Grouping * e) override {
-			try { evaluate(e); }
+			try { evaluateExpression(e); }
 			catch (Exception & e) { throw; }
 		}
 		void visitLiteralExpression(Literal * e) override {
@@ -95,20 +95,25 @@ namespace Stack {
 		void visitThisExpression(This * e) override { }
 		void visitUnaryExpression(Unary * e) override {
 			try {
-				evaluate(e -> r);
+				evaluateExpression(e -> r);
 				value = Processor::applyUnaryOperand(e -> o, & value);
 			} catch (Exception & e) { throw; }
 		}
 		void visitVariableExpression(Variable * e) override { }
 
+		void evaluateExpression(Expression * e) {
+			try { e -> accept(this); }
+			catch (Exception & e) { throw; }
+		}
+
 		public:
 
 		Interpreter() { }
 
-		Object evaluate(Expression * e) {
+		Object * evaluate(Expression * e) {
 			try {
 				e -> accept(this);
-				return value;
+				return new Object(value);
 			}
 			catch (Exception & e) { throw; }
 		}
