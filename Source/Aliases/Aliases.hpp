@@ -63,6 +63,7 @@ using RegexError = std::regex_error;
 
 #define subString substr
 #define stringValue c_str
+#define popBack pop_back
 
 #define Character char
 #define Double double
