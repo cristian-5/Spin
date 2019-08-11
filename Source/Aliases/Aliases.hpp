@@ -20,6 +20,7 @@
 #define ALIASES
 
 #include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <string>
 #include <fstream>
@@ -68,9 +69,9 @@ using RegexError = std::regex_error;
 #define Real long double
 #define Boolean bool
 
-inline void waitKeyPress() {
-	std::cin.get();
-}
+#define padding std::setw(4) << std::setfill('0')
+
+inline void waitKeyPress() { std::cin.get(); }
 
 const Int32 exitSuccess = 0;
 const Int32 exitFailure = 1;
