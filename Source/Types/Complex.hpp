@@ -128,7 +128,7 @@ namespace Stack {
 				result += " - ";
 				result += toString(- b);
 			}
-			return result + " i";
+			return result + "i";
 		}
 
 	};

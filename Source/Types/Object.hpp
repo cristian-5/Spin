@@ -22,7 +22,7 @@
 #include "../Aliases/Aliases.hpp"
 #include "../Token/Token.hpp"
 
-#include "Exceptions.hpp"
+#include "Complex.hpp"
 
 namespace Stack {
 
@@ -46,7 +46,6 @@ namespace Stack {
 		DoubleType,
 		RealType,
 
-		ImaginaryType,
 		ComplexType,
 
 		StringType,
@@ -95,8 +94,7 @@ namespace Stack {
 				case BasicType::FloatType: delete (Float *) value; return;
 				case BasicType::DoubleType: delete (Double *) value; return;
 				case BasicType::RealType: delete (Real *) value; return;
-				case BasicType::ImaginaryType: return;
-				case BasicType::ComplexType: return;
+				case BasicType::ComplexType: delete (Complex *) value; return;
 				case BasicType::StringType: delete (String *) value; return;
 				case BasicType::ArrayListType: return;
 				case BasicType::VectorType: return;
@@ -133,14 +131,13 @@ namespace Stack {
 		}
 
 		Boolean isRealType() {
-			return type == BasicType::FloatType     ||
-				   type == BasicType::DoubleType    ||
+			return type == BasicType::FloatType    ||
+				   type == BasicType::DoubleType   ||
 				   type == BasicType::RealType;
 		}
 
 		Boolean isComplexType() {
-			return type == BasicType::ImaginaryType ||
-				   type == BasicType::ComplexType;
+			return type == BasicType::ComplexType;
 		}			
 
 		Boolean isNumericType() {
@@ -165,7 +162,6 @@ namespace Stack {
 				case BasicType::FloatType: return "Float";
 				case BasicType::DoubleType: return "Double";
 				case BasicType::RealType: return "Real";
-				case BasicType::ImaginaryType: return "Imaginary";
 				case BasicType::ComplexType: return "Complex";
 				case BasicType::StringType: return "String";
 				case BasicType::ArrayListType: return "ArrayList";
@@ -239,13 +235,9 @@ namespace Stack {
 					// TODO: fix real value.
 					return "SomeReal";
 				}
-				case BasicType::ImaginaryType: {
-					// TODO: fix imaginary value.
-					return "SomeImaginary";
-				}
 				case BasicType::ComplexType: {
-					// TODO: fix complex value.
-					return "SomeComplex";
+					Complex * c = (Complex *) value;
+					return (* c).stringValue();
 				}
 				case BasicType::StringType: {
 					return * ((String *) value);

@@ -31,62 +31,34 @@ namespace Stack {
 
 		private:
 
-		Object value = Object();
+		Object * value = nullptr;
 
-		Object literalToObject(Token * t) {
-			Object o = Object();
-			if (t == nullptr) return o;
-			if (!t -> isTypeLiteral()) return o;
-			switch (t -> type) {
-				case TokenType::boolLiteral: {
-					o.type = BasicType::BooleanType;
-					Boolean * v = new Boolean;
-					* v = Converter::stringToBool(t -> lexeme);
-					o.value = v;
-				} break;
-				case TokenType::intLiteral: {
-					o.type = BasicType::UInt64Type;
-					UInt64 * v = new UInt64;
-					* v = Converter::stringToUInt64(t -> lexeme);
-					o.value = v;
-				} break;
-				case TokenType::stringLiteral: {
-					o.type = BasicType::StringType;
-					String * v = new String;
-					* v = Converter::escapeString(t -> lexeme);
-					o.value = v;
-				} break;
-				case TokenType::charLiteral: {
-					o.type = BasicType::StringType;
-					Character * v = new Character;
-					* v = Converter::escapeChar(t -> lexeme);
-					o.value = v;
-				} break;
-				case TokenType::realLiteral: {
-					o.type = BasicType::RealType;
-					Real * v = new Real;
-					* v = Converter::stringToReal(t -> lexeme);
-					o.value = v;
-				} break;
-				case TokenType::nullLiteral: {
-					o.type = BasicType::ClassType;
-					o.value = nullptr;
-				} break;
-				default: return o; break;
-			}
-			return o;
+		void setValue(Object * o) {
+			if (value == o) return;
+			if (value != nullptr) delete value;
+			value = o;
 		}
 
-		void visitBinaryExpression(Binary * e) override { }
+		void visitBinaryExpression(Binary * e) override {
+			try {
+				evaluateExpression(e -> l);
+				//value = Processor::applyUnaryOperator(e -> o, & value);
+			} catch (Exception & e) { throw; }
+		}
 		void visitAssignmentExpression(Assignment * e) override { }
 		void visitCallExpression(Call * e) override { }
 		void visitGetExpression(Get * e) override { }
 		void visitGroupingExpression(Grouping * e) override {
-			try { evaluateExpression(e); }
+			try { evaluateExpression(e -> expression); }
 			catch (Exception & e) { throw; }
 		}
 		void visitLiteralExpression(Literal * e) override {
-			try { value = literalToObject(e -> token); }
+			try {
+				if (e -> object == nullptr) {
+					e -> object = Converter::literalToObject(e -> token);
+				}
+				setValue(e -> object);
+			}
 			catch (Exception & e) { throw; }
 		}
 		void visitLogicalExpression(Logical * e) override { }
@@ -96,7 +68,7 @@ namespace Stack {
 		void visitUnaryExpression(Unary * e) override {
 			try {
 				evaluateExpression(e -> r);
-				value = Processor::applyUnaryOperand(e -> o, & value);
+				setValue(Processor::applyUnaryOperator(e -> o, value));
 			} catch (Exception & e) { throw; }
 		}
 		void visitVariableExpression(Variable * e) override { }
@@ -113,7 +85,7 @@ namespace Stack {
 		Object * evaluate(Expression * e) {
 			try {
 				e -> accept(this);
-				return new Object(value);
+				return value;
 			}
 			catch (Exception & e) { throw; }
 		}

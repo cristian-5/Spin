@@ -119,6 +119,7 @@ namespace Stack {
 			TokenType t = TokenType::minus; ops -> link(t);
 			t = TokenType::exclamationMark; ops -> link(t);
 			t = TokenType::plus; ops -> link(t);
+			t = TokenType::tilde; ops -> link(t);
 			if (match(ops)) {
 				Token * op = new Token();
 				* op = previous();

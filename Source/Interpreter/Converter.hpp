@@ -21,11 +21,11 @@
 
 #include "../Aliases/Aliases.hpp"
 #include "../Lexer/Regex.hpp"
-
-#include "Object.hpp"
+#include "../Types/Object.hpp"
 
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
 #define REAL "^[0-9]+\\.[0-9]+(?:[eE][0-9]+)?$"
+#define COMPLEX "^[0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i$"
 
 namespace Stack {
 
@@ -34,6 +34,13 @@ namespace Stack {
 		private:
 
 		Converter() { }
+
+		static BasicType shortestForm(UInt64 n) {
+			if (n <= 0xFF) return BasicType::UInt8Type;
+			else if (n <= 0xFFFF) return BasicType::UInt16Type;
+			else if (n <= 0xFFFFFFFF) return BasicType::UInt32Type;
+			else return BasicType::UInt64Type;
+		}
 
 		static Boolean checkBase(String base, String & s) {
 			return RegexTools::test(base, s);
@@ -91,6 +98,77 @@ namespace Stack {
 
 		public:
 
+		static Object * literalToObject(Token * t) {
+			Object * o = new Object();
+			if (t == nullptr) return o;
+			if (!t -> isTypeLiteral()) return o;
+			switch (t -> type) {
+				case TokenType::boolLiteral: {
+					o -> type = BasicType::BooleanType;
+					Boolean * v = new Boolean;
+					* v = stringToBool(t -> lexeme);
+					o -> value = v;
+				} break;
+				case TokenType::intLiteral: {
+					UInt64 v = stringToUInt64(t -> lexeme);
+					o -> type = shortestForm(v);
+					switch (o -> type) {
+						case BasicType::UInt8Type: {
+							UInt8 * i = new UInt8;
+							* i = (UInt8) v;
+							o -> value = i;
+						} break;
+						case BasicType::UInt16Type: {
+							UInt16 * i = new UInt16;
+							* i = (UInt16) v;
+							o -> value = i;
+						} break;
+						case BasicType::UInt32Type: {
+							UInt32 * i = new UInt32;
+							* i = (UInt32) v;
+							o -> value = i;
+						} break;
+						case BasicType::UInt64Type: {
+							UInt64 * i = new UInt64;
+							* i = (UInt64) v;
+							o -> value = i;
+						} break;
+						default: break;
+					}
+				} break;
+				case TokenType::stringLiteral: {
+					o -> type = BasicType::StringType;
+					String * v = new String;
+					* v = escapeString(t -> lexeme);
+					o -> value = v;
+				} break;
+				case TokenType::charLiteral: {
+					o -> type = BasicType::StringType;
+					Character * v = new Character;
+					* v = escapeChar(t -> lexeme);
+					o -> value = v;
+				} break;
+				case TokenType::realLiteral: {
+					o -> type = BasicType::RealType;
+					Real * v = new Real;
+					* v = stringToReal(t -> lexeme);
+					o -> value = v;
+				} break;
+				case TokenType::imaginaryLiteral: {
+					o -> type = BasicType::ComplexType;
+					Complex * v = new Complex;
+					* v = stringToComplex(t -> lexeme);
+					o -> value = v;
+				} break;
+				case TokenType::nullLiteral: {
+					o -> type = BasicType::ClassType;
+					o -> value = nullptr;
+				} break;
+				default: return o;
+			}
+			return o;
+		}
+
 		static Boolean stringToBool(String & s) {
 			return s == "true";
 		}
@@ -126,6 +204,13 @@ namespace Stack {
 		static Real stringToReal(String & s) {
 			if (!RegexTools::test(REAL, s)) return 0.0;
 			return stringToLongDouble(s);
+		}
+
+		static Complex stringToComplex(String & s) {
+			if (!RegexTools::test(COMPLEX, s)) return Complex();
+			if (s.length() > 1) s.popBack();
+			Real r = stringToLongDouble(s);
+			return Complex(0.0, r);
 		}
 
 		static String escapeString(String & s) {

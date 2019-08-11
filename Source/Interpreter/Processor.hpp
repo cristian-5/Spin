@@ -20,8 +20,9 @@
 #define STACKPROCESSOR
 
 #include "../Aliases/Aliases.hpp"
+#include "../Types/Object.hpp"
 
-#include "Object.hpp"
+#include "Exceptions.hpp"
 
 namespace Stack {
 
@@ -31,127 +32,174 @@ namespace Stack {
 		
 		Processor() { }
 
+		static Object applySubtraction(Token * t, Object * l, Object * r) {
+			// TODO: Subtract.
+			return Object();
+		}
+
+		static Object applyAddition(Token * t, Object * l, Object * r) {
+			
+
+			return Object();
+		}
+
 		public:
 
-		static Object applyUnaryOperand(Token * t, Object * o) {
+		static Object applyBinaryOperator(Token * t, Object * l, Object * r) {
+			switch (t -> type) {
+				case TokenType::minus: {
+					try {
+						return applySubtraction(t, l, r);
+					} catch (Exception & e) { throw; }
+				} break;
+				case TokenType::plus: {
+					try {
+						return applyAddition(t, l, r);
+					} catch (Exception & e) { throw; }
+				} break;
+				case TokenType::star: { } break;
+				case TokenType::slash: { } break;
+				case TokenType::modulus: { } break;
+				default: break;
+			}
+			return Object();
+		}
+
+		static Object * applyUnaryOperator(Token * t, Object * o) {
 			switch (t -> type) {
 				case TokenType::minus: {
 					switch (o -> type) {
 						case BasicType::CharacterType: {
 							Character * i = (Character *) o -> value;
 							i = new Character(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::Int8Type: {
 							Int8 * i = (Int8 *) o -> value;
 							i = new Int8(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::Int16Type: {
 							Int16 * i = (Int16 *) o -> value;
 							i = new Int16(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::Int32Type: {
 							Int32 * i = (Int32 *) o -> value;
 							i = new Int32(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::Int64Type: {
 							Int64 * i = (Int64 *) o -> value;
 							i = new Int64(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::UInt8Type: {
 							UInt8 * j = (UInt8 *) o -> value;
 							Int16 * i = new Int16(-(* j));
-							return Object(BasicType::Int16Type, i);
+							return new Object(BasicType::Int16Type, i);
 						} break;
 						case BasicType::UInt16Type: {
 							UInt16 * j = (UInt16 *) o -> value;
 							Int32 * i = new Int32(-(* j));
-							return Object(BasicType::Int32Type, i);
+							return new Object(BasicType::Int32Type, i);
 						} break;
 						case BasicType::UInt32Type: {
 							UInt32 * j = (UInt32 *) o -> value;
 							Int64 * i = new Int64(-(* j));
-							return Object(BasicType::Int64Type, i);
+							return new Object(BasicType::Int64Type, i);
 						} break;
 						case BasicType::UInt64Type: {
 							UInt64 * j = (UInt64 *) o -> value;
 							Int64 * i = new Int64(-(* j));
-							return Object(BasicType::Int64Type, i);
+							return new Object(BasicType::Int64Type, i);
 						} break;
 						case BasicType::FloatType: {
 							Float * i = (Float *) o -> value;
 							i = new Float(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::DoubleType: {
 							Double * i = (Double *) o -> value;
 							i = new Double(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::RealType: {
 							Real * i = (Real *) o -> value;
 							i = new Real(-(* i));
-							return Object(o -> type, i);
-						} break;
-						case BasicType::ImaginaryType: {
-							// TODO: Ask the classes.
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::ComplexType: {
-							// TODO: Ask the classes.
+							Complex * c = (Complex *) o -> value;
+							c = new Complex(-(* c));
+							return new Object(o -> type, c);
 						} break;
 						default: throw RunTimeUnaryOperandException(
 							t -> lexeme, o -> getObjectName()
-						);
+						); break;
 					}
 				} break;
 				case TokenType::plus: {
-					
+					switch (o -> type) {
+						case BasicType::CharacterType:
+						case BasicType::Int8Type:
+						case BasicType::Int16Type:
+						case BasicType::Int32Type:
+						case BasicType::Int64Type:
+						case BasicType::UInt8Type:
+						case BasicType::UInt16Type:
+						case BasicType::UInt32Type:
+						case BasicType::UInt64Type:
+						case BasicType::FloatType:
+						case BasicType::DoubleType:
+						case BasicType::RealType:
+						case BasicType::ComplexType: return o;
+						default: throw RunTimeUnaryOperandException(
+							t -> lexeme, o -> getObjectName()
+						); break;
+					}
 				} break;
 				case TokenType::tilde: {
 					switch (o -> type) {
 						case BasicType::Int8Type: {
 							Int8 * i = (Int8 *) o -> value;
 							i = new Int8(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::Int16Type: {
 							Int16 * i = (Int16 *) o -> value;
 							i = new Int16(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::Int32Type: {
 							Int32 * i = (Int32 *) o -> value;
 							i = new Int32(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::Int64Type: {
 							Int64 * i = (Int64 *) o -> value;
 							i = new Int64(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::UInt8Type: {
 							UInt8 * i = (UInt8 *) o -> value;
 							i = new UInt8(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::UInt16Type: {
 							UInt16 * i = (UInt16 *) o -> value;
 							i = new UInt16(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::UInt32Type: {
 							UInt32 * i = (UInt32 *) o -> value;
 							i = new UInt32(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						case BasicType::UInt64Type: {
 							UInt64 * i = (UInt64 *) o -> value;
 							i = new UInt64(-(* i));
-							return Object(o -> type, i);
+							return new Object(o -> type, i);
 						} break;
 						default: throw RunTimeUnaryOperandException(
 							t -> lexeme, o -> getObjectName()
@@ -162,7 +210,7 @@ namespace Stack {
 					if (o -> type == BasicType::BooleanType) {
 						Boolean * b = (Boolean *) o -> value;
 						b = new Boolean(!(* b));
-						return Object(o -> type, b);
+						return new Object(o -> type, b);
 					} else throw RunTimeUnaryOperandException(
 						t -> lexeme, o -> getObjectName()
 					);
@@ -171,7 +219,7 @@ namespace Stack {
 					t -> lexeme, o -> getObjectName()
 				); break;
 			}
-			return Object();
+			return nullptr;
 		}
 		
 	};

@@ -21,7 +21,7 @@
 
 #include "../Aliases/Aliases.hpp"
 #include "../Collection/Collection.hpp"
-#include "../Interpreter/Object.hpp"
+#include "../Types/Object.hpp"
 
 using Collection::StrongList;
 using Collection::HeapArray;
@@ -84,7 +84,6 @@ namespace Stack {
 		}
 
 	};
-
 
 }
 

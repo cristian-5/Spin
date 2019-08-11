@@ -21,6 +21,7 @@
 
 #include "../Aliases/Aliases.hpp"
 #include "../Token/Token.hpp"
+#include "../Types/Object.hpp"
 
 namespace Stack {
 
@@ -147,6 +148,7 @@ namespace Stack {
 	class Literal: public Expression {
 		public:
 		Token * token = nullptr;
+		Object * object = nullptr;
 		Literal(Token * t) { token = t; }
 		void accept(Visitor * visitor) override {
 			try {
