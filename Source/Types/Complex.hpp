@@ -42,21 +42,15 @@ namespace Stack {
 		}
 		
 		void setRealPart(Real val) { a = val; }
-
 		void setImaginaryPart(Real val) { b = val; }
 		
 		Complex getConjugate() { return Complex(a, -b); }
-		
 		void conjugate() { b = -b; }
 		
 		Real getNormalized() { return a * a + b * b; }
-		
 		Real getMagnitude() { return sqrt(a * a + b * b); }
-		
 		inline Real getModulus() { return getMagnitude(); }
-		
 		Real getPhase() { return atan2(b, a); }
-		
 		inline Real getAngle() { return getPhase(); }
 
 		void operator = (Real r) { a = r; b = 0; }
@@ -118,7 +112,7 @@ namespace Stack {
 			b = (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b);
 		}
 
-		String getStringValue() {
+		String stringValue() {
 			String result = "";
 			if (a < 0.0) {
 				result += "- ";
