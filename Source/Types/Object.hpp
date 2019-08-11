@@ -78,8 +78,33 @@ namespace Stack {
 		}
 
 		~Object() {
+			// TODO: Handle all deallocations.
 			if (value == nullptr) return;
-			//delete value;
+			switch (type) {
+				case BasicType::BooleanType: delete (Boolean *) value; return;
+				case BasicType::CharacterType: delete (Character *) value; return;
+				case BasicType::Int8Type: delete (Int8 *) value; return;
+				case BasicType::Int16Type: delete (Int16 *) value; return;
+				case BasicType::Int32Type: delete (Int32 *) value; return;
+				case BasicType::Int64Type: delete (Int64 *) value; return;
+				case BasicType::UInt8Type: delete (UInt8 *) value; return;
+				case BasicType::UInt16Type: delete (UInt16 *) value; return;
+				case BasicType::UInt32Type: delete (UInt32 *) value; return;
+				case BasicType::UInt64Type: delete (UInt64 *) value; return;
+				case BasicType::ColourType: return;
+				case BasicType::FloatType: delete (Float *) value; return;
+				case BasicType::DoubleType: delete (Double *) value; return;
+				case BasicType::RealType: delete (Real *) value; return;
+				case BasicType::ImaginaryType: return;
+				case BasicType::ComplexType: return;
+				case BasicType::StringType: delete (String *) value; return;
+				case BasicType::ArrayListType: return;
+				case BasicType::VectorType: return;
+				case BasicType::ClassType: return;
+				case BasicType::StructureType: return;
+				case BasicType::ExceptionType: return;
+				case BasicType::UnknownType: default: return;
+			}
 		}
 
 		Boolean isIntegerType() {
@@ -88,6 +113,20 @@ namespace Stack {
 				   type == BasicType::Int32Type    ||
 				   type == BasicType::Int64Type    ||
 				   type == BasicType::UInt8Type    ||
+				   type == BasicType::UInt16Type   ||
+				   type == BasicType::UInt32Type   ||
+				   type == BasicType::UInt64Type;
+		}
+
+		Boolean isSignedType() {
+			return type == BasicType::Int8Type     ||
+				   type == BasicType::Int16Type    ||
+				   type == BasicType::Int32Type    ||
+				   type == BasicType::Int64Type;
+		}
+
+		Boolean isUnsignedType() {
+			return type == BasicType::UInt8Type    ||
 				   type == BasicType::UInt16Type   ||
 				   type == BasicType::UInt32Type   ||
 				   type == BasicType::UInt64Type;
@@ -112,32 +151,32 @@ namespace Stack {
 
 		String getObjectName() {
 			switch (type) {
-				case BasicType::BooleanType: return "BooleanType";
-				case BasicType::CharacterType: return "CharacterType";
-				case BasicType::Int8Type: return "Int8Type";
-				case BasicType::Int16Type: return "Int16Type";
-				case BasicType::Int32Type: return "Int32Type";
-				case BasicType::Int64Type: return "Int64Type";
-				case BasicType::UInt8Type: return "UInt8Type";
-				case BasicType::UInt16Type: return "UInt16Type";
-				case BasicType::UInt32Type: return "UInt32Type";
-				case BasicType::UInt64Type: return "UInt64Type";
-				case BasicType::ColourType: return "ColourType";
-				case BasicType::FloatType: return "FloatType";
-				case BasicType::DoubleType: return "DoubleType";
-				case BasicType::RealType: return "RealType";
-				case BasicType::ImaginaryType: return "ImaginaryType";
-				case BasicType::ComplexType: return "ComplexType";
-				case BasicType::StringType: return "StringType";
-				case BasicType::ArrayListType: return "ArrayListType";
-				case BasicType::VectorType: return "VectorType";
+				case BasicType::BooleanType: return "Boolean";
+				case BasicType::CharacterType: return "Character";
+				case BasicType::Int8Type: return "Int8";
+				case BasicType::Int16Type: return "Int16";
+				case BasicType::Int32Type: return "Int32";
+				case BasicType::Int64Type: return "Int64";
+				case BasicType::UInt8Type: return "UInt8";
+				case BasicType::UInt16Type: return "UInt16";
+				case BasicType::UInt32Type: return "UInt32";
+				case BasicType::UInt64Type: return "UInt64";
+				case BasicType::ColourType: return "Colour";
+				case BasicType::FloatType: return "Float";
+				case BasicType::DoubleType: return "Double";
+				case BasicType::RealType: return "Real";
+				case BasicType::ImaginaryType: return "Imaginary";
+				case BasicType::ComplexType: return "Complex";
+				case BasicType::StringType: return "String";
+				case BasicType::ArrayListType: return "ArrayList";
+				case BasicType::VectorType: return "Vector";
 				case BasicType::ClassType: {
-					return "ClassType";
+					return "Class";
 					// TODO: Ask the class for its type.
 				}
-				case BasicType::StructureType: return "StructureType";
-				case BasicType::ExceptionType: return "ExceptionType";
-				case BasicType::UnknownType: default: return "UnknownType";
+				case BasicType::StructureType: return "Structure";
+				case BasicType::ExceptionType: return "Exception";
+				case BasicType::UnknownType: default: return "Unknown";
 			}
 		}
 
