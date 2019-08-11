@@ -27,11 +27,11 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	Lexer * lexer = new Lexer();
-
-	cout<< "Insert test string: ";
+	cout << "Insert test string: ";
 	String test = getInput();
+	cout << endl;
 
+	Lexer * lexer = new Lexer();
 	StrongList<Token> * tokens = nullptr;
 
 	try {
@@ -40,23 +40,25 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Error in " << e.getFileName() << "!" << endl;
 		cout << "Position [row: " << e.getPosition().row << ", ";
 		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
-		cout << "Press any key to exit. ";
+		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete lexer;
-		delete tokens;
 		return exitFailure;
 	}
 
+	delete lexer;
+
+	cout << "Tokens: " << endl;
 	for (UInt32 i = 0; i < tokens -> count(); i++) {
-		cout << "Token " << i + 1 << ": ";
-		cout << tokens -> getNode(i).lexeme << endl;
+		cout << padding << i + 1 << " | Type: ";
+		cout << padding << tokens -> getNode(i).type;
+		cout << " | Token: " << tokens -> getNode(i).lexeme << endl;
 	}
 
-	cout << "Press any key to exit. ";
-	waitKeyPress();
-
-	delete lexer;
 	delete tokens;
+
+	cout << endl << "Press enter to exit. ";
+	waitKeyPress();
 	
 	return exitSuccess;
 }

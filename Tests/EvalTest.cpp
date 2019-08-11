@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  EvaluationTest.cpp                     |
+ *    |  EvalTest.cpp                           |
  *    |                                         |
  *    |                  Main                   |
  *    |                                         |
@@ -30,11 +30,11 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	Lexer * lexer = new Lexer();
-
 	cout << "Insert test string: ";
 	String test = getInput();
+	cout << endl;
 
+	Lexer * lexer = new Lexer();
 	StrongList<Token> * tokens = nullptr;
 
 	try {
@@ -43,19 +43,22 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Error in " << e.getFileName() << "!" << endl;
 		cout << "Position [row: " << e.getPosition().row << ", ";
 		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
-		cout << "Press any key to exit. ";
+		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete lexer;
-		delete tokens;
 		return exitFailure;
 	}
 
+	delete lexer;
+
+	cout << "Tokens: " << endl;
 	for (UInt32 i = 0; i < tokens -> count(); i++) {
-		cout << "Token " << i + 1 << ": ";
-		cout << tokens -> getNode(i).lexeme << endl;
+		cout << padding << i + 1 << " | Type: ";
+		cout << padding << tokens -> getNode(i).type;
+		cout << " | Token: " << tokens -> getNode(i).lexeme << endl;
 	}
 
-	// Parser Test:
+	cout << endl;
 
 	tokens -> unlinkFirst();
 	tokens -> unlinkLast();
@@ -72,11 +75,10 @@ Int32 main(Int32 argc, Character * argv[]) {
 			 << f.col << "];" << endl;
 		cout << "Expected '" << s.getExpected() << "' but found '"
 			 << s.getToken() << "'!" << endl;
-		cout << "Press any key to exit. ";
+		cout << "Press enter to exit. ";
 		waitKeyPress();
-		delete parser;
-		delete lexer;
 		delete tokens;
+		delete parser;
 		return exitFailure;
 	} catch (UnexpectedEndException & u) {
 		FilePosition f = u.getPosition();
@@ -85,62 +87,71 @@ Int32 main(Int32 argc, Character * argv[]) {
 			 << f.col << "];" << endl;
 		cout << "Sequence ended unexpectedly with token '"
 			 << u.getToken() << "'!" << endl;
-		cout << "Press any key to exit. ";
+		cout << "Press enter to exit. ";
 		waitKeyPress();
-		delete parser;
-		delete lexer;
 		delete tokens;
+		delete parser;
 		return exitFailure;
 	} catch (EmptyUnitException & e) {
 		cout << "Error in '" << e.getFileName() << "'!"
 			 << endl << "The code unit is empty!" << endl;
-		cout << "Press any key to exit. ";
+		cout << "Press enter to exit. ";
 		waitKeyPress();
+		delete tokens;
 		delete parser;
-		delete lexer;
-		delete tokens;
 		return exitFailure;
 	}
 
-	if (ex != nullptr) {
-		cout << "Syntax Tree:" << endl;
-		ASTPrinter * printer = new ASTPrinter();
-		cout << printer -> print(ex) << endl;
-		delete printer;
-		Interpreter * interpreter = new Interpreter();
-		Object result = Object();
-		try {
-			result = interpreter -> evaluate(ex);
-		} catch (Exception & e) {
-			cout << "Error in file!" << endl;
-			cout << "Press any key to exit. ";
-			waitKeyPress();
-			delete lexer;
-			delete parser;
-			delete tokens;
-			delete interpreter;
-			delete ex;
-			return exitFailure;
-		}
-		cout << "ResultType: " << result.getObjectName() << endl;
-		cout << "Result: " << result.getObjectStringValue() << endl;
-		delete interpreter;
-		delete ex;
-	} else {
-		cout << "Syntax Tree Failure!" << endl;
-		cout << "Press any key to exit. ";
-		waitKeyPress();
-		delete lexer;
-		delete tokens;
-		return exitFailure;
-	}
-
-	cout << endl << "Press any key to exit. ";
-	waitKeyPress();
-
-	delete lexer;
-	delete parser;
 	delete tokens;
+	delete parser;
+
+	if (ex == nullptr) {
+		cout << "Syntax Tree Failure!" << endl;
+		cout << "Press enter to exit. ";
+		waitKeyPress();
+		return exitFailure;
+	}
+
+	cout << "Syntax Tree:" << endl;
+	ASTPrinter * printer = new ASTPrinter();
+	cout << printer -> print(ex) << endl;
+	delete printer;
+
+	cout << endl;
+
+	// Interpreter Test:
+
+	Interpreter * interpreter = new Interpreter();
+	Object * result = nullptr;
+
+	try {
+		result = interpreter -> evaluate(ex);
+	} catch (Exception & e) {
+		cout << "Error in file!" << endl;
+		cout << "Press enter to exit. ";
+		waitKeyPress();
+		delete ex;
+		delete interpreter;
+		return exitFailure;
+	}
+
+	delete ex;
+	delete interpreter;
+
+	if (result == nullptr) {
+		cout << "Evaluation Failure!" << endl;
+		cout << "Press enter to exit. ";
+		waitKeyPress();
+		return exitFailure;
+	}
+
+	cout << "ResultType: " << result -> getObjectName() << endl;
+	cout << "Result: " << result -> getObjectStringValue() << endl;
+
+	delete result;
+
+	cout << endl << "Press enter to exit. ";
+	waitKeyPress();
 	
 	return exitSuccess;
 }

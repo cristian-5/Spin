@@ -29,11 +29,11 @@ using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	Lexer * lexer = new Lexer();
-
 	cout << "Insert test string: ";
 	String test = getInput();
+	cout << endl;
 
+	Lexer * lexer = new Lexer();
 	StrongList<Token> * tokens = nullptr;
 
 	try {
@@ -42,86 +42,86 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Error in " << e.getFileName() << "!" << endl;
 		cout << "Position [row: " << e.getPosition().row << ", ";
 		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
-		cout << "Press any key to exit. ";
+		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete lexer;
-		delete tokens;
 		return exitFailure;
 	}
-
-	for (UInt32 i = 0; i < tokens -> count(); i++) {
-		cout << "Token " << i + 1 << ": ";
-		cout << tokens -> getNode(i).lexeme << endl;
-	}
-
-    // Parser Test:
-
-    tokens -> unlinkFirst();
-    tokens -> unlinkLast();
-
-    Parser * parser = new Parser();
-    Expression * ex = nullptr;
-
-    try {
-        ex = parser -> parse(tokens, & test, "Virtual File");
-    } catch (SyntaxErrorException & s) {
-        FilePosition f = s.getPosition();
-		cout << "Error in '" << s.getFileName();
-		cout << "' [row: " << f.row << ", col: "
-		     << f.col << "];" << endl;
-		cout << "Expected '" << s.getExpected() << "' but found '"
-			 << s.getToken() << "'!" << endl;
-		cout << "Press any key to exit. ";
-	    waitKeyPress();
-		delete parser;
-		delete lexer;
-		delete tokens;
-		return exitFailure;
-    } catch (UnexpectedEndException & u) {
-        FilePosition f = u.getPosition();
-		cout << "Error in '" << u.getFileName();
-		cout << "' [row: " << f.row << ", col: "
-		     << f.col << "];" << endl;
-		cout << "Sequence ended unexpectedly with token '"
-             << u.getToken() << "'!" << endl;
-		cout << "Press any key to exit. ";
-    	waitKeyPress();
-		delete parser;
-		delete lexer;
-		delete tokens;
-		return exitFailure;
-    } catch (EmptyUnitException & e) {
-		cout << "Error in '" << e.getFileName() << "'!"
-			 << endl << "The code unit is empty!" << endl;
-		cout << "Press any key to exit. ";
-		waitKeyPress();
-		delete parser;
-		delete lexer;
-		delete tokens;
-		return exitFailure;
-	}
-
-    if (ex != nullptr) {
-        cout << "Syntax Tree:" << endl;
-        ASTPrinter * printer = new ASTPrinter();
-        cout << printer -> print(ex) << endl;
-        delete printer;
-		delete ex;
-    } else {
-        cout << "Syntax Tree Failure!" << endl;
-        cout << "Press any key to exit. ";
-        waitKeyPress();
-		delete lexer;
-		delete tokens;
-        return exitFailure;
-    }
-
-	cout << endl << "Press any key to exit. ";
-	waitKeyPress();
 
 	delete lexer;
-    delete parser;
+
+	cout << "Tokens: " << endl;
+	for (UInt32 i = 0; i < tokens -> count(); i++) {
+		cout << padding << i + 1 << " | Type: ";
+		cout << padding << tokens -> getNode(i).type;
+		cout << " | Token: " << tokens -> getNode(i).lexeme << endl;
+	}
+	
+	cout << endl;
+
+	// Parser Test:
+
+	tokens -> unlinkFirst();
+	tokens -> unlinkLast();
+
+	Parser * parser = new Parser();
+	Expression * ex = nullptr;
+
+	try {
+		ex = parser -> parse(tokens, & test, "Virtual File");
+	} catch (SyntaxErrorException & s) {
+		FilePosition f = s.getPosition();
+		cout << "Error in '" << s.getFileName();
+		cout << "' [row: " << f.row << ", col: "
+			 << f.col << "];" << endl;
+		cout << "Expected '" << s.getExpected() << "' but found '"
+			 << s.getToken() << "'!" << endl;
+		cout << "Press enter to exit. ";
+		waitKeyPress();
+		delete tokens;
+		delete parser;
+		return exitFailure;
+	} catch (UnexpectedEndException & u) {
+		FilePosition f = u.getPosition();
+		cout << "Error in '" << u.getFileName();
+		cout << "' [row: " << f.row << ", col: "
+			 << f.col << "];" << endl;
+		cout << "Sequence ended unexpectedly with token '"
+			 << u.getToken() << "'!" << endl;
+		cout << "Press enter to exit. ";
+		waitKeyPress();
+		delete tokens;
+		delete parser;
+		return exitFailure;
+	} catch (EmptyUnitException & e) {
+		cout << "Error in '" << e.getFileName() << "'!"
+			 << endl << "The code unit is empty!" << endl;
+		cout << "Press enter to exit. ";
+		waitKeyPress();
+		delete tokens;
+		delete parser;
+		return exitFailure;
+	}
+
 	delete tokens;
+	delete parser;
+
+	if (ex == nullptr) {
+		cout << "Syntax Tree Failure!" << endl;
+		cout << "Press enter to exit. ";
+		waitKeyPress();
+		return exitFailure;
+	}
+
+	cout << "Syntax Tree:" << endl;
+	ASTPrinter * printer = new ASTPrinter();
+	cout << printer -> print(ex) << endl;
+	delete printer;
+
+	delete ex;
+
+	cout << endl << "Press enter to exit. ";
+	waitKeyPress();
 	
 	return exitSuccess;
 }
