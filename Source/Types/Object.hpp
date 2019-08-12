@@ -46,6 +46,7 @@ namespace Stack {
 		DoubleType,
 		RealType,
 
+		ImaginaryType,
 		ComplexType,
 
 		StringType,
@@ -94,6 +95,7 @@ namespace Stack {
 				case BasicType::FloatType: delete (Float *) value; return;
 				case BasicType::DoubleType: delete (Double *) value; return;
 				case BasicType::RealType: delete (Real *) value; return;
+				case BasicType::ImaginaryType: delete (Real *) value; return;
 				case BasicType::ComplexType: delete (Complex *) value; return;
 				case BasicType::StringType: delete (String *) value; return;
 				case BasicType::ArrayListType: return;
@@ -106,38 +108,28 @@ namespace Stack {
 		}
 
 		Boolean isIntegerType() {
-			return type == BasicType::Int8Type     ||
-				   type == BasicType::Int16Type    ||
-				   type == BasicType::Int32Type    ||
-				   type == BasicType::Int64Type    ||
-				   type == BasicType::UInt8Type    ||
-				   type == BasicType::UInt16Type   ||
-				   type == BasicType::UInt32Type   ||
-				   type == BasicType::UInt64Type;
+			return type >= BasicType::Int8Type &&
+				   type <= BasicType::UInt64Type;
 		}
 
 		Boolean isSignedType() {
-			return type == BasicType::Int8Type     ||
-				   type == BasicType::Int16Type    ||
-				   type == BasicType::Int32Type    ||
-				   type == BasicType::Int64Type;
+			return type >= BasicType::Int8Type &&
+				   type <= BasicType::Int64Type;
 		}
 
 		Boolean isUnsignedType() {
-			return type == BasicType::UInt8Type    ||
-				   type == BasicType::UInt16Type   ||
-				   type == BasicType::UInt32Type   ||
-				   type == BasicType::UInt64Type;
+			return type >= BasicType::UInt8Type &&
+				   type <= BasicType::UInt64Type;
 		}
 
 		Boolean isRealType() {
-			return type == BasicType::FloatType    ||
-				   type == BasicType::DoubleType   ||
-				   type == BasicType::RealType;
+			return type >= BasicType::FloatType &&
+				   type <= BasicType::RealType;
 		}
 
 		Boolean isComplexType() {
-			return type == BasicType::ComplexType;
+			return type == BasicType::ComplexType ||
+				   type == BasicType::ImaginaryType;
 		}			
 
 		Boolean isNumericType() {
@@ -162,6 +154,7 @@ namespace Stack {
 				case BasicType::FloatType: return "Float";
 				case BasicType::DoubleType: return "Double";
 				case BasicType::RealType: return "Real";
+				case BasicType::ImaginaryType: return "Imaginary";
 				case BasicType::ComplexType: return "Complex";
 				case BasicType::StringType: return "String";
 				case BasicType::ArrayListType: return "ArrayList";
@@ -232,8 +225,12 @@ namespace Stack {
 					return toString(* i);
 				}
 				case BasicType::RealType: {
-					// TODO: fix real value.
-					return "SomeReal";
+					Real * i = (Real *) value;
+					return toString(* i);
+				}
+				case BasicType::ImaginaryType: {
+					Real * i = (Real *) value;
+					return toString(* i) + "i";
 				}
 				case BasicType::ComplexType: {
 					Complex * c = (Complex *) value;

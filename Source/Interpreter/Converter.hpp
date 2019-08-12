@@ -25,7 +25,7 @@
 
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
 #define REAL "^[0-9]+\\.[0-9]+(?:[eE][0-9]+)?$"
-#define COMPLEX "^[0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i$"
+#define IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i$"
 
 namespace Stack {
 
@@ -139,12 +139,16 @@ namespace Stack {
 				case TokenType::stringLiteral: {
 					o -> type = BasicType::StringType;
 					String * v = new String;
+					t -> lexeme = t -> lexeme.subString(1,
+								  t -> lexeme.length() - 2);
 					* v = escapeString(t -> lexeme);
 					o -> value = v;
 				} break;
 				case TokenType::charLiteral: {
-					o -> type = BasicType::StringType;
+					o -> type = BasicType::CharacterType;
 					Character * v = new Character;
+					t -> lexeme = t -> lexeme.subString(1,
+								  t -> lexeme.length() - 2);
 					* v = escapeChar(t -> lexeme);
 					o -> value = v;
 				} break;
@@ -155,9 +159,9 @@ namespace Stack {
 					o -> value = v;
 				} break;
 				case TokenType::imaginaryLiteral: {
-					o -> type = BasicType::ComplexType;
-					Complex * v = new Complex;
-					* v = stringToComplex(t -> lexeme);
+					o -> type = BasicType::ImaginaryType;
+					Real * v = new Real;
+					* v = stringToImaginary(t -> lexeme);
 					o -> value = v;
 				} break;
 				case TokenType::nullLiteral: {
@@ -206,14 +210,15 @@ namespace Stack {
 			return stringToLongDouble(s);
 		}
 
-		static Complex stringToComplex(String & s) {
-			if (!RegexTools::test(COMPLEX, s)) return Complex();
+		static Real stringToImaginary(String & s) {
+			if (!RegexTools::test(IMAGINARY, s)) return 0.0;
 			if (s.length() > 1) s.popBack();
-			Real r = stringToLongDouble(s);
-			return Complex(0.0, r);
+			return stringToLongDouble(s);
 		}
 
 		static String escapeString(String & s) {
+			s = RegexTools::replaceMatches("\\\"", s, "\"");
+			s = RegexTools::replaceMatches("\\\\", s, "\\");
 			return s; // TODO: Properly Escape.
 		}
 

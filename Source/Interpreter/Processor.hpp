@@ -33,13 +33,23 @@ namespace Stack {
 		Processor() { }
 
 		static Object applySubtraction(Token * t, Object * l, Object * r) {
-			// TODO: Subtract.
 			return Object();
 		}
 
 		static Object applyAddition(Token * t, Object * l, Object * r) {
 			
+			return Object();
+		}
 
+		static Object applyMultiplication(Token * t, Object * l, Object * r) {
+			return Object();
+		}
+
+		static Object applyDivision(Token * t, Object * l, Object * r) {
+			return Object();
+		}
+
+		static Object applyModulus(Token * t, Object * l, Object * r) {
 			return Object();
 		}
 
@@ -48,18 +58,25 @@ namespace Stack {
 		static Object applyBinaryOperator(Token * t, Object * l, Object * r) {
 			switch (t -> type) {
 				case TokenType::minus: {
-					try {
-						return applySubtraction(t, l, r);
-					} catch (Exception & e) { throw; }
+					try { return applySubtraction(t, l, r); }
+					catch (Exception & e) { throw; }
 				} break;
 				case TokenType::plus: {
-					try {
-						return applyAddition(t, l, r);
-					} catch (Exception & e) { throw; }
+					try { return applyAddition(t, l, r); }
+					catch (Exception & e) { throw; }
 				} break;
-				case TokenType::star: { } break;
-				case TokenType::slash: { } break;
-				case TokenType::modulus: { } break;
+				case TokenType::star: {
+					try { return applyMultiplication(t, l, r); }
+					catch (Exception & e) { throw; }
+				} break;
+				case TokenType::slash: {
+					try { return applyDivision(t, l, r);}
+					catch (Exception & e) { throw; }
+				} break;
+				case TokenType::modulus: {
+					try { return applyModulus(t, l, r); }
+					catch (Exception & e) { throw; }
+				} break;
 				default: break;
 			}
 			return Object();
@@ -69,11 +86,6 @@ namespace Stack {
 			switch (t -> type) {
 				case TokenType::minus: {
 					switch (o -> type) {
-						case BasicType::CharacterType: {
-							Character * i = (Character *) o -> value;
-							i = new Character(-(* i));
-							return new Object(o -> type, i);
-						} break;
 						case BasicType::Int8Type: {
 							Int8 * i = (Int8 *) o -> value;
 							i = new Int8(-(* i));
@@ -124,7 +136,8 @@ namespace Stack {
 							i = new Double(-(* i));
 							return new Object(o -> type, i);
 						} break;
-						case BasicType::RealType: {
+						case BasicType::RealType:
+						case BasicType::ImaginaryType: {
 							Real * i = (Real *) o -> value;
 							i = new Real(-(* i));
 							return new Object(o -> type, i);
@@ -153,6 +166,7 @@ namespace Stack {
 						case BasicType::FloatType:
 						case BasicType::DoubleType:
 						case BasicType::RealType:
+						case BasicType::ImaginaryType:
 						case BasicType::ComplexType: return o;
 						default: throw RunTimeUnaryOperandException(
 							t -> lexeme, o -> getObjectName()
