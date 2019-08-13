@@ -20,12 +20,9 @@
 #define STACKPREPROCESSOR
 
 #include "../Aliases/Aliases.hpp"
-#include "../Collection/Collection.hpp"
 
 #include "ASTree.hpp"
 #include "Exceptions.hpp"
-
-using namespace Collection;
 
 namespace Stack {
 
@@ -33,7 +30,7 @@ namespace Stack {
 
 		private:
 
-		StrongList<Token> * tokens = nullptr;
+		ArrayList<Token> * tokens = nullptr;
 
 		String * inputFile = nullptr;
 
@@ -41,8 +38,7 @@ namespace Stack {
 
 		void processParentesis() {
 			HeapStack<Token> stack = HeapStack<Token>();
-			for (UInt32 i = 0; i < tokens -> count(); i++) {
-				Token t = tokens -> getNode(i);
+			for (Token & t : * tokens) {
 				if (t.type == openRoundBracket) {
 					t.type = closeRoundBracket;
 					t.lexeme = ")";
@@ -108,7 +104,7 @@ namespace Stack {
 
 		PreProcessor() { }
 
-		StrongList<Token> * process(StrongList<Token> * t,
+		ArrayList<Token> * process(ArrayList<Token> * t,
 								    String * i = nullptr,
 									String f = "Unknown File") {
 			tokens = t; inputFile = i; fileName = f;
