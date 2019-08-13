@@ -138,6 +138,9 @@ namespace Stack {
 				   isComplexType();
 		}
 
+		inline Boolean isString() { return type == BasicType::StringType; }
+		inline Boolean isCharacter() { return type == BasicType::CharacterType; }
+
 		String getObjectName() {
 			switch (type) {
 				case BasicType::BooleanType: return "Boolean";

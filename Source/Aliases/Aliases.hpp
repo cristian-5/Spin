@@ -22,7 +22,6 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
-#include <stdio.h>
 #include <string>
 #include <fstream>
 #include <sstream>

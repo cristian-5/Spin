@@ -32,30 +32,31 @@ namespace Stack {
 		
 		Processor() { }
 
-		static Object applySubtraction(Token * t, Object * l, Object * r) {
-			return Object();
+		static Object * applySubtraction(Token * t, Object * l, Object * r) {
+			return nullptr;
 		}
 
-		static Object applyAddition(Token * t, Object * l, Object * r) {
+		static Object * applyAddition(Token * t, Object * l, Object * r) {
+			Object * o = nullptr;
 			
-			return Object();
+			return o;
 		}
 
-		static Object applyMultiplication(Token * t, Object * l, Object * r) {
-			return Object();
+		static Object * applyMultiplication(Token * t, Object * l, Object * r) {
+			return nullptr;
 		}
 
-		static Object applyDivision(Token * t, Object * l, Object * r) {
-			return Object();
+		static Object * applyDivision(Token * t, Object * l, Object * r) {
+			return nullptr;
 		}
 
-		static Object applyModulus(Token * t, Object * l, Object * r) {
-			return Object();
+		static Object * applyModulus(Token * t, Object * l, Object * r) {
+			return nullptr;
 		}
 
 		public:
 
-		static Object applyBinaryOperator(Token * t, Object * l, Object * r) {
+		static Object * applyBinaryOperator(Token * t, Object * l, Object * r) {
 			switch (t -> type) {
 				case TokenType::minus: {
 					try { return applySubtraction(t, l, r); }
@@ -79,7 +80,7 @@ namespace Stack {
 				} break;
 				default: break;
 			}
-			return Object();
+			return nullptr;
 		}
 
 		static Object * applyUnaryOperator(Token * t, Object * o) {
