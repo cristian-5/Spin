@@ -20,13 +20,11 @@
 #define STACKLEXER
 
 #include "../Aliases/Aliases.hpp"
-#include "../Collection/StrongList.hpp"
 #include "../Linker/FileHandler.hpp"
 #include "../Token/Token.hpp"
 
 #include "Regex.hpp"
 
-using namespace Collection;
 using namespace RegexTools;
 
 #define INVERTED "[^A-Za-z0-9_]"
@@ -70,11 +68,7 @@ namespace Stack {
 			return input;
 		}
 
-		void generateTokens() {
-
-			const UInt32 tokenCount = 78;
-
-			TokenRule rules[tokenCount] = {
+		ArrayList<TokenRule> grammar = {
 
 				TokenRule("([ \\t\\n]+)", TokenType::empty),
 				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment),
@@ -167,43 +161,33 @@ namespace Stack {
 
 			};
 
-			for (UInt32 i = 0; i < tokenCount; i++) {
-				TokenRule temp = rules[i];
-				grammar.link(temp);
-			}
-
-		}
-
-		StrongList<TokenRule> grammar = StrongList<TokenRule>();
-
 		public:
 
-		Lexer() { generateTokens(); }
+		Lexer() { }
 
-		StrongList<Token> * tokenise(String * input, String fileName = "Unknown File") {
+		ArrayList<Token> * tokenise(String * input, String fileName = "Unknown File") {
 			// Handle Last Token:
 			String data = (* input) + "\n";
 			// Handle Single Line Comments:
 			data = handleComments(data);
 			// Handle EndLines:
 			data = replaceMatches("\n", data, " ");
-			StrongList<Token> * tokens = new StrongList<Token>();
+			ArrayList<Token> * tokens = new ArrayList<Token>();
 			UInt32 pos = 0;
 			Token temp = Token("beginFile", TokenType::beginFile, 0);
-			tokens -> link(temp);
+			tokens -> push(temp);
 			while (data.length() > 0) {
 				Boolean tokenised = false;
-				for (UInt32 i = 0; i < grammar.count(); i++) {
-					String result = matchCloseStart(grammar[i].pattern, data);
+				for (TokenRule rule : grammar) {
+					String result = matchCloseStart(rule.pattern, data);
 					if (result.length() > 0) {
 						tokenised = true;
 						data = data.subString(result.length());
-						temp = Token(result, grammar[i].type, pos);
+						temp = Token(result, rule.type, pos);
 						pos += result.length();
-						if (grammar[i].type == TokenType::empty) break;
-						if (grammar[i].type == TokenType::comment) break;
-						tokens -> link(temp);
-						break;
+						if (rule.type == TokenType::empty) break;
+						if (rule.type == TokenType::comment) break;
+						tokens -> push(temp); break;
 					}
 				}
 				if (!tokenised) {
@@ -211,8 +195,7 @@ namespace Stack {
 					throw InvalidTokenException(fp, fileName);
 				}
 			}
-			temp = Token("endFile", TokenType::endFile, 0);
-			tokens -> link(temp);
+			tokens -> push(Token("endFile", TokenType::endFile, 0));
 			return tokens;
 		}
 
