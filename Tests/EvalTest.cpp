@@ -17,7 +17,6 @@
  */
 
 #include "../Source/Aliases/Aliases.hpp"
-#include "../Source/Collection/StrongList.hpp"
 #include "../Source/Lexer/Lexer.hpp"
 #include "../Source/Parser/Parser.hpp"
 #include "../Source/Parser/ASTPrint.hpp"
@@ -25,7 +24,6 @@
 
 using namespace std;
 
-using namespace Collection;
 using namespace Stack;
 
 Int32 main(Int32 argc, Character * argv[]) {
@@ -35,7 +33,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	cout << endl;
 
 	Lexer * lexer = new Lexer();
-	StrongList<Token> * tokens = nullptr;
+	ArrayList<Token> * tokens = nullptr;
 
 	try {
 		tokens = lexer -> tokenise(& test, "Virtual File");
@@ -52,16 +50,18 @@ Int32 main(Int32 argc, Character * argv[]) {
 	delete lexer;
 
 	cout << "Tokens: " << endl;
-	for (UInt32 i = 0; i < tokens -> count(); i++) {
-		cout << padding << i + 1 << " | Type: ";
-		cout << padding << tokens -> getNode(i).type;
-		cout << " | Token: " << tokens -> getNode(i).lexeme << endl;
+	UInt32 i = 1;
+	for (Token & token : * tokens) {
+		cout << padding << i << " | Type: ";
+		cout << padding << token.type;
+		cout << " | Token: " << token.lexeme << endl;
+		i += 1;
 	}
 
 	cout << endl;
 
-	tokens -> unlinkFirst();
-	tokens -> unlinkLast();
+	tokens -> erase(tokens -> begin());
+	tokens -> pop();
 
 	Parser * parser = new Parser();
 	Expression * ex = nullptr;
