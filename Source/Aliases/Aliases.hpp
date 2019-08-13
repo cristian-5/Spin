@@ -27,6 +27,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include <vector>
 
 using Exception = std::exception;
 
@@ -48,6 +49,8 @@ using SizeType = std::size_t;
 
 using String = std::string;
 
+#define ArrayList std::vector
+
 using SMatch = std::smatch;
 using Regex = std::regex;
 using RegexError = std::regex_error;
@@ -63,7 +66,8 @@ using RegexError = std::regex_error;
 
 #define subString substr
 #define stringValue c_str
-#define popBack pop_back
+#define push push_back
+#define pop pop_back
 
 #define Character char
 #define Double double

@@ -38,19 +38,19 @@ namespace Stack {
 			stream << ')';
 		}
 
-		void parenthesise(const String & name, StrongList<Expression *> * e) {
+		void parenthesise(const String & name, ArrayList<Expression *> * e) {
 			stream << '(' << name;
-			for (UInt32 i = 0; i < e -> count(); i++) {
-				if (e -> getNode(i) == nullptr) continue;
+			for (Expression * ex : * e) {
+				if (ex == nullptr) continue;
 				stream << ' ';
-				e -> getNode(i) -> accept(this);
+				ex -> accept(this);
 			}
 			stream << ')';
 		}
 
 		void visitBinaryExpression(Binary * e) override {
-			StrongList<Expression *> * exes = new StrongList<Expression *>();
-			exes -> link(e -> l); exes -> link(e -> r);
+			ArrayList<Expression *> * exes = new ArrayList<Expression *>();
+			exes -> push(e -> l); exes -> push(e -> r);
 			parenthesise(e -> o -> lexeme, exes);
 			delete exes;
 		}
@@ -76,14 +76,14 @@ namespace Stack {
 			stream << "(literal " << e -> token -> lexeme << ")";
 		}
 		void visitLogicalExpression(Logical * e) override {
-			StrongList<Expression *> * exes = new StrongList<Expression *>();
-			exes -> link(e -> l); exes -> link(e -> r);
+			ArrayList<Expression *> * exes = new ArrayList<Expression *>();
+			exes -> push(e -> l); exes -> push(e -> r);
 			parenthesise(e -> o -> lexeme, exes);
 			delete exes;
 		}
 		void visitSetExpression(Set * e) override {
-			StrongList<Expression *> * exes = new StrongList<Expression *>();
-			exes -> link(e -> object); exes -> link(e -> value);
+			ArrayList<Expression *> * exes = new ArrayList<Expression *>();
+			exes -> push(e -> object); exes -> push(e -> value);
 			parenthesise("set " + e -> name -> lexeme, exes);
 			delete exes;
 		}
@@ -105,10 +105,9 @@ namespace Stack {
 
 		ASTPrinter() { }
 
-		String print(StrongList<Expression *> * statements) {
-			for (UInt32 i = 0; i < statements -> count(); i++) {
-				statements -> getNode(i) -> accept(this);
-				stream << '\n';
+		String print(ArrayList<Expression *> * statements) {
+			for (Expression * ex : * statements) {
+				ex -> accept(this); stream << '\n';
 			}
 			return stream.str();
 		}

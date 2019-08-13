@@ -20,9 +20,6 @@
 #define FILEHANDLER
 
 #include "../Aliases/Aliases.hpp"
-#include "../Collection/Collection.hpp"
-
-using namespace Collection;
 
 namespace Stack {
 
@@ -84,13 +81,13 @@ namespace Stack {
 
 		public:
 
-		static StrongList<String> linesFromFile(String & path) {
-			StrongList<String> set = StrongList<String>();
+		static ArrayList<String> linesFromFile(String & path) {
+			ArrayList<String> set = ArrayList<String>();
 			IFStream file(path.stringValue());
 			if (file.good()) {
 				String line = "";
 				while (getline(file, line)) {
-					set.link(line);
+					set.push(line);
 				}
 			} else throw BadFileException(path);
 			return set;

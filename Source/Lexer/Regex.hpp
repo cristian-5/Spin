@@ -20,9 +20,6 @@
 #define REGEXTOOLS
 
 #include "../Aliases/Aliases.hpp"
-#include "../Collection/StrongList.hpp"
-
-using Collection::StrongList;
 
 /*!
  *   @brief Namespace RegexTools.
@@ -99,8 +96,8 @@ namespace RegexTools {
 	 *   @param input Input String.
 	 *   @returns The matched groups.
 	 */
-	StrongList<String> matchGroupClose(String rgx, String & input) {
-		StrongList<String> result = StrongList<String>();
+	ArrayList<String> matchGroupClose(String rgx, String & input) {
+		ArrayList<String> result = ArrayList<String>();
 		try {
 			Regex regex(rgx);
 			SMatch match;
@@ -108,11 +105,11 @@ namespace RegexTools {
 			if (match.size() > 1) {
 				for (Int32 i = 1; i < match.size(); i++) {
 					String temp = String(match.str(i));
-					result.link(temp);
+					result.push(temp);
 				}
-			} else return StrongList<String>();
+			} else return ArrayList<String>();
 		} catch (RegexError & e) {
-			return StrongList<String>();
+			return ArrayList<String>();
 		}
 		return result;
 	}

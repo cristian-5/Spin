@@ -212,7 +212,7 @@ namespace Stack {
 
 		static Real stringToImaginary(String & s) {
 			if (!RegexTools::test(IMAGINARY, s)) return 0.0;
-			if (s.length() > 1) s.popBack();
+			if (s.length() > 1) s.pop();
 			return stringToLongDouble(s);
 		}
 
