@@ -48,7 +48,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	cout << "Tokens: " << endl;
 	UInt32 i = 1;
-	for (Token token : * tokens) {
+	for (Token & token : * tokens) {
 		cout << padding << i << " | Type: ";
 		cout << padding << token.type;
 		cout << " | Token: " << token.lexeme << endl;

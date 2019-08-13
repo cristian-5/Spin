@@ -61,9 +61,8 @@ namespace Stack {
 		void visitCallExpression(Call * e) override {
 			stream << '(';
     		e -> callee -> accept(this);
-			for (UInt32 i = 0; i < e -> arguments.count(); i++) {
-				stream << ' ';
-				e -> arguments[i] -> accept(this);
+			for (Expression * ex : e -> arguments) {
+				stream << ' '; ex -> accept(this);
 			}
 			stream << ')';
 		}

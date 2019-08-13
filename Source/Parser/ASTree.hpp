@@ -99,8 +99,8 @@ namespace Stack {
 		public:
 		Token * paren = nullptr;
 		Expression * callee = nullptr;
-		StrongList<Expression *> arguments = StrongList<Expression *>();
-		Call(Expression * c, Token * p, StrongList<Expression *> a) {
+		ArrayList<Expression *> arguments = ArrayList<Expression *>();
+		Call(Expression * c, Token * p, ArrayList<Expression *> a) {
 			paren = p; callee = c; arguments = a;
 		}
 		void accept(Visitor * visitor) override {
@@ -110,8 +110,8 @@ namespace Stack {
 		}
 		~Call() {
 			delete paren; delete callee;
-			for (UInt32 i = 0; i < arguments.count(); i++) {
-				delete arguments.getNode(i);
+			for (Expression * argument : arguments) {
+				delete argument;
 			}
 		}
 	};

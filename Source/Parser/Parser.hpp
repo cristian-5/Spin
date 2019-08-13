@@ -20,12 +20,9 @@
 #define STACKPARSER
 
 #include "../Aliases/Aliases.hpp"
-#include "../Collection/Collection.hpp"
 
 #include "ASTree.hpp"
 #include "Exceptions.hpp"
-
-using namespace Collection;
 
 namespace Stack {
 
@@ -36,7 +33,7 @@ namespace Stack {
 		String fileName = "";
 		String * inputFile = nullptr;
 		
-		StrongList<Token> * tokens = nullptr;
+		ArrayList<Token> * tokens = nullptr;
 
 		UInt32 index = 0;
 
@@ -51,9 +48,8 @@ namespace Stack {
 			try {
 				ex = comparison();
 			} catch (Exception & e) { throw; }
-			StrongList<String> * ops = new StrongList<String>();
-			String s = "=="; ops -> link(s);
-			s = "!="; ops -> link(s);
+			ArrayList<String> * ops = new ArrayList<String>();
+			ops -> push("=="); ops -> push("!=");
 			while (match(TokenType::infixOperator)
 				   && matchOperators(ops)) {
 				Token * op = new Token();
@@ -74,9 +70,9 @@ namespace Stack {
 			try {
 				ex = mediumPriorityOperator();
 			} catch (Exception & e) { throw; }
-			StrongList<TokenType> * ops = new StrongList<TokenType>();
-			TokenType t = TokenType::minus; ops -> link(t);
-			t = TokenType::plus; ops -> link(t);
+			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+			ops -> push(TokenType::plus);
+			ops -> push(TokenType::minus);
 			while (match(ops)) {
 				Token * op = new Token();
 				* op = previous();
@@ -96,10 +92,10 @@ namespace Stack {
 			try {
 				ex = highPriorityOperator();
 			} catch (Exception & e) { throw; }
-			StrongList<TokenType> * ops = new StrongList<TokenType>();
-			TokenType t = TokenType::star; ops -> link(t);
-			t = TokenType::slash; ops -> link(t);
-			t = TokenType::modulus; ops -> link(t);
+			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+			ops -> push(TokenType::star);
+			ops -> push(TokenType::slash);
+			ops -> push(TokenType::modulus);
 			while (match(ops)) {
 				Token * op = new Token();
 				* op = previous();
@@ -115,11 +111,11 @@ namespace Stack {
 
 		/*  Parses High Priority Unary Operators [-N]. */
 		Expression * highPriorityOperator() {
-			StrongList<TokenType> * ops = new StrongList<TokenType>();
-			TokenType t = TokenType::minus; ops -> link(t);
-			t = TokenType::exclamationMark; ops -> link(t);
-			t = TokenType::plus; ops -> link(t);
-			t = TokenType::tilde; ops -> link(t);
+			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+			ops -> push(TokenType::minus);
+			ops -> push(TokenType::plus);
+			ops -> push(TokenType::exclamationMark);
+			ops -> push(TokenType::tilde);
 			if (match(ops)) {
 				Token * op = new Token();
 				* op = previous();
@@ -156,11 +152,9 @@ namespace Stack {
 			try {
 				ex = lowPriorityOperator();
 			} catch (Exception & e) { throw; }
-			StrongList<String> * ops = new StrongList<String>();
-			String s = ">"; ops -> link(s);
-			s = ">="; ops -> link(s);
-			s = "<"; ops -> link(s);
-			s = "<="; ops -> link(s);
+			ArrayList<String> * ops = new ArrayList<String>();
+			ops -> push(">"); ops -> push("<");
+			ops -> push(">="); ops -> push(">=");
 			while (matchOperators(ops)) {
 				Token * op = new Token();
 				* op = previous();
@@ -174,32 +168,32 @@ namespace Stack {
 			return ex;
 		}
 
-		Boolean matchOperator(String op) {
+		Boolean matchOperator(String & op) {
 			if (checkOperator(op)) {
 				advance();
 				return true;
 			} return false;
 		}
 
-		Boolean matchOperators(StrongList<String> * o) {
-			for (UInt32 i = 0; i < o -> count(); i++) {
-				if (checkOperator(o -> getNode(i))) {
+		Boolean matchOperators(ArrayList<String> * operators) {
+			for (String & op : * operators) {
+				if (checkOperator(op)) {
 					advance();
 					return true;
 				}
 			} return false;
 		}
 
-		Boolean match(TokenType t) {
-			if (check(t)) {
+		Boolean match(TokenType type) {
+			if (check(type)) {
 				advance();
 				return true;
 			} return false;
 		}
 
-		Boolean match(StrongList<TokenType> * t) {
-			for (UInt32 i = 0; i < t -> count(); i++) {
-				if (check(t -> getNode(i))) {
+		Boolean match(ArrayList<TokenType> * types) {
+			for (TokenType & type : * types) {
+				if (check(type)) {
 					advance();
 					return true;
 				}
@@ -217,20 +211,20 @@ namespace Stack {
 		}
 
 		Boolean isOutOfRange() {
-			if (tokens -> isEmpty()) return true;
-			if (index >= tokens -> count()) return true;
+			if (tokens -> size() == 0) return true;
+			if (index >= tokens -> size()) return true;
 			return false;
 		}
 
 		Boolean isAtEnd() {
-			if (tokens -> count() <= index + 1) return true;
-			if (tokens -> isEmpty()) return true;
+			if (tokens -> size() <= index + 1) return true;
+			if (tokens -> size() == 0) return true;
 			return false;
 		}
 
-		Token peek() { return tokens -> getNode(index); }
+		Token peek() { return tokens -> at(index); }
 
-		Token previous() { return tokens -> getNode(index - 1); }
+		Token previous() { return tokens -> at(index - 1); }
 
 		Token advance() {
 			if (!isAtEnd()) index++;
@@ -293,11 +287,11 @@ namespace Stack {
 
 		Parser() { }
 
-		Expression * parse(StrongList<Token> * t,
+		Expression * parse(ArrayList<Token> * t,
 						   String * i = nullptr,
 						   String f = "Unknown File") {
 			if (t == nullptr) return nullptr;
-			if (t -> isEmpty()) throw EmptyUnitException(f);
+			if (t -> size() == 0) throw EmptyUnitException(f);
 			tokens = t; inputFile = i; fileName = f;
 			try {
 				return expression();
