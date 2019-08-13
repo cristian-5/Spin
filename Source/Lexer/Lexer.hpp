@@ -25,8 +25,6 @@
 
 #include "Regex.hpp"
 
-using namespace RegexTools;
-
 #define INVERTED "[^A-Za-z0-9_]"
 
 namespace Stack {
@@ -171,7 +169,7 @@ namespace Stack {
 			// Handle Single Line Comments:
 			data = handleComments(data);
 			// Handle EndLines:
-			data = replaceMatches("\n", data, " ");
+			data = RegexTools::replaceMatches("\n", data, " ");
 			ArrayList<Token> * tokens = new ArrayList<Token>();
 			UInt32 pos = 0;
 			Token temp = Token("beginFile", TokenType::beginFile, 0);
@@ -179,7 +177,7 @@ namespace Stack {
 			while (data.length() > 0) {
 				Boolean tokenised = false;
 				for (TokenRule rule : grammar) {
-					String result = matchCloseStart(rule.pattern, data);
+					String result = RegexTools::matchCloseStart(rule.pattern, data);
 					if (result.length() > 0) {
 						tokenised = true;
 						data = data.subString(result.length());
