@@ -67,6 +67,7 @@ using RegexError = std::regex_error;
 #define stringValue c_str
 #define push push_back
 #define pop pop_back
+#define shrinkToFit shrink_to_fit
 
 #define Character char
 #define Double double
