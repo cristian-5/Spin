@@ -61,7 +61,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	tokens -> erase(tokens -> begin());
 	tokens -> pop();
 
-	Parser * parser = new Parser();
+	Parser * parser = Parser::self();
 	Expression * ex = nullptr;
 
 	try {
@@ -76,7 +76,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete tokens;
-		delete parser;
 		return exitFailure;
 	} catch (UnexpectedEndException & u) {
 		FilePosition f = u.getPosition();
@@ -88,7 +87,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete tokens;
-		delete parser;
 		return exitFailure;
 	} catch (EmptyUnitException & e) {
 		cout << "Error in '" << e.getFileName() << "'!"
@@ -96,12 +94,10 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete tokens;
-		delete parser;
 		return exitFailure;
 	}
 
 	delete tokens;
-	delete parser;
 
 	if (ex == nullptr) {
 		cout << "Syntax Tree Failure!" << endl;

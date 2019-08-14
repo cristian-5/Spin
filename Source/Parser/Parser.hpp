@@ -35,7 +35,7 @@ namespace Stack {
 		
 		ArrayList<Token> * tokens = nullptr;
 
-		UInt32 index = 0;
+		SizeType index = 0;
 
 		inline Expression * expression() {
 			try {
@@ -283,9 +283,20 @@ namespace Stack {
 			}
 		}
 
+		Parser() = default;
+		~Parser() = default;
+
 		public:
 
-		Parser() { }
+		Parser(const Parser &) = delete;
+		Parser(Parser &&) = delete;
+		Parser & operator = (const Parser &) = delete;
+		Parser & operator = (Parser &&) = delete;
+
+		static Parser * self() {
+			static Parser instance;
+			return & instance;
+		}
 
 		Expression * parse(ArrayList<Token> * t,
 						   String * i = nullptr,
