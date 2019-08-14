@@ -114,7 +114,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	// Interpreter Test:
 
-	Interpreter * interpreter = new Interpreter();
+	Interpreter * interpreter = Interpreter::self();
 	Object * result = nullptr;
 
 	try {
@@ -124,12 +124,10 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete ex;
-		delete interpreter;
 		return exitFailure;
 	}
 
 	delete ex;
-	delete interpreter;
 
 	if (result == nullptr) {
 		cout << "Evaluation Failure!" << endl;

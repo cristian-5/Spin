@@ -78,9 +78,20 @@ namespace Stack {
 			catch (Exception & e) { throw; }
 		}
 
+		Interpreter() = default;
+		~Interpreter() = default;
+
 		public:
 
-		Interpreter() { }
+		Interpreter(const Interpreter &) = delete;
+		Interpreter(Interpreter &&) = delete;
+		Interpreter & operator = (const Interpreter &) = delete;
+		Interpreter & operator = (Interpreter &&) = delete;
+
+		static Interpreter * self() {
+			static Interpreter instance;
+			return & instance;
+		}
 
 		Object * evaluate(Expression * e) {
 			try {
