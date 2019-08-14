@@ -32,7 +32,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	String test = getInput();
 	cout << endl;
 
-	Lexer * lexer = new Lexer();
+	Lexer * lexer = Lexer::self();
 	ArrayList<Token> * tokens = nullptr;
 
 	try {
@@ -43,11 +43,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
 		cout << "Press enter to exit. ";
 		waitKeyPress();
-		delete lexer;
 		return exitFailure;
 	}
-
-	delete lexer;
 
 	cout << "Tokens: " << endl;
 	UInt32 i = 1;

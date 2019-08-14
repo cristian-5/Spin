@@ -68,100 +68,111 @@ namespace Stack {
 
 		ArrayList<TokenRule> grammar = {
 
-				TokenRule("([ \\t\\n]+)", TokenType::empty),
-				TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment),
+			TokenRule("([ \\t\\n]+)", TokenType::empty),
+			TokenRule("(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment),
 
-				TokenRule("([0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i)", TokenType::imaginaryLiteral),
-				TokenRule("([0-9]+\\.[0-9]+(?:[eE][0-9]+)?)", TokenType::realLiteral),
-				TokenRule("((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))", TokenType::intLiteral),
-				TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")", TokenType::stringLiteral),
-				TokenRule("('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral),
-				TokenRule("(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})" INVERTED, TokenType::colourLiteral),
-				TokenRule("(true|false)" INVERTED, TokenType::boolLiteral),
+			TokenRule("([0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i)", TokenType::imaginaryLiteral),
+			TokenRule("([0-9]+\\.[0-9]+(?:[eE][0-9]+)?)", TokenType::realLiteral),
+			TokenRule("((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))", TokenType::intLiteral),
+			TokenRule("(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")", TokenType::stringLiteral),
+			TokenRule("('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral),
+			TokenRule("(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})" INVERTED, TokenType::colourLiteral),
+			TokenRule("(true|false)" INVERTED, TokenType::boolLiteral),
 
-				TokenRule("(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::braketSymbol),
-				TokenRule("(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol),
-				TokenRule("(\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::ketSymbol),
-				
-				TokenRule("(<[01]+\\|[01]+>)", TokenType::braketLiteral),
-				TokenRule("(<[01]+\\|)", TokenType::braLiteral),
-				TokenRule("(\\|[01]+>)", TokenType::ketLiteral),
+			TokenRule("(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::braketSymbol),
+			TokenRule("(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol),
+			TokenRule("(\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::ketSymbol),
+			
+			TokenRule("(<[01]+\\|[01]+>)", TokenType::braketLiteral),
+			TokenRule("(<[01]+\\|)", TokenType::braLiteral),
+			TokenRule("(\\|[01]+>)", TokenType::ketLiteral),
 
-				TokenRule("(\\:)", TokenType::colon),
-				TokenRule("(\\;)", TokenType::semicolon),
-				TokenRule("(\\,)", TokenType::comma),
-				TokenRule("(\\.)", TokenType::dot),
-				TokenRule("(<)", TokenType::minor),
-				TokenRule("(>)", TokenType::major),
-				TokenRule("(=)", TokenType::equal),
-				TokenRule("(\\?)", TokenType::questionMark),
-				TokenRule("(\\!)", TokenType::exclamationMark),
+			TokenRule("(\\:)", TokenType::colon),
+			TokenRule("(\\;)", TokenType::semicolon),
+			TokenRule("(\\,)", TokenType::comma),
+			TokenRule("(\\.)", TokenType::dot),
+			TokenRule("(<)", TokenType::minor),
+			TokenRule("(>)", TokenType::major),
+			TokenRule("(=)", TokenType::equal),
+			TokenRule("(\\?)", TokenType::questionMark),
+			TokenRule("(\\!)", TokenType::exclamationMark),
 
-				TokenRule("(\\+)", TokenType::plus),
-				TokenRule("(-)", TokenType::minus),
-				TokenRule("(\\~)", TokenType::tilde),
-				TokenRule("(\\*)", TokenType::star),
-				TokenRule("(\\\\)", TokenType::backslash),
-				TokenRule("(\\/)", TokenType::slash),
-				TokenRule("(@)", TokenType::at),
-				TokenRule("(|)", TokenType::pipe),
-				TokenRule("(#)", TokenType::hashtag),
-				TokenRule("(&)", TokenType::ampersand),
-				TokenRule("(%)", TokenType::modulus),
-				TokenRule("($)", TokenType::dollar),
-				TokenRule("(^)", TokenType::hat),
+			TokenRule("(\\+)", TokenType::plus),
+			TokenRule("(-)", TokenType::minus),
+			TokenRule("(\\~)", TokenType::tilde),
+			TokenRule("(\\*)", TokenType::star),
+			TokenRule("(\\\\)", TokenType::backslash),
+			TokenRule("(\\/)", TokenType::slash),
+			TokenRule("(@)", TokenType::at),
+			TokenRule("(|)", TokenType::pipe),
+			TokenRule("(#)", TokenType::hashtag),
+			TokenRule("(&)", TokenType::ampersand),
+			TokenRule("(%)", TokenType::modulus),
+			TokenRule("($)", TokenType::dollar),
+			TokenRule("(^)", TokenType::hat),
 
-				TokenRule("(\\()", TokenType::openRoundBracket),
-				TokenRule("(\\))", TokenType::closeRoundBracket),
-				TokenRule("(\\[)", TokenType::openSquareBracket),
-				TokenRule("(\\])", TokenType::closeSquareBracket),
-				TokenRule("(\\{)", TokenType::openCurlyBracket),
-				TokenRule("(\\})", TokenType::closeCurlyBracket),
+			TokenRule("(\\()", TokenType::openRoundBracket),
+			TokenRule("(\\))", TokenType::closeRoundBracket),
+			TokenRule("(\\[)", TokenType::openSquareBracket),
+			TokenRule("(\\])", TokenType::closeSquareBracket),
+			TokenRule("(\\{)", TokenType::openCurlyBracket),
+			TokenRule("(\\})", TokenType::closeCurlyBracket),
 
-				TokenRule("(try)" INVERTED, TokenType::tryKeyword),
-				TokenRule("(catch)" INVERTED, TokenType::catchKeyword),
-				TokenRule("(throw)" INVERTED, TokenType::throwKeyword),
-				TokenRule("(throws)" INVERTED, TokenType::throwsKeyword),
-				TokenRule("(avoid)" INVERTED, TokenType::avoidKeyword),
+			TokenRule("(try)" INVERTED, TokenType::tryKeyword),
+			TokenRule("(catch)" INVERTED, TokenType::catchKeyword),
+			TokenRule("(throw)" INVERTED, TokenType::throwKeyword),
+			TokenRule("(throws)" INVERTED, TokenType::throwsKeyword),
+			TokenRule("(avoid)" INVERTED, TokenType::avoidKeyword),
 
-				TokenRule("(if)" INVERTED, TokenType::ifKeyword),
-				TokenRule("(else)" INVERTED, TokenType::elseKeyword),
-				TokenRule("(switch)" INVERTED, TokenType::ifKeyword),
-				TokenRule("(case)" INVERTED, TokenType::caseKeyword),
-				TokenRule("(default)" INVERTED, TokenType::defaultKeyword),
-				TokenRule("(while)" INVERTED, TokenType::whileKeyword),
-				TokenRule("(do)" INVERTED, TokenType::doKeyword),
-				TokenRule("(loop)" INVERTED, TokenType::loopKeyword),
-				TokenRule("(for)" INVERTED, TokenType::forKeyword),
-				TokenRule("(repeat)" INVERTED, TokenType::repeatKeyword),
-				TokenRule("(until)" INVERTED, TokenType::untilKeyword),
-				TokenRule("(break)" INVERTED, TokenType::breakKeyword),
-				TokenRule("(continue)" INVERTED, TokenType::continueKeyword),
+			TokenRule("(if)" INVERTED, TokenType::ifKeyword),
+			TokenRule("(else)" INVERTED, TokenType::elseKeyword),
+			TokenRule("(switch)" INVERTED, TokenType::ifKeyword),
+			TokenRule("(case)" INVERTED, TokenType::caseKeyword),
+			TokenRule("(default)" INVERTED, TokenType::defaultKeyword),
+			TokenRule("(while)" INVERTED, TokenType::whileKeyword),
+			TokenRule("(do)" INVERTED, TokenType::doKeyword),
+			TokenRule("(loop)" INVERTED, TokenType::loopKeyword),
+			TokenRule("(for)" INVERTED, TokenType::forKeyword),
+			TokenRule("(repeat)" INVERTED, TokenType::repeatKeyword),
+			TokenRule("(until)" INVERTED, TokenType::untilKeyword),
+			TokenRule("(break)" INVERTED, TokenType::breakKeyword),
+			TokenRule("(continue)" INVERTED, TokenType::continueKeyword),
 
-				TokenRule("(import)" INVERTED, TokenType::importKeyword),
-				TokenRule("(func)" INVERTED, TokenType::funcKeyword),
-				TokenRule("(proc)" INVERTED, TokenType::procKeyword),
-				TokenRule("(static)" INVERTED, TokenType::staticKeyword),
-				TokenRule("(class)" INVERTED, TokenType::classKeyword),
-				TokenRule("(enumerator)" INVERTED, TokenType::enumKeyword),
-				TokenRule("(structure)" INVERTED, TokenType::structKeyword),
-				TokenRule("(exception)" INVERTED, TokenType::exceptKeyword),
-				TokenRule("(private)" INVERTED, TokenType::privateKeyword),
-				TokenRule("(public)" INVERTED, TokenType::publicKeyword),
-				TokenRule("(ref)" INVERTED, TokenType::refKeyword),
-				TokenRule("(cpy)" INVERTED, TokenType::cpyKeyword),
-				TokenRule("(const)" INVERTED, TokenType::constKeyword),
-				TokenRule("(null)" INVERTED, TokenType::nullLiteral),
-				TokenRule("(nope?)" INVERTED, TokenType::nop),
-				TokenRule("(return)" INVERTED, TokenType::returnKeyword),
+			TokenRule("(import)" INVERTED, TokenType::importKeyword),
+			TokenRule("(func)" INVERTED, TokenType::funcKeyword),
+			TokenRule("(proc)" INVERTED, TokenType::procKeyword),
+			TokenRule("(static)" INVERTED, TokenType::staticKeyword),
+			TokenRule("(class)" INVERTED, TokenType::classKeyword),
+			TokenRule("(enumerator)" INVERTED, TokenType::enumKeyword),
+			TokenRule("(structure)" INVERTED, TokenType::structKeyword),
+			TokenRule("(exception)" INVERTED, TokenType::exceptKeyword),
+			TokenRule("(private)" INVERTED, TokenType::privateKeyword),
+			TokenRule("(public)" INVERTED, TokenType::publicKeyword),
+			TokenRule("(ref)" INVERTED, TokenType::refKeyword),
+			TokenRule("(cpy)" INVERTED, TokenType::cpyKeyword),
+			TokenRule("(const)" INVERTED, TokenType::constKeyword),
+			TokenRule("(null)" INVERTED, TokenType::nullLiteral),
+			TokenRule("(nope?)" INVERTED, TokenType::nop),
+			TokenRule("(return)" INVERTED, TokenType::returnKeyword),
 
-				TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, TokenType::symbol),
+			TokenRule("([A-Za-z_][A-Za-z0-9_]*)" INVERTED, TokenType::symbol),
 
-			};
+		};
+
+		Lexer() = default;
+		~Lexer() = default;
 
 		public:
 
-		Lexer() { }
+		Lexer(const Lexer &) = delete;
+		Lexer(Lexer &&) = delete;
+		Lexer & operator = (const Lexer &) = delete;
+		Lexer & operator = (Lexer &&) = delete;
+
+		static Lexer * self() {
+			static Lexer instance;
+			return & instance;
+		}
 
 		ArrayList<Token> * tokenise(String * input, String fileName = "Unknown File") {
 			// Handle Last Token:
@@ -194,6 +205,7 @@ namespace Stack {
 				}
 			}
 			tokens -> push(Token("endFile", TokenType::endFile, 0));
+			tokens -> shrinkToFit();
 			return tokens;
 		}
 
