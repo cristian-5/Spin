@@ -50,15 +50,16 @@ namespace Stack {
 			} catch (Exception & e) { throw; }
 			ArrayList<String> * ops = new ArrayList<String>();
 			ops -> push("=="); ops -> push("!=");
-			while (match(TokenType::infixOperator)
-				   && matchOperators(ops)) {
-				Token * op = new Token();
-				* op = previous();
-				Expression * rs = nullptr;
-				try {
-					rs = comparison();
-				} catch (Exception & e) { throw; }
-				ex = new Binary(ex, op, rs);
+			try {
+				while (match(TokenType::infixOperator)
+					&& matchOperators(ops)) {
+					Token * op = new Token();
+					* op = previous();
+					Expression * rs = comparison();
+					ex = new Binary(ex, op, rs);
+				}
+			} catch (Exception & e) {
+				delete ops; throw;
 			}
 			delete ops;
 			return ex;
@@ -73,14 +74,15 @@ namespace Stack {
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::plus);
 			ops -> push(TokenType::minus);
-			while (match(ops)) {
-				Token * op = new Token();
-				* op = previous();
-				Expression * rs = nullptr;
-				try {
-					rs = mediumPriorityOperator();
-				} catch (Exception & e) { throw; }
-				ex = new Binary(ex, op, rs);
+			try {
+				while (match(ops)) {
+					Token * op = new Token();
+					* op = previous();
+					Expression * rs = mediumPriorityOperator();
+					ex = new Binary(ex, op, rs);
+				}
+			} catch (Exception & e) {
+				delete ops; throw;
 			}
 			delete ops;
 			return ex;
@@ -96,14 +98,15 @@ namespace Stack {
 			ops -> push(TokenType::star);
 			ops -> push(TokenType::slash);
 			ops -> push(TokenType::modulus);
-			while (match(ops)) {
-				Token * op = new Token();
-				* op = previous();
-				Expression * rs = nullptr;
-				try {
-					rs = highPriorityOperator();
-				} catch (Exception & e) { throw; }
-				ex = new Binary(ex, op, rs);
+			try {
+				while (match(ops)) {
+					Token * op = new Token();
+					* op = previous();
+					Expression * rs = highPriorityOperator();
+					ex = new Binary(ex, op, rs);
+				}
+			} catch (Exception & e) {
+				delete ops; throw;
 			}
 			delete ops;
 			return ex;
@@ -116,12 +119,16 @@ namespace Stack {
 			ops -> push(TokenType::plus);
 			ops -> push(TokenType::exclamationMark);
 			ops -> push(TokenType::tilde);
-			if (match(ops)) {
-				Token * op = new Token();
-				* op = previous();
-				Expression * rs = highPriorityOperator();
-				delete ops;
-				return new Unary(op, rs);
+			try {
+				if (match(ops)) {
+					Token * op = new Token();
+					* op = previous();
+					Expression * rs = highPriorityOperator();
+					delete ops;
+					return new Unary(op, rs);
+				}
+			} catch (Exception & e) {
+				delete ops; throw;
 			}
 			delete ops;
 			try {
@@ -131,20 +138,20 @@ namespace Stack {
 
 		/*  Parses Nested Expressions and Literals. */
 		Expression * primary() {
-			Token * t = new Token();
-			* t = peek();
-			if (t -> isTypeLiteral()) {
-				advance();
-				return new Literal(t);
-			} else if (match(TokenType::openRoundBracket)) {
-				Expression * ex = expression();
-				try {
+			Token t = peek();
+			try {
+				if (t.isTypeLiteral()) {
+					advance();
+					Token * literal = new Token(t);
+					return new Literal(literal);
+				} else if (match(TokenType::openRoundBracket)) {
+					Expression * ex = expression();
 					consume(TokenType::closeRoundBracket);
-				} catch (Exception & e) { throw; }
-				return new Grouping(ex);
-			}
-			FilePosition fp = getPosition(inputFile, t -> position);
-			throw UnexpectedEndException(t -> lexeme, fp, fileName);
+					return new Grouping(ex);
+				}
+			} catch (Exception & e) { throw;}
+			Linker::FilePosition fp = Linker::getPosition(inputFile, t.position);
+			throw UnexpectedEndException(t.lexeme, fp, fileName);
 		}
 
 		Expression * comparison() {
@@ -169,44 +176,60 @@ namespace Stack {
 		}
 
 		Boolean matchOperator(String & op) {
-			if (checkOperator(op)) {
-				advance();
-				return true;
-			} return false;
-		}
-
-		Boolean matchOperators(ArrayList<String> * operators) {
-			for (String & op : * operators) {
+			try {
 				if (checkOperator(op)) {
 					advance();
 					return true;
-				}
-			} return false;
+				} return false;
+			} catch (Exception & e) { throw; }
+		}
+
+		Boolean matchOperators(ArrayList<String> * operators) {
+			try {
+				for (String & op : * operators) {
+					if (checkOperator(op)) {
+						advance();
+						return true;
+					}
+				} return false;
+			} catch (Exception & e) { throw; }
 		}
 
 		Boolean match(TokenType type) {
-			if (check(type)) {
-				advance();
-				return true;
-			} return false;
-		}
-
-		Boolean match(ArrayList<TokenType> * types) {
-			for (TokenType & type : * types) {
+			try {
 				if (check(type)) {
 					advance();
 					return true;
-				}
-			} return false;
+				} return false;
+			} catch (Exception & e) { throw; }
+		}
+
+		Boolean match(ArrayList<TokenType> * types) {
+			try {
+				for (TokenType & type : * types) {
+					if (check(type)) {
+						advance();
+						return true;
+					}
+				} return false;
+			} catch (Exception & e) { throw; }
 		}
 
 		Boolean checkOperator(String op) {
-			if (isOutOfRange()) return false;
+			if (isOutOfRange()) {
+				Linker::FilePosition fp = Linker::getPosition(inputFile,
+															  previous().position);
+				throw UnexpectedEndException(previous().lexeme, fp, fileName);
+			}
 			return peek().lexeme == op;
 		}
 
 		Boolean check(TokenType type) {
-			if (isOutOfRange()) return false;
+			if (isOutOfRange()) {
+				Linker::FilePosition fp = Linker::getPosition(inputFile,
+															  previous().position);
+				throw UnexpectedEndException(previous().lexeme, fp, fileName);
+			}
 			return peek().type == type;
 		}
 
@@ -227,14 +250,15 @@ namespace Stack {
 		Token previous() { return tokens -> at(index - 1); }
 
 		Token advance() {
-			if (!isAtEnd()) index++;
+			//if (!isAtEnd()) index++;
+			index += 1;
 			return previous();
 		}
 
 		Token consume(TokenType type) {
 			Token t = peek();
 			if (check(type)) return advance();
-			FilePosition fp = getPosition(inputFile, t.position);
+			Linker::FilePosition fp = Linker::getPosition(inputFile, t.position);
 			throw SyntaxErrorException(t.lexeme, ")", fp, fileName);
 		}
 
