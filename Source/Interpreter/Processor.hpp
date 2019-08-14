@@ -148,7 +148,7 @@ namespace Stack {
 							c = new Complex(-(* c));
 							return new Object(o -> type, c);
 						} break;
-						default: throw RunTimeUnaryOperandException(
+						default: throw RunTimeUnaryOperatorException(
 							t -> lexeme, o -> getObjectName()
 						); break;
 					}
@@ -169,7 +169,7 @@ namespace Stack {
 						case BasicType::RealType:
 						case BasicType::ImaginaryType:
 						case BasicType::ComplexType: return o;
-						default: throw RunTimeUnaryOperandException(
+						default: throw RunTimeUnaryOperatorException(
 							t -> lexeme, o -> getObjectName()
 						); break;
 					}
@@ -216,7 +216,7 @@ namespace Stack {
 							i = new UInt64(-(* i));
 							return new Object(o -> type, i);
 						} break;
-						default: throw RunTimeUnaryOperandException(
+						default: throw RunTimeUnaryOperatorException(
 							t -> lexeme, o -> getObjectName()
 						); break;
 					}
@@ -226,11 +226,11 @@ namespace Stack {
 						Boolean * b = (Boolean *) o -> value;
 						b = new Boolean(!(* b));
 						return new Object(o -> type, b);
-					} else throw RunTimeUnaryOperandException(
+					} else throw RunTimeUnaryOperatorException(
 						t -> lexeme, o -> getObjectName()
 					);
 				} break;
-				default: throw RunTimeUnaryOperandException(
+				default: throw RunTimeUnaryOperatorException(
 					t -> lexeme, o -> getObjectName()
 				); break;
 			}
