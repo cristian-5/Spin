@@ -20,7 +20,7 @@
 #define STACKPARSEREXCEPTIONS
 
 #include "../Aliases/Aliases.hpp"
-#include "../Linker/FileHandler.hpp"
+#include "../Linker/Linker.hpp"
 
 namespace Stack {
 
@@ -32,20 +32,42 @@ namespace Stack {
 		private:
 		String token = "";
 		String expected = "";
-		FilePosition pos = { 0, 0 };
+		Linker::FilePosition pos = { 0, 0 };
 		String fileName = "";
 		public:
 		String getToken() { return token; }
 		String getExpected() { return expected; }
-		FilePosition getPosition() { return pos; }
+		Linker::FilePosition getPosition() { return pos; }
 		String getFileName() { return fileName; }
 		SyntaxErrorException(
 			String t,
 			String e,
-			FilePosition position,
+			Linker::FilePosition position,
 			String name
 		):
 		Exception(), token(t), expected(e),
+		pos(position), fileName(name) { }
+	};
+
+	/*!
+	 *   @brief Unexpected Expression Exception.
+	 *   Raised when the syntax tree ends unexpectedly.
+	 */
+	class InvalidExpressionException: public Exception {
+		private:
+		String token = "";
+		Linker::FilePosition pos = { 0, 0 };
+		String fileName = "";
+		public:
+		String getToken() { return token; }
+		Linker::FilePosition getPosition() { return pos; }
+		String getFileName() { return fileName; }
+		InvalidExpressionException(
+			String t,
+			Linker::FilePosition position,
+			String name
+		):
+		Exception(), token(t),
 		pos(position), fileName(name) { }
 	};
 
@@ -56,15 +78,15 @@ namespace Stack {
 	class UnexpectedEndException: public Exception {
 		private:
 		String token = "";
-		FilePosition pos = { 0, 0 };
+		Linker::FilePosition pos = { 0, 0 };
 		String fileName = "";
 		public:
 		String getToken() { return token; }
-		FilePosition getPosition() { return pos; }
+		Linker::FilePosition getPosition() { return pos; }
 		String getFileName() { return fileName; }
 		UnexpectedEndException(
 			String t,
-			FilePosition position,
+			Linker::FilePosition position,
 			String name
 		):
 		Exception(), token(t),

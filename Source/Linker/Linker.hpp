@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  FileHandler.hpp                        |
+ *    |  Linker.hpp                             |
  *    |                                         |
- *    |               File Handler              |
+ *    |               Stack Linker              |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -16,39 +16,12 @@
  *
  */
 
-#ifndef FILEHANDLER
-#define FILEHANDLER
+#ifndef STACKLINKER
+#define STACKLINKER
 
 #include "../Aliases/Aliases.hpp"
 
 namespace Stack {
-
-	/*!
-	 *   @brief File Position Structure.
-	 *   Used to determine a specific
-	 *   line and column position of a
-	 *   character.
-	 */
-	struct FilePosition {
-		UInt32 col = 0;
-		UInt32 row = 0;
-	};
-
-	static FilePosition getPosition(String * input, UInt32 cursor) {
-		FilePosition result = { 0, 0 };
-		if (input == nullptr) return result;
-		if (cursor == 0 ||
-			input -> length() == 0 ||
-			cursor > input -> length()) return result;
-		for (UInt32 i = 0; i < cursor; i++) {
-			if (input -> at(i) == '\n') {
-				result.row++;
-				result.col = 0;
-			} else result.col++;
-		}
-		result.col++;
-		return result;
-	}
 
 	/*!
 	 *   @brief Bad File Exception.
@@ -76,10 +49,40 @@ namespace Stack {
 		const String getPath() const { return * p; }
 	};
 
-	/*! @brief File Handler Class. */
-	class FileHandler {
+	class Linker {
+
+		private:
+
+		Linker() = default;
 
 		public:
+
+		/*!
+		*   @brief File Position Structure.
+		*   Used to determine a specific
+		*   line and column position of a
+		*   character.
+		*/
+		struct FilePosition {
+			UInt32 col = 0;
+			UInt32 row = 0;
+		};
+
+		static FilePosition getPosition(String * input, UInt32 cursor) {
+			FilePosition result = { 0, 0 };
+			if (input == nullptr) return result;
+			if (cursor == 0 ||
+				input -> length() == 0 ||
+				cursor > input -> length()) return result;
+			for (UInt32 i = 0; i < cursor; i++) {
+				if (input -> at(i) == '\n') {
+					result.row++;
+					result.col = 0;
+				} else result.col++;
+			}
+			result.col++;
+			return result;
+		}
 
 		static ArrayList<String> linesFromFile(String & path) {
 			ArrayList<String> set = ArrayList<String>();

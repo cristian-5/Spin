@@ -20,7 +20,7 @@
 #define STACKLEXER
 
 #include "../Aliases/Aliases.hpp"
-#include "../Linker/FileHandler.hpp"
+#include "../Linker/Linker.hpp"
 #include "../Token/Token.hpp"
 
 #include "Regex.hpp"
@@ -35,12 +35,12 @@ namespace Stack {
 	 */
 	class InvalidTokenException: public Exception {
 		private:
-		FilePosition pos = { 0, 0 };
+		Linker::FilePosition pos = { 0, 0 };
 		String fileName = "";
 		public:
-		FilePosition getPosition() { return pos; }
+		Linker::FilePosition getPosition() { return pos; }
 		String getFileName() { return fileName; }
-		InvalidTokenException(FilePosition position, String name):
+		InvalidTokenException(Linker::FilePosition position, String name):
 		Exception(), pos(position), fileName(name) { }
 	};
 
@@ -200,7 +200,7 @@ namespace Stack {
 					}
 				}
 				if (!tokenised) {
-					FilePosition fp = getPosition(input, pos);
+					Linker::FilePosition fp = Linker::getPosition(input, pos);
 					throw InvalidTokenException(fp, fileName);
 				}
 			}
