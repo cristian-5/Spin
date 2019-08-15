@@ -29,18 +29,14 @@
 
 namespace Stack {
 
-	/*!
-	 *   @brief Invalid Token Exception.
-	 *   Raised when the token is not matched.
-	 */
-	class InvalidTokenException: public Exception {
+	class LexerErrorException: public Exception {
 		private:
 		Linker::FilePosition pos = { 0, 0 };
 		String fileName = "";
 		public:
 		Linker::FilePosition getPosition() { return pos; }
 		String getFileName() { return fileName; }
-		InvalidTokenException(Linker::FilePosition position, String name):
+		LexerErrorException(Linker::FilePosition position, String name):
 		Exception(), pos(position), fileName(name) { }
 	};
 
@@ -201,7 +197,7 @@ namespace Stack {
 				}
 				if (!tokenised) {
 					Linker::FilePosition fp = Linker::getPosition(input, pos);
-					throw InvalidTokenException(fp, fileName);
+					throw LexerErrorException(fp, fileName);
 				}
 			}
 			tokens -> push(Token("endFile", TokenType::endFile, 0));
