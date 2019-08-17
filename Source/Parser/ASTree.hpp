@@ -68,8 +68,9 @@ namespace Stack {
 		public:
 		Token * name = nullptr;
 		Expression * value = nullptr;
-		Assignment(Token * n, Expression * v) {
-			name = n; value = v;
+		Assignment(Token * name, Expression * value) {
+			this -> name = name;
+			this -> value = value;
 		}
 		void accept(Visitor * visitor) override {
 			try {
