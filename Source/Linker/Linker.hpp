@@ -30,10 +30,11 @@ namespace Stack {
 	 */
 	class BadFileException: public Exception {
 		private:
-		const String * p;
+		const String path;
 		public:
-		BadFileException(String & path): Exception() { p = & path; }
-		const String getPath() const { return * p; }
+		const String & getPath() const { return path; }
+		BadFileException(const String & p):
+		Exception(), path(p) { }
 	};
 
 	/*!
@@ -43,10 +44,22 @@ namespace Stack {
 	 */
 	class BadAccessException: public Exception {
 		private:
-		const String * p;
+		const String path;
 		public:
-		BadAccessException(String & path): Exception() { p = & path; }
-		const String getPath() const { return * p; }
+		const String & getPath() const { return path; }
+		BadAccessException(const String & p):
+		Exception(), path(p) { }
+	};
+
+	/*!
+	*   @brief File Position Structure.
+	*   Used to determine a specific
+	*   line and column position of a
+	*   character.
+	*/
+	struct FilePosition {
+		UInt32 col = 0;
+		UInt32 row = 0;
 	};
 
 	class Linker {
@@ -57,30 +70,19 @@ namespace Stack {
 
 		public:
 
-		/*!
-		*   @brief File Position Structure.
-		*   Used to determine a specific
-		*   line and column position of a
-		*   character.
-		*/
-		struct FilePosition {
-			UInt32 col = 0;
-			UInt32 row = 0;
-		};
-
 		static FilePosition getPosition(String * input, UInt32 cursor) {
-			FilePosition result = { 0, 0 };
-			if (input == nullptr) return result;
-			if (cursor == 0 ||
-				input -> length() == 0 ||
-				cursor > input -> length()) return result;
+			FilePosition result = { 1, 1 };
+			if (input == nullptr) return { 0, 0 };
+			if (cursor == 0 && input -> length() > 0) return result;
+			if (cursor >= input -> length()) {
+				return getPosition(input, input -> length() - 1);
+			}
 			for (UInt32 i = 0; i < cursor; i++) {
 				if (input -> at(i) == '\n') {
 					result.row++;
-					result.col = 0;
+					result.col = 1;
 				} else result.col++;
 			}
-			result.col++;
 			return result;
 		}
 
