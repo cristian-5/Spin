@@ -183,7 +183,7 @@ namespace Stack {
 
 		public:
 
-		TokenType type = empty;
+		TokenType type = TokenType::empty;
 		String pattern = "";
 
 		TokenRule() { }
