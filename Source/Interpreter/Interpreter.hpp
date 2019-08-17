@@ -31,6 +31,9 @@ namespace Stack {
 
 		private:
 
+		String fileName = "";
+		String * input = nullptr;
+
 		Object * value = nullptr;
 
 		void setValue(Object * o) {
@@ -93,12 +96,15 @@ namespace Stack {
 			return & instance;
 		}
 
-		Object * evaluate(Expression * e) {
+		Object * evaluate(Expression * expression,
+						  String * input = nullptr,
+						  String fileName = "Unknown File") {
+			this -> input = input;
+			this -> fileName = fileName;
 			try {
-				e -> accept(this);
+				expression -> accept(this);
 				return value;
-			}
-			catch (Exception & e) { throw; }
+			} catch (Exception & e) { throw; }
 		}
 
 	};
