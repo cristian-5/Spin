@@ -28,25 +28,25 @@ namespace Stack {
 
 	class SyntaxError: public Exception {
 		private:
-		String message = "";
-		Linker::FilePosition pos = { 0, 0 };
+		const String _message;
+		const FilePosition _position;
 		public:
-		Linker::FilePosition getPosition() { return pos; }
-		String getMessage() { return message; }
-		SyntaxError(String m, Linker::FilePosition position):
-		Exception(), pos(position) { }
+		const FilePosition & getPosition() const { return _position; }
+		const String& getMessage() const { return _message; }
+		SyntaxError(String message, FilePosition position):
+		Exception(), _message(message), _position(position) { }
 	};
 
 	class ParseErrorException: public Exception {
 		private:
-		ArrayList<SyntaxError> * errors = nullptr;
-		String fileName = "";
+		const ArrayList<SyntaxError> * const _errors;
+		const String _fileName;
 		public:
-		ArrayList<SyntaxError> * getErrors() { return errors; }
-		String getFileName() { return fileName; }
-		ParseErrorException(ArrayList<SyntaxError> * e, String f):
-		Exception(), errors(e), fileName(f) { }
-		~ParseErrorException() { delete errors; }
+		const ArrayList<SyntaxError> * const getErrors() const { return _errors; }
+		const String & getFileName() const { return _fileName; }
+		ParseErrorException(ArrayList<SyntaxError> * errors, String name):
+		Exception(), _errors(errors), _fileName(name) { }
+		~ParseErrorException() { delete _errors; }
 	};
 
 	class Parser {
@@ -55,7 +55,7 @@ namespace Stack {
 
 		String fileName = "";
 
-		String * inputFile = nullptr;
+		String * input = nullptr;
 
 		ArrayList<Token> * tokens = nullptr;
 
@@ -63,18 +63,52 @@ namespace Stack {
 
 		SizeType index = 0;
 
-		inline Expression * expression() {
-			return equality();
+		Expression * expression() {
+			try { return equality(); }
+			catch (SyntaxError & s) { throw; }
 		}
 
 		Expression * equality() {
-			Expression * ex = comparison();
+			Expression * ex = nullptr;
+			try { ex = comparison(); }
+			catch (SyntaxError & s) { throw; }
 			ArrayList<String> * ops = new ArrayList<String>();
 			ops -> push("=="); ops -> push("!=");
 			while (match(TokenType::infixOperator) &&
 				   matchOperators(ops)) {
 				Token * op = new Token(previous());
-				Expression * rs = comparison();
+				Expression * rs = nullptr;
+				try { rs = comparison(); }
+				catch (SyntaxError & s) {
+					delete ops;
+					delete ex;
+					delete op;
+					throw;
+				}
+				ex = new Binary(ex, op, rs);
+			}
+			delete ops;
+			return ex;
+		}
+
+		Expression * comparison() {
+			Expression * ex = nullptr;
+			try { ex = lowPriorityOperator(); }
+			catch (SyntaxError & s) { throw; }
+			ArrayList<String> * ops = new ArrayList<String>();
+			ops -> push(">"); ops -> push("<");
+			ops -> push(">="); ops -> push(">=");
+			while (match(TokenType::infixOperator) &&
+				   matchOperators(ops)) {
+				Token * op = new Token(previous());
+				Expression * rs = nullptr;
+				try { rs = lowPriorityOperator(); }
+				catch (SyntaxError & s) {
+					delete ops;
+					delete ex;
+					delete op;
+					throw;
+				}
 				ex = new Binary(ex, op, rs);
 			}
 			delete ops;
@@ -83,13 +117,22 @@ namespace Stack {
 
 		/*  Parses Low Priority infix Operators [N + M]. */
 		Expression * lowPriorityOperator() {
-			Expression * ex = mediumPriorityOperator();
+			Expression * ex = nullptr;
+			try { ex = mediumPriorityOperator(); }
+			catch (SyntaxError & e) { throw; }
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::plus);
 			ops -> push(TokenType::minus);
 			while (match(ops)) {
 				Token * op = new Token(previous());
-				Expression * rs = mediumPriorityOperator();
+				Expression * rs = nullptr;
+				try { rs = mediumPriorityOperator(); }
+				catch (SyntaxError & e) {
+					delete ops;
+					delete ex;
+					delete op;
+					throw;
+				}
 				ex = new Binary(ex, op, rs);
 			}
 			delete ops;
@@ -98,14 +141,23 @@ namespace Stack {
 
 		/*  Parses Medium Priority infix Operators [N * M]. */
 		Expression * mediumPriorityOperator() {
-			Expression * ex = highPriorityOperator();
+			Expression * ex = nullptr;
+			try { ex = highPriorityOperator(); }
+			catch (SyntaxError & e) { throw; }
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::star);
 			ops -> push(TokenType::slash);
 			ops -> push(TokenType::modulus);
 			while (match(ops)) {
 				Token * op = new Token(previous());
-				Expression * rs = highPriorityOperator();
+				Expression * rs = nullptr;
+				try { rs = highPriorityOperator(); }
+				catch (SyntaxError & e) {
+					delete ops;
+					delete ex;
+					delete op;
+					throw;
+				}
 				ex = new Binary(ex, op, rs);
 			}
 			delete ops;
@@ -121,12 +173,18 @@ namespace Stack {
 			ops -> push(TokenType::tilde);
 			if (match(ops)) {
 				Token * op = new Token(previous());
-				Expression * rs = highPriorityOperator();
-				delete ops;
+				Expression * rs = nullptr;
+				try { rs = highPriorityOperator(); }
+				catch (SyntaxError & e) {
+					delete ops;
+					delete op;
+					throw;
+				}
 				return new Unary(op, rs);
 			}
 			delete ops;
-			return primary();
+			try { return primary(); }
+			catch (SyntaxError & s) { throw; }
 		}
 
 		/*  Parses Nested Expressions and Literals. */
@@ -137,32 +195,23 @@ namespace Stack {
 				Token * literal = new Token(t);
 				return new Literal(literal);
 			} else if (match(TokenType::openRoundBracket)) {
-				Expression * ex = expression();
+				Expression * ex = nullptr;
 				try {
+					ex = expression();
 					consume(TokenType::closeRoundBracket, ")");
-				} catch (SyntaxError & s) {
-					errors -> push(s);
+				} catch (SyntaxError & e) {
 					if (ex != nullptr) delete ex;
-					synchronise();
+					throw;
 				}
 				return new Grouping(ex);
 			}
-			return nullptr;
-		}
-
-		Expression * comparison() {
-			Expression * ex = lowPriorityOperator();
-			ArrayList<String> * ops = new ArrayList<String>();
-			ops -> push(">"); ops -> push("<");
-			ops -> push(">="); ops -> push(">=");
-			while (match(TokenType::infixOperator) &&
-				   matchOperators(ops)) {
-				Token * op = new Token(previous());
-				Expression * rs = lowPriorityOperator();
-				ex = new Binary(ex, op, rs);
-			}
-			delete ops;
-			return ex;
+			FilePosition fp = { 0, 0 };
+			if (t.type == TokenType::endFile) {
+				fp = Linker::getPosition(input, previous().position);
+			} else fp = Linker::getPosition(input, t.position);
+			throw SyntaxError(
+				"Expected expression after '" + previous().lexeme + "'!", fp
+			);
 		}
 
 		Boolean matchOperator(String & op) {
@@ -229,7 +278,10 @@ namespace Stack {
 		Token consume(TokenType type, String lexeme = "") {
 			Token t = peek();
 			if (check(type)) return advance();
-			Linker::FilePosition fp = Linker::getPosition(inputFile, t.position);
+			FilePosition fp = { 0, 0 };
+			if (t.type == TokenType::endFile) {
+				fp = Linker::getPosition(input, previous().position);
+			} else fp = Linker::getPosition(input, t.position);
 			throw SyntaxError(
 				(lexeme.length() > 0 ? "Expected '" + lexeme +
 				"' but found '" + t.lexeme + "'!" :
@@ -297,11 +349,14 @@ namespace Stack {
 			return & instance;
 		}
 
-		Expression * parse(ArrayList<Token> * t,
-						   String * i = nullptr,
-						   String f = "Unknown File") {
-			if (t == nullptr) return nullptr;
-			if (t -> size() < 2) return nullptr;
+		Expression * parse(ArrayList<Token> * tokens,
+						   String * input = nullptr,
+						   String fileName = "Unknown File") {
+			if (tokens == nullptr) return nullptr;
+			if (tokens -> size() < 2) return nullptr;
+			this -> tokens = tokens;
+			this -> input = input;
+			this -> fileName = fileName;
 			try {
 				consume(TokenType::beginFile, "beginFile");
 			} catch (SyntaxError & s) {
@@ -309,8 +364,14 @@ namespace Stack {
 				errors -> shrinkToFit();
 				throw ParseErrorException(errors, fileName);
 			}
-			tokens = t; inputFile = i; fileName = f;
-			Expression * ex = expression();
+			Expression * ex = nullptr;
+			try {
+				ex = expression();
+			} catch (SyntaxError & s) {
+				errors -> push(s);
+				errors -> shrinkToFit();
+				throw ParseErrorException(errors, fileName);
+			}
 			if (errors -> size() > 0) {
 				errors -> shrinkToFit();
 				throw ParseErrorException(errors, fileName);
