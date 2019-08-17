@@ -64,12 +64,12 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		ex = parser -> parse(tokens, & test, "Virtual File");
 	} catch (ParseErrorException & p) {
-		ArrayList<SyntaxError> * e = p.getErrors();
+		const ArrayList<SyntaxError> * const e = p.getErrors();
 		cout << "Found " << e -> size() << " errors in '"
 			 << p.getFileName() << "'!" << endl;
 		UInt32 i = 1;
 		for (SyntaxError s : * e) {
-			Linker::FilePosition f = s.getPosition();
+			FilePosition f = s.getPosition();
 			cout << padding << i << " [row: " << f.row
 				 << ", col: " << f.col << "]: "
 				 << s.getMessage() << endl;
