@@ -73,13 +73,19 @@ using RegexError = std::regex_error;
 #define pop pop_back
 #define shrinkToFit shrink_to_fit
 
+#define toUppercase toupper
+
 #define Character char
 #define Double double
 #define Float float
 #define Real long double
 #define Boolean bool
 
+#define hexConversion std::hex
+
 #define padding std::setw(4) << std::setfill('0')
+#define hexBytePadding std::setw(2) << std::setfill('0')
+#define uppercase std::uppercase
 
 inline void waitKeyPress() { std::cin.get(); }
 
