@@ -145,7 +145,7 @@ namespace Stack {
 			lexeme = l; type = t; position = p;
 		}
 
-		Boolean isTypeLiteral() {
+		Boolean isTypeLiteral() const {
 			return type == TokenType::boolLiteral       ||
 				   type == TokenType::intLiteral        ||
 				   type == TokenType::stringLiteral     ||
