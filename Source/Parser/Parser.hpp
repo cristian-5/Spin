@@ -37,16 +37,16 @@ namespace Stack {
 		Exception(), _message(message), _position(position) { }
 	};
 
-	class ParseErrorException: public Exception {
+	class ParserErrorException: public Exception {
 		private:
 		const ArrayList<SyntaxError> * const _errors;
 		const String _fileName;
 		public:
 		const ArrayList<SyntaxError> * const getErrors() const { return _errors; }
 		const String & getFileName() const { return _fileName; }
-		ParseErrorException(ArrayList<SyntaxError> * errors, String name):
+		ParserErrorException(ArrayList<SyntaxError> * errors, String name):
 		Exception(), _errors(errors), _fileName(name) { }
-		~ParseErrorException() { delete _errors; }
+		~ParserErrorException() { delete _errors; }
 	};
 
 	class Parser {
@@ -361,7 +361,7 @@ namespace Stack {
 			} catch (SyntaxError & s) {
 				errors -> push(s);
 				errors -> shrinkToFit();
-				throw ParseErrorException(errors, fileName);
+				throw ParserErrorException(errors, fileName);
 			}
 			Expression * ex = nullptr;
 			try {
@@ -369,11 +369,11 @@ namespace Stack {
 			} catch (SyntaxError & s) {
 				errors -> push(s);
 				errors -> shrinkToFit();
-				throw ParseErrorException(errors, fileName);
+				throw ParserErrorException(errors, fileName);
 			}
 			if (errors -> size() > 0) {
 				errors -> shrinkToFit();
-				throw ParseErrorException(errors, fileName);
+				throw ParserErrorException(errors, fileName);
 			}
 			delete errors;
 			return ex;
