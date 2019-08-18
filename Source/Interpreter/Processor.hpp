@@ -29,34 +29,227 @@ namespace Stack {
 	class Processor {
 
 		private:
-		
-		Processor() { }
 
-		static Object * applySubtraction(Token * t, Object * l, Object * r) {
+		typedef Function<Object * (Object *)> UnaryHandler;
+		typedef Function<Object * (Object *, Object *)> BinaryHandler;
+
+		struct BasicTypes {
+			BasicType rs = BasicType::UnknownType;
+			BasicType ls = BasicType::UnknownType;
+		};
+ 
+		Map<BasicType, UnaryHandler> unaryNegation = {
+			{
+				BasicType::Int8Type,
+				[] (Object * o) {
+					Int8 * i = (Int8 *) o -> value;
+					i = new Int8(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::Int16Type,
+				[] (Object * o) {
+					Int16 * i = (Int16 *) o -> value;
+					i = new Int16(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::Int32Type,
+				[] (Object * o) {
+					Int32 * i = (Int32 *) o -> value;
+					i = new Int32(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::Int64Type,
+				[] (Object * o) {
+					Int64 * i = (Int64 *) o -> value;
+					i = new Int64(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::UInt8Type,
+				[] (Object * o) {
+					UInt8 * j = (UInt8 *) o -> value;
+					Int16 * i = new Int16(-(* j));
+					return new Object(BasicType::Int16Type, i);
+				}
+			},
+			{
+				BasicType::UInt16Type,
+				[] (Object * o) {
+					UInt16 * j = (UInt16 *) o -> value;
+					Int32 * i = new Int32(-(* j));
+					return new Object(BasicType::Int32Type, i);
+				}
+			},
+			{
+				BasicType::UInt32Type,
+				[] (Object * o) {
+					UInt32 * j = (UInt32 *) o -> value;
+					Int64 * i = new Int64(-(* j));
+					return new Object(BasicType::Int64Type, i);
+				}
+			},
+			{
+				BasicType::UInt64Type,
+				[] (Object * o) {
+					UInt64 * j = (UInt64 *) o -> value;
+					Int64 * i = new Int64(-(* j));
+					return new Object(BasicType::Int64Type, i);
+				}
+			},
+			{
+				BasicType::FloatType,
+				[] (Object * o) {
+					Float * i = (Float *) o -> value;
+					i = new Float(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::DoubleType,
+				[] (Object * o) {
+					Double * i = (Double *) o -> value;
+					i = new Double(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::RealType,
+				[] (Object * o) {
+					Real * i = (Real *) o -> value;
+					i = new Real(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::ImaginaryType,
+				[] (Object * o) {
+					Real * i = (Real *) o -> value;
+					i = new Real(-(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::ComplexType,
+				[] (Object * o) {
+					Complex * c = (Complex *) o -> value;
+					c = new Complex(-(* c));
+					return new Object(o -> type, c);
+				}
+			}
+		};
+
+		Map<BasicType, UnaryHandler> unaryInversion = {
+			{
+				BasicType::Int8Type,
+				[] (Object * o) {
+					Int8 * i = (Int8 *) o -> value;
+					i = new Int8(~(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::Int16Type,
+				[] (Object * o) {
+					Int16 * i = (Int16 *) o -> value;
+					i = new Int16(~(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::Int32Type,
+				[] (Object * o) {
+					Int32 * i = (Int32 *) o -> value;
+					i = new Int32(~(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::Int64Type,
+				[] (Object * o) {
+					Int64 * i = (Int64 *) o -> value;
+					i = new Int64(~(* i));
+					return new Object(o -> type, i);
+				}
+			},
+			{
+				BasicType::UInt8Type,
+				[] (Object * o) {
+					UInt8 * j = (UInt8 *) o -> value;
+					Int16 * i = new Int16(~(* j));
+					return new Object(BasicType::Int16Type, i);
+				}
+			},
+			{
+				BasicType::UInt16Type,
+				[] (Object * o) {
+					UInt16 * j = (UInt16 *) o -> value;
+					Int32 * i = new Int32(~(* j));
+					return new Object(BasicType::Int32Type, i);
+				}
+			},
+			{
+				BasicType::UInt32Type,
+				[] (Object * o) {
+					UInt32 * j = (UInt32 *) o -> value;
+					Int64 * i = new Int64(~(* j));
+					return new Object(BasicType::Int64Type, i);
+				}
+			},
+			{
+				BasicType::UInt64Type,
+				[] (Object * o) {
+					UInt64 * j = (UInt64 *) o -> value;
+					Int64 * i = new Int64(~(* j));
+					return new Object(BasicType::Int64Type, i);
+				}
+			}
+		};
+
+		Object * applySubtraction(Token * t, Object * l, Object * r) {
 			return nullptr;
 		}
 
-		static Object * applyAddition(Token * t, Object * l, Object * r) {
+		Object * applyAddition(Token * t, Object * l, Object * r) {
 			Object * o = nullptr;
 			
 			return o;
 		}
 
-		static Object * applyMultiplication(Token * t, Object * l, Object * r) {
+		Object * applyMultiplication(Token * t, Object * l, Object * r) {
 			return nullptr;
 		}
 
-		static Object * applyDivision(Token * t, Object * l, Object * r) {
+		Object * applyDivision(Token * t, Object * l, Object * r) {
 			return nullptr;
 		}
 
-		static Object * applyModulus(Token * t, Object * l, Object * r) {
+		Object * applyModulus(Token * t, Object * l, Object * r) {
 			return nullptr;
 		}
+
+		Processor() = default;
+		~Processor() = default;
 
 		public:
 
-		static Object * applyBinaryOperator(Token * t, Object * l, Object * r) {
+		Processor(const Processor &) = delete;
+		Processor(Processor &&) = delete;
+		Processor & operator = (const Processor &) = delete;
+		Processor & operator = (Processor &&) = delete;
+
+		static Processor * self() {
+			static Processor instance;
+			return & instance;
+		}
+
+		Object * applyBinaryOperator(Token * t, Object * l, Object * r) {
 			switch (t -> type) {
 				case TokenType::minus: {
 					try { return applySubtraction(t, l, r); }
@@ -83,74 +276,17 @@ namespace Stack {
 			return nullptr;
 		}
 
-		static Object * applyUnaryOperator(Token * t, Object * o) {
+		Object * applyUnaryOperator(Token * t, Object * o) {
 			switch (t -> type) {
 				case TokenType::minus: {
-					switch (o -> type) {
-						case BasicType::Int8Type: {
-							Int8 * i = (Int8 *) o -> value;
-							i = new Int8(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::Int16Type: {
-							Int16 * i = (Int16 *) o -> value;
-							i = new Int16(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::Int32Type: {
-							Int32 * i = (Int32 *) o -> value;
-							i = new Int32(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::Int64Type: {
-							Int64 * i = (Int64 *) o -> value;
-							i = new Int64(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::UInt8Type: {
-							UInt8 * j = (UInt8 *) o -> value;
-							Int16 * i = new Int16(-(* j));
-							return new Object(BasicType::Int16Type, i);
-						} break;
-						case BasicType::UInt16Type: {
-							UInt16 * j = (UInt16 *) o -> value;
-							Int32 * i = new Int32(-(* j));
-							return new Object(BasicType::Int32Type, i);
-						} break;
-						case BasicType::UInt32Type: {
-							UInt32 * j = (UInt32 *) o -> value;
-							Int64 * i = new Int64(-(* j));
-							return new Object(BasicType::Int64Type, i);
-						} break;
-						case BasicType::UInt64Type: {
-							UInt64 * j = (UInt64 *) o -> value;
-							Int64 * i = new Int64(-(* j));
-							return new Object(BasicType::Int64Type, i);
-						} break;
-						case BasicType::FloatType: {
-							Float * i = (Float *) o -> value;
-							i = new Float(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::DoubleType: {
-							Double * i = (Double *) o -> value;
-							i = new Double(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::RealType:
-						case BasicType::ImaginaryType: {
-							Real * i = (Real *) o -> value;
-							i = new Real(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::ComplexType: {
-							Complex * c = (Complex *) o -> value;
-							c = new Complex(-(* c));
-							return new Object(o -> type, c);
-						} break;
-						default: throw RunTimeUnaryOperatorException(
+					auto search = unaryNegation.find(o -> type);
+					if (search != unaryNegation.end()) {
+						auto handler = search -> second;
+						return handler(o);
+					} else {
+						throw RunTimeUnaryOperatorException(
 							t -> lexeme, o -> getObjectName()
-						); break;
+						);
 					}
 				} break;
 				case TokenType::plus: {
@@ -168,54 +304,7 @@ namespace Stack {
 						case BasicType::DoubleType:
 						case BasicType::RealType:
 						case BasicType::ImaginaryType:
-						case BasicType::ComplexType: return o;
-						default: throw RunTimeUnaryOperatorException(
-							t -> lexeme, o -> getObjectName()
-						); break;
-					}
-				} break;
-				case TokenType::tilde: {
-					switch (o -> type) {
-						case BasicType::Int8Type: {
-							Int8 * i = (Int8 *) o -> value;
-							i = new Int8(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::Int16Type: {
-							Int16 * i = (Int16 *) o -> value;
-							i = new Int16(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::Int32Type: {
-							Int32 * i = (Int32 *) o -> value;
-							i = new Int32(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::Int64Type: {
-							Int64 * i = (Int64 *) o -> value;
-							i = new Int64(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::UInt8Type: {
-							UInt8 * i = (UInt8 *) o -> value;
-							i = new UInt8(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::UInt16Type: {
-							UInt16 * i = (UInt16 *) o -> value;
-							i = new UInt16(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::UInt32Type: {
-							UInt32 * i = (UInt32 *) o -> value;
-							i = new UInt32(-(* i));
-							return new Object(o -> type, i);
-						} break;
-						case BasicType::UInt64Type: {
-							UInt64 * i = (UInt64 *) o -> value;
-							i = new UInt64(-(* i));
-							return new Object(o -> type, i);
-						} break;
+						case BasicType::ComplexType: return new Object(* o);
 						default: throw RunTimeUnaryOperatorException(
 							t -> lexeme, o -> getObjectName()
 						); break;
@@ -229,6 +318,17 @@ namespace Stack {
 					} else throw RunTimeUnaryOperatorException(
 						t -> lexeme, o -> getObjectName()
 					);
+				} break;
+				case TokenType::tilde: {
+					auto search = unaryInversion.find(o -> type);
+					if (search != unaryInversion.end()) {
+						auto handler = search -> second;
+						return handler(o);
+					} else {
+						throw RunTimeUnaryOperatorException(
+							t -> lexeme, o -> getObjectName()
+						);
+					}
 				} break;
 				default: throw RunTimeUnaryOperatorException(
 					t -> lexeme, o -> getObjectName()

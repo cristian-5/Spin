@@ -36,6 +36,8 @@ namespace Stack {
 
 		Object * value = nullptr;
 
+		Processor * CPU = Processor::self();
+
 		void setValue(Object * o) {
 			if (value == o) return;
 			if (value != nullptr) delete value;
@@ -71,7 +73,7 @@ namespace Stack {
 		void visitUnaryExpression(Unary * e) override {
 			try {
 				evaluateExpression(e -> r);
-				setValue(Processor::applyUnaryOperator(e -> o, value));
+				setValue(CPU -> applyUnaryOperator(e -> o, value));
 			} catch (Exception & e) { throw; }
 		}
 		void visitVariableExpression(Variable * e) override { }

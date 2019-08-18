@@ -37,11 +37,11 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	try {
 		tokens = lexer -> tokenise(& test, "Virtual File");
-	} catch (InvalidTokenException & e) {
+	} catch (LexerErrorException & e) {
 		cout << "Error in " << e.getFileName() << "!" << endl;
 		cout << "Position [row: " << e.getPosition().row << ", ";
 		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
-		cout << "Press enter to exit. ";
+		cout << endl << "Press enter to exit. ";
 		waitKeyPress();
 		return exitFailure;
 	}
@@ -57,40 +57,24 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	cout << endl;
 
-	tokens -> erase(tokens -> begin());
-	tokens -> pop();
-
 	Parser * parser = Parser::self();
 	Expression * ex = nullptr;
 
 	try {
 		ex = parser -> parse(tokens, & test, "Virtual File");
-	} catch (SyntaxErrorException & s) {
-		FilePosition f = s.getPosition();
-		cout << "Error in '" << s.getFileName();
-		cout << "' [row: " << f.row << ", col: "
-			 << f.col << "];" << endl;
-		cout << "Expected '" << s.getExpected() << "' but found '"
-			 << s.getToken() << "'!" << endl;
-		cout << "Press enter to exit. ";
-		waitKeyPress();
-		delete tokens;
-		return exitFailure;
-	} catch (UnexpectedEndException & u) {
-		FilePosition f = u.getPosition();
-		cout << "Error in '" << u.getFileName();
-		cout << "' [row: " << f.row << ", col: "
-			 << f.col << "];" << endl;
-		cout << "Sequence ended unexpectedly with token '"
-			 << u.getToken() << "'!" << endl;
-		cout << "Press enter to exit. ";
-		waitKeyPress();
-		delete tokens;
-		return exitFailure;
-	} catch (EmptyUnitException & e) {
-		cout << "Error in '" << e.getFileName() << "'!"
-			 << endl << "The code unit is empty!" << endl;
-		cout << "Press enter to exit. ";
+	} catch (ParseErrorException & p) {
+		const ArrayList<SyntaxError> * const e = p.getErrors();
+		cout << "Found " << e -> size() << " errors in '"
+			 << p.getFileName() << "'!" << endl;
+		UInt32 i = 1;
+		for (SyntaxError s : * e) {
+			FilePosition f = s.getPosition();
+			cout << padding << i << " [row: " << f.row
+				 << ", col: " << f.col << "]: "
+				 << s.getMessage() << endl;
+			i += 1;
+		}
+		cout << endl << "Press enter to exit. ";
 		waitKeyPress();
 		delete tokens;
 		return exitFailure;
@@ -118,7 +102,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	Object * result = nullptr;
 
 	try {
-		result = interpreter -> evaluate(ex);
+		result = interpreter -> evaluate(ex, & test, "Virtual File");
 	} catch (Exception & e) {
 		cout << "Error in file!" << endl;
 		cout << "Press enter to exit. ";
