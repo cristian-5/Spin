@@ -32,7 +32,7 @@ namespace Stack {
 		const FilePosition _position;
 		public:
 		const FilePosition & getPosition() const { return _position; }
-		const String& getMessage() const { return _message; }
+		const String & getMessage() const { return _message; }
 		SyntaxError(String message, FilePosition position):
 		Exception(), _message(message), _position(position) { }
 	};
