@@ -356,6 +356,7 @@ namespace Stack {
 						);	
 					}
 				} break;
+				default: break;
 			}
 			throw EvaluationError(
 				"Unary operator '" + t -> lexeme +
