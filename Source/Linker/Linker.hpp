@@ -72,7 +72,7 @@ namespace Stack {
 
 		static FilePosition getPosition(String * input, UInt32 cursor) {
 			FilePosition result = { 1, 1 };
-			if (input == nullptr) return { 0, 0 };
+			if (input == nullptr || input -> length() == 0) return { 0, 0 };
 			if (cursor == 0 && input -> length() > 0) return result;
 			if (cursor >= input -> length()) {
 				return getPosition(input, input -> length() - 1);
