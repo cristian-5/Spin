@@ -35,9 +35,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		tokens = lexer -> tokenise(& test, "Virtual File");
 	} catch (LexerErrorException & e) {
-		cout << "Error in " << e.getFileName() << "!" << endl;
-		cout << "Position [row: " << e.getPosition().row << ", ";
-		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
+		cout << "Error in '" << e.getFileName() << "'!" << endl;
+		cout << "[row: " << e.getPosition().row << ",  col: ";
+		cout << e.getPosition().col << "]: Invalid Token!" << endl;
 		cout << endl << "Press enter to exit. ";
 		waitKeyPress();
 		return exitFailure;

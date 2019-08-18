@@ -38,9 +38,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		tokens = lexer -> tokenise(& test, "Virtual File");
 	} catch (LexerErrorException & e) {
-		cout << "Error in " << e.getFileName() << "!" << endl;
-		cout << "Position [row: " << e.getPosition().row << ", ";
-		cout << "col: " << e.getPosition().col << "] Invalid Token!" << endl;
+		cout << "Error in '" << e.getFileName() << "'!" << endl;
+		cout << "[row: " << e.getPosition().row << ",  col: ";
+		cout << e.getPosition().col << "]: Invalid Token!" << endl;
 		cout << endl << "Press enter to exit. ";
 		waitKeyPress();
 		return exitFailure;
@@ -62,7 +62,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	try {
 		ex = parser -> parse(tokens, & test, "Virtual File");
-	} catch (ParseErrorException & p) {
+	} catch (ParserErrorException & p) {
 		const ArrayList<SyntaxError> * const e = p.getErrors();
 		cout << "Found " << e -> size() << " errors in '"
 			 << p.getFileName() << "'!" << endl;
@@ -103,8 +103,10 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	try {
 		result = interpreter -> evaluate(ex, & test, "Virtual File");
-	} catch (Exception & e) {
-		cout << "Error in file!" << endl;
+	} catch (InterpreterErrorException & e) {
+		cout << "Error in '" << e.getFileName() << "'!" << endl;
+		cout << "[row: " << e.getPosition().row << ",  col: ";
+		cout << e.getPosition().col << "]: " << e.getMessage() << endl;
 		cout << "Press enter to exit. ";
 		waitKeyPress();
 		delete ex;
