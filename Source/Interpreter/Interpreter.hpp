@@ -27,6 +27,19 @@
 
 namespace Stack {
 
+	class InterpreterErrorException: public Exception {
+		private:
+		const String _message;
+		const FilePosition _position;
+		const String _fileName;
+		public:
+		const String & getMessage() const { return _message; }
+		const FilePosition & getPosition() const { return _position; }
+		const String & getFileName() const { return _fileName; }
+		InterpreterErrorException(String message, FilePosition position, String name):
+		Exception(),  _message(message), _position(position), _fileName(name) { }
+	};
+
 	class Interpreter: public Expression::Visitor {
 
 		private:
@@ -48,14 +61,14 @@ namespace Stack {
 			try {
 				evaluateExpression(e -> l);
 				//value = Processor::applyUnaryOperator(e -> o, & value);
-			} catch (Exception & e) { throw; }
+			} catch (EvaluationError & e) { throw; }
 		}
 		void visitAssignmentExpression(Assignment * e) override { }
 		void visitCallExpression(Call * e) override { }
 		void visitGetExpression(Get * e) override { }
 		void visitGroupingExpression(Grouping * e) override {
 			try { evaluateExpression(e -> expression); }
-			catch (Exception & e) { throw; }
+			catch (EvaluationError & e) { throw; }
 		}
 		void visitLiteralExpression(Literal * e) override {
 			try {
@@ -64,7 +77,7 @@ namespace Stack {
 				}
 				setValue(e -> object);
 			}
-			catch (Exception & e) { throw; }
+			catch (EvaluationError & e) { throw; }
 		}
 		void visitLogicalExpression(Logical * e) override { }
 		void visitSetExpression(Set * e) override { }
@@ -74,13 +87,13 @@ namespace Stack {
 			try {
 				evaluateExpression(e -> r);
 				setValue(CPU -> applyUnaryOperator(e -> o, value));
-			} catch (Exception & e) { throw; }
+			} catch (EvaluationError & e) { throw; }
 		}
 		void visitVariableExpression(Variable * e) override { }
 
 		void evaluateExpression(Expression * e) {
 			try { e -> accept(this); }
-			catch (Exception & e) { throw; }
+			catch (EvaluationError & e) { throw; }
 		}
 
 		Interpreter() = default;
@@ -105,8 +118,14 @@ namespace Stack {
 			this -> fileName = fileName;
 			try {
 				expression -> accept(this);
-				return value;
-			} catch (Exception & e) { throw; }
+			} catch (EvaluationError & e) {
+				const UInt32 cursor = e.getToken().position;
+				FilePosition fp = Linker::getPosition(input, cursor);
+				throw InterpreterErrorException(
+					e.getMessage(), fp, fileName
+				);
+			}
+			return value;
 		}
 
 	};

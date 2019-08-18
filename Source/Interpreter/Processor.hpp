@@ -20,11 +20,21 @@
 #define STACKPROCESSOR
 
 #include "../Aliases/Aliases.hpp"
+#include "../Linker/Linker.hpp"
 #include "../Types/Object.hpp"
 
-#include "Exceptions.hpp"
-
 namespace Stack {
+
+	class EvaluationError: public Exception {
+		private:
+		const String _message;
+		const Token _token;
+		public:
+		const String & getMessage() const { return _message; }
+		const Token & getToken() const { return _token; }
+		EvaluationError(String message, Token token):
+		Exception(), _message(message), _token(token) { }
+	};
 
 	class Processor {
 
@@ -142,7 +152,15 @@ namespace Stack {
 					c = new Complex(-(* c));
 					return new Object(o -> type, c);
 				}
-			}
+			},
+			{
+				BasicType::CharacterType,
+				[] (Object * o) {
+					Character * c = (Character *) o -> value;
+					Int16 * i = new Int16(-(* c));
+					return new Object(BasicType::Int16Type, i);
+				}
+			},
 		};
 
 		Map<BasicType, UnaryHandler> unaryInversion = {
@@ -251,12 +269,12 @@ namespace Stack {
 
 		Object * applyBinaryOperator(Token * t, Object * l, Object * r) {
 			switch (t -> type) {
-				case TokenType::minus: {
-					try { return applySubtraction(t, l, r); }
-					catch (Exception & e) { throw; }
-				} break;
 				case TokenType::plus: {
 					try { return applyAddition(t, l, r); }
+					catch (Exception & e) { throw; }
+				} break;
+				case TokenType::minus: {
+					try { return applySubtraction(t, l, r); }
 					catch (Exception & e) { throw; }
 				} break;
 				case TokenType::star: {
@@ -284,8 +302,9 @@ namespace Stack {
 						auto handler = search -> second;
 						return handler(o);
 					} else {
-						throw RunTimeUnaryOperatorException(
-							t -> lexeme, o -> getObjectName()
+						throw EvaluationError(
+							"Unary operator '-' doesn't match any operand of type '" +
+							o -> getObjectName() + "'!", * t
 						);
 					}
 				} break;
@@ -305,9 +324,12 @@ namespace Stack {
 						case BasicType::RealType:
 						case BasicType::ImaginaryType:
 						case BasicType::ComplexType: return new Object(* o);
-						default: throw RunTimeUnaryOperatorException(
-							t -> lexeme, o -> getObjectName()
-						); break;
+						default: {
+							throw EvaluationError(
+								"Unary operator '+' doesn't match any operand of type '" +
+								o -> getObjectName() + "'!", * t
+							);
+						} break;
 					}
 				} break;
 				case TokenType::exclamationMark: {
@@ -315,9 +337,12 @@ namespace Stack {
 						Boolean * b = (Boolean *) o -> value;
 						b = new Boolean(!(* b));
 						return new Object(o -> type, b);
-					} else throw RunTimeUnaryOperatorException(
-						t -> lexeme, o -> getObjectName()
-					);
+					} else {
+						throw EvaluationError(
+							"Unary operator '!' doesn't match any operand of type '" +
+							o -> getObjectName() + "'!", * t
+						);
+					}
 				} break;
 				case TokenType::tilde: {
 					auto search = unaryInversion.find(o -> type);
@@ -325,16 +350,18 @@ namespace Stack {
 						auto handler = search -> second;
 						return handler(o);
 					} else {
-						throw RunTimeUnaryOperatorException(
-							t -> lexeme, o -> getObjectName()
-						);
+						throw EvaluationError(
+							"Unary operator '~' doesn't match any operand of type '" +
+							o -> getObjectName() + "'!", * t
+						);	
 					}
 				} break;
-				default: throw RunTimeUnaryOperatorException(
-					t -> lexeme, o -> getObjectName()
-				); break;
 			}
-			return nullptr;
+			throw EvaluationError(
+				"Unary operator '" + t -> lexeme +
+				"' doesn't match any operand of type '" +
+				o -> getObjectName() + "'!", * t
+			);
 		}
 		
 	};
