@@ -27,6 +27,7 @@
 #include <sstream>
 #include <regex>
 #include <vector>
+#include <map>
 
 using Exception = std::exception;
 
@@ -49,6 +50,9 @@ using SizeType = std::size_t;
 using String = std::string;
 
 #define ArrayList std::vector
+#define Map std::map
+
+#define Function std::function
 
 using SMatch = std::smatch;
 using Regex = std::regex;
