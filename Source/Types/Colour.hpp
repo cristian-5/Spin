@@ -24,6 +24,17 @@
 namespace Stack {
 		
 	class Colour {
+
+		private:
+
+		static String valueToHex(UInt8 value) {
+			StringStream s = StringStream();
+			s << hexConversion
+			  << hexBytePadding
+			  << uppercase
+			  << value;
+			return s.str();
+		}
 			
 		public:
 			
@@ -40,87 +51,42 @@ namespace Stack {
 			this -> a = a;
 		}
 
+		Colour(UInt32 rgba) {
+			r = (UInt8)((rgba >> 24) & 0xFF);
+			g = (UInt8)((rgba >> 16) & 0xFF);
+			b = (UInt8)((rgba >> 8) & 0xFF);
+			a = (UInt8)(rgba & 0xFF);
+		}
+
 		Colour() { }
 
-		/*void operator = (UInt32 c) {
-			r = (UInt8) c >> 8;
+		UInt32 colorValue() {
+			return (UInt32)((UInt32)(r << 24) + 
+							(UInt32)(g << 16) +
+							(UInt32)(b << 16) +
+							(UInt32)(a));
 		}
 
-		Boolean operator == (Complex r) const {
-			if (a != r.a) return false;
-			if (b != r.b) return false;
+		Colour operator ~ () const {
+			return Colour(a - r, a - g, a - b, a);
+		}
+
+		Boolean operator == (Colour c) const {
+			if (r != c.r) return false;
+			if (g != c.g) return false;
+			if (b != c.b) return false;
+			if (a != c.a) return false;
 			return true;
 		}
 
-		Boolean operator == (Real r) const {
-			if (a != r) return false;
-			if (b != 0) return false;
-			return true;
+		String stringValue() const {
+			String result = "#";
+			result += valueToHex(r) +
+					  valueToHex(g) +
+					  valueToHex(b) +
+					  valueToHex(a);
+			return result;
 		}
-
-		Boolean operator != (Complex r) const {
-			if (a == r.a) return false;
-			if (b == r.b) return false;
-			return true;
-		}
-
-		Complex operator - () const {
-			return Complex(- a, - b);
-		}
-
-		Complex operator + (Complex r) const {
-			return Complex(a + r.a, b + r.b);
-		}
-
-		void operator += (Complex r) {
-			a += r.a; b += r.b;
-		}
-
-		Complex operator - (Complex r) const {
-			return Complex(a - r.a, b - r.b);
-		}
-
-		void operator -= (Complex r) {
-			a -= r.a; b -= r.b;
-		}
-
-		Complex operator * (Complex r) const {
-			return Complex(a * r.a - b * r.b, r.a * b + a * r.b);
-		}
-
-		void operator *= (Complex r) {
-			a = a * r.a - b * r.b;
-			b = r.a * b + a * r.b;
-		}
-
-		Complex operator / (Complex r) const {
-			return Complex((a * r.a + b * r.b) / (r.a * r.a + r.b * r.b),
-						   (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b));
-		}
-
-		void operator /= (Complex r) {
-			a = (a * r.a + b * r.b) / (r.a * r.a + r.b * r.b);
-			b = (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b);
-		}
-
-		String stringValue() {
-			String result = "";
-			if (a < 0.0) {
-				result += "- ";
-				result += toString(- a);
-			} else {
-				result += "+ ";
-				result += toString(a);
-			}
-			if (b >= 0.0) {
-				result += " + ";
-				result += toString(b);
-			} else {
-				result += " - ";
-				result += toString(- b);
-			}
-			return result + "i";
-		}*/
 
 	};
 

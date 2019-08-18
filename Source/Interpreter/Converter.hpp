@@ -26,6 +26,10 @@
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
 #define REAL "^[0-9]+\\.[0-9]+(?:[eE][0-9]+)?$"
 #define IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i$"
+#define RGBFULL "#[A-Fa-f0-9]{6}"
+#define RGBSHORT "#[A-Fa-f0-9]{3}"
+#define RGBAFULL "#[A-Fa-f0-9]{8}"
+#define RGBASHORT "#[A-Fa-f0-9]{4}"
 
 namespace Stack {
 
@@ -51,7 +55,7 @@ namespace Stack {
 			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0x00;
 			Character result = 0;
     		for (UInt32 i = 0; i < s.length(); i++) {
-				result = result * 16 + s[i] - '0';
+				result = result * 16 + charToHex(s[i]);
 			}
 			return result;
 		}
@@ -66,12 +70,29 @@ namespace Stack {
 			return result;
 		}
 
+		static UInt8 charToHex(Character & c) {
+			c = toUppercase(c);
+			if (c >= '0' && c <= '9') return c - '0';
+			if (c >= 'A' && c <= 'F') return c - 'A';
+			return 0;
+		}
+
 		static UInt64 hexToUInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0;
 			UInt64 result = 0;
     		for (UInt32 i = 0; i < s.length(); i++) {
-				result = result * 16 + s[i] - '0';
+				result = result * 16 + charToHex(s[i]);
+			}
+			return result;
+		}
+
+		static UInt32 hexToUInt32(String & s) {
+			if (s.length() == 0) return 0;
+			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0;
+			UInt32 result = 0;
+    		for (UInt32 i = 0; i < s.length(); i++) {
+				result = result * 16 + charToHex(s[i]);
 			}
 			return result;
 		}
@@ -103,12 +124,6 @@ namespace Stack {
 			if (t == nullptr) return o;
 			if (!t -> isTypeLiteral()) return o;
 			switch (t -> type) {
-				case TokenType::boolLiteral: {
-					o -> type = BasicType::BooleanType;
-					Boolean * v = new Boolean;
-					* v = stringToBool(t -> lexeme);
-					o -> value = v;
-				} break;
 				case TokenType::intLiteral: {
 					UInt64 v = stringToUInt64(t -> lexeme);
 					o -> type = shortestForm(v);
@@ -144,6 +159,12 @@ namespace Stack {
 					* v = escapeString(t -> lexeme);
 					o -> value = v;
 				} break;
+				case TokenType::boolLiteral: {
+					o -> type = BasicType::BooleanType;
+					Boolean * v = new Boolean;
+					* v = stringToBool(t -> lexeme);
+					o -> value = v;
+				} break;
 				case TokenType::charLiteral: {
 					o -> type = BasicType::CharacterType;
 					Character * v = new Character;
@@ -167,6 +188,11 @@ namespace Stack {
 				case TokenType::nullLiteral: {
 					o -> type = BasicType::ClassType;
 					o -> value = nullptr;
+				} break;
+				case TokenType::colourLiteral: {
+					o -> type = BasicType::ColourType;
+					Colour * c = new Colour(stringToColour(t -> lexeme));
+					o -> value = c;
 				} break;
 				default: return o;
 			}
@@ -220,6 +246,34 @@ namespace Stack {
 			s = RegexTools::replaceMatches("\\\"", s, "\"");
 			s = RegexTools::replaceMatches("\\\\", s, "\\");
 			return s; // TODO: Properly Escape.
+		}
+
+		static Colour stringToColour(String & s) {
+			if (s.length() > 2) s = s.substr(1, s.size() - 2);
+			if (s.length() == 0) return Colour();
+			if (RegexTools::test(RGBFULL, s)) {
+				String x = s + "FF";
+				UInt32 c = hexToUInt32(x);
+				return Colour(c);
+			} else if (RegexTools::test(RGBSHORT, s)) {
+				StringStream x = StringStream();
+				x << s[0] << s[0] << s[1] << s[1] <<
+					 s[2] << s[2] << "FF";
+				String final = x.str();
+				UInt32 c = hexToUInt32(final);
+				return Colour(c);
+			} else if (RegexTools::test(RGBAFULL, s)) {
+				UInt32 c = hexToUInt32(s);
+				return Colour(c);
+			} else if (RegexTools::test(RGBASHORT, s)) {
+				StringStream x = StringStream();
+				x << s[0] << s[0] << s[1] << s[1] <<
+					 s[2] << s[2] << s[3] << s[3];
+				String final = x.str();
+				UInt32 c = hexToUInt32(final);
+				return Colour(c);
+			}
+			return Colour();
 		}
 
 		static Character escapeChar(String & s) {

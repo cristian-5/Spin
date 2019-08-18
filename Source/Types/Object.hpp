@@ -23,6 +23,7 @@
 #include "../Token/Token.hpp"
 
 #include "Complex.hpp"
+#include "Colour.hpp"
 
 namespace Stack {
 
@@ -91,7 +92,7 @@ namespace Stack {
 				case BasicType::UInt16Type: delete (UInt16 *) value; return;
 				case BasicType::UInt32Type: delete (UInt32 *) value; return;
 				case BasicType::UInt64Type: delete (UInt64 *) value; return;
-				case BasicType::ColourType: return;
+				case BasicType::ColourType: delete (Colour *) value; return;
 				case BasicType::FloatType: delete (Float *) value; return;
 				case BasicType::DoubleType: delete (Double *) value; return;
 				case BasicType::RealType: delete (Real *) value; return;
@@ -107,41 +108,41 @@ namespace Stack {
 			}
 		}
 
-		Boolean isIntegerType() {
+		Boolean isIntegerType() const {
 			return type >= BasicType::Int8Type &&
 				   type <= BasicType::UInt64Type;
 		}
 
-		Boolean isSignedType() {
+		Boolean isSignedType() const {
 			return type >= BasicType::Int8Type &&
 				   type <= BasicType::Int64Type;
 		}
 
-		Boolean isUnsignedType() {
+		Boolean isUnsignedType() const {
 			return type >= BasicType::UInt8Type &&
 				   type <= BasicType::UInt64Type;
 		}
 
-		Boolean isRealType() {
+		Boolean isRealType() const {
 			return type >= BasicType::FloatType &&
 				   type <= BasicType::RealType;
 		}
 
-		Boolean isComplexType() {
+		Boolean isComplexType() const {
 			return type == BasicType::ComplexType ||
 				   type == BasicType::ImaginaryType;
 		}			
 
-		Boolean isNumericType() {
+		Boolean isNumericType() const {
 			return isIntegerType()  ||
 				   isRealType()     ||
 				   isComplexType();
 		}
 
-		inline Boolean isString() { return type == BasicType::StringType; }
-		inline Boolean isCharacter() { return type == BasicType::CharacterType; }
+		inline Boolean isString() const { return type == BasicType::StringType; }
+		inline Boolean isCharacter() const { return type == BasicType::CharacterType; }
 
-		String getObjectName() {
+		String getObjectName() const {
 			switch (type) {
 				case BasicType::BooleanType: return "Boolean";
 				case BasicType::CharacterType: return "Character";
@@ -172,7 +173,7 @@ namespace Stack {
 			}
 		}
 
-		String getObjectStringValue() {
+		String getObjectStringValue() const {
 			switch (type) {
 				case BasicType::BooleanType: {
 					Boolean * b = (Boolean *) value;
