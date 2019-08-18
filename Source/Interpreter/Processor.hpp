@@ -227,6 +227,14 @@ namespace Stack {
 					Int64 * i = new Int64(~(* j));
 					return new Object(BasicType::Int64Type, i);
 				}
+			},
+			{
+				BasicType::ColourType,
+				[] (Object * o) {
+					Colour * c = (Colour *) o -> value;
+					c = new Colour(~(* c));
+					return new Object(o -> type, c);
+				}
 			}
 		};
 
