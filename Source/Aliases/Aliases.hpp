@@ -52,6 +52,8 @@ using String = std::string;
 #define ArrayList std::vector
 #define Map std::map
 
+#define Pair std::pair
+
 #define Function std::function
 
 using SMatch = std::smatch;
