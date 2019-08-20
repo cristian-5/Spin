@@ -744,7 +744,7 @@ namespace Stack {
 					auto search = binaryIntUIntAddition.find({ r -> type, l -> type});
 					if (search != binaryIntUIntAddition.end()) {
 						auto handler = search -> second;
-						return handler(l, r);
+						return handler(r, l);
 					}
 					throw EvaluationError(
 						"Binary operator '+' doesn't match operands of type '" +

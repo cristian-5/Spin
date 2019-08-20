@@ -60,10 +60,13 @@ namespace Stack {
 		void visitBinaryExpression(Binary * e) override {
 			try {
 				evaluateExpression(e -> l);
-				Object * l = value;
+				Object * l = value -> copy();
+				String s = l -> getObjectStringValue();
 				evaluateExpression(e -> r);
-				Object * r = value;
+				Object * r = value -> copy();
+				s = r -> getObjectStringValue();
 				setValue(CPU -> applyBinaryOperator(e -> o, l, r));
+				delete r; delete l;
 			} catch (EvaluationError & e) { throw; }
 		}
 		void visitAssignmentExpression(Assignment * e) override { }
