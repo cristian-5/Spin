@@ -128,26 +128,10 @@ namespace Stack {
 					UInt64 v = stringToUInt64(t -> lexeme);
 					o -> type = shortestForm(v);
 					switch (o -> type) {
-						case BasicType::UInt8Type: {
-							UInt8 * i = new UInt8;
-							* i = (UInt8) v;
-							o -> value = i;
-						} break;
-						case BasicType::UInt16Type: {
-							UInt16 * i = new UInt16;
-							* i = (UInt16) v;
-							o -> value = i;
-						} break;
-						case BasicType::UInt32Type: {
-							UInt32 * i = new UInt32;
-							* i = (UInt32) v;
-							o -> value = i;
-						} break;
-						case BasicType::UInt64Type: {
-							UInt64 * i = new UInt64;
-							* i = (UInt64) v;
-							o -> value = i;
-						} break;
+						case BasicType::UInt8Type: o -> value = new UInt8((UInt8) v); break;
+						case BasicType::UInt16Type: o -> value = new UInt16((UInt16) v); break;
+						case BasicType::UInt32Type: o -> value = new UInt32((UInt32) v); break;
+						case BasicType::UInt64Type: o -> value = new UInt64((UInt64) v); break;
 						default: break;
 					}
 				} break;
@@ -161,9 +145,7 @@ namespace Stack {
 				} break;
 				case TokenType::boolLiteral: {
 					o -> type = BasicType::BooleanType;
-					Boolean * v = new Boolean;
-					* v = stringToBool(t -> lexeme);
-					o -> value = v;
+					o -> value = new Boolean(stringToBool(t -> lexeme));
 				} break;
 				case TokenType::charLiteral: {
 					o -> type = BasicType::CharacterType;
@@ -175,15 +157,11 @@ namespace Stack {
 				} break;
 				case TokenType::realLiteral: {
 					o -> type = BasicType::RealType;
-					Real * v = new Real;
-					* v = stringToReal(t -> lexeme);
-					o -> value = v;
+					o -> value = new Real(stringToReal(t -> lexeme));
 				} break;
 				case TokenType::imaginaryLiteral: {
 					o -> type = BasicType::ImaginaryType;
-					Real * v = new Real;
-					* v = stringToImaginary(t -> lexeme);
-					o -> value = v;
+					o -> value = new Real(stringToImaginary(t -> lexeme));
 				} break;
 				case TokenType::nullLiteral: {
 					o -> type = BasicType::ClassType;
@@ -191,8 +169,7 @@ namespace Stack {
 				} break;
 				case TokenType::colourLiteral: {
 					o -> type = BasicType::ColourType;
-					Colour * c = new Colour(stringToColour(t -> lexeme));
-					o -> value = c;
+					o -> value = new Colour(stringToColour(t -> lexeme));
 				} break;
 				default: return o;
 			}
