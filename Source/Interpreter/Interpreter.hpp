@@ -60,7 +60,10 @@ namespace Stack {
 		void visitBinaryExpression(Binary * e) override {
 			try {
 				evaluateExpression(e -> l);
-				//value = Processor::applyUnaryOperator(e -> o, & value);
+				Object * l = value;
+				evaluateExpression(e -> r);
+				Object * r = value;
+				setValue(CPU -> applyBinaryOperator(e -> o, l, r));
 			} catch (EvaluationError & e) { throw; }
 		}
 		void visitAssignmentExpression(Assignment * e) override { }
@@ -76,8 +79,7 @@ namespace Stack {
 					e -> object = Converter::literalToObject(e -> token);
 				}
 				setValue(e -> object);
-			}
-			catch (EvaluationError & e) { throw; }
+			} catch (EvaluationError & e) { throw; }
 		}
 		void visitLogicalExpression(Logical * e) override { }
 		void visitSetExpression(Set * e) override { }
