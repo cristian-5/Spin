@@ -29,10 +29,8 @@ namespace Stack {
 
 		static String valueToHex(UInt8 value) {
 			StringStream s = StringStream();
-			s << hexConversion
-			  << hexBytePadding
-			  << uppercase
-			  << value;
+			s << uppercase << hexConversion;
+			s << hexBytePadding << (UInt32) value;
 			return s.str();
 		}
 			

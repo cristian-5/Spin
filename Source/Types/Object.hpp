@@ -173,6 +173,37 @@ namespace Stack {
 			}
 		}
 
+		Object * copy() const {
+			Object * copy = new Object();
+			copy -> type = type;
+			switch (type) {
+				case BasicType::BooleanType: copy -> value = new Boolean(* ((Boolean *) value)); break;
+				case BasicType::CharacterType: copy -> value = new Character(* ((Character *) value)); break;
+				case BasicType::Int8Type: copy -> value = new Int8(* ((Int8 *) value)); break;
+				case BasicType::Int16Type: copy -> value = new Int16(* ((Int16 *) value)); break;
+				case BasicType::Int32Type: copy -> value = new Int32(* ((Int32 *) value)); break;
+				case BasicType::Int64Type: copy -> value = new Int64(* ((Int64 *) value)); break;
+				case BasicType::UInt8Type: copy -> value = new UInt8(* ((UInt8 *) value)); break;
+				case BasicType::UInt16Type: copy -> value = new UInt16(* ((UInt16 *) value)); break;
+				case BasicType::UInt32Type: copy -> value = new UInt32(* ((UInt32 *) value)); break;
+				case BasicType::UInt64Type: copy -> value = new UInt64(* ((UInt64 *) value)); break;
+				case BasicType::ColourType: copy -> value = new Colour(* ((Colour *) value)); break;
+				case BasicType::FloatType: copy -> value = new Float(* ((Float *) value)); break;
+				case BasicType::DoubleType: copy -> value = new Double(* ((Double *) value)); break;
+				case BasicType::RealType: copy -> value = new Real(* ((Real *) value)); break;
+				case BasicType::ImaginaryType: copy -> value = new Real(* ((Real *) value)); break;
+				case BasicType::ComplexType: copy -> value = new Complex(* ((Complex *) value)); break;
+				case BasicType::StringType: copy -> value = new String(* ((String *) value)); break;
+				case BasicType::ArrayListType: /* TODO: Ask the class for its copy. */ break;
+				case BasicType::VectorType: /* TODO: Ask the class for its copy. */ break;
+				case BasicType::ClassType: /* TODO: Ask the class for its copy. */ break;
+				case BasicType::StructureType: /* TODO: Ask the class for its copy. */ break;
+				case BasicType::ExceptionType: /* TODO: Ask the class for its copy. */ break;
+				case BasicType::UnknownType: default: break;
+			}
+			return copy;
+		}
+
 		String getObjectStringValue() const {
 			switch (type) {
 				case BasicType::BooleanType: {
@@ -217,8 +248,8 @@ namespace Stack {
 					return toString(* i);
 				}
 				case BasicType::ColourType: {
-					// TODO: fix colour value.
-					return "SomeColour";
+					Colour * c = (Colour *) value;
+					return c -> stringValue();
 				}
 				case BasicType::FloatType: {
 					Float * i = (Float *) value;
