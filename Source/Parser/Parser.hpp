@@ -351,8 +351,11 @@ namespace Stack {
 		Expression * parse(ArrayList<Token> * tokens,
 						   String * input = nullptr,
 						   String fileName = "Unknown File") {
-			if (tokens == nullptr) return nullptr;
-			if (tokens -> size() < 2) return nullptr;
+			if (tokens == nullptr || tokens -> size() <= 2) {
+				errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
+				errors -> shrinkToFit();
+				throw ParserErrorException(errors, fileName);
+			}
 			this -> tokens = tokens;
 			this -> input = input;
 			this -> fileName = fileName;
