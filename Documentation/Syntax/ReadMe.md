@@ -81,14 +81,6 @@ Here's a **railway** implementation of statements' syntax.
 
     + ── [Expression] ── infixOperator ── [Expression] ── +
 
-### Postfix Operation:
-
-    + ── [Expression] ── postfixOperator ── +
-
-### Function Call:
-
-
-
 ### Literal:
 
     + ─╮── > ── stringLiteral ───── > ──╭─ +

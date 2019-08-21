@@ -5,8 +5,6 @@ Variables represent storage locations. Every variable has a
 type that determines what values can be stored in the variable.
 Stack is a type-safe language, and the compiler guarantees that
 values stored in variables are always of the appropriate type.
-The value of a variable can be changed through assignment or
-through use of the `++` and `--` operators.
 
 A variable doesn't need to be assigned before its value can
 be obtained because every basic type has a default value.
@@ -23,12 +21,13 @@ In the example
 ```swift
 class A {
 
-    public static Int32 x;
-    Int32 y;
+    public static Int64 x;
+    Int64 y;
 
-    proc F(v: [Int32], a: Int32, b: inout Int32) {
-        Int32 i = 1;
-        c = a + b++;
+    public proc subProgram(v: [Int64], a: Real, b: ref Int64) {
+        Int64 i = 1;
+        c = a + b; // Results in Int64.
+        c += 1;
     }
 
 }
@@ -69,15 +68,15 @@ value of the variable's type.
 For the purpose of definite assignment checking, an instance
 variable of a class is considered initially assigned.
 
-#### Instance variables in structs
+#### Instance variables in structures
 
-An instance variable of a struct has exactly the same lifetime as the
-struct variable to which it belongs. In other words, when a variable
-of a struct type comes into existence or ceases to exist, so too do
-the instance variables of the struct.
+An instance variable of a structure has exactly the same lifetime as the
+structure variable to which it belongs. In other words, when a variable
+of a structure type comes into existence or ceases to exist, so too do
+the instance variables of the structure.
 
-The initial assignment state of an instance variable of a struct is the
-same as that of the containing struct variable.
+The initial assignment state of an instance variable of a structure is the
+same as that of the containing structure variable.
 
 ### Array elements
 
@@ -92,7 +91,7 @@ is considered initially assigned.
 
 ### Value parameters
 
-A parameter declared without an `inout` modifier is a *value parameter*.
+A parameter declared without a `ref` modifier is a *value parameter*.
 
 A value parameter comes into existence upon invocation of the function
 member (method, instance constructor, accessor, or operator) or
@@ -108,7 +107,7 @@ considered initially assigned.
 
 ### Reference parameters
 
-A parameter declared with a `inout` modifier is a *reference parameter*.
+A parameter declared with a `ref` modifier is a *reference parameter*.
 
 A reference parameter does not create a new storage location.
 Instead, a reference parameter represents the same storage location
@@ -119,8 +118,8 @@ is always the same as the underlying variable.
 *  Within a function member or anonymous function, a reference parameter
 is considered initially assigned.
 
-Within an instance method or instance accessor of a struct type, the `self`
-keyword behaves exactly as a reference parameter of the struct type.
+Within an instance method or instance accessor of a structure type, the `self`
+keyword behaves exactly as a reference parameter of the structure type.
 
 ### Local variables
 

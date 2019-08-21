@@ -39,13 +39,6 @@ namespace Stack {
 
 		Converter() { }
 
-		static BasicType shortestForm(UInt64 n) {
-			if (n <= 0xFF) return BasicType::UInt8Type;
-			else if (n <= 0xFFFF) return BasicType::UInt16Type;
-			else if (n <= 0xFFFFFFFF) return BasicType::UInt32Type;
-			else return BasicType::UInt64Type;
-		}
-
 		static Boolean checkBase(String base, String & s) {
 			return RegexTools::test(base, s);
 		}
@@ -54,17 +47,17 @@ namespace Stack {
 			if (s.length() == 0) return 0x00;
 			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0x00;
 			Character result = 0;
-    		for (UInt32 i = 0; i < s.length(); i++) {
+    		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 16 + charToHex(s[i]);
 			}
 			return result;
 		}
 
-		static UInt64 decToUInt64(String & s) {
+		static Int64 decToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[0-9]+$", s)) return 0;
-			UInt64 result = 0;
-    		for (UInt32 i = 0; i < s.length(); i++) {
+			Int64 result = 0;
+    		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 10 + s[i] - '0';
 			}
 			return result;
@@ -77,11 +70,11 @@ namespace Stack {
 			return 0;
 		}
 
-		static UInt64 hexToUInt64(String & s) {
+		static Int64 hexToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0;
-			UInt64 result = 0;
-    		for (UInt32 i = 0; i < s.length(); i++) {
+			Int64 result = 0;
+    		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 16 + charToHex(s[i]);
 			}
 			return result;
@@ -91,27 +84,27 @@ namespace Stack {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0;
 			UInt32 result = 0;
-    		for (UInt32 i = 0; i < s.length(); i++) {
+    		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 16 + charToHex(s[i]);
 			}
 			return result;
 		}
 
-		static UInt64 octToUInt64(String & s) {
+		static Int64 octToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[0-7]+$", s)) return 0;
-			UInt64 result = 0;
-    		for (UInt32 i = 0; i < s.length(); i++) {
+			Int64 result = 0;
+    		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 8 + s[i] - '0';
 			}
 			return result;
 		}
 
-		static UInt64 binToUInt64(String & s) {
+		static Int64 binToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[01]+$", s)) return 0;
-			UInt64 result = 0;
-    		for (UInt32 i = 0; i < s.length(); i++) {
+			Int64 result = 0;
+    		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 2 + s[i] - '0';
 			}
 			return result;
@@ -125,15 +118,8 @@ namespace Stack {
 			if (!t -> isTypeLiteral()) return o;
 			switch (t -> type) {
 				case TokenType::intLiteral: {
-					UInt64 v = stringToUInt64(t -> lexeme);
-					o -> type = shortestForm(v);
-					switch (o -> type) {
-						case BasicType::UInt8Type: o -> value = new UInt8((UInt8) v); break;
-						case BasicType::UInt16Type: o -> value = new UInt16((UInt16) v); break;
-						case BasicType::UInt32Type: o -> value = new UInt32((UInt32) v); break;
-						case BasicType::UInt64Type: o -> value = new UInt64((UInt64) v); break;
-						default: break;
-					}
+					o -> type = BasicType::Int64Type;
+					o -> value = new Int64(stringToInt64(t -> lexeme));
 				} break;
 				case TokenType::stringLiteral: {
 					o -> type = BasicType::StringType;
@@ -180,32 +166,32 @@ namespace Stack {
 			return s == "true";
 		}
 
-		static UInt64 stringToUInt64(String & s) {
+		static Int64 stringToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (s.length() > 2) {
 				if (s[0] == '0') {
 					switch (s[1]) {
 						case 'x': {
 							String hex = s.subString(2, s.length() - 3);
-							return hexToUInt64(hex);
+							return hexToInt64(hex);
 						} break;
 						case 'o': {
 							String oct = s.subString(2, s.length() - 3);
-							return octToUInt64(oct);
+							return octToInt64(oct);
 						} break;
 						case 'b': {
 							String bin = s.subString(2, s.length() - 3);
-							return binToUInt64(bin);
+							return binToInt64(bin);
 						} break;
 						case 'd': {
 							String dec = s.subString(2, s.length() - 3);
-							return decToUInt64(dec);
+							return decToInt64(dec);
 						} break;
-						default: return decToUInt64(s);
+						default: return decToInt64(s);
 					}
 				}
 			}
-			return decToUInt64(s);
+			return decToInt64(s);
 		}
 
 		static Real stringToReal(String & s) {

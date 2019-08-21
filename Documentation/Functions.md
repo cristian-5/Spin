@@ -11,7 +11,7 @@ Parameters are separated with a comma and are defined
 with an identifier followed by colon and the type.
 
 ```swift
-func addition(a: Int32, b: Int32) -> Int32 {
+func addition(a: Int64, b: Int64) -> Int64 {
     return a + b;
 }
 ```
@@ -28,19 +28,19 @@ Parameters are separated with a comma and are defined
 with an identifier followed by colon and the type.
 
 ```swift
-proc increment(val: inout Int32) {
-    a++;
+proc increment(val: ref Int) {
+    a += 1;
 }
 ```
 
 ## Call
 
 To call a Stack function or procedure you must use
-the identifier followed by evenual parameters
+the identifier followed by eventual parameters
 enclosed in round brackets.
 
 ```swift
-Int32 x = addition(a: 5, b: 6);
+Integer x = addition(a: 5, b: 6);
 increment(val: x);
 ```
 

@@ -32,20 +32,13 @@ namespace Stack {
 		BooleanType,
 		CharacterType,
 
-		Int8Type,
-		Int16Type,
-		Int32Type,
+		ByteType,
+		
 		Int64Type,
-		UInt8Type,
-		UInt16Type,
-		UInt32Type,
-		UInt64Type,
+
+		RealType,
 
 		ColourType,
-
-		FloatType,
-		DoubleType,
-		RealType,
 
 		ImaginaryType,
 		ComplexType,
@@ -84,17 +77,9 @@ namespace Stack {
 			switch (type) {
 				case BasicType::BooleanType: delete (Boolean *) value; return;
 				case BasicType::CharacterType: delete (Character *) value; return;
-				case BasicType::Int8Type: delete (Int8 *) value; return;
-				case BasicType::Int16Type: delete (Int16 *) value; return;
-				case BasicType::Int32Type: delete (Int32 *) value; return;
+				case BasicType::ByteType: delete (UInt8 *) value; return;
 				case BasicType::Int64Type: delete (Int64 *) value; return;
-				case BasicType::UInt8Type: delete (UInt8 *) value; return;
-				case BasicType::UInt16Type: delete (UInt16 *) value; return;
-				case BasicType::UInt32Type: delete (UInt32 *) value; return;
-				case BasicType::UInt64Type: delete (UInt64 *) value; return;
 				case BasicType::ColourType: delete (Colour *) value; return;
-				case BasicType::FloatType: delete (Float *) value; return;
-				case BasicType::DoubleType: delete (Double *) value; return;
 				case BasicType::RealType: delete (Real *) value; return;
 				case BasicType::ImaginaryType: delete (Real *) value; return;
 				case BasicType::ComplexType: delete (Complex *) value; return;
@@ -108,55 +93,30 @@ namespace Stack {
 			}
 		}
 
-		Boolean isIntegerType() const {
-			return type >= BasicType::Int8Type &&
-				   type <= BasicType::UInt64Type;
-		}
+		inline Boolean isByte() const { return type == BasicType::ByteType; }
+		inline Boolean isInteger() const { return type == BasicType::Int64Type; }
+		inline Boolean isReal() const { return type == BasicType::RealType; }
 
-		Boolean isSignedType() const {
-			return type >= BasicType::Int8Type &&
-				   type <= BasicType::Int64Type;
-		}
-
-		Boolean isUnsignedType() const {
-			return type >= BasicType::UInt8Type &&
-				   type <= BasicType::UInt64Type;
-		}
-
-		Boolean isRealType() const {
-			return type >= BasicType::FloatType &&
-				   type <= BasicType::RealType;
-		}
-
-		Boolean isComplexType() const {
+		inline Boolean isComplexType() const {
 			return type == BasicType::ComplexType ||
 				   type == BasicType::ImaginaryType;
 		}			
 
-		Boolean isNumericType() const {
-			return isIntegerType()  ||
-				   isRealType()     ||
-				   isComplexType();
+		inline Boolean isNumericType() const {
+			return isInteger() || isReal() || isComplexType();
 		}
 
 		inline Boolean isString() const { return type == BasicType::StringType; }
+		inline Boolean isColour() const { return type == BasicType::ColourType; }
 		inline Boolean isCharacter() const { return type == BasicType::CharacterType; }
 
 		String getObjectName() const {
 			switch (type) {
 				case BasicType::BooleanType: return "Boolean";
 				case BasicType::CharacterType: return "Character";
-				case BasicType::Int8Type: return "Int8";
-				case BasicType::Int16Type: return "Int16";
-				case BasicType::Int32Type: return "Int32";
+				case BasicType::ByteType: return "Byte";
 				case BasicType::Int64Type: return "Int64";
-				case BasicType::UInt8Type: return "UInt8";
-				case BasicType::UInt16Type: return "UInt16";
-				case BasicType::UInt32Type: return "UInt32";
-				case BasicType::UInt64Type: return "UInt64";
 				case BasicType::ColourType: return "Colour";
-				case BasicType::FloatType: return "Float";
-				case BasicType::DoubleType: return "Double";
 				case BasicType::RealType: return "Real";
 				case BasicType::ImaginaryType: return "Imaginary";
 				case BasicType::ComplexType: return "Complex";
@@ -179,18 +139,9 @@ namespace Stack {
 			switch (type) {
 				case BasicType::BooleanType: copy -> value = new Boolean(* ((Boolean *) value)); break;
 				case BasicType::CharacterType: copy -> value = new Character(* ((Character *) value)); break;
-				case BasicType::Int8Type: copy -> value = new Int8(* ((Int8 *) value)); break;
-				case BasicType::Int16Type: copy -> value = new Int16(* ((Int16 *) value)); break;
-				case BasicType::Int32Type: copy -> value = new Int32(* ((Int32 *) value)); break;
+				case BasicType::ByteType: copy -> value = new UInt8(* ((UInt8 *) value)); break;
 				case BasicType::Int64Type: copy -> value = new Int64(* ((Int64 *) value)); break;
-				case BasicType::UInt8Type: copy -> value = new UInt8(* ((UInt8 *) value)); break;
-				case BasicType::UInt16Type: copy -> value = new UInt16(* ((UInt16 *) value)); break;
-				case BasicType::UInt32Type: copy -> value = new UInt32(* ((UInt32 *) value)); break;
-				case BasicType::UInt64Type: copy -> value = new UInt64(* ((UInt64 *) value)); break;
 				case BasicType::ColourType: copy -> value = new Colour(* ((Colour *) value)); break;
-				case BasicType::FloatType: copy -> value = new Float(* ((Float *) value)); break;
-				case BasicType::DoubleType: copy -> value = new Double(* ((Double *) value)); break;
-				case BasicType::RealType: copy -> value = new Real(* ((Real *) value)); break;
 				case BasicType::ImaginaryType: copy -> value = new Real(* ((Real *) value)); break;
 				case BasicType::ComplexType: copy -> value = new Complex(* ((Complex *) value)); break;
 				case BasicType::StringType: copy -> value = new String(* ((String *) value)); break;
@@ -215,49 +166,17 @@ namespace Stack {
 					Character * c = (Character *) value;
 					return String(c);
 				}
-				case BasicType::Int8Type: {
-					Int8 * i = (Int8 *) value;
-					return toString(* i);
-				}
-				case BasicType::Int16Type: {
-					Int16 * i = (Int16 *) value;
-					return toString(* i);
-				}
-				case BasicType::Int32Type: {
-					Int32 * i = (Int32 *) value;
+				case BasicType::ByteType: {
+					UInt8 * i = (UInt8 *) value;
 					return toString(* i);
 				}
 				case BasicType::Int64Type: {
 					Int64 * i = (Int64 *) value;
 					return toString(* i);
 				}
-				case BasicType::UInt8Type: {
-					UInt8 * i = (UInt8 *) value;
-					return toString(* i);
-				}
-				case BasicType::UInt16Type: {
-					UInt16 * i = (UInt16 *) value;
-					return toString(* i);
-				}
-				case BasicType::UInt32Type: {
-					UInt32 * i = (UInt32 *) value;
-					return toString(* i);
-				}
-				case BasicType::UInt64Type: {
-					UInt64 * i = (UInt64 *) value;
-					return toString(* i);
-				}
 				case BasicType::ColourType: {
 					Colour * c = (Colour *) value;
 					return c -> stringValue();
-				}
-				case BasicType::FloatType: {
-					Float * i = (Float *) value;
-					return toString(* i);
-				}
-				case BasicType::DoubleType: {
-					Double * i = (Double *) value;
-					return toString(* i);
 				}
 				case BasicType::RealType: {
 					Real * i = (Real *) value;
