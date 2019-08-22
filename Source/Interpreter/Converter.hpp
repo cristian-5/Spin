@@ -26,10 +26,11 @@
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
 #define REAL "^[0-9]+\\.[0-9]+(?:[eE][0-9]+)?$"
 #define IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i$"
-#define RGBFULL "#[A-Fa-f0-9]{6}"
-#define RGBSHORT "#[A-Fa-f0-9]{3}"
-#define RGBAFULL "#[A-Fa-f0-9]{8}"
-#define RGBASHORT "#[A-Fa-f0-9]{4}"
+#define HEX "^[A-Fa-f0-9]+$"
+#define RGBFULL "^[A-Fa-f0-9]{6}$"
+#define RGBSHORT "^[A-Fa-f0-9]{3}$"
+#define RGBAFULL "^[A-Fa-f0-9]{8}$"
+#define RGBASHORT "^[A-Fa-f0-9]{4}$"
 
 namespace Stack {
 
@@ -45,7 +46,7 @@ namespace Stack {
 
 		static Character hexToChar(String & s) {
 			if (s.length() == 0) return 0x00;
-			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0x00;
+			if (!checkBase(HEX, s)) return 0x00;
 			Character result = 0;
     		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 16 + charToHex(s[i]);
@@ -66,13 +67,13 @@ namespace Stack {
 		static UInt8 charToHex(Character & c) {
 			c = toUppercase(c);
 			if (c >= '0' && c <= '9') return c - '0';
-			if (c >= 'A' && c <= 'F') return c - 'A';
-			return 0;
+			if (c >= 'A' && c <= 'F') return c - 'A' + 0xA;
+			return 0x00;
 		}
 
 		static Int64 hexToInt64(String & s) {
 			if (s.length() == 0) return 0;
-			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0;
+			if (!checkBase(HEX, s)) return 0;
 			Int64 result = 0;
     		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 16 + charToHex(s[i]);
@@ -82,7 +83,7 @@ namespace Stack {
 
 		static UInt32 hexToUInt32(String & s) {
 			if (s.length() == 0) return 0;
-			if (!checkBase("^[0-9A-Fa-f]+$", s)) return 0;
+			if (!checkBase(HEX, s)) return 0;
 			UInt32 result = 0;
     		for (SizeType i = 0; i < s.length(); i++) {
 				result = result * 16 + charToHex(s[i]);
@@ -212,29 +213,25 @@ namespace Stack {
 		}
 
 		static Colour stringToColour(String & s) {
-			if (s.length() > 2) s = s.substr(1, s.size() - 2);
-			if (s.length() == 0) return Colour();
+			if (s.length() > 3) s = s.substr(1, s.size() - 1);
+			if (s.length() < 3) return Colour();
 			if (RegexTools::test(RGBFULL, s)) {
-				String x = s + "FF";
-				UInt32 c = hexToUInt32(x);
-				return Colour(c);
+				s += "FF";
+				return Colour(hexToUInt32(s));
 			} else if (RegexTools::test(RGBSHORT, s)) {
 				StringStream x = StringStream();
 				x << s[0] << s[0] << s[1] << s[1] <<
 					 s[2] << s[2] << "FF";
 				String final = x.str();
-				UInt32 c = hexToUInt32(final);
-				return Colour(c);
+				return Colour(hexToUInt32(final));
 			} else if (RegexTools::test(RGBAFULL, s)) {
-				UInt32 c = hexToUInt32(s);
-				return Colour(c);
+				return Colour(hexToUInt32(s));
 			} else if (RegexTools::test(RGBASHORT, s)) {
 				StringStream x = StringStream();
 				x << s[0] << s[0] << s[1] << s[1] <<
 					 s[2] << s[2] << s[3] << s[3];
 				String final = x.str();
-				UInt32 c = hexToUInt32(final);
-				return Colour(c);
+				return Colour(hexToUInt32(final));
 			}
 			return Colour();
 		}
