@@ -174,10 +174,187 @@ namespace Stack {
 					Complex * c = new Complex((* b), (* a));
 					return new Object(BasicType::ComplexType, c);
 				}
+			},
+			{
+				{ BasicType::ColourType, BasicType::ColourType },
+				[] (Object * l, Object * r) {
+					Colour * a = (Colour *) l -> value;
+					Colour * b = (Colour *) r -> value;
+					Colour * c = new Colour((* a) + (* b));
+					return new Object(BasicType::ColourType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Character * c = new Character((* a) + (* b));
+					return new Object(BasicType::CharacterType, c);
+				}
+			}
+		};
+		Map<BasicTypes, BinaryHandler> stringAddition = {
+			{
+				{ BasicType::StringType, BasicType::StringType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					String * b = (String *) r -> value;
+					String * c = new String((* a) + (* b));
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Character * b = (Character *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << (* b);
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Real * b = (Real *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << (* b);
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Real * b = (Real *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << (* b) << "i";
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << (* b);
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::ColourType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Colour * b = (Colour *) r -> value;
+					String * c = new String((* a) + b -> stringValue());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					String * c = new String((* a) + b -> stringValue());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+
+
+
+
+
+
+
+
+
+
+
+
+			{
+				{ BasicType::CharacterType, BasicType::StringType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					String * b = (String *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << (* b);
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::StringType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					String * b = (String *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << (* b);
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::StringType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					String * b = (String *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << "i" << (* b);
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::StringType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					String * b = (String *) r -> value;
+					StringStream s = StringStream();
+					s << (* a) << (* b);
+					String * c = new String(s.str());
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::ColourType, BasicType::StringType },
+				[] (Object * l, Object * r) {
+					Colour * a = (Colour *) l -> value;
+					String * b = (String *) r -> value;
+					String * c = new String(a -> stringValue() + (* b));
+					return new Object(BasicType::StringType, c);
+				}
+			},
+			{
+				{ BasicType::ComplexType,  BasicType::StringType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					String * b = (String *) r -> value;
+					String * c = new String(a -> stringValue() + (* b));
+					return new Object(BasicType::StringType, c);
+				}
 			}
 		};
 
 		Object * applyAddition(Token * t, Object * l, Object * r) {
+			if (l -> isString() || r -> isString()) {
+				auto search = stringAddition.find({ l -> type, r -> type });
+				if (search != stringAddition.end()) {
+					auto handler = search -> second;
+					return handler(l, r);
+				}
+				throw EvaluationError(
+					"Binary operator '+' doesn't match operands of type '" +
+					l -> getObjectName() + "' and '" +
+					r -> getObjectName() + "'!", * t
+				);
+			}
 			auto search = binaryAddition.find({ l -> type, r -> type });
 			if (search != binaryAddition.end()) {
 				auto handler = search -> second;
