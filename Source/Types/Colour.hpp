@@ -81,31 +81,47 @@ namespace Stack {
 			return !((* this) == c);
 		}
 
-
+		/// Blend Mode: Darken.
 		Colour operator + (Colour r) const {
 			Colour c = Colour(* this);
-			// Hard Light
+			c.r = c.r < r.r ? c.r : r.r;
+			c.g = c.g < r.g ? c.g : r.g;
+			c.b = c.b < r.b ? c.b : r.b;
+			c.a = c.a > r.a ? c.a : r.a;
 			return Colour();
 		}
 
+		/// Blend Mode: Exclusion.
 		Colour operator - (Colour r) const {
 			Colour c = Colour(* this);
-			// Difference
+			c.r = c.r > r.r ? c.r : r.r;
+			c.g = c.g > r.g ? c.g : r.g;
+			c.b = c.b > r.b ? c.b : r.b;
+			c.a = c.a < r.a ? c.a : r.a;
 			return Colour();
 		}
 
+		/// Blend Mode: Inclusion.
 		Colour operator * (Colour r) const {
 			Colour c = Colour(* this);
-			// Multiply
+			c.r = 127 + 2 / (c.r + 127) / (r.r + 127);
+			c.g = 127 + 2 / (c.g + 127) / (r.g + 127);
+			c.b = 127 + 2 / (c.b + 127) / (r.b + 127);
+			c.a = 127 + 2 / (c.a + 127) / (r.a + 127);
 			return Colour();
 		}
 
+		/// Blend Mode: Exclusion.
 		Colour operator / (Colour r) const {
 			Colour c = Colour(* this);
-			// Divide
+			c.r = 127 - 2 * (c.r - 127) * (r.r - 127);
+			c.g = 127 - 2 * (c.g - 127) * (r.g - 127);
+			c.b = 127 - 2 * (c.b - 127) * (r.b - 127);
+			c.a = 127 - 2 * (c.a - 127) * (r.a - 127);
 			return Colour();
 		}
 
+		/// Blend Mode: Average.
 		Colour operator % (Colour r) const {
 			Colour c = Colour(* this);
 			c.r = (c.r + r.r) / 2;
