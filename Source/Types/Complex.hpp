@@ -113,22 +113,8 @@ namespace Stack {
 		}
 
 		String stringValue() {
-			String result = "";
-			if (a < 0.0) {
-				result += "- ";
-				result += toString(- a);
-			} else {
-				result += "+ ";
-				result += toString(a);
-			}
-			if (b >= 0.0) {
-				result += " + ";
-				result += toString(b);
-			} else {
-				result += " - ";
-				result += toString(- b);
-			}
-			return result + "i";
+			return toString(a) + " " +
+				   toString(b) + "i";
 		}
 
 	};
