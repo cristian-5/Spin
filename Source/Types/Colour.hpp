@@ -77,6 +77,11 @@ namespace Stack {
 			return true;
 		}
 
+		Boolean operator != (Colour c) const {
+			return !((* this) == c);
+		}
+
+
 		Colour operator + (Colour r) const {
 			Colour c = Colour(* this);
 			// Hard Light
