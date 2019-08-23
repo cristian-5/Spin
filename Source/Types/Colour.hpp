@@ -77,6 +77,39 @@ namespace Stack {
 			return true;
 		}
 
+		Colour operator + (Colour r) const {
+			Colour c = Colour(* this);
+			// Hard Light
+			return Colour();
+		}
+
+		Colour operator - (Colour r) const {
+			Colour c = Colour(* this);
+			// Difference
+			return Colour();
+		}
+
+		Colour operator * (Colour r) const {
+			Colour c = Colour(* this);
+			// Multiply
+			return Colour();
+		}
+
+		Colour operator / (Colour r) const {
+			Colour c = Colour(* this);
+			// Divide
+			return Colour();
+		}
+
+		Colour operator % (Colour r) const {
+			Colour c = Colour(* this);
+			c.r = (c.r + r.r) / 2;
+			c.g = (c.g + r.g) / 2;
+			c.b = (c.b + r.b) / 2;
+			c.a = (c.a + r.a) / 2;
+			return c;
+		}
+
 		String stringValue() const {
 			String result = "#";
 			result += valueToHex(r) +
