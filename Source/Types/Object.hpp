@@ -142,6 +142,7 @@ namespace Stack {
 				case BasicType::ByteType: copy -> value = new UInt8(* ((UInt8 *) value)); break;
 				case BasicType::Int64Type: copy -> value = new Int64(* ((Int64 *) value)); break;
 				case BasicType::ColourType: copy -> value = new Colour(* ((Colour *) value)); break;
+				case BasicType::RealType: copy -> value = new Real(* ((Real *) value)); break;
 				case BasicType::ImaginaryType: copy -> value = new Real(* ((Real *) value)); break;
 				case BasicType::ComplexType: copy -> value = new Complex(* ((Complex *) value)); break;
 				case BasicType::StringType: copy -> value = new String(* ((String *) value)); break;
