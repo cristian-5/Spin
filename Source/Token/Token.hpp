@@ -136,11 +136,6 @@ namespace Stack {
 		cpyKeyword,
 		constKeyword,
 		returnKeyword,
-
-		prefixOperator,
-		infixOperator,
-		postfixOperator,
-
 		nevermind,
 
 		invalid,
