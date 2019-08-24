@@ -57,8 +57,8 @@ namespace Stack {
 
 			{ "(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment },
 
-			{ "([0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i)", TokenType::imaginaryLiteral },
-			{ "([0-9]+\\.[0-9]+(?:[eE][0-9]+)?)", TokenType::realLiteral },
+			{ "([0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i)", TokenType::imaginaryLiteral },
+			{ "([0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?)", TokenType::realLiteral },
 			{ "((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))", TokenType::intLiteral },
 			{ "(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")", TokenType::stringLiteral },
 			{ "('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral },
