@@ -29,17 +29,6 @@
 
 namespace Stack {
 
-	class LexerErrorException: public Exception {
-		private:
-		const FilePosition _position;
-		const String _fileName;
-		public:
-		const FilePosition & getPosition() const { return _position; }
-		const String & getFileName() const { return _fileName; }
-		LexerErrorException(FilePosition position, String name):
-		Exception(), _position(position), _fileName(name) { }
-	};
-
 	class Lexer {
 
 		private:
@@ -95,18 +84,18 @@ namespace Stack {
 			{ "(\\!)", TokenType::exclamationMark },
 
 			{ "(\\+)", TokenType::plus },
-			{ "(-)", TokenType::minus },
+			{ "(\\-)", TokenType::minus },
 			{ "(\\~)", TokenType::tilde },
 			{ "(\\*)", TokenType::star },
 			{ "(\\\\)", TokenType::backslash },
 			{ "(\\/)", TokenType::slash },
-			{ "(@)", TokenType::at },
-			{ "(|)", TokenType::pipe },
-			{ "(#)", TokenType::hashtag },
-			{ "(&)", TokenType::ampersand },
-			{ "(%)", TokenType::modulus },
-			{ "($)", TokenType::dollar },
-			{ "(^)", TokenType::hat },
+			{ "(\\@)", TokenType::at },
+			{ "(\\|)", TokenType::pipe },
+			{ "(\\#)", TokenType::hashtag },
+			{ "(\\&)", TokenType::ampersand },
+			{ "(\\%)", TokenType::modulus },
+			{ "(\\$)", TokenType::dollar },
+			{ "(\\^)", TokenType::hat },
 
 			{ "(\\()", TokenType::openRoundBracket },
 			{ "(\\))", TokenType::closeRoundBracket },
@@ -149,7 +138,7 @@ namespace Stack {
 			{ "(cpy)" INVERTED, TokenType::cpyKeyword },
 			{ "(const)" INVERTED, TokenType::constKeyword },
 			{ "(null)" INVERTED, TokenType::nullLiteral },
-			{ "(nope?)" INVERTED, TokenType::nop },
+			{ "(nevermind)" INVERTED, TokenType::nevermind },
 			{ "(return)" INVERTED, TokenType::returnKeyword },
 
 			{ "([A-Za-z_][A-Za-z0-9_]*)" INVERTED, TokenType::symbol },
@@ -182,6 +171,7 @@ namespace Stack {
 			UInt32 pos = 0;
 			Token temp = Token("beginFile", TokenType::beginFile, 0);
 			tokens -> push(temp);
+			Boolean previousInvalid = false;
 			while (data.length() > 0) {
 				Boolean tokenised = false;
 				for (TokenRule rule : grammar) {
@@ -191,14 +181,22 @@ namespace Stack {
 						data = data.subString(result.length());
 						temp = Token(result, rule.type, pos);
 						pos += result.length();
+						previousInvalid = false;
 						if (rule.type == TokenType::empty) break;
 						if (rule.type == TokenType::comment) break;
 						tokens -> push(temp); break;
 					}
 				}
 				if (!tokenised) {
-					FilePosition fp = Linker::getPosition(input, pos);
-					throw LexerErrorException(fp, fileName);
+					String s = "-"; s[0] = data[0];
+					if (!previousInvalid) {
+						tokens -> push({ s, TokenType::invalid, pos });
+						previousInvalid = true;
+					} else {
+						tokens -> at(tokens -> size() - 1).lexeme += s;
+					}
+					pos += 1;
+					data.erase(data.begin());
 				}
 			}
 			tokens -> push({ "endFile", TokenType::endFile, 0 });

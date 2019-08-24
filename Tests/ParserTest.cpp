@@ -32,18 +32,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 	cout << endl;
 
 	Lexer * lexer = Lexer::self();
-	ArrayList<Token> * tokens = nullptr;
-
-	try {
-		tokens = lexer -> tokenise(& test, "Virtual File");
-	} catch (LexerErrorException & e) {
-		cout << "Error in '" << e.getFileName() << "'!" << endl;
-		cout << "[row: " << e.getPosition().row << ",  col: ";
-		cout << e.getPosition().col << "]: Invalid Token!" << endl;
-		cout << endl << "Press enter to exit. ";
-		waitKeyPress();
-		return exitFailure;
-	}
+	
+	ArrayList<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
 
 	cout << "Tokens: " << endl;
 	UInt32 i = 1;
