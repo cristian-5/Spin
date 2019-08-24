@@ -57,9 +57,25 @@ namespace Stack {
 		comma,
 		dot,
 
+		diamond,
+
+		plusEqual,
+		minusEqual,
+		starEqual,
+		slashEqual,
+		tildeEqual,
+		pipeEqual,
+		ampersandEqual,
+		modulusEqual,
+		hatEqual,
+
 		minor,
+		minorEqual,
 		major,
+		majorEqual,
 		equal,
+		equality,
+		inequality,
 		questionMark,
 		exclamationMark,
 
