@@ -73,6 +73,12 @@ namespace Stack {
 			return true;
 		}
 
+		Boolean operator != (Real r) const {
+			if (a == r) return false;
+			if (b != 0) return false;
+			return true;
+		}
+
 		Complex operator - () const {
 			return Complex(- a, - b);
 		}
