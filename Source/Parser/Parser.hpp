@@ -53,7 +53,6 @@ namespace Stack {
 
 		private:
 
-		String fileName = "";
 		String * input = nullptr;
 
 		ArrayList<Token> * tokens = nullptr;
@@ -358,7 +357,6 @@ namespace Stack {
 			}
 			this -> tokens = tokens;
 			this -> input = input;
-			this -> fileName = fileName;
 			try {
 				consume(TokenType::beginFile, "beginFile");
 			} catch (SyntaxError & s) {

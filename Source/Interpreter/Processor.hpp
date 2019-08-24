@@ -266,18 +266,6 @@ namespace Stack {
 					return new Object(BasicType::StringType, c);
 				}
 			},
-
-
-
-
-
-
-
-
-
-
-
-
 			{
 				{ BasicType::CharacterType, BasicType::StringType },
 				[] (Object * l, Object * r) {
