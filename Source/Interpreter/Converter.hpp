@@ -24,8 +24,8 @@
 #include "../Types/Object.hpp"
 
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
-#define REAL "^[0-9]+\\.[0-9]+(?:[eE][0-9]+)?$"
-#define IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][0-9]+)?)?i$"
+#define REAL "^[0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?$"
+#define IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i$"
 #define HEX "^[A-Fa-f0-9]+$"
 #define RGBFULL "^[A-Fa-f0-9]{6}$"
 #define RGBSHORT "^[A-Fa-f0-9]{3}$"
