@@ -113,6 +113,15 @@ namespace Stack {
 				}
 			},
 			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Real * c = new Real((* b) + (* a));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
 				{ BasicType::Int64Type, BasicType::ByteType },
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
@@ -191,6 +200,15 @@ namespace Stack {
 					Character * b = (Character *) r -> value;
 					Character * c = new Character((* a) + (* b));
 					return new Object(BasicType::CharacterType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					UInt8 * c = new UInt8((* a) + (* b));
+					return new Object(BasicType::ByteType, c);
 				}
 			}
 		};
@@ -330,6 +348,171 @@ namespace Stack {
 			}
 		};
 
+		Map<BasicTypes, BinaryHandler> binarySubtraction = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Int64 * c = new Int64((* a) - (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Real * c = new Real((* a) - (* b));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					Real * c = new Real((Real)(* a) - (* b));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Real * c = new Real((* a) - (Real)(* b));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Int64 * c = new Int64((* a) - (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Int64 * c = new Int64((Int64)(* a) - (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					Complex * c = new Complex((* a) - (* b));
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Complex * c = new Complex(-(Real)(* b), (* a));
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					Complex * c = new Complex((Real)(* b), -(* a));
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Complex * c = new Complex(-(* b), (* a));
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Complex * c = new Complex((* a), -(* b));
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Real * b = (Real *) r -> value;
+					Complex * c = new Complex((* a).a, (* a).b - (* b));
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					Complex * c = new Complex(-(* b).a, (* a) - (* b).b);
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Real * b = (Real *) r -> value;
+					Complex * c = new Complex((* a).a - (* b), (* a).b);
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					Complex * c = new Complex((* a) - (* b).a, -(* b).b);
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Complex * c = new Complex((* a).a - (Real)(* b), (* a).b);
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					Complex * c = new Complex((Real)(* a) - (* b).a, -(* b).b);
+					return new Object(BasicType::ComplexType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Character * c = new Character((* a) - (* b));
+					return new Object(BasicType::CharacterType, c);
+				}
+			}
+		};
+
 		Object * applyAddition(Token * t, Object * l, Object * r) {
 			if (l -> isString() || r -> isString()) {
 				auto search = stringAddition.find({ l -> type, r -> type });
@@ -361,7 +544,16 @@ namespace Stack {
 		}
 
 		Object * applySubtraction(Token * t, Object * l, Object * r) {
-			return nullptr;
+			auto search = binarySubtraction.find({ l -> type, r -> type });
+			if (search != binarySubtraction.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Binary operator '+' doesn't match operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
 
 		Object * applyMultiplication(Token * t, Object * l, Object * r) {
