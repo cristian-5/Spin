@@ -70,10 +70,10 @@ namespace Stack {
 			Expression * ex = nullptr;
 			try { ex = comparison(); }
 			catch (SyntaxError & s) { throw; }
-			ArrayList<String> * ops = new ArrayList<String>();
-			ops -> push("=="); ops -> push("!=");
-			while (match(TokenType::infixOperator) &&
-				   matchOperators(ops)) {
+			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+			ops -> push(TokenType::equality);
+			ops -> push(TokenType::inequality);
+			while (match(ops)) {
 				Token * op = new Token(previous());
 				Expression * rs = nullptr;
 				try { rs = comparison(); }
@@ -93,11 +93,12 @@ namespace Stack {
 			Expression * ex = nullptr;
 			try { ex = lowPriorityOperator(); }
 			catch (SyntaxError & s) { throw; }
-			ArrayList<String> * ops = new ArrayList<String>();
-			ops -> push(">"); ops -> push("<");
-			ops -> push(">="); ops -> push(">=");
-			while (match(TokenType::infixOperator) &&
-				   matchOperators(ops)) {
+			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+			ops -> push(TokenType::major);
+			ops -> push(TokenType::minor);
+			ops -> push(TokenType::majorEqual);
+			ops -> push(TokenType::minorEqual);
+			while (match(ops)) {
 				Token * op = new Token(previous());
 				Expression * rs = nullptr;
 				try { rs = lowPriorityOperator(); }
@@ -212,22 +213,6 @@ namespace Stack {
 			);
 		}
 
-		Boolean matchOperator(String & op) {
-			if (checkOperator(op)) {
-				advance();
-				return true;
-			} return false;
-		}
-
-		Boolean matchOperators(ArrayList<String> * operators) {
-			for (String & op : * operators) {
-				if (checkOperator(op)) {
-					advance();
-					return true;
-				}
-			} return false;
-		}
-
 		Boolean match(TokenType type) {
 			if (check(type)) {
 				advance();
@@ -242,11 +227,6 @@ namespace Stack {
 					return true;
 				}
 			} return false;
-		}
-
-		Boolean checkOperator(String op) {
-			if (isAtEnd()) return false;
-			return peek().lexeme == op;
 		}
 
 		Boolean check(TokenType type) {
