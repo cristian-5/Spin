@@ -125,7 +125,9 @@ namespace Stack {
 		infixOperator,
 		postfixOperator,
 
-		nop,
+		nevermind,
+
+		invalid,
 
 		endFile
 
