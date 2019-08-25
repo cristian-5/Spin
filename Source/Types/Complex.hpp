@@ -118,17 +118,12 @@ namespace Stack {
 			b = (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b);
 		}
 
-		String stringValue() {
-			return toString(a) + " " +
-				   toString(b) + "i";
+		String stringValue() const {
+			return realToString(a) + " " +
+				   realToString(b) + "i";
 		}
 
 	};
-
-	Real abs(Real x) {
-		if (x < 0.0) return - x;
-		else return x;
-	}
 
 	Complex operator "" _i(Real i) {
 		return Complex(0, (Real)i);
