@@ -169,11 +169,11 @@ namespace Stack {
 				}
 				case BasicType::ByteType: {
 					UInt8 * i = (UInt8 *) value;
-					return toString(* i);
+					return toString((UInt64)(* i));
 				}
 				case BasicType::Int64Type: {
 					Int64 * i = (Int64 *) value;
-					return toString(* i);
+					return intToString(* i);
 				}
 				case BasicType::ColourType: {
 					Colour * c = (Colour *) value;
@@ -181,15 +181,15 @@ namespace Stack {
 				}
 				case BasicType::RealType: {
 					Real * i = (Real *) value;
-					return toString(* i);
+					return realToString(* i);
 				}
 				case BasicType::ImaginaryType: {
 					Real * i = (Real *) value;
-					return toString(* i) + "i";
+					return realToString(* i) + "i";
 				}
 				case BasicType::ComplexType: {
 					Complex * c = (Complex *) value;
-					return (* c).stringValue();
+					return c -> stringValue();
 				}
 				case BasicType::StringType: {
 					return * ((String *) value);
@@ -203,6 +203,7 @@ namespace Stack {
 					return "SomeVector";
 				}
 				case BasicType::ClassType: {
+					if (value == nullptr) return "null";
 					// TODO: fix class value.
 					return "SomeClass";
 				}
