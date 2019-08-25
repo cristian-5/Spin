@@ -94,10 +94,37 @@ inline void waitKeyPress() { std::cin.get(); }
 const Int32 exitSuccess = 0;
 const Int32 exitFailure = 1;
 
-String getInput() {
-	String input = "";
-	getline(std::cin, input);
-	return input;
+namespace Stack {
+
+	static String getInput() {
+		String input = "";
+		getline(std::cin, input);
+		return input;
+	}
+
+	static String realToString(Real a) {
+		String result = a > 0 ? "+ ": "- ";
+		Int64 i = (Int64) a;
+		if (i < 0) { i = -i; a = -a; }
+		result += toString(i) + ".";
+		a -= (Real)i;
+		a *= 100;
+		i = (Int64) a;
+		if (i == 0) result += toString(i) + "0";
+		else result += toString(i);
+		return result;
+	}
+
+	static String intToString(Int64 a) {
+		if (a > 0) return "+ " + toString(a);
+		else return "- " + toString(-a);
+	}
+
+	static Real abs(Real x) {
+		if (x < 0) return - x;
+		else return x;
+	}
+
 }
 
 #endif
