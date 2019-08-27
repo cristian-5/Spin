@@ -72,7 +72,6 @@ namespace Stack {
 			catch (SyntaxError & s) { throw; }
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::equality);
-			ops -> push(TokenType::strictEquality);
 			ops -> push(TokenType::inequality);
 			while (match(ops)) {
 				Token * op = new Token(previous());

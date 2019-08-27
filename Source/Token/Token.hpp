@@ -74,7 +74,6 @@ namespace Stack {
 		major,
 		majorEqual,
 		equal,
-		strictEquality,
 		equality,
 		inequality,
 		questionMark,
