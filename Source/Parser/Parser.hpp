@@ -72,6 +72,7 @@ namespace Stack {
 			catch (SyntaxError & s) { throw; }
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::equality);
+			ops -> push(TokenType::strictEquality);
 			ops -> push(TokenType::inequality);
 			while (match(ops)) {
 				Token * op = new Token(previous());
@@ -83,7 +84,7 @@ namespace Stack {
 					delete op;
 					throw;
 				}
-				ex = new Binary(ex, op, rs);
+				ex = new Logical(ex, op, rs);
 			}
 			delete ops;
 			return ex;
@@ -108,7 +109,7 @@ namespace Stack {
 					delete op;
 					throw;
 				}
-				ex = new Binary(ex, op, rs);
+				ex = new Logical(ex, op, rs);
 			}
 			delete ops;
 			return ex;

@@ -82,6 +82,7 @@ namespace Stack {
 			{ "(<)", TokenType::minor },
 			{ "(>=)", TokenType::majorEqual },
 			{ "(>)", TokenType::major },
+			{ "(===)", TokenType::strictEquality },
 			{ "(==)", TokenType::equality },
 			{ "(=)", TokenType::equal },
 			{ "(\\?)", TokenType::questionMark },
