@@ -61,10 +61,8 @@ namespace Stack {
 			try {
 				evaluateExpression(e -> l);
 				Object * l = value -> copy();
-				String s = l -> getObjectStringValue();
 				evaluateExpression(e -> r);
 				Object * r = value -> copy();
-				s = r -> getObjectStringValue();
 				setValue(CPU -> applyBinaryOperator(e -> o, l, r));
 				delete r; delete l;
 			} catch (EvaluationError & e) { throw; }
@@ -84,7 +82,16 @@ namespace Stack {
 				setValue(e -> object);
 			} catch (EvaluationError & e) { throw; }
 		}
-		void visitLogicalExpression(Logical * e) override { }
+		void visitLogicalExpression(Logical * e) override {
+			try {
+				evaluateExpression(e -> l);
+				Object * l = value -> copy();
+				evaluateExpression(e -> r);
+				Object * r = value -> copy();
+				setValue(CPU -> applyLogicalOperator(e -> o, l, r));
+				delete r; delete l;
+			} catch (EvaluationError & e) { throw; }
+		}
 		void visitSetExpression(Set * e) override { }
 		void visitSuperExpression(Super * e) override { }
 		void visitThisExpression(This * e) override { }
