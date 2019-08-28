@@ -124,6 +124,8 @@ namespace Stack {
 			{ "(throws)" INVERTED, TokenType::throwsKeyword },
 			{ "(avoid)" INVERTED, TokenType::avoidKeyword },
 
+			{ "(print)" INVERTED, TokenType::printKeyword },
+
 			{ "(if)" INVERTED, TokenType::ifKeyword },
 			{ "(else)" INVERTED, TokenType::elseKeyword },
 			{ "(switch)" INVERTED, TokenType::ifKeyword },
@@ -154,6 +156,8 @@ namespace Stack {
 			{ "(null)" INVERTED, TokenType::nullLiteral },
 			{ "(nevermind)" INVERTED, TokenType::nevermind },
 			{ "(return)" INVERTED, TokenType::returnKeyword },
+
+			{ "(Integer|Real|String|Bool|Character|Colour|Complex|Imaginary|Byte)" INVERTED, TokenType::basicType },
 
 			{ "([A-Za-z_][A-Za-z0-9_]*)" INVERTED, TokenType::symbol },
 

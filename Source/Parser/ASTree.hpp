@@ -36,7 +36,7 @@ namespace Stack {
 	class Super;
 	class This;
 	class Unary;
-	class Variable;
+	class Identifier;
 
 	class Expression {
 
@@ -57,7 +57,28 @@ namespace Stack {
 			virtual void visitSuperExpression(Super * e) = 0;
 			virtual void visitThisExpression(This * e) = 0;
 			virtual void visitUnaryExpression(Unary * e) = 0;
-			virtual void visitVariableExpression(Variable * e) = 0;
+			virtual void visitIdentifierExpression(Identifier * e) = 0;
+		};
+
+		virtual void accept(Visitor *) { }
+
+	};
+
+	class ExpressionStatement;
+	class PrintStatement;
+	class VariableStatement;
+
+	class Statement {
+
+		public:
+
+		virtual ~Statement() = default;
+
+		class Visitor {
+			public:
+			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
+			virtual void visitPrintStatement(PrintStatement * e) = 0;
+			virtual void visitVariableStatement(VariableStatement * e) = 0;
 		};
 
 		virtual void accept(Visitor *) { }
@@ -73,9 +94,8 @@ namespace Stack {
 			this -> value = value;
 		}
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitAssignmentExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitAssignmentExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Assignment() { delete name; delete value; }
 	};
@@ -89,9 +109,8 @@ namespace Stack {
 			r = rs, l = ls; o = op;
 		}
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitBinaryExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitBinaryExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Binary() { delete r; delete l; delete o; }
 	};
@@ -105,9 +124,8 @@ namespace Stack {
 			paren = p; callee = c; arguments = a;
 		}
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitCallExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitCallExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Call() {
 			delete paren; delete callee;
@@ -125,9 +143,8 @@ namespace Stack {
 			object = o; name = n;
 		}
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitGetExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitGetExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Get() { delete object; delete name; }
 	};
@@ -135,13 +152,10 @@ namespace Stack {
 	class Grouping: public Expression {
 		public:
 		Expression * expression = nullptr;
-		Grouping(Expression * e) {
-			expression = e;
-		}
+		Grouping(Expression * e) { expression = e; }
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitGroupingExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitGroupingExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Grouping() { delete expression; }
 	};
@@ -152,9 +166,8 @@ namespace Stack {
 		Object * object = nullptr;
 		Literal(Token * t) { token = t; }
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitLiteralExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitLiteralExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Literal() { delete token; }
 	};
@@ -168,9 +181,8 @@ namespace Stack {
 			r = rs, l = ls; o = op;
 		}
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitLogicalExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitLogicalExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Logical() { delete r; delete l; delete o; }
 	};
@@ -184,9 +196,8 @@ namespace Stack {
 			object = o; name = n; value = v;
 		}
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitSetExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitSetExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Set() { delete object; delete name; delete value; }
 	};
@@ -195,13 +206,10 @@ namespace Stack {
 		public:
 		Token * keyword = nullptr;
 		Token * method = nullptr;
-		Super(Token * k, Token * m) {
-			keyword = k; method = m;
-		}
+		Super(Token * k, Token * m) { keyword = k; method = m; }
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitSuperExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitSuperExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Super() { delete keyword; delete method; }
 	};
@@ -211,9 +219,8 @@ namespace Stack {
 		Token * keyword = nullptr;
 		This(Token * k) { keyword = k; }
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitThisExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitThisExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~This() { delete keyword; }
 	};
@@ -222,27 +229,59 @@ namespace Stack {
 		public:
 		Expression * r = nullptr;
 		Token * o = nullptr;
-		Unary(Token * op, Expression * rs) {
-			o = op; r = rs;
-		}
+		Unary(Token * op, Expression * rs) { o = op; r = rs; }
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitUnaryExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitUnaryExpression(this); }
+			catch (Exception & e) { throw; }
 		}
 		~Unary() { delete r; delete o; }
 	};
 
-	class Variable: public Expression {
+	class Identifier: public Expression {
 		public:
 		Token * name = nullptr;
-		Variable(Token * n) { name = n; }
+		Identifier(Token * n) { name = n; }
 		void accept(Visitor * visitor) override {
-			try {
-				visitor -> visitVariableExpression(this);
-			} catch (Exception & e) { throw; }
+			try { visitor -> visitIdentifierExpression(this); }
+			catch (Exception & e) { throw; }
 		}
-		~Variable() { delete name; }
+		~Identifier() { delete name; }
+	};
+
+	class ExpressionStatement: public Statement {
+		public:
+		Expression * e = nullptr;
+		ExpressionStatement(Expression * ex) { e = ex; }
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitExpressionStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~ExpressionStatement() { delete e; }
+	};
+
+	class PrintStatement: public Statement {
+		public:
+		Expression * e = nullptr;
+		PrintStatement(Expression * ex) { e = ex; }
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitPrintStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~PrintStatement() { delete e; }
+	}; 
+
+	class VariableStatement: public Statement {
+		public:
+		Token * name = nullptr;
+		Expression * initializer = nullptr;
+		VariableStatement(Token * n, Expression * i) {
+			name = n; initializer = i;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitVariableStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~VariableStatement() { delete name; }
 	};
 
 }

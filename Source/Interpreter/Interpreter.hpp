@@ -40,12 +40,9 @@ namespace Stack {
 		Exception(),  _message(message), _position(position), _fileName(name) { }
 	};
 
-	class Interpreter: public Expression::Visitor {
+	class Interpreter: public Expression::Visitor, public Statement::Visitor {
 
 		private:
-
-		String fileName = "";
-		String * input = nullptr;
 
 		Object * value = nullptr;
 
@@ -108,6 +105,29 @@ namespace Stack {
 			catch (EvaluationError & e) { throw; }
 		}
 
+
+
+
+
+		void visitExpressionStatement(ExpressionStatement * e) override {
+			try { evaluateExpression(e -> e); }
+			catch (EvaluationError & e) { throw; }
+		}
+		void visitPrintStatement(PrintStatement * e) override {
+			try {
+				evaluateExpression(e -> e);
+				// TO FIX: Find a better way to output things.
+				std::cout << "Log: " << value -> getObjectStringValue();
+			} catch (EvaluationError & e) { throw; }
+		}
+
+
+
+		void execute(Statement * statement) {
+			try { statement -> accept(this); }
+			catch (EvaluationError & e) { throw; }
+		}
+
 		Interpreter() = default;
 		~Interpreter() = default;
 
@@ -123,11 +143,25 @@ namespace Stack {
 			return & instance;
 		}
 
+		void evaluate(ArrayList<Statement *> * statements,
+					  String * input = nullptr,
+					  String fileName = "Unknown File") {
+			try {
+				for (Statement * statement : (* statements)) {
+					execute(statement);
+				}
+			} catch (EvaluationError & e) {
+				const UInt32 cursor = e.getToken().position;
+				FilePosition fp = Linker::getPosition(input, cursor);
+				throw InterpreterErrorException(
+					e.getMessage(), fp, fileName
+				);
+			}
+		}
+
 		Object * evaluate(Expression * expression,
 						  String * input = nullptr,
 						  String fileName = "Unknown File") {
-			this -> input = input;
-			this -> fileName = fileName;
 			try {
 				expression -> accept(this);
 			} catch (EvaluationError & e) {

@@ -193,6 +193,9 @@ namespace Stack {
 				advance();
 				Token * literal = new Token(t);
 				return new Literal(literal);
+			} else if (match(TokenType::symbol)) {
+				Token * name = new Token(previous());
+				return new Identifier(name);
 			} else if (match(TokenType::openRoundBracket)) {
 				Expression * ex = nullptr;
 				try {
@@ -211,6 +214,67 @@ namespace Stack {
 			throw SyntaxError(
 				"Expected expression after '" + previous().lexeme + "'!", fp
 			);
+		}
+
+		/* Statements */
+
+		Statement * declaration() {
+			Statement * st = nullptr;
+			try {
+				if (match(TokenType::basicType)) {
+					st = variableDeclaration();
+				} else st = statement();
+			} catch (SyntaxError & s) { throw; }
+			return st;
+		}
+
+		Statement * variableDeclaration() {
+			Token * name = nullptr;
+			Expression * initializer = nullptr;
+			try {
+				name = new Token(consume(TokenType::identifier, "identifier"));
+				if (match(TokenType::equal)) initializer = expression();
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) {
+				if (name != nullptr) delete name;
+				if (initializer != nullptr) delete initializer;
+				throw;
+			}
+			return new VariableStatement(name, initializer);
+		}
+
+		Statement * statement() {
+			Statement * st = nullptr;
+			try {
+				if (match(TokenType::printKeyword)) {
+					st = printStatement();
+				} else st = expressionStatement();
+			} catch (SyntaxError & s) { throw; }
+			return st;
+		}
+
+		Statement * expressionStatement() {
+			Expression * ex = nullptr;
+			try {
+				ex = expression();
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) {
+				if (ex != nullptr) delete ex;
+				throw;
+			}
+			return new ExpressionStatement(ex);
+		}
+
+		Statement * printStatement() {
+			Expression * ex = nullptr;
+			try {
+				ex = expression();
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) {
+				if (ex != nullptr) delete ex;
+				throw;
+			}
+			return new PrintStatement(ex);
 		}
 
 		Boolean match(TokenType type) {
@@ -279,6 +343,7 @@ namespace Stack {
 					case TokenType::throwKeyword:
 					case TokenType::throwsKeyword:
 					case TokenType::avoidKeyword:
+					case TokenType::printKeyword:
 					case TokenType::ifKeyword:
 					case TokenType::elseKeyword:
 					case TokenType::switchKeyword:
@@ -327,9 +392,9 @@ namespace Stack {
 			return & instance;
 		}
 
-		Expression * parse(ArrayList<Token> * tokens,
-						   String * input = nullptr,
-						   String fileName = "Unknown File") {
+		ArrayList<Statement *> * parse(ArrayList<Token> * tokens,
+											   String * input = nullptr,
+											   String fileName = "Unknown File") {
 			if (tokens == nullptr || tokens -> size() <= 2) {
 				errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
 				errors -> shrinkToFit();
@@ -344,20 +409,21 @@ namespace Stack {
 				errors -> shrinkToFit();
 				throw ParserErrorException(errors, fileName);
 			}
-			Expression * ex = nullptr;
-			try {
-				ex = expression();
-			} catch (SyntaxError & s) {
-				errors -> push(s);
-				errors -> shrinkToFit();
-				throw ParserErrorException(errors, fileName);
+			ArrayList<Statement *> * statements = new ArrayList<Statement *>();
+			while (!isAtEnd()) {
+				try {
+					statements -> push(declaration());
+				} catch (SyntaxError & s) {
+					errors -> push(s);
+					synchronise();
+				}
 			}
 			if (errors -> size() > 0) {
 				errors -> shrinkToFit();
 				throw ParserErrorException(errors, fileName);
 			}
 			delete errors;
-			return ex;
+			return statements;
 		}
 
 	};
