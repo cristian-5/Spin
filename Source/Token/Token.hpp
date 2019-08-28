@@ -108,6 +108,8 @@ namespace Stack {
 		throwsKeyword,
 		avoidKeyword,
 
+		printKeyword,
+
 		ifKeyword,
 		elseKeyword,
 		switchKeyword,
@@ -159,36 +161,9 @@ namespace Stack {
 		}
 
 		Boolean isTypeLiteral() const {
-			return type == TokenType::boolLiteral       ||
-				   type == TokenType::intLiteral        ||
-				   type == TokenType::stringLiteral     ||
-				   type == TokenType::charLiteral       ||
-				   type == TokenType::realLiteral       ||
-				   type == TokenType::imaginaryLiteral  ||
-				   type == TokenType::colourLiteral     ||
-				   type == TokenType::nullLiteral       ||
-				   type == TokenType::braLiteral        ||
-				   type == TokenType::ketLiteral        ||
-				   type == TokenType::braketLiteral;
+			return type >= TokenType::intLiteral &&
+				   type <= TokenType::nullLiteral;
 		}
-
-		/*Boolean isTypeTokenType() {
-			if (type != symbol) return false;
-			return lexeme == "Int8"      ||
-				   lexeme == "Int16"     ||
-				   lexeme == "Int32"     ||
-				   lexeme == "Int64"     ||
-				   lexeme == "UInt8"     ||
-				   lexeme == "UInt16"    ||
-				   lexeme == "UInt32"    ||
-				   lexeme == "UInt64"    ||
-				   lexeme == "Character" ||
-				   lexeme == "Float"     ||
-				   lexeme == "Double"    ||
-				   lexeme == "Real"      ||
-				   lexeme == "Boolean"   ||
-				   lexeme == "String";
-		}*/
 
 	};
 
