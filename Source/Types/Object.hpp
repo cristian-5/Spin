@@ -112,16 +112,16 @@ namespace Stack {
 
 		String getObjectName() const {
 			switch (type) {
-				case BasicType::BooleanType: return "Boolean";
+				case BasicType::BooleanType: return "Bool";
 				case BasicType::CharacterType: return "Character";
 				case BasicType::ByteType: return "Byte";
-				case BasicType::Int64Type: return "Int64";
+				case BasicType::Int64Type: return "Integer";
 				case BasicType::ColourType: return "Colour";
 				case BasicType::RealType: return "Real";
 				case BasicType::ImaginaryType: return "Imaginary";
 				case BasicType::ComplexType: return "Complex";
 				case BasicType::StringType: return "String";
-				case BasicType::ArrayListType: return "ArrayList";
+				case BasicType::ArrayListType: return "Array";
 				case BasicType::VectorType: return "Vector";
 				case BasicType::ClassType: {
 					return "Class";

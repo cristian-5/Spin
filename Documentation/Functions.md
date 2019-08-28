@@ -5,13 +5,13 @@
 
 Functions in Stack are defined with the keyword `func`
 followed by an identifier, parameters enclosed in round
-brackets, the return type and the block of code.
+parenthesis, the return type and the block of code.
 
 Parameters are separated with a comma and are defined
 with an identifier followed by colon and the type.
 
 ```swift
-func addition(a: Int64, b: Int64) -> Int64 {
+func addition(a: Integer, b: Integer) -> Integer {
     return a + b;
 }
 ```
@@ -28,7 +28,7 @@ Parameters are separated with a comma and are defined
 with an identifier followed by colon and the type.
 
 ```swift
-proc increment(val: ref Int) {
+proc increment(val: ref Integer) {
     a += 1;
 }
 ```
@@ -40,32 +40,28 @@ the identifier followed by eventual parameters
 enclosed in round brackets.
 
 ```swift
-Integer x = addition(a: 5, b: 6);
-increment(val: x);
+Integer x = addition(5, 6);
+increment(x);
 ```
 
-To call a Stack function without specifying the
-argument lables, you must define them with an
-underscore.
+## Reference and Copy
+
+Classes are always passed as reference in functions
+and procedures but can be passed as a copy using the
+`cpy` specifier after the argument label.
 
 ```swift
-proc decrement(_ a: inout Int32) {
-    a--;
+proc hello(val: cpy CustomClass) {
+    // Do Stuff.
 }
-
-Int32 x = 5;
-decrement(x);
 ```
 
-To call a Stack function with an argument lable
-and use another name instead of the lable used,
-you can define the name after the lable.
+Basic Types are always passed as copies in functions
+and procedures but can be passed as reference using the
+`ref` specifier after the argument label.
 
 ```swift
-func incrementedVersion(of value: Int32) -> Int32 {
-    return value + 1;
+proc hello(val: ref Integer) {
+    val += 1;
 }
-
-Int32 x = 5;
-x = incrementedVersion(of: x);
 ```

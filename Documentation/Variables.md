@@ -21,12 +21,12 @@ In the example
 ```swift
 class A {
 
-    public static Int64 x;
-    Int64 y;
+    public static Integer x;
+    Integer y;
 
-    public proc subProgram(v: [Int64], a: Real, b: ref Int64) {
-        Int64 i = 1;
-        c = a + b; // Results in Int64.
+    public proc subProgram(v: [Integer], a: Real, b: ref Integer) {
+        Integer i = 1;
+        c = a + b; // Results in Integer.
         c += 1;
     }
 
