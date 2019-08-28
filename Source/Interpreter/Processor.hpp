@@ -906,6 +906,483 @@ namespace Stack {
 			}
 		};
 
+		Map<BasicTypes, BinaryHandler> binaryMajor = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((Real)(* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) > (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) > (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) > (Real)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((UInt8)(* a) > (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) > (UInt8)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			}
+		};
+		Map<BasicTypes, BinaryHandler> binaryMajorEqual = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((Real)(* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) >= (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) >= (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) >= (Real)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((UInt8)(* a) >= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) >= (UInt8)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			}
+		};
+		Map<BasicTypes, BinaryHandler> binaryMinor = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((Real)(* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) < (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) < (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) < (Real)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((UInt8)(* a) < (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) < (UInt8)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			}
+		};
+		Map<BasicTypes, BinaryHandler> binaryMinorEqual = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((Real)(* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) <= (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) <= (Int64)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((* a) <= (Real)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					Boolean * c = new Boolean((* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Boolean * c = new Boolean((Int64)(* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					Boolean * c = new Boolean((UInt8)(* a) <= (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Character * b = (Character *) r -> value;
+					Boolean * c = new Boolean((* a) <= (UInt8)(* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			}
+		};
+
 		Object * applyEquality(Token * t, Object * l, Object * r) {
 			if (l -> type == r -> type) {
 				auto search = binaryStrictEquality.find({ l -> type, r -> type });
@@ -941,16 +1418,52 @@ namespace Stack {
 			* b = !(* b); return a;
 		}
 		Object * applyMajor(Token * t, Object * l, Object * r) {
-			return nullptr;
+			auto search = binaryMajor.find({ l -> type, r -> type });
+			if (search != binaryMajor.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Logical operator '>' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
 		Object * applyMajorEqual(Token * t, Object * l, Object * r) {
-			return nullptr;
+			auto search = binaryMajorEqual.find({ l -> type, r -> type });
+			if (search != binaryMajorEqual.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Logical operator '>=' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
 		Object * applyMinor(Token * t, Object * l, Object * r) {
-			return nullptr;
+			auto search = binaryMinor.find({ l -> type, r -> type });
+			if (search != binaryMinor.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Logical operator '<' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
 		Object * applyMinorEqual(Token * t, Object * l, Object * r) {
-			return nullptr;
+			auto search = binaryMinorEqual.find({ l -> type, r -> type });
+			if (search != binaryMinorEqual.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Logical operator '<=' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
 
 		public:
