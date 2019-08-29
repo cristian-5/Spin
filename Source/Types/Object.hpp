@@ -221,6 +221,8 @@ namespace Stack {
 			}
 		}
 
+		Boolean isUnknown() const { return type == BasicType::UnknownType; }
+
 	};
 
 }
