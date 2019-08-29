@@ -98,7 +98,7 @@ namespace Stack {
 				setValue(CPU -> applyUnaryOperator(e -> o, value));
 			} catch (EvaluationError & e) { throw; }
 		}
-		void visitVariableExpression(Variable * e) override { }
+		void visitIdentifierExpression(Identifier * e) override { }
 
 		void evaluateExpression(Expression * e) {
 			try { e -> accept(this); }
@@ -120,6 +120,8 @@ namespace Stack {
 				std::cout << "Log: " << value -> getObjectStringValue();
 			} catch (EvaluationError & e) { throw; }
 		}
+
+		void visitVariableStatement(VariableStatement * e) override { }
 
 
 
