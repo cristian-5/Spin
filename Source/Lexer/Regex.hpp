@@ -37,7 +37,7 @@ namespace Stack {
 		*   @param input Input String.
 		*   @returns true if it matches the regex.
 		*/
-		static Boolean test(String rgx, String & input) {
+		static Bool test(String rgx, String & input) {
 			try {
 				Regex regex(rgx);
 				SMatch match;

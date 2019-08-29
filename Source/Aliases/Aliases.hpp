@@ -81,7 +81,7 @@ using RegexError = std::regex_error;
 #define Double double
 #define Float float
 #define Real long double
-#define Boolean bool
+#define Bool bool
 
 #define hexConversion std::hex
 

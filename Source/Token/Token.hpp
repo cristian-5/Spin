@@ -156,7 +156,7 @@ namespace Stack {
 			lexeme = l; type = t; position = p;
 		}
 
-		Boolean isTypeLiteral() const {
+		Bool isTypeLiteral() const {
 			return type >= TokenType::intLiteral &&
 				   type <= TokenType::nullLiteral;
 		}

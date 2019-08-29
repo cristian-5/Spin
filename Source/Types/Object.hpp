@@ -29,7 +29,7 @@ namespace Stack {
 
 	enum BasicType {
 
-		BooleanType,
+		BoolType,
 		CharacterType,
 
 		ByteType,
@@ -75,7 +75,7 @@ namespace Stack {
 			// TODO: Handle all deallocations.
 			if (value == nullptr) return;
 			switch (type) {
-				case BasicType::BooleanType: delete (Boolean *) value; return;
+				case BasicType::BoolType: delete (Bool *) value; return;
 				case BasicType::CharacterType: delete (Character *) value; return;
 				case BasicType::ByteType: delete (UInt8 *) value; return;
 				case BasicType::Int64Type: delete (Int64 *) value; return;
@@ -93,26 +93,26 @@ namespace Stack {
 			}
 		}
 
-		inline Boolean isByte() const { return type == BasicType::ByteType; }
-		inline Boolean isInteger() const { return type == BasicType::Int64Type; }
-		inline Boolean isReal() const { return type == BasicType::RealType; }
+		inline Bool isByte() const { return type == BasicType::ByteType; }
+		inline Bool isInteger() const { return type == BasicType::Int64Type; }
+		inline Bool isReal() const { return type == BasicType::RealType; }
 
-		inline Boolean isComplexType() const {
+		inline Bool isComplexType() const {
 			return type == BasicType::ComplexType ||
 				   type == BasicType::ImaginaryType;
 		}			
 
-		inline Boolean isNumericType() const {
+		inline Bool isNumericType() const {
 			return isInteger() || isReal() || isComplexType();
 		}
 
-		inline Boolean isString() const { return type == BasicType::StringType; }
-		inline Boolean isColour() const { return type == BasicType::ColourType; }
-		inline Boolean isCharacter() const { return type == BasicType::CharacterType; }
+		inline Bool isString() const { return type == BasicType::StringType; }
+		inline Bool isColour() const { return type == BasicType::ColourType; }
+		inline Bool isCharacter() const { return type == BasicType::CharacterType; }
 
 		String getObjectName() const {
 			switch (type) {
-				case BasicType::BooleanType: return "Bool";
+				case BasicType::BoolType: return "Bool";
 				case BasicType::CharacterType: return "Character";
 				case BasicType::ByteType: return "Byte";
 				case BasicType::Int64Type: return "Integer";
@@ -137,7 +137,7 @@ namespace Stack {
 			Object * copy = new Object();
 			copy -> type = type;
 			switch (type) {
-				case BasicType::BooleanType: copy -> value = new Boolean(* ((Boolean *) value)); break;
+				case BasicType::BoolType: copy -> value = new Bool(* ((Bool *) value)); break;
 				case BasicType::CharacterType: copy -> value = new Character(* ((Character *) value)); break;
 				case BasicType::ByteType: copy -> value = new UInt8(* ((UInt8 *) value)); break;
 				case BasicType::Int64Type: copy -> value = new Int64(* ((Int64 *) value)); break;
@@ -158,8 +158,8 @@ namespace Stack {
 
 		String getObjectStringValue() const {
 			switch (type) {
-				case BasicType::BooleanType: {
-					Boolean * b = (Boolean *) value;
+				case BasicType::BoolType: {
+					Bool * b = (Bool *) value;
 					if (* b) return "true";
 					else return "false";
 				}
@@ -221,7 +221,7 @@ namespace Stack {
 			}
 		}
 
-		Boolean isUnknown() const { return type == BasicType::UnknownType; }
+		Bool isUnknown() const { return type == BasicType::UnknownType; }
 
 	};
 

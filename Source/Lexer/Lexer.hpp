@@ -185,9 +185,9 @@ namespace Stack {
 			UInt32 pos = 0;
 			Token temp = Token("beginFile", TokenType::beginFile, 0);
 			tokens -> push(temp);
-			Boolean previousInvalid = false;
+			Bool previousInvalid = false;
 			while (data.length() > 0) {
-				Boolean tokenised = false;
+				Bool tokenised = false;
 				for (TokenRule rule : grammar) {
 					String result = RegexTools::matchCloseStart(rule.pattern, data);
 					if (result.length() > 0) {

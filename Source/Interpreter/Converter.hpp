@@ -40,7 +40,7 @@ namespace Stack {
 
 		Converter() { }
 
-		static Boolean checkBase(String base, String & s) {
+		static Bool checkBase(String base, String & s) {
 			return RegexTools::test(base, s);
 		}
 
@@ -131,8 +131,8 @@ namespace Stack {
 					o -> value = v;
 				} break;
 				case TokenType::boolLiteral: {
-					o -> type = BasicType::BooleanType;
-					o -> value = new Boolean(stringToBool(t -> lexeme));
+					o -> type = BasicType::BoolType;
+					o -> value = new Bool(stringToBool(t -> lexeme));
 				} break;
 				case TokenType::charLiteral: {
 					o -> type = BasicType::CharacterType;
@@ -163,7 +163,7 @@ namespace Stack {
 			return o;
 		}
 
-		static Boolean stringToBool(String & s) {
+		static Bool stringToBool(String & s) {
 			return s == "true";
 		}
 

@@ -837,12 +837,12 @@ namespace Stack {
 				}
 			},
 			{
-				{ BasicType::BooleanType, BasicType::BooleanType },
+				{ BasicType::BoolType, BasicType::BoolType },
 				[] (Object * l, Object * r) {
-					Boolean * a = (Boolean *) l -> value;
-					Boolean * b = (Boolean *) r -> value;
-					Boolean * c = new Boolean((* a) && (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * a = (Bool *) l -> value;
+					Bool * b = (Bool *) r -> value;
+					Bool * c = new Bool((* a) && (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -875,12 +875,12 @@ namespace Stack {
 				}
 			},
 			{
-				{ BasicType::BooleanType, BasicType::BooleanType },
+				{ BasicType::BoolType, BasicType::BoolType },
 				[] (Object * l, Object * r) {
-					Boolean * a = (Boolean *) l -> value;
-					Boolean * b = (Boolean *) r -> value;
-					Boolean * c = new Boolean((* a) ? !(* b) : (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * a = (Bool *) l -> value;
+					Bool * b = (Bool *) r -> value;
+					Bool * c = new Bool((* a) ? !(* b) : (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -913,12 +913,12 @@ namespace Stack {
 				}
 			},
 			{
-				{ BasicType::BooleanType, BasicType::BooleanType },
+				{ BasicType::BoolType, BasicType::BoolType },
 				[] (Object * l, Object * r) {
-					Boolean * a = (Boolean *) l -> value;
-					Boolean * b = (Boolean *) r -> value;
-					Boolean * c = new Boolean((* a) || (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * a = (Bool *) l -> value;
+					Bool * b = (Bool *) r -> value;
+					Bool * c = new Bool((* a) || (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -1074,8 +1074,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1083,8 +1083,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1092,17 +1092,17 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					String * b = (String *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
-				{ BasicType::BooleanType, BasicType::BooleanType },
+				{ BasicType::BoolType, BasicType::BoolType },
 				[] (Object * l, Object * r) {
-					Boolean * a = (Boolean *) l -> value;
-					Boolean * b = (Boolean *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * a = (Bool *) l -> value;
+					Bool * b = (Bool *) r -> value;
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1110,8 +1110,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Colour * a = (Colour *) l -> value;
 					Colour * b = (Colour *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1119,8 +1119,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1128,8 +1128,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1137,8 +1137,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1146,8 +1146,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -1157,8 +1157,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((Real)(* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Real)(* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1166,8 +1166,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) == (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1175,8 +1175,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1184,8 +1184,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) == (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) == (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1193,8 +1193,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Complex * b = (Complex *) r -> value;
-					Boolean * c = new Boolean(((* a) == b -> b) && (b -> a == 0));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool(((* a) == b -> b) && (b -> a == 0));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1202,8 +1202,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Complex * b = (Complex *) r -> value;
-					Boolean * c = new Boolean(((* a) == b -> a) && (b -> b == 0));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool(((* a) == b -> a) && (b -> b == 0));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1211,12 +1211,12 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean(false);
+					Bool * c = new Bool(false);
 					if (a -> length() != 1) {
-						return new Object(BasicType::BooleanType, c);
+						return new Object(BasicType::BoolType, c);
 					}
 					* c = (a -> at(0) == (* b));
-					return new Object(BasicType::BooleanType, c);
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -1227,8 +1227,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1236,8 +1236,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((Real)(* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Real)(* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1245,8 +1245,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) > (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1254,8 +1254,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) > (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1263,8 +1263,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) > (Real)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (Real)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1272,8 +1272,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1281,8 +1281,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1290,8 +1290,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1299,8 +1299,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1308,8 +1308,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1317,8 +1317,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1326,8 +1326,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((UInt8)(* a) > (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((UInt8)(* a) > (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1335,8 +1335,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) > (UInt8)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) > (UInt8)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -1346,8 +1346,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1355,8 +1355,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((Real)(* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Real)(* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1364,8 +1364,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) >= (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1373,8 +1373,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) >= (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1382,8 +1382,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) >= (Real)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (Real)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1391,8 +1391,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1400,8 +1400,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1409,8 +1409,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1418,8 +1418,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1427,8 +1427,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1436,8 +1436,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1445,8 +1445,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((UInt8)(* a) >= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((UInt8)(* a) >= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1454,8 +1454,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) >= (UInt8)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) >= (UInt8)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -1465,8 +1465,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1474,8 +1474,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((Real)(* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Real)(* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1483,8 +1483,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) < (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1492,8 +1492,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) < (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1501,8 +1501,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) < (Real)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (Real)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1510,8 +1510,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1519,8 +1519,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1528,8 +1528,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1537,8 +1537,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1546,8 +1546,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1555,8 +1555,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1564,8 +1564,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((UInt8)(* a) < (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((UInt8)(* a) < (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1573,8 +1573,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) < (UInt8)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) < (UInt8)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -1584,8 +1584,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1593,8 +1593,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((Real)(* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Real)(* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1602,8 +1602,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) <= (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1611,8 +1611,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) <= (Int64)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (Int64)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1620,8 +1620,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((* a) <= (Real)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (Real)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1629,8 +1629,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1638,8 +1638,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1647,8 +1647,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1656,8 +1656,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
-					Boolean * c = new Boolean((* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1665,8 +1665,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1674,8 +1674,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					Boolean * c = new Boolean((Int64)(* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((Int64)(* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1683,8 +1683,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
-					Boolean * c = new Boolean((UInt8)(* a) <= (* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((UInt8)(* a) <= (* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			},
 			{
@@ -1692,8 +1692,8 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
-					Boolean * c = new Boolean((* a) <= (UInt8)(* b));
-					return new Object(BasicType::BooleanType, c);
+					Bool * c = new Bool((* a) <= (UInt8)(* b));
+					return new Object(BasicType::BoolType, c);
 				}
 			}
 		};
@@ -1729,7 +1729,7 @@ namespace Stack {
 		}
 		Object * applyInequality(Token * t, Object * l, Object * r) {
 			Object * a = applyEquality(t, l, r);
-			Boolean * b = (Boolean *) a -> value;
+			Bool * b = (Bool *) a -> value;
 			* b = !(* b); return a;
 		}
 		Object * applyMajor(Token * t, Object * l, Object * r) {
@@ -1899,9 +1899,9 @@ namespace Stack {
 					}
 				} break;
 				case TokenType::exclamationMark: {
-					if (o -> type == BasicType::BooleanType) {
-						Boolean * b = (Boolean *) o -> value;
-						b = new Boolean(!(* b));
+					if (o -> type == BasicType::BoolType) {
+						Bool * b = (Bool *) o -> value;
+						b = new Bool(!(* b));
 						return new Object(o -> type, b);
 					} else {
 						throw EvaluationError(

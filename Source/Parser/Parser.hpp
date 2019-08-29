@@ -280,14 +280,14 @@ namespace Stack {
 			return new PrintStatement(ex);
 		}
 
-		Boolean match(TokenType type) {
+		Bool match(TokenType type) {
 			if (check(type)) {
 				advance();
 				return true;
 			} return false;
 		}
 
-		Boolean match(ArrayList<TokenType> * types) {
+		Bool match(ArrayList<TokenType> * types) {
 			for (TokenType & type : * types) {
 				if (check(type)) {
 					advance();
@@ -296,18 +296,18 @@ namespace Stack {
 			} return false;
 		}
 
-		Boolean check(TokenType type) {
+		Bool check(TokenType type) {
 			if (isAtEnd()) return false;
 			return peek().type == type;
 		}
 
-		Boolean isOutOfRange() {
+		Bool isOutOfRange() {
 			if (tokens -> size() == 0) return true;
 			if (index >= tokens -> size()) return true;
 			return false;
 		}
 
-		Boolean isAtEnd() {
+		Bool isAtEnd() {
 			return peek().type == TokenType::endFile;
 		}
 

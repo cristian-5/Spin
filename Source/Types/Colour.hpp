@@ -69,7 +69,7 @@ namespace Stack {
 			return Colour(a - r, a - g, a - b, a);
 		}
 
-		Boolean operator == (Colour c) const {
+		Bool operator == (Colour c) const {
 			if (r != c.r) return false;
 			if (g != c.g) return false;
 			if (b != c.b) return false;
@@ -77,7 +77,7 @@ namespace Stack {
 			return true;
 		}
 
-		Boolean operator != (Colour c) const {
+		Bool operator != (Colour c) const {
 			return !((* this) == c);
 		}
 
