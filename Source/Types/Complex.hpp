@@ -22,7 +22,11 @@
 #include "../Aliases/Aliases.hpp"
 
 namespace Stack {
-		
+
+	class ComplexDBZException: public Exception {
+		public: ComplexDBZException(): Exception() { }
+	};
+	
 	class Complex {
 			
 		public:
@@ -109,8 +113,10 @@ namespace Stack {
 		}
 
 		Complex operator / (Complex r) const {
-			return Complex((a * r.a + b * r.b) / (r.a * r.a + r.b * r.b),
-						   (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b));
+			Real d = r.a * r.a + r.b * r.b;
+			if (d == 0) throw ComplexDBZException();
+			return Complex((a * r.a + b * r.b) / d,
+						   (r.a * b - a * r.b) / d);
 		}
 
 		void operator /= (Complex r) {

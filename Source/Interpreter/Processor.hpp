@@ -660,6 +660,159 @@ namespace Stack {
 			}
 		};
 
+		Map<BasicTypes, BinaryHandler> binaryDivision = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					if ((* b) == 0) return new Object();
+					Int64 * c = new Int64((* a) / (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					if ((* b) == 0.0) return new Object();
+					Real * c = new Real((Real)(* a) / (* b));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					if ((* b) == 0) return new Object();
+					Real * c = new Real((* a) / (Real)(* b));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					if ((* b) == 0.0) return new Object();
+					Real * c = new Real((* a) / (* b));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					if ((* b) == 0) return new Object();
+					UInt8 * c = new UInt8((* a) / (* b));
+					return new Object(BasicType::ByteType, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					if ((* b) == 0) return new Object();
+					Int64 * c = new Int64((Int64)(* a) / (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					if ((* b) == 0) return new Object();
+					Int64 * c = new Int64((* a) / (Int64)(* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					if ((* b) == 0) return new Object();
+					Character * c = new Character((* a) / (* b));
+					return new Object(BasicType::CharacterType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					if ((* b) == 0) return new Object();
+					Int64 * c = new Int64((Int64)(* a) / (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					if ((* b) == 0) return new Object();
+					Character * c = new Character((* a) / (UInt8)(* b));
+					return new Object(BasicType::CharacterType, c);
+				}
+			},
+			{
+				{ BasicType::ColourType, BasicType::ColourType },
+				[] (Object * l, Object * r) {
+					Colour * a = (Colour *) l -> value;
+					Colour * b = (Colour *) r -> value;
+					Colour * c = new Colour((* a) / (* b));
+					return new Object(BasicType::ColourType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					if ((* b) == 0.0) return new Object();
+					Real * c = new Real((* a) / (* b));
+					return new Object(BasicType::ImaginaryType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					if ((* b) == 0) return new Object();
+					Real * c = new Real((* a) / (Real)(* b));
+					return new Object(BasicType::ImaginaryType, c);
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					if ((* b) == 0) return new Object();
+					Real * c = new Real((* a) / (* b));
+					return new Object(BasicType::RealType, c);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					Complex * c = nullptr;
+					try { c = new Complex((* a) / (* b)); }
+					catch (ComplexDBZException & e) { return new Object(); }
+					return new Object(BasicType::ComplexType, c);
+				}
+			}
+		};
+
 		Object * applyAddition(Token * t, Object * l, Object * r) {
 			if (l -> isString() || r -> isString()) {
 				auto search = stringAddition.find({ l -> type, r -> type });
@@ -719,7 +872,23 @@ namespace Stack {
 			);
 		}
 		Object * applyDivision(Token * t, Object * l, Object * r) {
-			return nullptr;
+			auto search = binaryDivision.find({ l -> type, r -> type });
+			if (search != binaryDivision.end()) {
+				auto handler = search -> second;
+				Object * o = handler(l, r);
+				if (o -> isUnknown()) {
+					// Check if in try catch block.
+					throw EvaluationError(
+						"Binary operator '/' threw division by 0 exception!", * t
+					);
+				}
+				return o;
+			}
+			throw EvaluationError(
+				"Binary operator '/' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
 		Object * applyModulus(Token * t, Object * l, Object * r) {
 			if (l -> type == BasicType::Int64Type &&
