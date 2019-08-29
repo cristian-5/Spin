@@ -846,7 +846,6 @@ namespace Stack {
 				}
 			}
 		};
-		// TODO: Check XOR between Bool.
 		Map<BasicTypes, BinaryHandler> binaryXOR = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
@@ -880,7 +879,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Boolean * a = (Boolean *) l -> value;
 					Boolean * b = (Boolean *) r -> value;
-					Boolean * c = new Boolean((* a) ^ (* b));
+					Boolean * c = new Boolean((* a) ? !(* b) : (* b));
 					return new Object(BasicType::BooleanType, c);
 				}
 			}
