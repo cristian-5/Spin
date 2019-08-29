@@ -16,9 +16,9 @@ contain methods and properties.
 
 |          Type | Size     | Description      |
 |--------------:|----------|:----------------:|
-|      **Bool** |  1 Byte  | Boolean Value    |
+|      **Bool** |  1 Byte  | Bool Value       |
 | **Character** |  1 Byte  | Character        |
-|    **Colour** |  4 Bytes | Unsigned Integer |
+|    **Colour** |  4 Bytes | RGBA Colour      |
 
 ### Real Number Types
 
