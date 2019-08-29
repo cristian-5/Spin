@@ -114,7 +114,7 @@ namespace Stack {
 			return ex;
 		}
 
-		/*  Parses Low Priority infix Operators [N + M]. */
+		/*  Parses Low Priority infix Operators. */
 		Expression * lowPriorityOperator() {
 			Expression * ex = nullptr;
 			try { ex = mediumPriorityOperator(); }
@@ -122,6 +122,7 @@ namespace Stack {
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::plus);
 			ops -> push(TokenType::minus);
+			ops -> push(TokenType::pipe);
 			while (match(ops)) {
 				Token * op = new Token(previous());
 				Expression * rs = nullptr;
@@ -138,7 +139,7 @@ namespace Stack {
 			return ex;
 		}
 
-		/*  Parses Medium Priority infix Operators [N * M]. */
+		/*  Parses Medium Priority infix Operators. */
 		Expression * mediumPriorityOperator() {
 			Expression * ex = nullptr;
 			try { ex = highPriorityOperator(); }
@@ -146,6 +147,8 @@ namespace Stack {
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::star);
 			ops -> push(TokenType::slash);
+			ops -> push(TokenType::ampersand);
+			ops -> push(TokenType::hat);
 			ops -> push(TokenType::modulus);
 			while (match(ops)) {
 				Token * op = new Token(previous());
@@ -163,7 +166,7 @@ namespace Stack {
 			return ex;
 		}
 
-		/*  Parses High Priority Unary Operators [-N]. */
+		/*  Parses High Priority Unary Operators. */
 		Expression * highPriorityOperator() {
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::minus);

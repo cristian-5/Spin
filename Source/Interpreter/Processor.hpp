@@ -101,7 +101,6 @@ namespace Stack {
 				}
 			}
 		};
-
 		Map<BasicTypes, BinaryHandler> binaryAddition = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
@@ -356,7 +355,6 @@ namespace Stack {
 				}
 			}
 		};
-
 		Map<BasicTypes, BinaryHandler> binarySubtraction = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
@@ -521,7 +519,6 @@ namespace Stack {
 				}
 			}
 		};
-
 		Map<BasicTypes, BinaryHandler> binaryMultiplication = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
@@ -659,7 +656,6 @@ namespace Stack {
 				}
 			}
 		};
-
 		Map<BasicTypes, BinaryHandler> binaryDivision = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
@@ -812,6 +808,121 @@ namespace Stack {
 				}
 			}
 		};
+		Map<BasicTypes, BinaryHandler> binaryAND = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Int64 * c = new Int64((* a) & (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					UInt8 * c = new UInt8((* a) & (* b));
+					return new Object(BasicType::ByteType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Character * c = new Character((* a) & (* b));
+					return new Object(BasicType::CharacterType, c);
+				}
+			},
+			{
+				{ BasicType::BooleanType, BasicType::BooleanType },
+				[] (Object * l, Object * r) {
+					Boolean * a = (Boolean *) l -> value;
+					Boolean * b = (Boolean *) r -> value;
+					Boolean * c = new Boolean((* a) && (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			}
+		};
+		// TODO: Check XOR between Bool.
+		Map<BasicTypes, BinaryHandler> binaryXOR = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Int64 * c = new Int64((* a) ^ (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					UInt8 * c = new UInt8((* a) ^ (* b));
+					return new Object(BasicType::ByteType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Character * c = new Character((* a) ^ (* b));
+					return new Object(BasicType::CharacterType, c);
+				}
+			},
+			{
+				{ BasicType::BooleanType, BasicType::BooleanType },
+				[] (Object * l, Object * r) {
+					Boolean * a = (Boolean *) l -> value;
+					Boolean * b = (Boolean *) r -> value;
+					Boolean * c = new Boolean((* a) ^ (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			}
+		};
+		Map<BasicTypes, BinaryHandler> binaryOR = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					Int64 * c = new Int64((* a) | (* b));
+					return new Object(BasicType::Int64Type, c);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					UInt8 * c = new UInt8((* a) | (* b));
+					return new Object(BasicType::ByteType, c);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					Character * c = new Character((* a) | (* b));
+					return new Object(BasicType::CharacterType, c);
+				}
+			},
+			{
+				{ BasicType::BooleanType, BasicType::BooleanType },
+				[] (Object * l, Object * r) {
+					Boolean * a = (Boolean *) l -> value;
+					Boolean * b = (Boolean *) r -> value;
+					Boolean * c = new Boolean((* a) || (* b));
+					return new Object(BasicType::BooleanType, c);
+				}
+			}
+		};
 
 		Object * applyAddition(Token * t, Object * l, Object * r) {
 			if (l -> isString() || r -> isString()) {
@@ -914,6 +1025,42 @@ namespace Stack {
 			}
 			throw EvaluationError(
 				"Binary operator '\%' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
+		}
+		Object * applyAND(Token * t, Object * l, Object * r) {
+			auto search = binaryAND.find({ l -> type, r -> type });
+			if (search != binaryAND.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Binary operator '&' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
+		}
+		Object * applyXOR(Token * t, Object * l, Object * r) {
+			auto search = binaryXOR.find({ l -> type, r -> type });
+			if (search != binaryXOR.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Binary operator '^' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
+		}
+		Object * applyOR(Token * t, Object * l, Object * r) {
+			auto search = binaryOR.find({ l -> type, r -> type });
+			if (search != binaryOR.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Binary operator '|' doesn't support operands of type '" +
 				l -> getObjectName() + "' and '" +
 				r -> getObjectName() + "'!", * t
 			);
@@ -1675,9 +1822,12 @@ namespace Stack {
 				} break;
 				default: break;
 			}
-			return nullptr;
+			throw EvaluationError(
+				"Logical operator '" + t -> lexeme + "' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
-
 		Object * applyBinaryOperator(Token * t, Object * l, Object * r) {
 			switch (t -> type) {
 				case TokenType::plus: {
@@ -1696,15 +1846,30 @@ namespace Stack {
 					try { return applyDivision(t, l, r);}
 					catch (EvaluationError & e) { throw; }
 				} break;
+				case TokenType::ampersand: {
+					try { return applyAND(t, l, r); }
+					catch (EvaluationError & e) { throw; }
+				} break;
+				case TokenType::hat: {
+					try { return applyXOR(t, l, r); }
+					catch (EvaluationError & e) { throw; }
+				} break;
+				case TokenType::pipe: {
+					try { return applyOR(t, l, r); }
+					catch (EvaluationError & e) { throw; }
+				} break;
 				case TokenType::modulus: {
 					try { return applyModulus(t, l, r); }
 					catch (EvaluationError & e) { throw; }
 				} break;
 				default: break;
 			}
-			return nullptr;
+			throw EvaluationError(
+				"Binary operator '" + t -> lexeme + "' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
-
 		Object * applyUnaryOperator(Token * t, Object * o) {
 			switch (t -> type) {
 				case TokenType::minus: {
