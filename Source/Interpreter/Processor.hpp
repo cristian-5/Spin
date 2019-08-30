@@ -879,7 +879,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
-					Bool * c = new Bool((* a) ? !(* b) : (* b));
+					Bool * c = new Bool((* a) != (* b));
 					return new Object(BasicType::BoolType, c);
 				}
 			}
