@@ -6,8 +6,8 @@ requires logical or mathematical evaluation.
 
 ### Syntax:
 
-    + ── > ────── [Equality] ────── > ── +
+    + ── > ────── [Assignment] ────── > ── +
 
 ### Declarations used in this Rail:
 
-- [**Equality**](EX-Equality.md)
+- [**Assignment**](EX-Assignment.md)
