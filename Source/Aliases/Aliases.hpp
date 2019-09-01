@@ -105,7 +105,7 @@ namespace Stack {
 	}
 
 	static String realToString(Real a) {
-		String result = a > 0 ? "+ ": "- ";
+		String result = a >= 0 ? "+ ": "- ";
 		Int64 i = (Int64) a;
 		if (i < 0) { i = -i; a = -a; }
 		result += toString(i) + ".";
@@ -118,7 +118,7 @@ namespace Stack {
 	}
 
 	static String intToString(Int64 a) {
-		if (a > 0) return "+ " + toString(a);
+		if (a >= 0) return "+ " + toString(a);
 		else return "- " + toString(-a);
 	}
 
