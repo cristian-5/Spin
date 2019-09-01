@@ -89,6 +89,8 @@ using RegexError = std::regex_error;
 #define hexBytePadding std::setw(2) << std::setfill('0')
 #define uppercase std::uppercase
 
+#define dynamic dynamic_cast
+
 inline void waitKeyPress() { std::cin.get(); }
 
 const Int32 exitSuccess = 0;
