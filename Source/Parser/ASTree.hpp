@@ -62,6 +62,11 @@ namespace Stack {
 
 		virtual void accept(Visitor *) { }
 
+		template<typename t>
+		Bool isInstanceOf() {
+			return (dynamic<t *>(this)) != nullptr;
+		}
+
 	};
 
 	class ExpressionStatement;
@@ -273,9 +278,10 @@ namespace Stack {
 	class VariableStatement: public Statement {
 		public:
 		Token * name = nullptr;
+		BasicType type = BasicType::UnknownType;
 		Expression * initializer = nullptr;
-		VariableStatement(Token * n, Expression * i) {
-			name = n; initializer = i;
+		VariableStatement(Token * n, Expression * i, BasicType t) {
+			name = n; initializer = i; type = t;
 		}
 		void accept(Visitor * visitor) override {
 			try { visitor -> visitVariableStatement(this); }

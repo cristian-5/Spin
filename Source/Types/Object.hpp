@@ -67,6 +67,28 @@ namespace Stack {
 
 		Object() { }
 
+		Object(BasicType t) {
+			// TODO: Handle all types.
+			type = t;
+			switch (type) {
+				case BasicType::BoolType: value = new Bool(false); return;
+				case BasicType::CharacterType: value = new Character(0); return;
+				case BasicType::ByteType: value = new UInt8(0); return;
+				case BasicType::Int64Type: value = new Int64(0); return;
+				case BasicType::ColourType: value = new Colour(); return;
+				case BasicType::RealType: value = new Real(0.0); return;
+				case BasicType::ImaginaryType: value = new Real(0.0); return;
+				case BasicType::ComplexType: value = new Complex(); return;
+				case BasicType::StringType: value = new String(""); return;
+				case BasicType::ArrayListType: return;
+				case BasicType::VectorType: return;
+				case BasicType::ClassType: return;
+				case BasicType::StructureType: return;
+				case BasicType::ExceptionType: return;
+				case BasicType::UnknownType: default: return;
+			}
+		}
+
 		Object(BasicType t, void * v) {
 			type = t; value = v;
 		}

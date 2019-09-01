@@ -42,6 +42,7 @@ namespace Stack {
 
 		typedef Function<Object * (Object *)> UnaryHandler;
 		typedef Function<Object * (Object *, Object *)> BinaryHandler;
+		typedef Function<void (Object *, Object *)> AssignmentHandler;
 
 		typedef Pair<BasicType, BasicType> BasicTypes;
 
@@ -246,9 +247,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << (* b);
-					String * c = new String(s.str());
+					String * c = new String((* a) + realToString(* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -257,9 +256,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << (* b) << "i";
-					String * c = new String(s.str());
+					String * c = new String((* a) + realToString(* b) + "i");
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -268,9 +265,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << (* b);
-					String * c = new String(s.str());
+					String * c = new String((* a) + intToString(* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -308,9 +303,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					String * b = (String *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << (* b);
-					String * c = new String(s.str());
+					String * c = new String(realToString(* a) + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -319,9 +312,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					String * b = (String *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << "i" << (* b);
-					String * c = new String(s.str());
+					String * c = new String(realToString(* a) + "i" + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -330,9 +321,7 @@ namespace Stack {
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					String * b = (String *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << (* b);
-					String * c = new String(s.str());
+					String * c = new String(intToString(* a) + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1781,6 +1770,230 @@ namespace Stack {
 			);
 		}
 
+		Map<BasicTypes, AssignmentHandler> pureAssignment = {
+			{
+				{ BasicType::Int64Type, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::BoolType, BasicType::BoolType },
+				[] (Object * l, Object * r) {
+					Bool * a = (Bool *) l -> value;
+					Bool * b = (Bool *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::StringType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					String * b = (String *) r -> value;
+					* a = String(* b);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Character * b = (Character *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Real * b = (Real *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::ColourType, BasicType::ColourType },
+				[] (Object * l, Object * r) {
+					Colour * a = (Colour *) l -> value;
+					Colour * b = (Colour *) r -> value;
+					* a = * b;
+				}
+			},
+		};
+
+		Map<BasicTypes, AssignmentHandler> mixedAssignment = {
+			{
+				{ BasicType::Int64Type, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Real * b = (Real *) r -> value;
+					* a = (Int64)(* b);
+				}
+			},
+			{
+				{ BasicType::RealType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Real * a = (Real *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					* a = (Real)(* b);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					* a = Complex(* b, 0.0);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Real * b = (Real *) r -> value;
+					* a = Complex(* b, 0.0);
+				}
+			},
+			{
+				{ BasicType::ComplexType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					Complex * a = (Complex *) l -> value;
+					Real * b = (Real *) r -> value;
+					* a = Complex(0.0, * b);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					Character * b = (Character *) r -> value;
+					* a = (Int64)(* b);
+				}
+			},
+			{
+				{ BasicType::Int64Type, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Int64 * a = (Int64 *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					* a = (Int64)(* b);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					* a = (UInt8)(* b);
+				}
+			},
+			{
+				{ BasicType::CharacterType, BasicType::ByteType },
+				[] (Object * l, Object * r) {
+					Character * a = (Character *) l -> value;
+					UInt8 * b = (UInt8 *) r -> value;
+					* a = * b;
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					* a = (UInt8)(* b);
+				}
+			},
+			{
+				{ BasicType::ByteType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					UInt8 * a = (UInt8 *) l -> value;
+					Character * b = (Character *) r -> value;
+					* a = (UInt8)(* b);
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::CharacterType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Character * b = (Character *) r -> value;
+					StringStream s = StringStream();
+					s << (* b);
+					* a = String(s.str());
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::Int64Type },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Int64 * b = (Int64 *) r -> value;
+					* a = String(intToString(* b));
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::RealType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Real * b = (Real *) r -> value;
+					* a = String(realToString(* b));
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::ImaginaryType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Real * b = (Real *) r -> value;
+					* a = String(realToString(* b));
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::ComplexType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Complex * b = (Complex *) r -> value;
+					* a = b -> stringValue();
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::ColourType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Colour * b = (Colour *) r -> value;
+					* a = b -> stringValue();
+				}
+			},
+			{
+				{ BasicType::StringType, BasicType::BoolType },
+				[] (Object * l, Object * r) {
+					String * a = (String *) l -> value;
+					Bool * b = (Bool *) r -> value;
+					* a = (* b) ? "true" : "false";
+				}
+			}
+		};
+
 		public:
 
 		Processor(const Processor &) = delete;
@@ -1928,6 +2141,26 @@ namespace Stack {
 				"Unary operator '" + t -> lexeme +
 				"' doesn't support any operand of type '" +
 				o -> getObjectName() + "'!", * t
+			);
+		}
+
+		void applyAssignment(Token * t, Object * l, Object * r) {
+			if (l -> type == r -> type) {
+				auto search = pureAssignment.find({ l -> type, r -> type });
+				if (search != pureAssignment.end()) {
+					auto handler = search -> second;
+					handler(l, r); return;
+				}
+			}
+			auto search = mixedAssignment.find({ l -> type, r -> type });
+			if (search != mixedAssignment.end()) {
+				auto handler = search -> second;
+				handler(l, r); return;
+			}
+			throw EvaluationError(
+				"Assignment operator '=' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
 			);
 		}
 		

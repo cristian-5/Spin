@@ -21,6 +21,7 @@
 
 #include "../Aliases/Aliases.hpp"
 #include "../Linker/Linker.hpp"
+#include "../Interpreter/Converter.hpp"
 
 #include "ASTree.hpp"
 
@@ -62,8 +63,31 @@ namespace Stack {
 		SizeType index = 0;
 
 		Expression * expression() {
-			try { return equality(); }
+			try { return assignment(); }
 			catch (SyntaxError & s) { throw; }
+		}
+
+		Expression * assignment() {
+			Expression * ex = nullptr;
+			try { ex = equality(); }
+			catch (SyntaxError & s) { throw; }
+			if (match(TokenType::equal)) {
+				Token * equals = new Token(previous());
+				Expression * value = nullptr;
+				try { value = assignment(); }
+				catch (SyntaxError & s) { throw; }
+				if (value -> isInstanceOf<Identifier>()) {
+					Token * name = new Token(* (((Identifier *)(value)) -> name));
+					delete equals;
+					return new Assignment(name, value);
+				}
+				if (value != nullptr) delete value; delete equals;
+				throw SyntaxError(
+					"Expected identifier before assignment operator '='!",
+					Linker::getPosition(input, equals -> position)
+				);
+			}
+			return ex;
 		}
 
 		Expression * equality() {
@@ -234,8 +258,9 @@ namespace Stack {
 		Statement * variableDeclaration() {
 			Token * name = nullptr;
 			Expression * initializer = nullptr;
+			String stringType = previous().lexeme;
 			try {
-				name = new Token(consume(TokenType::identifier, "identifier"));
+				name = new Token(consume(TokenType::symbol, "identifier"));
 				if (match(TokenType::equal)) initializer = expression();
 				consume(TokenType::semicolon, ";");
 			} catch (SyntaxError & s) {
@@ -243,7 +268,8 @@ namespace Stack {
 				if (initializer != nullptr) delete initializer;
 				throw;
 			}
-			return new VariableStatement(name, initializer);
+			BasicType type = Converter::typeFromString(stringType);
+			return new VariableStatement(name, initializer, type);
 		}
 
 		Statement * statement() {

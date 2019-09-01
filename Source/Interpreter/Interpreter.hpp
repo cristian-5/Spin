@@ -22,8 +22,9 @@
 #include "../Aliases/Aliases.hpp"
 #include "../Parser/ASTree.hpp"
 
-#include "Processor.hpp"
 #include "Converter.hpp"
+#include "Environment.hpp"
+#include "Processor.hpp"
 
 namespace Stack {
 
@@ -48,6 +49,8 @@ namespace Stack {
 
 		Processor * CPU = Processor::self();
 
+		Environment * memory = new Environment();
+
 		void setValue(Object * o) {
 			if (value == o) return;
 			if (value != nullptr) delete value;
@@ -62,14 +65,28 @@ namespace Stack {
 				Object * r = value -> copy();
 				setValue(CPU -> applyBinaryOperator(e -> o, l, r));
 				delete r; delete l;
-			} catch (EvaluationError & e) { throw; }
+			} catch (EvaluationError & r) { throw; }
 		}
-		void visitAssignmentExpression(Assignment * e) override { }
+		void visitAssignmentExpression(Assignment * e) override {
+			try {
+				evaluate(e -> value);
+				Object * o = nullptr;
+				try {
+					o = memory -> getReference(e -> name-> lexeme);
+				} catch (VariableNotFoundException & r) {
+					throw EvaluationError(
+						"Unexpected identifier '" +
+						e -> name -> lexeme + "'!", * e -> name
+					);
+				}
+				CPU -> applyAssignment(e -> name, o, value);
+			} catch (EvaluationError & r) { throw; }
+		}
 		void visitCallExpression(Call * e) override { }
 		void visitGetExpression(Get * e) override { }
 		void visitGroupingExpression(Grouping * e) override {
 			try { evaluateExpression(e -> expression); }
-			catch (EvaluationError & e) { throw; }
+			catch (EvaluationError & r) { throw; }
 		}
 		void visitLiteralExpression(Literal * e) override {
 			try {
@@ -77,7 +94,7 @@ namespace Stack {
 					e -> object = Converter::literalToObject(e -> token);
 				}
 				setValue(e -> object);
-			} catch (EvaluationError & e) { throw; }
+			} catch (EvaluationError & r) { throw; }
 		}
 		void visitLogicalExpression(Logical * e) override {
 			try {
@@ -87,7 +104,7 @@ namespace Stack {
 				Object * r = value -> copy();
 				setValue(CPU -> applyLogicalOperator(e -> o, l, r));
 				delete r; delete l;
-			} catch (EvaluationError & e) { throw; }
+			} catch (EvaluationError & r) { throw; }
 		}
 		void visitSetExpression(Set * e) override { }
 		void visitSuperExpression(Super * e) override { }
@@ -96,38 +113,58 @@ namespace Stack {
 			try {
 				evaluateExpression(e -> r);
 				setValue(CPU -> applyUnaryOperator(e -> o, value));
-			} catch (EvaluationError & e) { throw; }
+			} catch (EvaluationError & r) { throw; }
 		}
-		void visitIdentifierExpression(Identifier * e) override { }
+		void visitIdentifierExpression(Identifier * e) override {
+			try {
+				setValue(memory -> getReference(e -> name -> lexeme));
+			} catch (VariableNotFoundException & r) {
+				throw EvaluationError(
+					"Unexpected identifier '" +
+					e -> name -> lexeme + "'!", * e -> name
+				);
+			}
+		}
 
 		void evaluateExpression(Expression * e) {
 			try { e -> accept(this); }
-			catch (EvaluationError & e) { throw; }
+			catch (EvaluationError & r) { throw; }
 		}
-
-
-
-
 
 		void visitExpressionStatement(ExpressionStatement * e) override {
 			try { evaluateExpression(e -> e); }
-			catch (EvaluationError & e) { throw; }
+			catch (EvaluationError & r) { throw; }
 		}
 		void visitPrintStatement(PrintStatement * e) override {
 			try {
 				evaluateExpression(e -> e);
 				// TO FIX: Find a better way to output things.
 				std::cout << "Log: " << value -> getObjectStringValue();
-			} catch (EvaluationError & e) { throw; }
+			} catch (EvaluationError & r) { throw; }
 		}
-
-		void visitVariableStatement(VariableStatement * e) override { }
-
-
+		void visitVariableStatement(VariableStatement * e) override {
+			try {
+				if (e -> initializer != nullptr) {
+					evaluate(e -> initializer);
+					Object * o = new Object(e -> type);
+					CPU -> applyAssignment(e -> name, o, value);
+					setValue(o);
+				} else setValue(new Object(e -> type));
+			} catch (EvaluationError & r) { throw; }
+			try {
+				memory -> define(e -> name -> lexeme, value);
+			} catch (VariableRedefinitionException & r) {
+				throw EvaluationError(
+					"Variable redefinition! The identifier '" +
+					e -> name -> lexeme + "' was previously defined with type '" +
+					r.getType() + "'!", * e -> name
+				);
+			}
+		}
 
 		void execute(Statement * statement) {
 			try { statement -> accept(this); }
-			catch (EvaluationError & e) { throw; }
+			catch (EvaluationError & r) { throw; }
 		}
 
 		Interpreter() = default;

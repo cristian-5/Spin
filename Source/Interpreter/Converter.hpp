@@ -266,6 +266,20 @@ namespace Stack {
 			return s[0];
 		}
 
+		// TODO: Handle class type.
+		static BasicType typeFromString(String s) {
+			if (s == "Integer") return BasicType::Int64Type;
+			if (s == "Real") return BasicType::RealType;
+			if (s == "String") return BasicType::StringType;
+			if (s == "Imaginary") return BasicType::ImaginaryType;
+			if (s == "Complex") return BasicType::ComplexType;
+			if (s == "Bool") return BasicType::BoolType;
+			if (s == "Character") return BasicType::CharacterType;
+			if (s == "Byte") return BasicType::ByteType;
+			if (s == "Colour") return BasicType::ColourType;
+			return BasicType::UnknownType;
+		}
+
 	};
 
 }
