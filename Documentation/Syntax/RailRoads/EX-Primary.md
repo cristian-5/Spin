@@ -9,6 +9,11 @@ that represents a **Literal** or evaluates a
 
     + ─╮── [Literal] ──╭─ +
        ╰── [Grouping] ─╯
+       ╰── identifier ─╯
+
+### Tokens used in this Rail (Regexes):
+
+- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_]*`
 
 ### Declarations used in this Rail:
 
