@@ -26,12 +26,13 @@ namespace Stack {
 
 	class VariableRedefinitionException: public Exception {
 		private:
-		const String & type;
+		const String _type;
 		public:
-		const String & getType() const { return type; }
-		VariableRedefinitionException(const String & t):
-		Exception(), type(t) { }
+		const String & getType() const { return _type; }
+		VariableRedefinitionException(String type):
+		Exception(), _type(type) { }
 	};
+
 	class VariableNotFoundException: public Exception {
 		public: VariableNotFoundException(): Exception() { }
 	};
@@ -40,7 +41,7 @@ namespace Stack {
 
 		private:
 
-		Map<String, Object *> values = { };
+		Dictionary<String, Object *> values = { };
 
 		public:
 
@@ -52,8 +53,7 @@ namespace Stack {
 				throw VariableRedefinitionException(
 					(search -> second) -> getObjectName()
 				);
-			}
-			values.insert({ name, value });
+			} else values.insert({ name, value });
 		}
 
 		Object * getReference(String & name) {
