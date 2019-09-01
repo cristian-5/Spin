@@ -35,17 +35,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	ArrayList<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
 
-	cout << "Tokens: " << endl;
-	UInt32 i = 1;
-	for (Token & token : * tokens) {
-		cout << padding << i << " | Type: ";
-		cout << padding << token.type;
-		cout << " | Token: " << token.lexeme << endl;
-		i += 1;
-	}
-
-	cout << endl;
-
 	Parser * parser = Parser::self();
 	ArrayList<Statement *> * st = nullptr;
 
@@ -58,8 +47,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 		UInt32 i = 1;
 		for (SyntaxError s : * e) {
 			FilePosition f = s.getPosition();
-			cout << padding << i << " [row: " << f.row
-				 << ", col: " << f.col << "]: "
+			cout << padding << i << " [" << f.row
+				 << " : " << f.col << "]: "
 				 << s.getMessage() << endl;
 			i += 1;
 		}
