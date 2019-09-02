@@ -6,8 +6,12 @@ that assigns a value to a variable.
 
 ### Syntax:
 
-    + ─╮── identifier ──── = ──── [Assignment] ──╭─ +
-       ╰───────────── [Equality] ────────────────╯
+    + ─╮── [Expression] ──── = ──── [Assignment] ──╭─ +
+       ╰────────────── [Equality] ─────────────────╯
+
+### Tokens used in this Rail (Regexes):
+
+- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_]*`
 
 ### Declarations used in this Rail:
 
