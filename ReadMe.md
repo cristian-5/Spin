@@ -54,7 +54,7 @@ Execute the following to compile using **clang++**:
 
 ``` bash
 cd Source
-clang++ -o Main Main.cpp -std=c++17
+clang++ -O2 -o Main Main.cpp -std=c++17
 ```
 
 This creates a `Main` file in the same folder;
@@ -78,7 +78,7 @@ In addition you can build the project with **clang++**:
 
 ``` bat
 cd Source
-clang++ -o Main.exe Main.cpp -std=c++17 -Xclang -flto-visibility-public-std
+clang++ -O2 -o Main.exe Main.cpp -std=c++17 -Xclang -flto-visibility-public-std
 ```
 
 Just make sure you have *clang++ LLVM* installed and
