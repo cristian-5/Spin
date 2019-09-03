@@ -48,7 +48,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		for (SyntaxError s : * e) {
 			FilePosition f = s.getPosition();
 			cout << padding << i << " [" << f.row
-				 << " : " << f.col << "]: "
+				 << ":" << f.col << "]: "
 				 << s.getMessage() << endl;
 			i += 1;
 		}
@@ -67,8 +67,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 		return exitFailure;
 	}
 
-	cout << endl;
-
 	// Interpreter Test:
 
 	Interpreter * interpreter = Interpreter::self();
@@ -76,8 +74,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		interpreter -> evaluate(st, & test, "Virtual File");
 	} catch (InterpreterErrorException & e) {
-		cout << "Error in '" << e.getFileName() << "'!" << endl;
-		cout << "[row: " << e.getPosition().row << ",  col: ";
+		cout << "[" << e.getPosition().row << ":";
 		cout << e.getPosition().col << "]: " << e.getMessage() << endl;
 		cout << "Press enter to exit. ";
 		waitKeyPress();
