@@ -64,11 +64,12 @@ namespace Stack {
 
 		template<typename t>
 		Bool isInstanceOf() {
-			return (dynamic<t *>(this)) != nullptr;
+			return (dynamic<t *>(this));
 		}
 
 	};
 
+	class BlockStatement;
 	class ExpressionStatement;
 	class PrintStatement;
 	class VariableStatement;
@@ -81,6 +82,7 @@ namespace Stack {
 
 		class Visitor {
 			public:
+			virtual void visitBlockStatement(BlockStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
 			virtual void visitPrintStatement(PrintStatement * e) = 0;
 			virtual void visitVariableStatement(VariableStatement * e) = 0;
@@ -251,6 +253,21 @@ namespace Stack {
 			catch (Exception & e) { throw; }
 		}
 		~Identifier() { delete name; }
+	};
+
+	class BlockStatement: public Statement {
+		public:
+		ArrayList<Statement *> statements = ArrayList<Statement *>();
+		BlockStatement(ArrayList<Statement *> s) { statements = s; }
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitBlockStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~BlockStatement() {
+			for (Statement * statement : statements) {
+				delete statement;
+			}
+		}
 	};
 
 	class ExpressionStatement: public Statement {
