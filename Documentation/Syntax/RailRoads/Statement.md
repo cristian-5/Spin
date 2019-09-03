@@ -7,14 +7,16 @@ A *Declaration* is also considered a **Statement**.
 
 ### Syntax:
 
-    + ─╮── > ── [Expression Statement] ───── > ──╭─ +
+    + ─╮── > ── [Block Statement] ────────── > ──╭─ +
+       ╰── > ── [Expression Statement] ───── > ──╯
        ╰── > ── [If Statement] ───────────── > ──╯
        ╰── > ── [Print Statement] ────────── > ──╯
-       ╰── > ── [Block Statement] ────────── > ──╯
+       ╰── > ── [While Statement] ────────── > ──╯
 
 ### Declarations used in this Rail:
 
+- [**Block Statement**](ST-Block.md)
 - [**Expression Statement**](ST-Expression.md)
 - [**If Statement**](ST-If.md)
 - [**Print Statement**](ST-Print.md)
-- [**Block Statement**](ST-Block.md)
+- [**While Statement**](ST-While.md)
