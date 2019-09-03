@@ -73,7 +73,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	delete tokens;
 
-	if (ex == nullptr) {
+	if (!ex) {
 		cout << "Syntax Tree Failure!" << endl;
 		cout << "Press enter to exit. ";
 		waitKeyPress();

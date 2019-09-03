@@ -95,7 +95,7 @@ namespace Stack {
 
 		~Object() {
 			// TODO: Handle all deallocations.
-			if (value == nullptr) return;
+			if (!value) return;
 			switch (type) {
 				case BasicType::BoolType: delete (Bool *) value; return;
 				case BasicType::CharacterType: delete (Character *) value; return;
@@ -225,7 +225,7 @@ namespace Stack {
 					return "SomeVector";
 				}
 				case BasicType::ClassType: {
-					if (value == nullptr) return "null";
+					if (!value) return "null";
 					// TODO: fix class value.
 					return "SomeClass";
 				}

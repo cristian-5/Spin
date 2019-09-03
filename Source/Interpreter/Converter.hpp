@@ -115,7 +115,7 @@ namespace Stack {
 
 		static Object * literalToObject(Token * t) {
 			Object * o = new Object();
-			if (t == nullptr) return o;
+			if (!t) return o;
 			if (!t -> isTypeLiteral()) return o;
 			switch (t -> type) {
 				case TokenType::intLiteral: {
