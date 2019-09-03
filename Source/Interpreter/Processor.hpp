@@ -46,7 +46,7 @@ namespace Stack {
 
 		typedef Pair<BasicType, BasicType> BasicTypes;
 
-		Dictionary<BasicType, UnaryHandler> unaryNegation = {
+		Map<BasicType, UnaryHandler> unaryNegation = {
 			{
 				BasicType::Int64Type,
 				[] (Object * o) {
@@ -76,7 +76,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicType, UnaryHandler> unaryInversion = {
+		Map<BasicType, UnaryHandler> unaryInversion = {
 			{
 				BasicType::ByteType,
 				[] (Object * o) {
@@ -102,7 +102,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryAddition = {
+		Map<BasicTypes, BinaryHandler> binaryAddition = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -221,7 +221,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> stringAddition = {
+		Map<BasicTypes, BinaryHandler> stringAddition = {
 			{
 				{ BasicType::StringType, BasicType::StringType },
 				[] (Object * l, Object * r) {
@@ -344,7 +344,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binarySubtraction = {
+		Map<BasicTypes, BinaryHandler> binarySubtraction = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -508,7 +508,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMultiplication = {
+		Map<BasicTypes, BinaryHandler> binaryMultiplication = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -645,7 +645,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryDivision = {
+		Map<BasicTypes, BinaryHandler> binaryDivision = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -797,7 +797,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryAND = {
+		Map<BasicTypes, BinaryHandler> binaryAND = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -835,7 +835,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryXOR = {
+		Map<BasicTypes, BinaryHandler> binaryXOR = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -873,7 +873,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryOR = {
+		Map<BasicTypes, BinaryHandler> binaryOR = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -1057,7 +1057,7 @@ namespace Stack {
 		Processor() = default;
 		~Processor() = default;
 
-		Dictionary<BasicTypes, BinaryHandler> binaryStrictEquality = {
+		Map<BasicTypes, BinaryHandler> binaryStrictEquality = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -1140,7 +1140,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMixedEquality = {
+		Map<BasicTypes, BinaryHandler> binaryMixedEquality = {
 			{
 				{ BasicType::Int64Type, BasicType::RealType },
 				[] (Object * l, Object * r) {
@@ -1210,7 +1210,7 @@ namespace Stack {
 			}
 		};
 
-		Dictionary<BasicTypes, BinaryHandler> binaryMajor = {
+		Map<BasicTypes, BinaryHandler> binaryMajor = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -1329,7 +1329,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMajorEqual = {
+		Map<BasicTypes, BinaryHandler> binaryMajorEqual = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -1448,7 +1448,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMinor = {
+		Map<BasicTypes, BinaryHandler> binaryMinor = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -1567,7 +1567,7 @@ namespace Stack {
 				}
 			}
 		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMinorEqual = {
+		Map<BasicTypes, BinaryHandler> binaryMinorEqual = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -1770,7 +1770,7 @@ namespace Stack {
 			);
 		}
 
-		Dictionary<BasicTypes, AssignmentHandler> pureAssignment = {
+		Map<BasicTypes, AssignmentHandler> pureAssignment = {
 			{
 				{ BasicType::Int64Type, BasicType::Int64Type },
 				[] (Object * l, Object * r) {
@@ -1845,7 +1845,7 @@ namespace Stack {
 			},
 		};
 
-		Dictionary<BasicTypes, AssignmentHandler> mixedAssignment = {
+		Map<BasicTypes, AssignmentHandler> mixedAssignment = {
 			{
 				{ BasicType::Int64Type, BasicType::RealType },
 				[] (Object * l, Object * r) {
