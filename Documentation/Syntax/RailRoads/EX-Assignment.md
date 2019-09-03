@@ -7,9 +7,9 @@ that assigns a value to a variable.
 ### Syntax:
 
     + ─╮── [Expression] ──── = ──── [Assignment] ──╭─ +
-       ╰────────────── [Equality] ─────────────────╯
+       ╰────────────── [Short OR] ─────────────────╯
 
 ### Declarations used in this Rail:
 
 - [**Expression**](Expression.md)
-- [**Equality**](EX-Equality.md)
+- [**Short OR**](EX-Short-OR.md)
