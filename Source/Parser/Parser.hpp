@@ -76,8 +76,8 @@ namespace Stack {
 				Expression * value = nullptr;
 				try { value = assignment(); }
 				catch (SyntaxError & s) { throw; }
-				if (value -> isInstanceOf<Identifier>()) {
-					Token * name = new Token(* (((Identifier *)(value)) -> name));
+				if (ex -> isInstanceOf<Identifier>()) {
+					Token * name = new Token(* (((Identifier *)(ex)) -> name));
 					delete equals;
 					return new Assignment(name, value);
 				}
