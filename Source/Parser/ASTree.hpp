@@ -28,6 +28,7 @@ namespace Stack {
 	class Assignment;
 	class Binary;
 	class Call;
+	class Comparison;
 	class Get;
 	class Grouping;
 	class Literal;
@@ -49,6 +50,7 @@ namespace Stack {
 			virtual void visitAssignmentExpression(Assignment * e) = 0;
 			virtual void visitBinaryExpression(Binary * e) = 0;
 			virtual void visitCallExpression(Call * e) = 0;
+			virtual void visitComparisonExpression(Comparison * e) = 0;
 			virtual void visitGetExpression(Get * e) = 0;
 			virtual void visitGroupingExpression(Grouping * e) = 0;
 			virtual void visitLiteralExpression(Literal * e) = 0;
@@ -142,6 +144,21 @@ namespace Stack {
 				delete argument;
 			}
 		}
+	};
+
+	class Comparison: public Expression {
+		public:
+		Expression * r = nullptr;
+		Expression * l = nullptr;
+		Token * o = nullptr;
+		Comparison(Expression * ls, Token * op, Expression * rs) {
+			r = rs, l = ls; o = op;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitComparisonExpression(this); }
+			catch (Exception & e) { throw; }
+		}
+		~Comparison() { delete r; delete l; delete o; }
 	};
 
 	class Get: public Expression {

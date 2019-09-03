@@ -2006,7 +2006,7 @@ namespace Stack {
 			return & instance;
 		}
 
-		Object * applyLogicalOperator(Token * t, Object * l, Object * r) {
+		Object * applyComparisonOperator(Token * t, Object * l, Object * r) {
 			switch (t -> type) {
 				case TokenType::equality: {
 					try { return applyEquality(t, l, r); }
@@ -2035,7 +2035,7 @@ namespace Stack {
 				default: break;
 			}
 			throw EvaluationError(
-				"Logical operator '" + t -> lexeme + "' doesn't support operands of type '" +
+				"Comparison operator '" + t -> lexeme + "' doesn't support operands of type '" +
 				l -> getObjectName() + "' and '" +
 				r -> getObjectName() + "'!", * t
 			);

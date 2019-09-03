@@ -51,6 +51,10 @@ namespace Stack {
 
 		Environment * memory = new Environment();
 
+		/* Core */
+
+		void deleteValue() { delete value; value = nullptr; }
+
 		void resetValue() { value = nullptr; }
 
 		void setValue(Object * o) {
@@ -59,16 +63,8 @@ namespace Stack {
 			value = o;
 		}
 
-		void visitBinaryExpression(Binary * e) override {
-			try {
-				evaluateExpression(e -> l);
-				Object * l = value -> copy();
-				evaluateExpression(e -> r);
-				Object * r = value -> copy();
-				setValue(CPU -> applyBinaryOperator(e -> o, l, r));
-				delete r; delete l;
-			} catch (EvaluationError & r) { throw; }
-		}
+		/* Expressions */
+
 		void visitAssignmentExpression(Assignment * e) override {
 			try {
 				evaluate(e -> value);
@@ -84,7 +80,27 @@ namespace Stack {
 				CPU -> applyAssignment(e -> name, o, value);
 			} catch (EvaluationError & r) { throw; }
 		}
+		void visitBinaryExpression(Binary * e) override {
+			try {
+				evaluateExpression(e -> l);
+				Object * l = value -> copy();
+				evaluateExpression(e -> r);
+				Object * r = value -> copy();
+				setValue(CPU -> applyBinaryOperator(e -> o, l, r));
+				delete r; delete l;
+			} catch (EvaluationError & r) { throw; }
+		}
 		void visitCallExpression(Call * e) override { }
+		void visitComparisonExpression(Comparison * e) override {
+			try {
+				evaluateExpression(e -> l);
+				Object * l = value -> copy();
+				evaluateExpression(e -> r);
+				Object * r = value -> copy();
+				setValue(CPU -> applyComparisonOperator(e -> o, l, r));
+				delete r; delete l;
+			} catch (EvaluationError & r) { throw; }
+		}
 		void visitGetExpression(Get * e) override { }
 		void visitGroupingExpression(Grouping * e) override {
 			try { evaluateExpression(e -> expression); }
@@ -101,11 +117,17 @@ namespace Stack {
 		void visitLogicalExpression(Logical * e) override {
 			try {
 				evaluateExpression(e -> l);
-				Object * l = value -> copy();
+				if (!(value -> isBool())) {
+					throw EvaluationError(
+						"Invalid Bool expression found on left side of circuit operator '||'!",
+						* e -> o
+					);
+				}
+				if ((e -> o -> type) == TokenType::OR) {
+					if (value -> getBoolValue()) return;
+				} else if (!(value -> getBoolValue())) return;
+				deleteValue();
 				evaluateExpression(e -> r);
-				Object * r = value -> copy();
-				setValue(CPU -> applyLogicalOperator(e -> o, l, r));
-				delete r; delete l;
 			} catch (EvaluationError & r) { throw; }
 		}
 		void visitSetExpression(Set * e) override { }
@@ -132,6 +154,8 @@ namespace Stack {
 			try { e -> accept(this); }
 			catch (EvaluationError & r) { throw; }
 		}
+
+		/* Statements */
 
 		void visitBlockStatement(BlockStatement * e) override {
 			try {

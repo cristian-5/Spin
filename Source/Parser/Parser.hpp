@@ -62,6 +62,8 @@ namespace Stack {
 
 		SizeType index = 0;
 
+		/* Expressions */
+
 		Expression * expression() {
 			try { return assignment(); }
 			catch (SyntaxError & s) { throw; }
@@ -69,24 +71,52 @@ namespace Stack {
 
 		Expression * assignment() {
 			Expression * ex = nullptr;
-			try { ex = equality(); }
+			try { ex = shortOR(); }
 			catch (SyntaxError & s) { throw; }
 			if (match(TokenType::equal)) {
 				Token * equals = new Token(previous());
 				Expression * value = nullptr;
 				try { value = assignment(); }
-				catch (SyntaxError & s) { throw; }
+				catch (SyntaxError & s) { delete ex; delete equals; throw; }
 				if (ex -> isInstanceOf<Identifier>()) {
 					Token * name = new Token(* (((Identifier *)(ex)) -> name));
 					delete equals;
 					return new Assignment(name, value);
 				}
 				if (value) delete value;
-				delete equals;
+				delete ex; delete equals;
 				throw SyntaxError(
 					"Expected identifier before assignment operator '='!",
 					Linker::getPosition(input, equals -> position)
 				);
+			}
+			return ex;
+		}
+
+		Expression * shortOR() {
+			Expression * ex = nullptr;
+			try { ex = shortAND(); }
+			catch (SyntaxError & s) { throw; }
+			while (match(TokenType::OR)) {
+				Token * op = new Token(previous());
+				Expression * right = nullptr;
+				try { right = shortAND(); }
+				catch (SyntaxError & s) { delete ex; delete op; throw; }
+				ex = new Logical(ex, op, right);
+			}
+			return ex;
+		}
+
+		Expression * shortAND() {
+			Expression * ex = nullptr;
+			try { ex = equality(); }
+			catch (SyntaxError & s) { throw; }
+			while (match(TokenType::AND)) {
+				Token * op = new Token(previous());
+				Expression * right = nullptr;
+				try { right = equality(); }
+				catch (SyntaxError & s) { delete ex; delete op; throw; }
+				ex = new Logical(ex, op, right);
 			}
 			return ex;
 		}
@@ -108,7 +138,7 @@ namespace Stack {
 					delete op;
 					throw;
 				}
-				ex = new Logical(ex, op, rs);
+				ex = new Comparison(ex, op, rs);
 			}
 			delete ops;
 			return ex;
@@ -133,13 +163,12 @@ namespace Stack {
 					delete op;
 					throw;
 				}
-				ex = new Logical(ex, op, rs);
+				ex = new Comparison(ex, op, rs);
 			}
 			delete ops;
 			return ex;
 		}
 
-		/*  Parses Low Priority infix Operators. */
 		Expression * lowPriorityOperator() {
 			Expression * ex = nullptr;
 			try { ex = mediumPriorityOperator(); }
@@ -164,7 +193,6 @@ namespace Stack {
 			return ex;
 		}
 
-		/*  Parses Medium Priority infix Operators. */
 		Expression * mediumPriorityOperator() {
 			Expression * ex = nullptr;
 			try { ex = highPriorityOperator(); }
@@ -191,7 +219,6 @@ namespace Stack {
 			return ex;
 		}
 
-		/*  Parses High Priority Unary Operators. */
 		Expression * highPriorityOperator() {
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::minus);
@@ -214,7 +241,6 @@ namespace Stack {
 			catch (SyntaxError & s) { throw; }
 		}
 
-		/*  Parses Nested Expressions and Literals. */
 		Expression * primary() {
 			Token t = peek();
 			if (t.isTypeLiteral()) {
@@ -288,12 +314,13 @@ namespace Stack {
 		}
 
 		Statement * ifStatement() {
-			Token * t = new Token(previous());
+			Token * t = nullptr;
 			Expression * condition = nullptr;
 			Statement * thenBranch = nullptr;
 			Statement * elseBranch = nullptr;
 			try {
 				consume(TokenType::openRoundBracket, "(");
+				t = new Token(peek());
 				condition = expression();
 				consume(TokenType::closeRoundBracket, ")");
 				thenBranch = statement();
@@ -351,6 +378,8 @@ namespace Stack {
 			}
 			return new PrintStatement(ex);
 		}
+
+		/* Core */
 
 		Bool match(TokenType type) {
 			if (check(type)) {
