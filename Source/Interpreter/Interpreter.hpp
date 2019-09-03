@@ -55,7 +55,7 @@ namespace Stack {
 
 		void setValue(Object * o) {
 			if (value == o) return;
-			if (value != nullptr) delete value;
+			if (value) delete value;
 			value = o;
 		}
 
@@ -92,7 +92,7 @@ namespace Stack {
 		}
 		void visitLiteralExpression(Literal * e) override {
 			try {
-				if (e -> object == nullptr) {
+				if (!(e -> object)) {
 					e -> object = Converter::literalToObject(e -> token);
 				}
 				setValue(e -> object);
@@ -133,6 +133,11 @@ namespace Stack {
 			catch (EvaluationError & r) { throw; }
 		}
 
+		void visitBlockStatement(BlockStatement * e) override {
+			try {
+				executeBlock(e -> statements, new Environment(memory));
+			} catch (EvaluationError & r) { throw; }
+		}
 		void visitExpressionStatement(ExpressionStatement * e) override {
 			try { evaluateExpression(e -> e); }
 			catch (EvaluationError & r) { throw; }
@@ -141,12 +146,12 @@ namespace Stack {
 			try {
 				evaluateExpression(e -> e);
 				// TO FIX: Find a better way to output things.
-				std::cout << "Log: " << value -> getObjectStringValue();
+				std::cout << value -> getObjectStringValue() << std::endl;
 			} catch (EvaluationError & r) { throw; }
 		}
 		void visitVariableStatement(VariableStatement * e) override {
 			try {
-				if (e -> initializer != nullptr) {
+				if (e -> initializer) {
 					evaluate(e -> initializer);
 					Object * o = new Object(e -> type);
 					CPU -> applyAssignment(e -> name, o, value);
@@ -168,6 +173,23 @@ namespace Stack {
 		void execute(Statement * statement) {
 			try { statement -> accept(this); }
 			catch (EvaluationError & r) { throw; }
+		}
+
+		void executeBlock(ArrayList<Statement *> statements,
+						  Environment * environment) {
+			 Environment * previous = memory;                         
+			try {
+				memory = environment;
+				for (Statement * statement : statements) {
+					execute(statement);
+				}
+			} catch (EvaluationError & r) {
+				memory = previous;
+				delete environment;
+				throw;
+			}
+			memory = previous;
+			delete environment;
 		}
 
 		Interpreter() = default;
