@@ -75,6 +75,9 @@ namespace Stack {
 		questionMark,
 		exclamationMark,
 
+		AND,
+		OR,
+
 		plus,
 		minus,
 		tilde,
