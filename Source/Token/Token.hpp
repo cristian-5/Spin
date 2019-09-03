@@ -130,11 +130,12 @@ namespace Stack {
 		exceptKeyword,
 		privateKeyword,
 		publicKeyword,
-		refKeyword,
-		cpyKeyword,
 		constKeyword,
 		returnKeyword,
 		nevermind,
+
+		refKeyword,
+		cpyKeyword,
 
 		invalid,
 
