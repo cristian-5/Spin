@@ -27,32 +27,19 @@ Here's a **railway** implementation of statements' syntax.
 
 - [**Program**](RailRoads/Program.md)
 
+- [**Declaration**](RailRoads/Declaration.md)
+- [**Type**](RailRoads/DC-Type.md)
+- [**Variable Declaration**](RailRoads/DC-Variable.md)
+
+
 - [**Statement**](RailRoads/Statement.md)
 
 - [**Expression Statement**](RailRoads/ST-Expression.md)
 - [**Print Statement**](RailRoads/ST-Print.md)
+- [**Block Statement**](RailRoads/ST-Block.md)
 
 
 
-
-
-
-
-
-
-
-- [**File**](RailRoads/File.md)
-
-- [**Import Statement**](RailRoads/Import-Statement.md)
-- [**Library**](RailRoads/Library.md)
-- [**Entry Point**](RailRoads/Entry-Point.md)
-
-- [**Statement**](RailRoads/Statement.md)
-
-- [**No Operation**](RailRoads/No-Operation.md)
-
-- [**If Statement**](If-Statement.md)
-- [**Switch Statement**](Switch-Statement.md)
 
 ### Expression Statement:
 

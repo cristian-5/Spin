@@ -1,13 +1,13 @@
 
 # Program
 
-A **Program** can only be made of Statements.
+A **Program** can only be made of Declarations.
 
 ### Syntax:
 
     + ── beginFile ─╮────────────── > ──────────────╭─ endFile ── +
                     |  ╭─────────── < ───────────╮  |
-                    ╰──╰────── [Statement] ──────╯──╯
+                    ╰──╰───── [Declaration] ─────╯──╯
 
 ### Tokens used in this Rail (Regexes):
 
@@ -16,4 +16,4 @@ A **Program** can only be made of Statements.
 
 ### Declarations used in this Rail:
 
-- [**Statement**](Statement.md)
+- [**Declaration**](Declaration.md)
