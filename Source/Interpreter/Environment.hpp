@@ -41,11 +41,16 @@ namespace Stack {
 
 		private:
 
-		Dictionary<String, Object *> values = { };
+		Environment * enclosing = nullptr;
+
+		Dictionary<String, Object *> values = Dictionary<String, Object *>();
 
 		public:
 
 		Environment() { }
+		Environment(Environment * enclosing) {
+			this -> enclosing = enclosing;
+		}
 
 		void define(String name, Object * value) {
 			auto search = values.find(name);
@@ -61,6 +66,7 @@ namespace Stack {
 			if (search != values.end()) {
 				return search -> second;
 			}
+			if (enclosing) return enclosing -> getReference(name);
 			throw VariableNotFoundException();
 		}
 
@@ -69,6 +75,7 @@ namespace Stack {
 			if (search != values.end()) {
 				return (search -> second) -> copy();
 			}
+			if (enclosing) return enclosing -> getValue(name);
 			throw VariableNotFoundException();
 		}
 
