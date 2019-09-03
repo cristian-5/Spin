@@ -276,13 +276,39 @@ namespace Stack {
 		Statement * statement() {
 			Statement * st = nullptr;
 			try {
-				if (match(TokenType::printKeyword)) {
+				if (match(TokenType::ifKeyword)) {
+					st = ifStatement();
+				} else if (match(TokenType::printKeyword)) {
 					st = printStatement();
 				} else if (match(TokenType::openCurlyBracket)) {
 					st = blockStatement();
 				} else st = expressionStatement();
 			} catch (SyntaxError & s) { throw; }
 			return st;
+		}
+
+		Statement * ifStatement() {
+			Token * t = new Token(previous());
+			Expression * condition = nullptr;
+			Statement * thenBranch = nullptr;
+			Statement * elseBranch = nullptr;
+			try {
+				consume(TokenType::openRoundBracket, "(");
+				condition = expression();
+				consume(TokenType::closeRoundBracket, ")");
+				thenBranch = statement();
+				elseBranch = nullptr;
+				if (match(TokenType::elseKeyword)) {
+					elseBranch = statement();
+				}
+			} catch (SyntaxError & s) {
+				if (t) delete t;
+				if (condition) delete condition;
+				if (thenBranch) delete thenBranch;
+				if (elseBranch) delete elseBranch;
+				throw;
+			}
+			return new IfStatement(condition, thenBranch, elseBranch, t);
 		}
 
 		Statement * blockStatement() {

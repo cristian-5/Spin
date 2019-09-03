@@ -142,6 +142,22 @@ namespace Stack {
 			try { evaluateExpression(e -> e); }
 			catch (EvaluationError & r) { throw; }
 		}
+		void visitIfStatement(IfStatement * e) override {
+			try {
+				evaluateExpression(e -> expression);
+				if (!(value -> isBool())) {
+					throw EvaluationError(
+						"Unsupported evaluation of non logical expression in conditional statement!",
+						* e -> ifToken
+					);
+				}
+				if (value -> getBoolValue()) {
+					execute(e -> thenBranch);
+				} else if (e -> elseBranch) {
+					execute(e -> elseBranch);
+				}
+			} catch (EvaluationError & r) { throw; }
+		}
 		void visitPrintStatement(PrintStatement * e) override {
 			try {
 				evaluateExpression(e -> e);

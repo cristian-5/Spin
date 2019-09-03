@@ -128,6 +128,7 @@ namespace Stack {
 			return isInteger() || isReal() || isComplexType();
 		}
 
+		inline Bool isBool() const { return type == BasicType::BoolType; }
 		inline Bool isString() const { return type == BasicType::StringType; }
 		inline Bool isColour() const { return type == BasicType::ColourType; }
 		inline Bool isCharacter() const { return type == BasicType::CharacterType; }
@@ -244,6 +245,11 @@ namespace Stack {
 		}
 
 		Bool isUnknown() const { return type == BasicType::UnknownType; }
+
+		Bool getBoolValue() const {
+			if (isBool()) return *((Bool *)value);
+			else return false;
+		}
 
 	};
 

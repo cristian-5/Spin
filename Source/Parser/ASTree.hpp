@@ -71,6 +71,7 @@ namespace Stack {
 
 	class BlockStatement;
 	class ExpressionStatement;
+	class IfStatement;
 	class PrintStatement;
 	class VariableStatement;
 
@@ -84,6 +85,7 @@ namespace Stack {
 			public:
 			virtual void visitBlockStatement(BlockStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
+			virtual void visitIfStatement(IfStatement * e) = 0;
 			virtual void visitPrintStatement(PrintStatement * e) = 0;
 			virtual void visitVariableStatement(VariableStatement * e) = 0;
 		};
@@ -279,6 +281,28 @@ namespace Stack {
 			catch (Exception & e) { throw; }
 		}
 		~ExpressionStatement() { delete e; }
+	};
+
+	class IfStatement: public Statement {
+		public:
+		Token * ifToken = nullptr;
+		Expression * expression = nullptr;
+		Statement * thenBranch = nullptr;
+		Statement * elseBranch = nullptr;
+		IfStatement(Expression * x, Statement * t,
+					Statement * e, Token * i) {
+			expression = x; thenBranch = t;
+			elseBranch = e; ifToken = i;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitIfStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~IfStatement() {
+			delete expression;
+			delete thenBranch;
+			delete elseBranch;
+		}
 	};
 
 	class PrintStatement: public Statement {
