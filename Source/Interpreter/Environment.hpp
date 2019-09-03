@@ -47,7 +47,7 @@ namespace Stack {
 
 		Environment() { }
 
-		void define(String & name, Object * value) {
+		void define(String name, Object * value) {
 			auto search = values.find(name);
 			if (search != values.end()) {
 				throw VariableRedefinitionException(
@@ -56,7 +56,7 @@ namespace Stack {
 			} else values.insert({ name, value });
 		}
 
-		Object * getReference(String & name) {
+		Object * getReference(String name) {
 			auto search = values.find(name);
 			if (search != values.end()) {
 				return search -> second;
@@ -64,7 +64,7 @@ namespace Stack {
 			throw VariableNotFoundException();
 		}
 
-		Object * getValue(String & name) {
+		Object * getValue(String name) {
 			auto search = values.find(name);
 			if (search != values.end()) {
 				return (search -> second) -> copy();
