@@ -51,6 +51,8 @@ namespace Stack {
 
 		Environment * memory = new Environment();
 
+		void resetValue() { value = nullptr; }
+
 		void setValue(Object * o) {
 			if (value == o) return;
 			if (value != nullptr) delete value;
@@ -117,7 +119,7 @@ namespace Stack {
 		}
 		void visitIdentifierExpression(Identifier * e) override {
 			try {
-				setValue(memory -> getReference(e -> name -> lexeme));
+				setValue(memory -> getValue(e -> name -> lexeme));
 			} catch (VariableNotFoundException & r) {
 				throw EvaluationError(
 					"Unexpected identifier '" +
@@ -156,10 +158,11 @@ namespace Stack {
 			} catch (VariableRedefinitionException & r) {
 				throw EvaluationError(
 					"Variable redefinition! The identifier '" +
-					e -> name -> lexeme + "' was previously defined with type '" +
+					e -> name -> lexeme + "' was already declared with type '" +
 					r.getType() + "'!", * e -> name
 				);
 			}
+			resetValue();
 		}
 
 		void execute(Statement * statement) {
