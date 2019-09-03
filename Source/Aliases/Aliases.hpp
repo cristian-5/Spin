@@ -27,6 +27,7 @@
 #include <sstream>
 #include <regex>
 #include <vector>
+#include <unordered_map>
 #include <map>
 
 using Exception = std::exception;
@@ -51,6 +52,7 @@ using String = std::string;
 
 #define ArrayList std::vector
 #define Map std::map
+#define Dictionary std::unordered_map
 
 #define Pair std::pair
 
