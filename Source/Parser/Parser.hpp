@@ -81,7 +81,8 @@ namespace Stack {
 					delete equals;
 					return new Assignment(name, value);
 				}
-				if (value != nullptr) delete value; delete equals;
+				if (value) delete value;
+				delete equals;
 				throw SyntaxError(
 					"Expected identifier before assignment operator '='!",
 					Linker::getPosition(input, equals -> position)
@@ -229,7 +230,7 @@ namespace Stack {
 					ex = expression();
 					consume(TokenType::closeRoundBracket, ")");
 				} catch (SyntaxError & e) {
-					if (ex != nullptr) delete ex;
+					if (ex) delete ex;
 					throw;
 				}
 				return new Grouping(ex);
@@ -264,8 +265,8 @@ namespace Stack {
 				if (match(TokenType::equal)) initializer = expression();
 				consume(TokenType::semicolon, ";");
 			} catch (SyntaxError & s) {
-				if (name != nullptr) delete name;
-				if (initializer != nullptr) delete initializer;
+				if (name) delete name;
+				if (initializer) delete initializer;
 				throw;
 			}
 			BasicType type = Converter::typeFromString(stringType);
@@ -277,9 +278,28 @@ namespace Stack {
 			try {
 				if (match(TokenType::printKeyword)) {
 					st = printStatement();
+				} else if (match(TokenType::openCurlyBracket)) {
+					st = blockStatement();
 				} else st = expressionStatement();
 			} catch (SyntaxError & s) { throw; }
 			return st;
+		}
+
+		Statement * blockStatement() {
+			ArrayList<Statement *> statements = ArrayList<Statement *>();
+			try {
+				while (!check(TokenType::closeCurlyBracket) && !isAtEnd()) {
+					statements.push(declaration());
+				}
+				consume(TokenType::closeCurlyBracket, "}");
+			} catch (SyntaxError & s) {
+				for (Statement * statement : statements) {
+					delete statement;
+				}
+				throw;
+			}
+			statements.shrinkToFit();
+			return new BlockStatement(statements);
 		}
 
 		Statement * expressionStatement() {
@@ -288,7 +308,7 @@ namespace Stack {
 				ex = expression();
 				consume(TokenType::semicolon, ";");
 			} catch (SyntaxError & s) {
-				if (ex != nullptr) delete ex;
+				if (ex) delete ex;
 				throw;
 			}
 			return new ExpressionStatement(ex);
@@ -300,7 +320,7 @@ namespace Stack {
 				ex = expression();
 				consume(TokenType::semicolon, ";");
 			} catch (SyntaxError & s) {
-				if (ex != nullptr) delete ex;
+				if (ex) delete ex;
 				throw;
 			}
 			return new PrintStatement(ex);
@@ -366,42 +386,9 @@ namespace Stack {
 				if (previous().type == TokenType::semicolon) {
 					return;
 				}
-				switch (peek().type) {
-					case TokenType::tryKeyword:
-					case TokenType::catchKeyword:
-					case TokenType::throwKeyword:
-					case TokenType::throwsKeyword:
-					case TokenType::avoidKeyword:
-					case TokenType::printKeyword:
-					case TokenType::ifKeyword:
-					case TokenType::elseKeyword:
-					case TokenType::switchKeyword:
-					case TokenType::caseKeyword:
-					case TokenType::defaultKeyword:
-					case TokenType::whileKeyword:
-					case TokenType::doKeyword:
-					case TokenType::loopKeyword:
-					case TokenType::forKeyword:
-					case TokenType::repeatKeyword:
-					case TokenType::untilKeyword:
-					case TokenType::breakKeyword:
-					case TokenType::continueKeyword:
-					case TokenType::importKeyword:
-					case TokenType::funcKeyword:
-					case TokenType::procKeyword:
-					case TokenType::staticKeyword:
-					case TokenType::classKeyword:
-					case TokenType::enumKeyword:
-					case TokenType::structKeyword:
-					case TokenType::exceptKeyword:
-					case TokenType::privateKeyword:
-					case TokenType::publicKeyword:
-					case TokenType::refKeyword:
-					case TokenType::cpyKeyword:
-					case TokenType::constKeyword:
-					case TokenType::returnKeyword: return;
-					default: break;
-				}
+				Token t = peek();
+				if (t.type >= TokenType::tryKeyword &&
+					t.type <= TokenType::nevermind) return;
 				advance();
 			}
 		}
@@ -424,7 +411,7 @@ namespace Stack {
 		ArrayList<Statement *> * parse(ArrayList<Token> * tokens,
 											   String * input = nullptr,
 											   String fileName = "Unknown File") {
-			if (tokens == nullptr || tokens -> size() <= 2) {
+			if (!tokens || tokens -> size() <= 2) {
 				errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
 				errors -> shrinkToFit();
 				throw ParserErrorException(errors, fileName);
