@@ -76,6 +76,7 @@ namespace Stack {
 	class IfStatement;
 	class PrintStatement;
 	class VariableStatement;
+	class WhileStatement;
 
 	class Statement {
 
@@ -90,11 +91,19 @@ namespace Stack {
 			virtual void visitIfStatement(IfStatement * e) = 0;
 			virtual void visitPrintStatement(PrintStatement * e) = 0;
 			virtual void visitVariableStatement(VariableStatement * e) = 0;
+			virtual void visitWhileStatement(WhileStatement * e) = 0;
 		};
 
 		virtual void accept(Visitor *) { }
 
+		template<typename t>
+		Bool isInstanceOf() {
+			return (dynamic<t *>(this));
+		}
+
 	};
+
+	/* Expressions */
 
 	class Assignment: public Expression {
 		public:
@@ -274,6 +283,8 @@ namespace Stack {
 		~Identifier() { delete name; }
 	};
 
+	/* Statements */
+
 	class BlockStatement: public Statement {
 		public:
 		ArrayList<Statement *> statements = ArrayList<Statement *>();
@@ -331,7 +342,7 @@ namespace Stack {
 			catch (Exception & e) { throw; }
 		}
 		~PrintStatement() { delete e; }
-	}; 
+	};
 
 	class VariableStatement: public Statement {
 		public:
@@ -346,6 +357,24 @@ namespace Stack {
 			catch (Exception & e) { throw; }
 		}
 		~VariableStatement() { delete name; }
+	};
+
+	class WhileStatement: public Statement {
+		public:
+		Token * whileToken = nullptr;
+		Expression * expression = nullptr;
+		Statement * body = nullptr;
+		WhileStatement(Expression * e, Statement * b, Token * w) {
+			expression = e; body = b; whileToken = w;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitWhileStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~WhileStatement() {
+			delete expression;
+			delete body;
+		}
 	};
 
 }

@@ -302,13 +302,11 @@ namespace Stack {
 		Statement * statement() {
 			Statement * st = nullptr;
 			try {
-				if (match(TokenType::ifKeyword)) {
-					st = ifStatement();
-				} else if (match(TokenType::printKeyword)) {
-					st = printStatement();
-				} else if (match(TokenType::openCurlyBracket)) {
-					st = blockStatement();
-				} else st = expressionStatement();
+				if (match(TokenType::ifKeyword)) st = ifStatement();
+				else if (match(TokenType::printKeyword)) st = printStatement();
+				else if (match(TokenType::whileKeyword)) st = whileStatement();
+				else if (match(TokenType::openCurlyBracket)) st = blockStatement();
+				else st = expressionStatement();
 			} catch (SyntaxError & s) { throw; }
 			return st;
 		}
@@ -377,6 +375,25 @@ namespace Stack {
 				throw;
 			}
 			return new PrintStatement(ex);
+		}
+
+		Statement * whileStatement() {
+			Expression * condition = nullptr;
+			Token * t = nullptr;
+			Statement * body = nullptr;
+			try {
+				consume(TokenType::openRoundBracket, "(");
+				t = new Token(peek());
+				condition = expression();
+				consume(TokenType::closeRoundBracket, ")");
+				body = statement();
+			} catch (SyntaxError & s) {
+				if (t) delete t;
+				if (condition) delete condition;
+				if (body) delete body;
+				throw;
+			}
+			return new WhileStatement(condition, body, t);
 		}
 
 		/* Core */

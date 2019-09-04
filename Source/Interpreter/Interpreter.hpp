@@ -111,7 +111,7 @@ namespace Stack {
 				if (!(e -> object)) {
 					e -> object = Converter::literalToObject(e -> token);
 				}
-				setValue(e -> object);
+				setValue((e -> object) -> copy());
 			} catch (EvaluationError & r) { throw; }
 		}
 		void visitLogicalExpression(Logical * e) override {
@@ -209,6 +209,23 @@ namespace Stack {
 			}
 			resetValue();
 		}
+		void visitWhileStatement(WhileStatement * e) override {
+			try {
+				evaluateExpression(e -> expression);
+				if (!(value -> isBool())) {
+					throw EvaluationError(
+						"Unsupported evaluation of non logical expression in iteration statement!",
+						* e -> whileToken
+					);
+				}
+				Bool condition = value -> getBoolValue();
+				while (condition) {
+					execute(e -> body);
+					evaluateExpression(e -> expression);
+					condition = value -> getBoolValue();
+				}
+			} catch (EvaluationError & r) { throw; }
+		}
 
 		void execute(Statement * statement) {
 			try { statement -> accept(this); }
@@ -217,7 +234,7 @@ namespace Stack {
 
 		void executeBlock(ArrayList<Statement *> statements,
 						  Environment * environment) {
-			 Environment * previous = memory;                         
+			Environment * previous = memory;                         
 			try {
 				memory = environment;
 				for (Statement * statement : statements) {
