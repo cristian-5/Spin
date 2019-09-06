@@ -58,75 +58,62 @@ namespace Stack {
 		inline Real getAngle() { return getPhase(); }
 
 		void operator = (Real r) { a = r; b = 0; }
-
 		Bool operator == (Complex r) const {
 			if (a != r.a) return false;
 			if (b != r.b) return false;
 			return true;
 		}
-
 		Bool operator == (Real r) const {
 			if (a != r) return false;
 			if (b != 0) return false;
 			return true;
 		}
-
 		Bool operator != (Complex r) const {
 			if (a == r.a) return false;
 			if (b == r.b) return false;
 			return true;
 		}
-
 		Bool operator != (Real r) const {
 			if (a == r) return false;
 			if (b != 0) return false;
 			return true;
 		}
-
 		Complex operator - () const {
 			return Complex(- a, - b);
 		}
-
 		Complex operator + (Complex r) const {
 			return Complex(a + r.a, b + r.b);
 		}
-
 		void operator += (Complex r) {
 			a += r.a; b += r.b;
 		}
-
 		Complex operator - (Complex r) const {
 			return Complex(a - r.a, b - r.b);
 		}
-
 		void operator -= (Complex r) {
 			a -= r.a; b -= r.b;
 		}
-
 		Complex operator * (Complex r) const {
 			return Complex(a * r.a - b * r.b, r.a * b + a * r.b);
 		}
-
 		void operator *= (Complex r) {
 			a = a * r.a - b * r.b;
 			b = r.a * b + a * r.b;
 		}
-
 		Complex operator / (Complex r) const {
 			Real d = r.a * r.a + r.b * r.b;
 			if (d == 0) throw ComplexDBZException();
 			return Complex((a * r.a + b * r.b) / d,
 						   (r.a * b - a * r.b) / d);
 		}
-
 		void operator /= (Complex r) {
 			a = (a * r.a + b * r.b) / (r.a * r.a + r.b * r.b);
 			b = (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b);
 		}
 
 		String stringValue() const {
-			return realToString(a) + " " +
-				   realToString(b) + "i";
+			return realToGroupedString(a) +
+				   imaginaryToGroupedString(b);
 		}
 
 	};
