@@ -62,13 +62,14 @@ namespace Stack {
 
 		SizeType index = 0;
 
+		Bool isInControlFlow = false;
+
 		/* Expressions */
 
 		Expression * expression() {
 			try { return assignment(); }
 			catch (SyntaxError & s) { throw; }
 		}
-
 		Expression * assignment() {
 			Expression * ex = nullptr;
 			try { ex = shortOR(); }
@@ -92,7 +93,6 @@ namespace Stack {
 			}
 			return ex;
 		}
-
 		Expression * shortOR() {
 			Expression * ex = nullptr;
 			try { ex = shortAND(); }
@@ -106,7 +106,6 @@ namespace Stack {
 			}
 			return ex;
 		}
-
 		Expression * shortAND() {
 			Expression * ex = nullptr;
 			try { ex = equality(); }
@@ -120,7 +119,6 @@ namespace Stack {
 			}
 			return ex;
 		}
-
 		Expression * equality() {
 			Expression * ex = nullptr;
 			try { ex = comparison(); }
@@ -143,7 +141,6 @@ namespace Stack {
 			delete ops;
 			return ex;
 		}
-
 		Expression * comparison() {
 			Expression * ex = nullptr;
 			try { ex = lowPriorityOperator(); }
@@ -168,7 +165,6 @@ namespace Stack {
 			delete ops;
 			return ex;
 		}
-
 		Expression * lowPriorityOperator() {
 			Expression * ex = nullptr;
 			try { ex = mediumPriorityOperator(); }
@@ -192,7 +188,6 @@ namespace Stack {
 			delete ops;
 			return ex;
 		}
-
 		Expression * mediumPriorityOperator() {
 			Expression * ex = nullptr;
 			try { ex = highPriorityOperator(); }
@@ -218,7 +213,6 @@ namespace Stack {
 			delete ops;
 			return ex;
 		}
-
 		Expression * highPriorityOperator() {
 			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
 			ops -> push(TokenType::minus);
@@ -240,21 +234,22 @@ namespace Stack {
 			try { return primary(); }
 			catch (SyntaxError & s) { throw; }
 		}
-
 		Expression * primary() {
 			Token t = peek();
 			if (t.isTypeLiteral()) {
 				advance();
 				Token * literal = new Token(t);
 				return new Literal(literal);
-			} else if (match(TokenType::symbol)) {
-				Token * name = new Token(previous());
+			} else if (t.type == TokenType::symbol) {
+				advance();
+				Token * name = new Token(t);
 				return new Identifier(name);
-			} else if (match(TokenType::openRoundBracket)) {
+			} else if (t.type == TokenType::openParenthesis) {
+				advance();
 				Expression * ex = nullptr;
 				try {
 					ex = expression();
-					consume(TokenType::closeRoundBracket, ")");
+					consume(TokenType::closeParenthesis, ")");
 				} catch (SyntaxError & e) {
 					if (ex) delete ex;
 					throw;
@@ -281,7 +276,6 @@ namespace Stack {
 			} catch (SyntaxError & s) { throw; }
 			return st;
 		}
-
 		Statement * variableDeclaration() {
 			Token * name = nullptr;
 			Expression * initializer = nullptr;
@@ -298,51 +292,58 @@ namespace Stack {
 			BasicType type = Converter::typeFromString(stringType);
 			return new VariableStatement(name, initializer, type);
 		}
-
 		Statement * statement() {
 			Statement * st = nullptr;
 			try {
-				if (match(TokenType::ifKeyword)) st = ifStatement();
-				else if (match(TokenType::printKeyword)) st = printStatement();
-				else if (match(TokenType::whileKeyword)) st = whileStatement();
-				else if (match(TokenType::openCurlyBracket)) st = blockStatement();
-				else st = expressionStatement();
+				Token keyword = peek();
+				switch (keyword.type) {
+					case TokenType::ifKeyword: st = ifStatement(); break;
+					case TokenType::printKeyword: st = printStatement(); break;
+					case TokenType::whileKeyword: st = whileStatement(); break;
+					case TokenType::doKeyword: st = doWhileStatement(); break;
+					case TokenType::untilKeyword: st = untilStatement(); break;
+					case TokenType::repeatKeyword: st = repeatUntilStatement(); break;
+					case TokenType::loopKeyword: st = loopStatement(); break;
+					case TokenType::openBrace: st = blockStatement(); break;
+					case TokenType::breakKeyword: st = breakStatement(); break;
+					case TokenType::continueKeyword: st = continueStatement(); break;
+					case TokenType::restKeyword: st = restStatement(); break;
+					default: st = expressionStatement(); break;
+				}
 			} catch (SyntaxError & s) { throw; }
 			return st;
 		}
-
 		Statement * ifStatement() {
-			Token * t = nullptr;
+			Token * ifToken = new Token(peekAdvance());
 			Expression * condition = nullptr;
 			Statement * thenBranch = nullptr;
 			Statement * elseBranch = nullptr;
 			try {
-				consume(TokenType::openRoundBracket, "(");
-				t = new Token(peek());
+				consume(TokenType::openParenthesis, "(");
 				condition = expression();
-				consume(TokenType::closeRoundBracket, ")");
+				consume(TokenType::closeParenthesis, ")");
 				thenBranch = statement();
 				elseBranch = nullptr;
 				if (match(TokenType::elseKeyword)) {
 					elseBranch = statement();
 				}
 			} catch (SyntaxError & s) {
-				if (t) delete t;
+				if (ifToken) delete ifToken;
 				if (condition) delete condition;
 				if (thenBranch) delete thenBranch;
 				if (elseBranch) delete elseBranch;
 				throw;
 			}
-			return new IfStatement(condition, thenBranch, elseBranch, t);
+			return new IfStatement(condition, thenBranch, elseBranch, ifToken);
 		}
-
 		Statement * blockStatement() {
+			advance();
 			ArrayList<Statement *> statements = ArrayList<Statement *>();
 			try {
-				while (!check(TokenType::closeCurlyBracket) && !isAtEnd()) {
+				while (!check(TokenType::closeBrace) && !isAtEnd()) {
 					statements.push(declaration());
 				}
-				consume(TokenType::closeCurlyBracket, "}");
+				consume(TokenType::closeBrace, "}");
 			} catch (SyntaxError & s) {
 				for (Statement * statement : statements) {
 					delete statement;
@@ -352,7 +353,38 @@ namespace Stack {
 			statements.shrinkToFit();
 			return new BlockStatement(statements);
 		}
-
+		Statement * breakStatement() {
+			if (!isInControlFlow) {
+				throw SyntaxError(
+					"Unexpected break statement outside of control flow statements! What am I supposed to break?",
+					Linker::getPosition(input, peek().position)
+				);
+			}
+			Token * breakToken = new Token(peekAdvance());
+			try {
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) {
+				delete breakToken;
+				throw;
+			}
+			return new BreakStatement(breakToken);
+		}
+		Statement * continueStatement() {
+			if (!isInControlFlow) {
+				throw SyntaxError(
+					"Unexpected continue statement outside of control flow statements! Where am I supposed to continue?",
+					Linker::getPosition(input, peek().position)
+				);
+			}
+			Token * continueToken = new Token(peekAdvance());
+			try {
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) {
+				delete continueToken;
+				throw;
+			}
+			return new ContinueStatement(continueToken);
+		}
 		Statement * expressionStatement() {
 			Expression * ex = nullptr;
 			try {
@@ -364,8 +396,8 @@ namespace Stack {
 			}
 			return new ExpressionStatement(ex);
 		}
-
 		Statement * printStatement() {
+			advance();
 			Expression * ex = nullptr;
 			try {
 				ex = expression();
@@ -376,24 +408,117 @@ namespace Stack {
 			}
 			return new PrintStatement(ex);
 		}
-
 		Statement * whileStatement() {
+			Bool oldControlFlow = isInControlFlow;
+			isInControlFlow = true;
+			Token * whileToken = new Token(peekAdvance());
 			Expression * condition = nullptr;
-			Token * t = nullptr;
 			Statement * body = nullptr;
 			try {
-				consume(TokenType::openRoundBracket, "(");
-				t = new Token(peek());
+				consume(TokenType::openParenthesis, "(");
 				condition = expression();
-				consume(TokenType::closeRoundBracket, ")");
+				consume(TokenType::closeParenthesis, ")");
 				body = statement();
 			} catch (SyntaxError & s) {
-				if (t) delete t;
+				if (whileToken) delete whileToken;
 				if (condition) delete condition;
 				if (body) delete body;
 				throw;
 			}
-			return new WhileStatement(condition, body, t);
+			isInControlFlow = oldControlFlow;
+			return new WhileStatement(condition, body, whileToken);
+		}
+		Statement * doWhileStatement() {
+			Bool oldControlFlow = isInControlFlow;
+			isInControlFlow = true;
+			advance();
+			Statement * body = nullptr;
+			Expression * condition = nullptr;
+			Token * whileToken = nullptr;
+			try {
+				body = statement();
+				whileToken = new Token(
+					consume(TokenType::whileKeyword, "while")
+				);
+				consume(TokenType::openParenthesis, "(");
+				condition = expression();
+				consume(TokenType::closeParenthesis, ")");
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) {
+				if (whileToken) delete whileToken;
+				if (condition) delete condition;
+				if (body) delete body;
+				throw;
+			}
+			isInControlFlow = oldControlFlow;
+			return new DoWhileStatement(body, condition, whileToken);
+		}
+		Statement * untilStatement() {
+			Bool oldControlFlow = isInControlFlow;
+			isInControlFlow = true;
+			Token * untilToken = new Token(peekAdvance());
+			Expression * condition = nullptr;
+			Statement * body = nullptr;
+			try {
+				consume(TokenType::openParenthesis, "(");
+				condition = expression();
+				consume(TokenType::closeParenthesis, ")");
+				body = statement();
+			} catch (SyntaxError & s) {
+				if (untilToken) delete untilToken;
+				if (condition) delete condition;
+				if (body) delete body;
+				throw;
+			}
+			isInControlFlow = oldControlFlow;
+			return new UntilStatement(condition, body, untilToken);
+		}
+		Statement * repeatUntilStatement() {
+			Bool oldControlFlow = isInControlFlow;
+			isInControlFlow = true;
+			advance();
+			Statement * body = nullptr;
+			Expression * condition = nullptr;
+			Token * untilToken = nullptr;
+			try {
+				body = statement();
+				untilToken = new Token(
+					consume(TokenType::untilKeyword, "until")
+				);
+				consume(TokenType::openParenthesis, "(");
+				condition = expression();
+				consume(TokenType::closeParenthesis, ")");
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) {
+				if (untilToken) delete untilToken;
+				if (condition) delete condition;
+				if (body) delete body;
+				throw;
+			}
+			isInControlFlow = oldControlFlow;
+			return new RepeatUntilStatement(body, condition, untilToken);
+		}
+		Statement * loopStatement() {
+			Bool oldControlFlow = isInControlFlow;
+			isInControlFlow = true;
+			Token * loopToken = new Token(peekAdvance());
+			Statement * body = nullptr;
+			try {
+				body = statement();
+			} catch (SyntaxError & s) {
+				if (loopToken) delete loopToken;
+				if (body) delete body;
+				throw;
+			}
+			isInControlFlow = oldControlFlow;
+			return new LoopStatement(body, loopToken);
+		}
+		Statement * restStatement() {
+			advance();
+			try {
+				consume(TokenType::semicolon, ";");
+			} catch (SyntaxError & s) { throw; }
+			return new RestStatement();
 		}
 
 		/* Core */
@@ -404,7 +529,6 @@ namespace Stack {
 				return true;
 			} return false;
 		}
-
 		Bool match(ArrayList<TokenType> * types) {
 			for (TokenType & type : * types) {
 				if (check(type)) {
@@ -413,31 +537,29 @@ namespace Stack {
 				}
 			} return false;
 		}
-
 		Bool check(TokenType type) {
 			if (isAtEnd()) return false;
 			return peek().type == type;
 		}
-
 		Bool isOutOfRange() {
 			if (tokens -> size() == 0) return true;
 			if (index >= tokens -> size()) return true;
 			return false;
 		}
-
 		Bool isAtEnd() {
 			return peek().type == TokenType::endFile;
 		}
-
 		Token peek() { return tokens -> at(index); }
-
+		Token peekAdvance() {
+			Token peekToken = peek();
+			advance();
+			return peekToken;
+		}
 		Token previous() { return tokens -> at(index - 1); }
-
 		Token advance() {
 			if (!isAtEnd()) index += 1;
 			return previous();
 		}
-
 		Token consume(TokenType type, String lexeme = "") {
 			Token t = peek();
 			if (check(type)) return advance();
@@ -460,7 +582,7 @@ namespace Stack {
 				}
 				Token t = peek();
 				if (t.type >= TokenType::tryKeyword &&
-					t.type <= TokenType::nevermind) return;
+					t.type <= TokenType::restKeyword) return;
 				advance();
 			}
 		}

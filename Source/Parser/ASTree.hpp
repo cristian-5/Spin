@@ -72,9 +72,16 @@ namespace Stack {
 	};
 
 	class BlockStatement;
+	class BreakStatement;
+	class ContinueStatement;
+	class DoWhileStatement;
 	class ExpressionStatement;
 	class IfStatement;
+	class LoopStatement;
 	class PrintStatement;
+	class RepeatUntilStatement;
+	class RestStatement;
+	class UntilStatement;
 	class VariableStatement;
 	class WhileStatement;
 
@@ -87,9 +94,16 @@ namespace Stack {
 		class Visitor {
 			public:
 			virtual void visitBlockStatement(BlockStatement * e) = 0;
+			virtual void visitBreakStatement(BreakStatement * e) = 0;
+			virtual void visitContinueStatement(ContinueStatement * e) = 0;
+			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
 			virtual void visitIfStatement(IfStatement * e) = 0;
+			virtual void visitLoopStatement(LoopStatement * e) = 0;
 			virtual void visitPrintStatement(PrintStatement * e) = 0;
+			virtual void visitRepeatUntilStatement(RepeatUntilStatement * e) = 0;
+			virtual void visitRestStatement(RestStatement * e) = 0;
+			virtual void visitUntilStatement(UntilStatement * e) = 0;
 			virtual void visitVariableStatement(VariableStatement * e) = 0;
 			virtual void visitWhileStatement(WhileStatement * e) = 0;
 		};
@@ -119,7 +133,6 @@ namespace Stack {
 		}
 		~Assignment() { delete name; delete value; }
 	};
-
 	class Binary: public Expression {
 		public:
 		Expression * r = nullptr;
@@ -134,7 +147,6 @@ namespace Stack {
 		}
 		~Binary() { delete r; delete l; delete o; }
 	};
-
 	class Call: public Expression {
 		public:
 		Token * paren = nullptr;
@@ -154,7 +166,6 @@ namespace Stack {
 			}
 		}
 	};
-
 	class Comparison: public Expression {
 		public:
 		Expression * r = nullptr;
@@ -169,7 +180,6 @@ namespace Stack {
 		}
 		~Comparison() { delete r; delete l; delete o; }
 	};
-
 	class Get: public Expression {
 		public:
 		Expression * object = nullptr;
@@ -183,7 +193,6 @@ namespace Stack {
 		}
 		~Get() { delete object; delete name; }
 	};
-
 	class Grouping: public Expression {
 		public:
 		Expression * expression = nullptr;
@@ -194,7 +203,6 @@ namespace Stack {
 		}
 		~Grouping() { delete expression; }
 	};
-
 	class Literal: public Expression {
 		public:
 		Token * token = nullptr;
@@ -206,7 +214,6 @@ namespace Stack {
 		}
 		~Literal() { delete token; }
 	};
-
 	class Logical: public Expression {
 		public:
 		Expression * r = nullptr;
@@ -221,7 +228,6 @@ namespace Stack {
 		}
 		~Logical() { delete r; delete l; delete o; }
 	};
-
 	class Set: public Expression {
 		public:
 		Expression * object = nullptr;
@@ -236,7 +242,6 @@ namespace Stack {
 		}
 		~Set() { delete object; delete name; delete value; }
 	};
-
 	class Super: public Expression {
 		public:
 		Token * keyword = nullptr;
@@ -248,7 +253,6 @@ namespace Stack {
 		}
 		~Super() { delete keyword; delete method; }
 	};
-
 	class This: public Expression {
 		public:
 		Token * keyword = nullptr;
@@ -259,7 +263,6 @@ namespace Stack {
 		}
 		~This() { delete keyword; }
 	};
-
 	class Unary: public Expression {
 		public:
 		Expression * r = nullptr;
@@ -271,7 +274,6 @@ namespace Stack {
 		}
 		~Unary() { delete r; delete o; }
 	};
-
 	class Identifier: public Expression {
 		public:
 		Token * name = nullptr;
@@ -299,7 +301,44 @@ namespace Stack {
 			}
 		}
 	};
-
+	class BreakStatement: public Statement {
+		public:
+		Token * breakToken = nullptr;
+		BreakStatement(Token * b) { breakToken = b; }
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitBreakStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~BreakStatement() { delete breakToken; }
+	};
+	class ContinueStatement: public Statement {
+		public:
+		Token * continueToken = nullptr;
+		ContinueStatement(Token * c) { continueToken = c; }
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitContinueStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~ContinueStatement() { delete continueToken; }
+	};
+	class DoWhileStatement: public Statement {
+		public:
+		Token * whileToken = nullptr;
+		Expression * expression = nullptr;
+		Statement * body = nullptr;
+		DoWhileStatement(Statement * b, Expression * e, Token * w) {
+			expression = e; body = b; whileToken = w;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitDoWhileStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~DoWhileStatement() {
+			delete whileToken;
+			delete expression;
+			delete body;
+		}
+	};
 	class ExpressionStatement: public Statement {
 		public:
 		Expression * e = nullptr;
@@ -310,7 +349,6 @@ namespace Stack {
 		}
 		~ExpressionStatement() { delete e; }
 	};
-
 	class IfStatement: public Statement {
 		public:
 		Token * ifToken = nullptr;
@@ -332,7 +370,22 @@ namespace Stack {
 			delete elseBranch;
 		}
 	};
-
+	class LoopStatement: public Statement {
+		public:
+		Token * loopToken = nullptr;
+		Statement * body = nullptr;
+		LoopStatement(Statement * b, Token * l) {
+			body = b; loopToken = l;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitLoopStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~LoopStatement() {
+			delete loopToken;
+			delete body;
+		}
+	};	
 	class PrintStatement: public Statement {
 		public:
 		Expression * e = nullptr;
@@ -343,7 +396,50 @@ namespace Stack {
 		}
 		~PrintStatement() { delete e; }
 	};
-
+	class RepeatUntilStatement: public Statement {
+		public:
+		Token * untilToken = nullptr;
+		Statement * body = nullptr;
+		Expression * expression = nullptr;
+		RepeatUntilStatement(Statement * b, Expression * e, Token * u) {
+			expression = e; body = b; untilToken = u;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitRepeatUntilStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~RepeatUntilStatement() {
+			delete untilToken;
+			delete expression;
+			delete body;
+		}
+	};
+	class RestStatement: public Statement {
+		public:
+		RestStatement() { }
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitRestStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+	};
+	class UntilStatement: public Statement {
+		public:
+		Token * untilToken = nullptr;
+		Expression * expression = nullptr;
+		Statement * body = nullptr;
+		UntilStatement(Expression * e, Statement * b, Token * u) {
+			expression = e; body = b; untilToken = u;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitUntilStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~UntilStatement() {
+			delete untilToken;
+			delete expression;
+			delete body;
+		}
+	};
 	class VariableStatement: public Statement {
 		public:
 		Token * name = nullptr;
@@ -358,7 +454,6 @@ namespace Stack {
 		}
 		~VariableStatement() { delete name; }
 	};
-
 	class WhileStatement: public Statement {
 		public:
 		Token * whileToken = nullptr;
@@ -372,6 +467,7 @@ namespace Stack {
 			catch (Exception & e) { throw; }
 		}
 		~WhileStatement() {
+			delete whileToken;
 			delete expression;
 			delete body;
 		}

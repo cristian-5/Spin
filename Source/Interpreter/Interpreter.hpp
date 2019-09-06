@@ -51,6 +51,9 @@ namespace Stack {
 
 		Environment * memory = new Environment();
 
+		Bool broken = false;
+		Bool continued = false;
+
 		/* Core */
 
 		void deleteValue() { delete value; value = nullptr; }
@@ -162,6 +165,32 @@ namespace Stack {
 				executeBlock(e -> statements, new Environment(memory));
 			} catch (EvaluationError & r) { throw; }
 		}
+		void visitBreakStatement(BreakStatement * e) override {
+			broken = true;
+		}
+		void visitContinueStatement(ContinueStatement * e) override {
+			continued = true;
+		}
+		void visitDoWhileStatement(DoWhileStatement * e) override {
+			try {
+				evaluateExpression(e -> expression);
+				if (!(value -> isBool())) {
+					throw EvaluationError(
+						"Unsupported evaluation of non logical expression in iteration statement!",
+						* e -> whileToken
+					);
+				}
+				Bool condition = value -> getBoolValue();
+				execute(e -> body);
+				if (broken) { broken = false; return; }
+				while (condition) {
+					execute(e -> body);
+					if (broken) { broken = false; break; }
+					evaluateExpression(e -> expression);
+					condition = value -> getBoolValue();
+				}
+			} catch (EvaluationError & r) { throw; }
+		}
 		void visitExpressionStatement(ExpressionStatement * e) override {
 			try { evaluateExpression(e -> e); }
 			catch (EvaluationError & r) { throw; }
@@ -182,11 +211,58 @@ namespace Stack {
 				}
 			} catch (EvaluationError & r) { throw; }
 		}
+		void visitLoopStatement(LoopStatement * e) override {
+			try {
+				while (true) {
+					execute(e -> body);
+					if (broken) { broken = false; break; }
+				}
+			} catch (EvaluationError & r) { throw; }
+		}
 		void visitPrintStatement(PrintStatement * e) override {
 			try {
 				evaluateExpression(e -> e);
 				// TO FIX: Find a better way to output things.
 				std::cout << value -> getObjectStringValue() << std::endl;
+			} catch (EvaluationError & r) { throw; }
+		}
+		void visitRepeatUntilStatement(RepeatUntilStatement * e) override {
+			try {
+				evaluateExpression(e -> expression);
+				if (!(value -> isBool())) {
+					throw EvaluationError(
+						"Unsupported evaluation of non logical expression in iteration statement!",
+						* e -> untilToken
+					);
+				}
+				Bool condition = value -> getBoolValue();
+				execute(e -> body);
+				if (broken) { broken = false; return; }
+				while (!condition) {
+					execute(e -> body);
+					if (broken) { broken = false; break; }
+					evaluateExpression(e -> expression);
+					condition = value -> getBoolValue();
+				}
+			} catch (EvaluationError & r) { throw; }
+		}
+		void visitRestStatement(RestStatement * e) override { }
+		void visitUntilStatement(UntilStatement * e) override {
+			try {
+				evaluateExpression(e -> expression);
+				if (!(value -> isBool())) {
+					throw EvaluationError(
+						"Unsupported evaluation of non logical expression in iteration statement!",
+						* e -> untilToken
+					);
+				}
+				Bool condition = value -> getBoolValue();
+				while (!condition) {
+					execute(e -> body);
+					if (broken) { broken = false; break; }
+					evaluateExpression(e -> expression);
+					condition = value -> getBoolValue();
+				}
 			} catch (EvaluationError & r) { throw; }
 		}
 		void visitVariableStatement(VariableStatement * e) override {
@@ -221,6 +297,7 @@ namespace Stack {
 				Bool condition = value -> getBoolValue();
 				while (condition) {
 					execute(e -> body);
+					if (broken) { broken = false; break; }
 					evaluateExpression(e -> expression);
 					condition = value -> getBoolValue();
 				}
@@ -234,11 +311,14 @@ namespace Stack {
 
 		void executeBlock(ArrayList<Statement *> statements,
 						  Environment * environment) {
-			Environment * previous = memory;                         
+			Environment * previous = memory;
 			try {
 				memory = environment;
 				for (Statement * statement : statements) {
 					execute(statement);
+					if (broken || continued) {
+						continued = false; break;
+					}
 				}
 			} catch (EvaluationError & r) {
 				memory = previous;
