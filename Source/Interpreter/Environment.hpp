@@ -52,6 +52,12 @@ namespace Stack {
 			this -> enclosing = enclosing;
 		}
 
+		~Environment() {
+			for (Pair<String, Object *> value : values) {
+				delete value.second;
+			}
+		}
+
 		void define(String name, Object * value) {
 			auto search = values.find(name);
 			if (search != values.end()) {
