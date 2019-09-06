@@ -35,80 +35,27 @@ Here's a **railway** implementation of statements' syntax.
 - [**Statement**](RailRoads/Statement.md)
 
 - [**Block Statement**](RailRoads/ST-Block.md)
+- [**Break Statement**](RailRoads/ST-Break.md)
+- [**Continue Statement**](RailRoads/ST-Continue.md)
+- [**Do While Statement**](RailRoads/ST-Do-While.md)
 - [**Expression Statement**](RailRoads/ST-Expression.md)
 - [**If Statement**](RailRoads/ST-If.md)
 - [**Print Statement**](RailRoads/ST-Print.md)
+- [**Repeat Until Statement**](RailRoads/ST-Repeat-Until.md)
+- [**Until Statement**](RailRoads/ST-Until.md)
 - [**While Statement**](RailRoads/ST-While.md)
 
 
 
-
-
-### Expression Statement:
-
-    + ── [Expression] ── ; ── +
-
-### Statements:
-
-    + ─╭─ [Statement] ─╮─ +
-       ╰────── < ──────╯
 
 ### Return Statement:
 
     + ── return ──╮────── > ───────╭── ; ── +
                   ╰─ [Expression] ─╯
 
-### Break Statement:
-
-    + ── break ── ; ── +
-
-### Continue Statement:
-
-    + ── continue ── ; ── +
-
 ### Subscription:
 
     + ── [Expression] ── [ ── [Expression] ── ] ── +
-
-### Expression Precedence:
-
-    + ── ( ── [Expression] ── ) ── +
-
-### Expression:
-
-    + ─╮── > ── [Literals] ───────────────── > ──╭─ +
-	   |                                         |
-       ╰── > ── [Expression Precedence] ──── > ──╯
-	   |                                         |
-	   ╰── > ── [Subscription] ───────────── > ──╯
-	   |                                         |
-       ╰── > ── [Assignment] ─────────────── > ──╯
-       |                                         |
-	   ╰── > ── [Prefix Operation] ───────── > ──╯
-       ╰── > ── [Infix Operation] ────────── > ──╯
-	   ╰── > ── [Postfix Operation] ──────── > ──╯
-	   |                                         |
-	   ╰── > ── [Function Call] ──────────── > ──╯
-
-### Assignment:
-
-    + ── [Expression] ── = ── [Expression] ── +
-
-### Prefix Operation:
-
-    + ── prefixOperator ── [Expression] ── +
-
-### Infix Operation:
-
-    + ── [Expression] ── infixOperator ── [Expression] ── +
-
-### Literal:
-
-    + ─╮── > ── stringLiteral ───── > ──╭─ +
-       ╰── > ── integerLiteral ──── > ──╯
-       ╰── > ── charLiteral ─────── > ──╯
-       ╰── > ── boolLiteral ─────── > ──╯
-       ╰── > ── realLiteral ─────── > ──╯
 
 ### Switch Statement:
 
@@ -119,25 +66,6 @@ Here's a **railway** implementation of statements' syntax.
     ╭────────── < ───────────── < ───────────── < ───────╯
     ╰─── > ────╮───────────── > ─────────────╭── } ── +
                ╰─ default ─ : ─ [Statement] ─╯
-
-### Do While Statement:
-
-    + ─╮─ repeat ──╭── > ── [Statement] ── > ───╮
-       ╰─── do ────╯                            |
-    ╭────── < ─────────── < ─────────── < ──────╯
-    ╰── while ── ( ── [Expression] ── ) ── ; ── +
-
-### Repeat Until Statement:
-
-    + ─╮─ repeat ──╭── > ── [Statement] ── > ───╮
-       ╰─── do ────╯                            |
-    ╭────── < ─────────── < ─────────── < ──────╯
-    ╰── until ── ( ── [Expression] ── ) ── ; ── +
-
-### Loop Statement:
-
-    + ─╮─ repeat ──╭── > ── [Statement] ── > ── +
-       ╰── loop ───╯
 
 ### Try Catch Statement:
 
@@ -159,14 +87,3 @@ Here's a **railway** implementation of statements' syntax.
 
     + ── throw ──╮────── > ───────╭─ ; ── +
                  ╰─ [Expression] ─╯
-
-## Declarations
-
-This part focuses on *"objects"* declaration.
-
-
-
-
-
-
-
