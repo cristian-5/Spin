@@ -107,7 +107,7 @@ namespace Stack {
 	}
 
 	static String realToString(Real a) {
-		String result = a >= 0 ? "+ ": "- ";
+		String result = a >= 0 ? "" : "-";
 		Int64 i = (Int64) a;
 		if (i < 0) { i = -i; a = -a; }
 		result += toString(i) + ".";
@@ -119,9 +119,35 @@ namespace Stack {
 		return result;
 	}
 
+	static String realToGroupedString(Real a) {
+		String result = a >= 0 ? "+(" : "-(";
+		Int64 i = (Int64) a;
+		if (i < 0) { i = -i; a = -a; }
+		result += toString(i) + ".";
+		a -= (Real)i;
+		a *= 100;
+		i = (Int64) a;
+		if (i == 0) result += toString(i) + "0";
+		else result += toString(i);
+		return result + ")";
+	}
+
+	static String imaginaryToGroupedString(Real a) {
+		String result = a >= 0 ? "+(" : "-(";
+		Int64 i = (Int64) a;
+		if (i < 0) { i = -i; a = -a; }
+		result += toString(i) + ".";
+		a -= (Real)i;
+		a *= 100;
+		i = (Int64) a;
+		if (i == 0) result += toString(i) + "0";
+		else result += toString(i);
+		return result + "i)";
+	}
+
 	static String intToString(Int64 a) {
-		if (a >= 0) return "+ " + toString(a);
-		else return "- " + toString(-a);
+		if (a >= 0) return toString(a);
+		else return "-" + toString(-a);
 	}
 
 	static Real abs(Real x) {
