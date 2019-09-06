@@ -150,7 +150,7 @@ namespace Stack {
 					o -> type = BasicType::ImaginaryType;
 					o -> value = new Real(stringToImaginary(t -> lexeme));
 				} break;
-				case TokenType::nullLiteral: {
+				case TokenType::emptyLiteral: {
 					o -> type = BasicType::ClassType;
 					o -> value = nullptr;
 				} break;
