@@ -181,10 +181,10 @@ namespace Stack {
 					);
 				}
 				Bool condition = value -> getBoolValue();
-				execute(e -> body);
+				executeStatement(e -> body);
 				if (broken) { broken = false; return; }
 				while (condition) {
-					execute(e -> body);
+					executeStatement(e -> body);
 					if (broken) { broken = false; break; }
 					evaluateExpression(e -> expression);
 					condition = value -> getBoolValue();
@@ -194,6 +194,26 @@ namespace Stack {
 		void visitExpressionStatement(ExpressionStatement * e) override {
 			try { evaluateExpression(e -> e); }
 			catch (EvaluationError & r) { throw; }
+		}
+		void visitForStatement(ForStatement * e) override {
+			try {
+				executeStatement(e -> declaration);
+				evaluateExpression(e -> expression);
+				if (!(value -> isBool())) {
+					throw EvaluationError(
+						"Unsupported evaluation of non logical expression in iteration statement!",
+						* e -> forToken
+					);
+				}
+				Bool condition = value -> getBoolValue();
+				while (condition) {
+					executeStatement(e -> body);
+					if (broken) { broken = false; break; }
+					evaluateExpression(e -> stepper);
+					evaluateExpression(e -> expression);
+					condition = value -> getBoolValue();
+				}
+			} catch (EvaluationError & r) { throw; }
 		}
 		void visitIfStatement(IfStatement * e) override {
 			try {
@@ -205,16 +225,16 @@ namespace Stack {
 					);
 				}
 				if (value -> getBoolValue()) {
-					execute(e -> thenBranch);
+					executeStatement(e -> thenBranch);
 				} else if (e -> elseBranch) {
-					execute(e -> elseBranch);
+					executeStatement(e -> elseBranch);
 				}
 			} catch (EvaluationError & r) { throw; }
 		}
 		void visitLoopStatement(LoopStatement * e) override {
 			try {
 				while (true) {
-					execute(e -> body);
+					executeStatement(e -> body);
 					if (broken) { broken = false; break; }
 				}
 			} catch (EvaluationError & r) { throw; }
@@ -236,10 +256,10 @@ namespace Stack {
 					);
 				}
 				Bool condition = value -> getBoolValue();
-				execute(e -> body);
+				executeStatement(e -> body);
 				if (broken) { broken = false; return; }
 				while (!condition) {
-					execute(e -> body);
+					executeStatement(e -> body);
 					if (broken) { broken = false; break; }
 					evaluateExpression(e -> expression);
 					condition = value -> getBoolValue();
@@ -258,7 +278,7 @@ namespace Stack {
 				}
 				Bool condition = value -> getBoolValue();
 				while (!condition) {
-					execute(e -> body);
+					executeStatement(e -> body);
 					if (broken) { broken = false; break; }
 					evaluateExpression(e -> expression);
 					condition = value -> getBoolValue();
@@ -296,7 +316,7 @@ namespace Stack {
 				}
 				Bool condition = value -> getBoolValue();
 				while (condition) {
-					execute(e -> body);
+					executeStatement(e -> body);
 					if (broken) { broken = false; break; }
 					evaluateExpression(e -> expression);
 					condition = value -> getBoolValue();
@@ -304,7 +324,7 @@ namespace Stack {
 			} catch (EvaluationError & r) { throw; }
 		}
 
-		void execute(Statement * statement) {
+		void executeStatement(Statement * statement) {
 			try { statement -> accept(this); }
 			catch (EvaluationError & r) { throw; }
 		}
@@ -315,7 +335,7 @@ namespace Stack {
 			try {
 				memory = environment;
 				for (Statement * statement : statements) {
-					execute(statement);
+					executeStatement(statement);
 					if (broken || continued) {
 						continued = false; break;
 					}
@@ -349,7 +369,7 @@ namespace Stack {
 					  String fileName = "Unknown File") {
 			try {
 				for (Statement * statement : (* statements)) {
-					execute(statement);
+					executeStatement(statement);
 				}
 			} catch (EvaluationError & e) {
 				const UInt32 cursor = e.getToken().position;

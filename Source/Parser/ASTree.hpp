@@ -76,6 +76,7 @@ namespace Stack {
 	class ContinueStatement;
 	class DoWhileStatement;
 	class ExpressionStatement;
+	class ForStatement;
 	class IfStatement;
 	class LoopStatement;
 	class PrintStatement;
@@ -98,6 +99,7 @@ namespace Stack {
 			virtual void visitContinueStatement(ContinueStatement * e) = 0;
 			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
+			virtual void visitForStatement(ForStatement * e) = 0;
 			virtual void visitIfStatement(IfStatement * e) = 0;
 			virtual void visitLoopStatement(LoopStatement * e) = 0;
 			virtual void visitPrintStatement(PrintStatement * e) = 0;
@@ -291,6 +293,7 @@ namespace Stack {
 		public:
 		ArrayList<Statement *> statements = ArrayList<Statement *>();
 		BlockStatement(ArrayList<Statement *> s) { statements = s; }
+		BlockStatement(Statement * s) { statements.push(s); }
 		void accept(Visitor * visitor) override {
 			try { visitor -> visitBlockStatement(this); }
 			catch (Exception & e) { throw; }
@@ -348,6 +351,30 @@ namespace Stack {
 			catch (Exception & e) { throw; }
 		}
 		~ExpressionStatement() { delete e; }
+	};
+	class ForStatement: public Statement {
+		public:
+		Token * forToken = nullptr;
+		Statement * declaration = nullptr;
+		Expression * expression = nullptr;
+		Expression * stepper = nullptr;
+		Statement * body = nullptr;
+		ForStatement(Statement * d, Expression * e,
+					 Expression * s, Statement * b, Token * f) {
+			declaration = d; expression = e;
+			stepper = s; body = b; forToken = f;
+		}
+		void accept(Visitor * visitor) override {
+			try { visitor -> visitForStatement(this); }
+			catch (Exception & e) { throw; }
+		}
+		~ForStatement() {
+			delete forToken;
+			delete declaration;
+			delete expression;
+			delete stepper;
+			delete body;
+		}
 	};
 	class IfStatement: public Statement {
 		public:

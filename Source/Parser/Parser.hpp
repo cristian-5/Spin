@@ -304,6 +304,7 @@ namespace Stack {
 					case TokenType::untilKeyword: st = untilStatement(); break;
 					case TokenType::repeatKeyword: st = repeatUntilStatement(); break;
 					case TokenType::loopKeyword: st = loopStatement(); break;
+					case TokenType::forKeyword: st = forStatement(); break;
 					case TokenType::openBrace: st = blockStatement(); break;
 					case TokenType::breakKeyword: st = breakStatement(); break;
 					case TokenType::continueKeyword: st = continueStatement(); break;
@@ -395,6 +396,38 @@ namespace Stack {
 				throw;
 			}
 			return new ExpressionStatement(ex);
+		}
+		Statement * forStatement() {
+			Bool oldControlFlow = isInControlFlow;
+			isInControlFlow = true;
+			Token * forToken = new Token(peekAdvance());
+			Statement * declaration = nullptr;
+			Expression * condition = nullptr;
+			Expression * stepper = nullptr;
+			Statement * body = nullptr;
+			try {
+				consume(TokenType::openParenthesis, "(");
+				if(match(TokenType::basicType)) {
+					declaration = variableDeclaration();
+				} else declaration = expressionStatement();
+				condition = expression();
+				consume(TokenType::semicolon, ";");
+				stepper = expression();
+				consume(TokenType::closeParenthesis, ")");
+				body = statement();
+			} catch (SyntaxError & s) {
+				if (forToken) delete forToken;
+				if (declaration) delete declaration;
+				if (condition) delete condition;
+				if (stepper) delete stepper;
+				if (body) delete body;
+				throw;
+			}
+			isInControlFlow = oldControlFlow;
+			return new BlockStatement(
+				new ForStatement(declaration, condition,
+								 stepper, body, forToken)
+			);
 		}
 		Statement * printStatement() {
 			advance();
