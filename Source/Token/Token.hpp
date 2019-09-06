@@ -46,7 +46,7 @@ namespace Stack {
 		imaginaryLiteral,
 		realLiteral,
 		colourLiteral,
-		nullLiteral,
+		emptyLiteral,
 
 		colon,
 		semicolon,
@@ -92,20 +92,19 @@ namespace Stack {
 		dollar,
 		hat,
 
-		openRoundBracket,
-		closeRoundBracket,
+		openParenthesis,
+		closeParenthesis,
 
-		openSquareBracket,
-		closeSquareBracket,
+		openBracket,
+		closeBracket,
 
-		openCurlyBracket,
-		closeCurlyBracket,
+		openBrace,
+		closeBrace,
 
 		tryKeyword,
 		catchKeyword,
 		throwKeyword,
 		throwsKeyword,
-		avoidKeyword,
 
 		printKeyword,
 
@@ -135,7 +134,7 @@ namespace Stack {
 		publicKeyword,
 		constKeyword,
 		returnKeyword,
-		nevermind,
+		restKeyword,
 
 		refKeyword,
 		cpyKeyword,
@@ -162,7 +161,7 @@ namespace Stack {
 
 		Bool isTypeLiteral() const {
 			return type >= TokenType::intLiteral &&
-				   type <= TokenType::nullLiteral;
+				   type <= TokenType::emptyLiteral;
 		}
 
 	};

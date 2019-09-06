@@ -109,18 +109,17 @@ namespace Stack {
 			{ "(\\^=)", TokenType::hatEqual },
 			{ "(\\^)", TokenType::hat },
 
-			{ "(\\()", TokenType::openRoundBracket },
-			{ "(\\))", TokenType::closeRoundBracket },
-			{ "(\\[)", TokenType::openSquareBracket },
-			{ "(\\])", TokenType::closeSquareBracket },
-			{ "(\\{)", TokenType::openCurlyBracket },
-			{ "(\\})", TokenType::closeCurlyBracket },
+			{ "(\\()", TokenType::openParenthesis },
+			{ "(\\))", TokenType::closeParenthesis },
+			{ "(\\[)", TokenType::openBracket },
+			{ "(\\])", TokenType::closeBracket },
+			{ "(\\{)", TokenType::openBrace },
+			{ "(\\})", TokenType::closeBrace },
 
 			{ "(try)" INVERTED, TokenType::tryKeyword },
 			{ "(catch)" INVERTED, TokenType::catchKeyword },
 			{ "(throw)" INVERTED, TokenType::throwKeyword },
 			{ "(throws)" INVERTED, TokenType::throwsKeyword },
-			{ "(avoid)" INVERTED, TokenType::avoidKeyword },
 
 			{ "(print)" INVERTED, TokenType::printKeyword },
 
@@ -151,8 +150,8 @@ namespace Stack {
 			{ "(ref)" INVERTED, TokenType::refKeyword },
 			{ "(cpy)" INVERTED, TokenType::cpyKeyword },
 			{ "(const)" INVERTED, TokenType::constKeyword },
-			{ "(null)" INVERTED, TokenType::nullLiteral },
-			{ "(nevermind)" INVERTED, TokenType::nevermind },
+			{ "(empty)" INVERTED, TokenType::emptyLiteral },
+			{ "(rest)" INVERTED, TokenType::restKeyword },
 			{ "(return)" INVERTED, TokenType::returnKeyword },
 
 			{ "(Integer|Real|String|Bool|Character|Colour|Complex|Imaginary|Byte)" INVERTED, TokenType::basicType },
