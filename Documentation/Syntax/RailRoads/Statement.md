@@ -12,6 +12,7 @@ A *Declaration* is also considered a **Statement**.
        ╰── > ── [Continue Statement] ─────── > ──╯
        ╰── > ── [Do While Statement] ─────── > ──╯
        ╰── > ── [Expression Statement] ───── > ──╯
+       ╰── > ── [For Statement] ──────────── > ──╯
        ╰── > ── [If Statement] ───────────── > ──╯
        ╰── > ── [Print Statement] ────────── > ──╯
        ╰── > ── [Repeat Until Statement] ─── > ──╯
@@ -25,6 +26,7 @@ A *Declaration* is also considered a **Statement**.
 - [**Continue Statement**](ST-Continue.md)
 - [**Do While Statement**](ST-Do-While.md)
 - [**Expression Statement**](ST-Expression.md)
+- [**For Statement**](RailRoads/ST-For.md)
 - [**If Statement**](ST-If.md)
 - [**Print Statement**](ST-Print.md)
 - [**Repeat Until Statement**](ST-Repeat-Until.md)

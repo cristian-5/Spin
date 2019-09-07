@@ -39,6 +39,7 @@ Here's a **railway** implementation of statements' syntax.
 - [**Continue Statement**](RailRoads/ST-Continue.md)
 - [**Do While Statement**](RailRoads/ST-Do-While.md)
 - [**Expression Statement**](RailRoads/ST-Expression.md)
+- [**For Statement**](RailRoads/ST-For.md)
 - [**If Statement**](RailRoads/ST-If.md)
 - [**Print Statement**](RailRoads/ST-Print.md)
 - [**Repeat Until Statement**](RailRoads/ST-Repeat-Until.md)
