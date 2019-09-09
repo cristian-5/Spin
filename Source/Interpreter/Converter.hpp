@@ -53,7 +53,6 @@ namespace Stack {
 			}
 			return result;
 		}
-
 		static Int64 decToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[0-9]+$", s)) return 0;
@@ -63,14 +62,12 @@ namespace Stack {
 			}
 			return result;
 		}
-
 		static UInt8 charToHex(Character & c) {
 			c = toUppercase(c);
 			if (c >= '0' && c <= '9') return c - '0';
 			if (c >= 'A' && c <= 'F') return c - 'A' + 0xA;
 			return 0x00;
 		}
-
 		static Int64 hexToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase(HEX, s)) return 0;
@@ -80,7 +77,6 @@ namespace Stack {
 			}
 			return result;
 		}
-
 		static UInt32 hexToUInt32(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase(HEX, s)) return 0;
@@ -90,7 +86,6 @@ namespace Stack {
 			}
 			return result;
 		}
-
 		static Int64 octToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[0-7]+$", s)) return 0;
@@ -100,7 +95,6 @@ namespace Stack {
 			}
 			return result;
 		}
-
 		static Int64 binToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (!checkBase("^[01]+$", s)) return 0;
@@ -166,26 +160,25 @@ namespace Stack {
 		static Bool stringToBool(String & s) {
 			return s == "true";
 		}
-
 		static Int64 stringToInt64(String & s) {
 			if (s.length() == 0) return 0;
 			if (s.length() > 2) {
 				if (s[0] == '0') {
 					switch (s[1]) {
 						case 'x': {
-							String hex = s.subString(2, s.length() - 3);
+							String hex = s.subString(2);
 							return hexToInt64(hex);
 						} break;
 						case 'o': {
-							String oct = s.subString(2, s.length() - 3);
+							String oct = s.subString(2);
 							return octToInt64(oct);
 						} break;
 						case 'b': {
-							String bin = s.subString(2, s.length() - 3);
+							String bin = s.subString(2);
 							return binToInt64(bin);
 						} break;
 						case 'd': {
-							String dec = s.subString(2, s.length() - 3);
+							String dec = s.subString(2);
 							return decToInt64(dec);
 						} break;
 						default: return decToInt64(s);
@@ -194,24 +187,20 @@ namespace Stack {
 			}
 			return decToInt64(s);
 		}
-
 		static Real stringToReal(String & s) {
 			if (!RegexTools::test(REAL, s)) return 0.0;
 			return stringToLongDouble(s);
 		}
-
 		static Real stringToImaginary(String & s) {
 			if (!RegexTools::test(IMAGINARY, s)) return 0.0;
 			if (s.length() > 1) s.pop();
 			return stringToLongDouble(s);
 		}
-
 		static String escapeString(String & s) {
 			s = RegexTools::replaceMatches("\\\"", s, "\"");
 			s = RegexTools::replaceMatches("\\\\", s, "\\");
 			return s; // TODO: Properly Escape.
 		}
-
 		static Colour stringToColour(String & s) {
 			if (s.length() > 3) s = s.substr(1, s.size() - 1);
 			if (s.length() < 3) return Colour();
@@ -235,7 +224,6 @@ namespace Stack {
 			}
 			return Colour();
 		}
-
 		static Character escapeChar(String & s) {
 			if (s.length() == 0) return 0x00;
 			if (RegexTools::test(ESCAPESEQUENCE, s)) {
