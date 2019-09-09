@@ -25,8 +25,6 @@
 
 #include "Regex.hpp"
 
-#define INVERTED "[^A-Za-z0-9_]"
-
 namespace Stack {
 
 	class Lexer {
@@ -62,8 +60,8 @@ namespace Stack {
 			{ "((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))", TokenType::intLiteral },
 			{ "(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")", TokenType::stringLiteral },
 			{ "('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral },
-			{ "(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})" INVERTED, TokenType::colourLiteral },
-			{ "(true|false)" INVERTED, TokenType::boolLiteral },
+			{ "(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})\\b", TokenType::colourLiteral },
+			{ "(true|false)\\b", TokenType::boolLiteral },
 
 			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::braketSymbol },
 			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol },
@@ -116,47 +114,47 @@ namespace Stack {
 			{ "(\\{)", TokenType::openBrace },
 			{ "(\\})", TokenType::closeBrace },
 
-			{ "(try)" INVERTED, TokenType::tryKeyword },
-			{ "(catch)" INVERTED, TokenType::catchKeyword },
-			{ "(throw)" INVERTED, TokenType::throwKeyword },
-			{ "(throws)" INVERTED, TokenType::throwsKeyword },
+			{ "(try)\\b", TokenType::tryKeyword },
+			{ "(catch)\\b", TokenType::catchKeyword },
+			{ "(throw)\\b", TokenType::throwKeyword },
+			{ "(throws)\\b", TokenType::throwsKeyword },
 
-			{ "(print)" INVERTED, TokenType::printKeyword },
+			{ "(print)\\b", TokenType::printKeyword },
 
-			{ "(if)" INVERTED, TokenType::ifKeyword },
-			{ "(else)" INVERTED, TokenType::elseKeyword },
-			{ "(switch)" INVERTED, TokenType::ifKeyword },
-			{ "(case)" INVERTED, TokenType::caseKeyword },
-			{ "(default)" INVERTED, TokenType::defaultKeyword },
-			{ "(while)" INVERTED, TokenType::whileKeyword },
-			{ "(do)" INVERTED, TokenType::doKeyword },
-			{ "(loop)" INVERTED, TokenType::loopKeyword },
-			{ "(for)" INVERTED, TokenType::forKeyword },
-			{ "(repeat)" INVERTED, TokenType::repeatKeyword },
-			{ "(until)" INVERTED, TokenType::untilKeyword },
-			{ "(break)" INVERTED, TokenType::breakKeyword },
-			{ "(continue)" INVERTED, TokenType::continueKeyword },
+			{ "(if)\\b", TokenType::ifKeyword },
+			{ "(else)\\b", TokenType::elseKeyword },
+			{ "(switch)\\b", TokenType::ifKeyword },
+			{ "(case)\\b", TokenType::caseKeyword },
+			{ "(default)\\b", TokenType::defaultKeyword },
+			{ "(while)\\b", TokenType::whileKeyword },
+			{ "(do)\\b", TokenType::doKeyword },
+			{ "(loop)\\b", TokenType::loopKeyword },
+			{ "(for)\\b", TokenType::forKeyword },
+			{ "(repeat)\\b", TokenType::repeatKeyword },
+			{ "(until)\\b", TokenType::untilKeyword },
+			{ "(break)\\b", TokenType::breakKeyword },
+			{ "(continue)\\b", TokenType::continueKeyword },
 
-			{ "(import)" INVERTED, TokenType::importKeyword },
-			{ "(func)" INVERTED, TokenType::funcKeyword },
-			{ "(proc)" INVERTED, TokenType::procKeyword },
-			{ "(static)" INVERTED, TokenType::staticKeyword },
-			{ "(class)" INVERTED, TokenType::classKeyword },
-			{ "(enumerator)" INVERTED, TokenType::enumKeyword },
-			{ "(structure)" INVERTED, TokenType::structKeyword },
-			{ "(exception)" INVERTED, TokenType::exceptKeyword },
-			{ "(private)" INVERTED, TokenType::privateKeyword },
-			{ "(public)" INVERTED, TokenType::publicKeyword },
-			{ "(ref)" INVERTED, TokenType::refKeyword },
-			{ "(cpy)" INVERTED, TokenType::cpyKeyword },
-			{ "(const)" INVERTED, TokenType::constKeyword },
-			{ "(empty)" INVERTED, TokenType::emptyLiteral },
-			{ "(rest)" INVERTED, TokenType::restKeyword },
-			{ "(return)" INVERTED, TokenType::returnKeyword },
+			{ "(import)\\b", TokenType::importKeyword },
+			{ "(func)\\b", TokenType::funcKeyword },
+			{ "(proc)\\b", TokenType::procKeyword },
+			{ "(static)\\b", TokenType::staticKeyword },
+			{ "(class)\\b", TokenType::classKeyword },
+			{ "(enumerator)\\b", TokenType::enumKeyword },
+			{ "(structure)\\b", TokenType::structKeyword },
+			{ "(exception)\\b", TokenType::exceptKeyword },
+			{ "(private)\\b", TokenType::privateKeyword },
+			{ "(public)\\b", TokenType::publicKeyword },
+			{ "(ref)\\b", TokenType::refKeyword },
+			{ "(cpy)\\b", TokenType::cpyKeyword },
+			{ "(const)\\b", TokenType::constKeyword },
+			{ "(empty)\\b", TokenType::emptyLiteral },
+			{ "(rest)\\b", TokenType::restKeyword },
+			{ "(return)\\b", TokenType::returnKeyword },
 
-			{ "(Integer|Real|String|Bool|Character|Colour|Complex|Imaginary|Byte)" INVERTED, TokenType::basicType },
+			{ "(Integer|Real|String|Bool|Character|Colour|Complex|Imaginary|Byte)\\b", TokenType::basicType },
 
-			{ "([A-Za-z_][A-Za-z0-9_]*)" INVERTED, TokenType::symbol },
+			{ "([A-Za-z_][A-Za-z0-9_]*)\\b", TokenType::symbol },
 
 		};
 
