@@ -61,7 +61,7 @@ namespace Stack {
 			{ "(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")", TokenType::stringLiteral },
 			{ "('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral },
 			{ "(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})\\b", TokenType::colourLiteral },
-			{ "(true|false)\\b", TokenType::boolLiteral },
+			{ "(false|true)\\b", TokenType::boolLiteral },
 
 			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::braketSymbol },
 			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol },
@@ -123,7 +123,7 @@ namespace Stack {
 
 			{ "(if)\\b", TokenType::ifKeyword },
 			{ "(else)\\b", TokenType::elseKeyword },
-			{ "(switch)\\b", TokenType::ifKeyword },
+			{ "(switch)\\b", TokenType::switchKeyword },
 			{ "(case)\\b", TokenType::caseKeyword },
 			{ "(default)\\b", TokenType::defaultKeyword },
 			{ "(while)\\b", TokenType::whileKeyword },
@@ -152,7 +152,7 @@ namespace Stack {
 			{ "(rest)\\b", TokenType::restKeyword },
 			{ "(return)\\b", TokenType::returnKeyword },
 
-			{ "(Integer|Real|String|Bool|Character|Colour|Complex|Imaginary|Byte)\\b", TokenType::basicType },
+			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Real|String)\\b", TokenType::basicType },
 
 			{ "([A-Za-z_][A-Za-z0-9_]*)\\b", TokenType::symbol },
 
