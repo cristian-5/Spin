@@ -44,6 +44,12 @@ namespace Stack {
 			return RegexTools::test(base, s);
 		}
 
+		static Bool isHexChar(Character c) {
+			return ((c >= '0') && (c <= '9')) ||
+				   ((c >= 'a') && (c <= 'f')) ||
+				   ((c >= 'A') && (c <= 'F'));
+		}
+
 		static Character hexToChar(String & s) {
 			if (s.length() == 0) return 0x00;
 			if (!checkBase(HEX, s)) return 0x00;
@@ -197,9 +203,45 @@ namespace Stack {
 			return stringToLongDouble(s);
 		}
 		static String escapeString(String & s) {
-			s = RegexTools::replaceMatches("\\\"", s, "\"");
-			s = RegexTools::replaceMatches("\\\\", s, "\\");
-			return s; // TODO: Properly Escape.
+			if (s.find("\\") == String::npos) return s;
+			StringStream result = StringStream();
+			const SizeType length = s.length();
+			SizeType i = 0;
+			while (i < length) {
+				Character c = s[i++];
+				if (c == '\\' && (i < length)) {
+					c = s[i++];
+					switch (c) {
+						case 'a': c = '\a'; break;
+						case 'b': c = '\b'; break;
+						case 'f': c = '\f'; break;
+						case 'n': c = '\n'; break;
+						case 'r': c = '\r'; break;
+						case 't': c = '\t'; break;
+						case 'v': c = '\v'; break;
+						case '\\': c = '\\'; break;
+						case '\'': c = '\''; break;
+						case '"': c = '"'; break;
+						case '0': {
+							if (i >= length) { c = '?'; break; }
+							c = s[i++];
+							if (c == 'x' && (i < length)
+								&& isHexChar(s[i])) {
+								UInt8 a = charToHex(s[i++]);
+								if ((i < length) && isHexChar(s[i])) {
+									a = a << 4;
+									a = a | charToHex(s[i++]);
+									c = a; break;
+								}
+							}
+							c = '?';
+						} break;
+						default: c = '?'; break;
+					}
+				}
+				result << c;
+			}
+			return result.str();
 		}
 		static Colour stringToColour(String & s) {
 			if (s.length() > 3) s = s.substr(1, s.size() - 1);
