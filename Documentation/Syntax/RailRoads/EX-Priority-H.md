@@ -11,7 +11,7 @@ a unary operator or evaluates a **Primary Expression**.
        ╰─ negation ──╯                   |
        ╰─ inversion ─╯                   |
        |                                 |
-       ╰─────────── [Primary] ───────────╯
+       ╰───────────── [Call] ────────────╯
 
 ### Tokens used in this Rail (Regexes):
 
@@ -22,4 +22,4 @@ a unary operator or evaluates a **Primary Expression**.
 
 ### Declarations used in this Rail:
 
-- [**Primary**](EX-Primary.md)
+- [**Call**](EX-Call.md)

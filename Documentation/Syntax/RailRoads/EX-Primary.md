@@ -7,8 +7,9 @@ that represents a **Literal** or evaluates a
 
 ### Syntax:
 
-    + ─╮── [Literal] ──╭─ +
+    + ─╮── [Array] ────╭─ +
        ╰── [Grouping] ─╯
+       ╰── [Literal] ──╯
        ╰── identifier ─╯
 
 ### Tokens used in this Rail (Regexes):
@@ -17,5 +18,6 @@ that represents a **Literal** or evaluates a
 
 ### Declarations used in this Rail:
 
+- [**Array**](EX-Array.md)
 - [**Grouping**](EX-Grouping.md)
 - [**Literal**](EX-Literal.md)

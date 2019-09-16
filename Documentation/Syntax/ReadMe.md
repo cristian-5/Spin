@@ -21,6 +21,7 @@ Here's a **railway** implementation of statements' syntax.
 
 - [**Primary**](RailRoads/EX-Primary.md)
 
+- [**Array**](RailRoads/EX-Array.md)
 - [**Grouping**](RailRoads/EX-Grouping.md)
 - [**Literal**](RailRoads/EX-Literal.md)
 
