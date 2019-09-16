@@ -67,6 +67,7 @@ namespace Stack {
 			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol },
 			{ "(\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::ketSymbol },
 
+			{ "(\\->)", TokenType::arrow },
 			{ "(\\:)", TokenType::colon },
 			{ "(\\;)", TokenType::semicolon },
 			{ "(\\,)", TokenType::comma },

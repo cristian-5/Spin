@@ -48,6 +48,8 @@ namespace Stack {
 		colourLiteral,
 		emptyLiteral,
 
+		arrow,
+
 		colon,
 		semicolon,
 		comma,
