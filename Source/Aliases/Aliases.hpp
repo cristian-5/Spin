@@ -29,6 +29,7 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <chrono>
 
 using Exception = std::exception;
 
@@ -56,7 +57,7 @@ using String = std::string;
 
 #define Pair std::pair
 
-#define Function std::function
+#define Lambda std::function
 
 using SMatch = std::smatch;
 using Regex = std::regex;
