@@ -16,6 +16,8 @@ A *Declaration* is also considered a **Statement**.
        ╰── > ── [If Statement] ───────────── > ──╯
        ╰── > ── [Print Statement] ────────── > ──╯
        ╰── > ── [Repeat Until Statement] ─── > ──╯
+       ╰── > ── [Rest Statement] ─────────── > ──╯
+       ╰── > ── [Return Statement] ───────── > ──╯
        ╰── > ── [Until Statement] ────────── > ──╯
        ╰── > ── [While Statement] ────────── > ──╯
 
@@ -30,5 +32,7 @@ A *Declaration* is also considered a **Statement**.
 - [**If Statement**](ST-If.md)
 - [**Print Statement**](ST-Print.md)
 - [**Repeat Until Statement**](ST-Repeat-Until.md)
+- [**Rest Statement**](ST-Rest.md)
+- [**Return Statement**](ST-Return.md)
 - [**Until Statement**](ST-Until.md)
 - [**While Statement**](ST-While.md)
