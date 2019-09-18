@@ -28,7 +28,11 @@ namespace Stack {
 	}
 	Bool Token::isTypeLiteral() const {
 		return type >= TokenType::intLiteral &&
-				type <= TokenType::emptyLiteral;
+			   type <= TokenType::emptyLiteral;
+	}
+	Bool Token::isTypeType() const {
+		return type >= TokenType::classKeyword &&
+			   type <= TokenType::exceptKeyword;
 	}
 
 	TokenRule::TokenRule(String p, TokenType t) {

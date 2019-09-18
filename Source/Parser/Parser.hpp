@@ -256,12 +256,11 @@ namespace Stack {
 
 	String * Parser::typeString() {
 		if (match(TokenType::basicType) ||
-			match(TokenType::symbol)) {
+			match(TokenType::customType)) {
 			return new String(previous().lexeme);
 		}
 		return nullptr;
 	}
-
 	Statement * Parser::declaration() {
 		Statement * st = nullptr;
 		String * type = nullptr;
@@ -405,7 +404,7 @@ namespace Stack {
 		Token * name = nullptr;
 		String * stringType = nullptr;
 		ArrayList<Parameter *> params = ArrayList<Parameter *>();
-		Parameter * returnType = nullptr;
+		Parameter * returnType = new Parameter();
 		BlockStatement * body = nullptr;
 		try {
 			name = new Token(consume(TokenType::symbol, "identifier"));
@@ -427,7 +426,7 @@ namespace Stack {
 					}
 					p -> type = Converter::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
-					p -> tokenType = new Token(peekAdvance());
+					p -> tokenType = new Token(previous());
 					params.push(p);
 				} while (match(TokenType::comma));
 			}
@@ -444,7 +443,7 @@ namespace Stack {
 			}
 			returnType -> type = Converter::typeFromString(* stringType);
 			delete stringType; stringType = nullptr;
-			returnType -> tokenType = new Token(peekAdvance());
+			returnType -> tokenType = new Token(previous());
 			if (!check(TokenType::openBrace)) {
 				Token er = peek();
 				throw SyntaxError(
@@ -455,7 +454,9 @@ namespace Stack {
 			body = (BlockStatement *)blockStatement();
 		} catch (SyntaxError & s) {
 			if (name) delete name;
+			if (returnType) delete returnType;
 			if (stringType) delete stringType;
+			for (Parameter * p : params) delete p;
 			throw;
 		}
 		isInFunction = oldFunction;
@@ -622,6 +623,17 @@ namespace Stack {
 		return new RestStatement();
 	}
 
+	void Parser::runTypeClassification() {
+		if (tokens -> size() == 0) return;
+		SizeType tokenCount = (tokens -> size()) - 1;
+		for (SizeType i = 0; i < tokenCount; i++) {
+			if (tokens -> at(i).isTypeType()) {
+				i += 1;
+				tokens -> at(i).type = TokenType::customType;
+			}
+		}
+	} 
+
 	/* Core */
 
 	Bool Parser::match(TokenType type) {
@@ -703,6 +715,7 @@ namespace Stack {
 			errors -> shrinkToFit();
 			throw ParserErrorException(errors, fileName);
 		}
+		runTypeClassification();
 		ArrayList<Statement *> * statements = new ArrayList<Statement *>();
 		while (!isAtEnd()) {
 			try {

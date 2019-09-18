@@ -188,6 +188,7 @@ namespace Stack {
 		Token() = default;
 		Token(String l, TokenType t, UInt32 p = 0);
 		Bool isTypeLiteral() const;
+		Bool isTypeType() const;
 	};
 	class TokenRule {
 		public:
@@ -2792,6 +2793,7 @@ namespace Stack {
 		Statement * repeatUntilStatement();
 		Statement * loopStatement();
 		Statement * restStatement();
+		void runTypeClassification();
 		Bool match(TokenType type);
 		Bool match(ArrayList<TokenType> * types);
 		Bool check(TokenType type);
