@@ -16,660 +16,709 @@
  *
  */
 
+#include "../Aliases/Prototypes.hpp"
+
 #ifndef STACKPARSER
 #define STACKPARSER
 
-#include "../Aliases/Aliases.hpp"
-#include "../Linker/Linker.hpp"
-#include "../Interpreter/Converter.hpp"
-
-#include "ASTree.hpp"
-
 namespace Stack {
 
-	class SyntaxError: public Exception {
-		private:
-		const String _message;
-		const FilePosition _position;
-		public:
-		const FilePosition & getPosition() const { return _position; }
-		const String & getMessage() const { return _message; }
-		SyntaxError(String message, FilePosition position):
-		Exception(), _message(message), _position(position) { }
-	};
-
-	class ParserErrorException: public Exception {
-		private:
-		const ArrayList<SyntaxError> * const _errors;
-		const String _fileName;
-		public:
-		const ArrayList<SyntaxError> * const getErrors() const { return _errors; }
-		const String & getFileName() const { return _fileName; }
-		ParserErrorException(ArrayList<SyntaxError> * errors, String name):
-		Exception(), _errors(errors), _fileName(name) { }
-		~ParserErrorException() { delete _errors; }
-	};
-
-	class Parser {
-
-		private:
-
-		String * input = nullptr;
-
-		ArrayList<Token> * tokens = nullptr;
-
-		ArrayList<SyntaxError> * errors = new ArrayList<SyntaxError>();
-
-		SizeType index = 0;
-
-		Bool isInControlFlow = false;
-
-		/* Expressions */
-
-		Expression * expression() {
-			try { return assignment(); }
-			catch (SyntaxError & s) { throw; }
-		}
-		Expression * assignment() {
-			Expression * ex = nullptr;
-			try { ex = shortOR(); }
-			catch (SyntaxError & s) { throw; }
-			if (match(TokenType::equal)) {
-				Token * equals = new Token(previous());
-				Expression * value = nullptr;
-				try { value = assignment(); }
-				catch (SyntaxError & s) { delete ex; delete equals; throw; }
-				if (ex -> isInstanceOf<Identifier>()) {
-					Token * name = new Token(* (((Identifier *)(ex)) -> name));
-					delete equals;
-					return new Assignment(name, value);
-				}
-				if (value) delete value;
-				delete ex; delete equals;
-				throw SyntaxError(
-					"Expected identifier before assignment operator '='!",
-					Linker::getPosition(input, equals -> position)
-				);
+	Expression * Parser::expression() {
+		try { return assignment(); }
+		catch (SyntaxError & s) { throw; }
+	}
+	Expression * Parser::assignment() {
+		Expression * ex = nullptr;
+		try { ex = shortOR(); }
+		catch (SyntaxError & s) { throw; }
+		if (match(TokenType::equal)) {
+			Token * equals = new Token(previous());
+			Expression * value = nullptr;
+			try { value = assignment(); }
+			catch (SyntaxError & s) { delete ex; delete equals; throw; }
+			if (ex -> isInstanceOf<Identifier>()) {
+				Token * name = new Token(* (((Identifier *)(ex)) -> name));
+				delete equals;
+				return new Assignment(name, value);
 			}
-			return ex;
-		}
-		Expression * shortOR() {
-			Expression * ex = nullptr;
-			try { ex = shortAND(); }
-			catch (SyntaxError & s) { throw; }
-			while (match(TokenType::OR)) {
-				Token * op = new Token(previous());
-				Expression * right = nullptr;
-				try { right = shortAND(); }
-				catch (SyntaxError & s) { delete ex; delete op; throw; }
-				ex = new Logical(ex, op, right);
-			}
-			return ex;
-		}
-		Expression * shortAND() {
-			Expression * ex = nullptr;
-			try { ex = equality(); }
-			catch (SyntaxError & s) { throw; }
-			while (match(TokenType::AND)) {
-				Token * op = new Token(previous());
-				Expression * right = nullptr;
-				try { right = equality(); }
-				catch (SyntaxError & s) { delete ex; delete op; throw; }
-				ex = new Logical(ex, op, right);
-			}
-			return ex;
-		}
-		Expression * equality() {
-			Expression * ex = nullptr;
-			try { ex = comparison(); }
-			catch (SyntaxError & s) { throw; }
-			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
-			ops -> push(TokenType::equality);
-			ops -> push(TokenType::inequality);
-			while (match(ops)) {
-				Token * op = new Token(previous());
-				Expression * rs = nullptr;
-				try { rs = comparison(); }
-				catch (SyntaxError & s) {
-					delete ops;
-					delete ex;
-					delete op;
-					throw;
-				}
-				ex = new Comparison(ex, op, rs);
-			}
-			delete ops;
-			return ex;
-		}
-		Expression * comparison() {
-			Expression * ex = nullptr;
-			try { ex = lowPriorityOperator(); }
-			catch (SyntaxError & s) { throw; }
-			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
-			ops -> push(TokenType::major);
-			ops -> push(TokenType::minor);
-			ops -> push(TokenType::majorEqual);
-			ops -> push(TokenType::minorEqual);
-			while (match(ops)) {
-				Token * op = new Token(previous());
-				Expression * rs = nullptr;
-				try { rs = lowPriorityOperator(); }
-				catch (SyntaxError & s) {
-					delete ops;
-					delete ex;
-					delete op;
-					throw;
-				}
-				ex = new Comparison(ex, op, rs);
-			}
-			delete ops;
-			return ex;
-		}
-		Expression * lowPriorityOperator() {
-			Expression * ex = nullptr;
-			try { ex = mediumPriorityOperator(); }
-			catch (SyntaxError & e) { throw; }
-			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
-			ops -> push(TokenType::plus);
-			ops -> push(TokenType::minus);
-			ops -> push(TokenType::pipe);
-			while (match(ops)) {
-				Token * op = new Token(previous());
-				Expression * rs = nullptr;
-				try { rs = mediumPriorityOperator(); }
-				catch (SyntaxError & e) {
-					delete ops;
-					delete ex;
-					delete op;
-					throw;
-				}
-				ex = new Binary(ex, op, rs);
-			}
-			delete ops;
-			return ex;
-		}
-		Expression * mediumPriorityOperator() {
-			Expression * ex = nullptr;
-			try { ex = highPriorityOperator(); }
-			catch (SyntaxError & e) { throw; }
-			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
-			ops -> push(TokenType::star);
-			ops -> push(TokenType::slash);
-			ops -> push(TokenType::ampersand);
-			ops -> push(TokenType::hat);
-			ops -> push(TokenType::modulus);
-			while (match(ops)) {
-				Token * op = new Token(previous());
-				Expression * rs = nullptr;
-				try { rs = highPriorityOperator(); }
-				catch (SyntaxError & e) {
-					delete ops;
-					delete ex;
-					delete op;
-					throw;
-				}
-				ex = new Binary(ex, op, rs);
-			}
-			delete ops;
-			return ex;
-		}
-		Expression * highPriorityOperator() {
-			ArrayList<TokenType> * ops = new ArrayList<TokenType>();
-			ops -> push(TokenType::minus);
-			ops -> push(TokenType::plus);
-			ops -> push(TokenType::exclamationMark);
-			ops -> push(TokenType::tilde);
-			if (match(ops)) {
-				Token * op = new Token(previous());
-				Expression * rs = nullptr;
-				try { rs = highPriorityOperator(); }
-				catch (SyntaxError & e) {
-					delete ops;
-					delete op;
-					throw;
-				}
-				return new Unary(op, rs);
-			}
-			delete ops;
-			try { return primary(); }
-			catch (SyntaxError & s) { throw; }
-		}
-		Expression * primary() {
-			Token t = peek();
-			if (t.isTypeLiteral()) {
-				advance();
-				Token * literal = new Token(t);
-				return new Literal(literal);
-			} else if (t.type == TokenType::symbol) {
-				advance();
-				Token * name = new Token(t);
-				return new Identifier(name);
-			} else if (t.type == TokenType::openParenthesis) {
-				advance();
-				Expression * ex = nullptr;
-				try {
-					ex = expression();
-					consume(TokenType::closeParenthesis, ")");
-				} catch (SyntaxError & e) {
-					if (ex) delete ex;
-					throw;
-				}
-				return new Grouping(ex);
-			}
-			FilePosition fp = { 0, 0 };
-			if (t.type == TokenType::endFile) {
-				fp = Linker::getPosition(input, previous().position);
-			} else fp = Linker::getPosition(input, t.position);
+			if (value) delete value;
+			delete ex; delete equals;
 			throw SyntaxError(
-				"Expected expression after '" + previous().lexeme + "'!", fp
+				"Expected identifier before assignment operator '='!",
+				Linker::getPosition(input, equals -> position)
 			);
 		}
-
-		/* Statements */
-
-		Statement * declaration() {
-			Statement * st = nullptr;
-			try {
-				if (match(TokenType::basicType)) {
-					st = variableDeclaration();
-				} else st = statement();
-			} catch (SyntaxError & s) { throw; }
-			return st;
+		return ex;
+	}
+	Expression * Parser::shortOR() {
+		Expression * ex = nullptr;
+		try { ex = shortAND(); }
+		catch (SyntaxError & s) { throw; }
+		while (match(TokenType::OR)) {
+			Token * op = new Token(previous());
+			Expression * right = nullptr;
+			try { right = shortAND(); }
+			catch (SyntaxError & s) { delete ex; delete op; throw; }
+			ex = new Logical(ex, op, right);
 		}
-		Statement * variableDeclaration() {
-			Token * name = nullptr;
-			Expression * initializer = nullptr;
-			String stringType = previous().lexeme;
-			try {
-				name = new Token(consume(TokenType::symbol, "identifier"));
-				if (match(TokenType::equal)) initializer = expression();
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) {
-				if (name) delete name;
-				if (initializer) delete initializer;
+		return ex;
+	}
+	Expression * Parser::shortAND() {
+		Expression * ex = nullptr;
+		try { ex = equality(); }
+		catch (SyntaxError & s) { throw; }
+		while (match(TokenType::AND)) {
+			Token * op = new Token(previous());
+			Expression * right = nullptr;
+			try { right = equality(); }
+			catch (SyntaxError & s) { delete ex; delete op; throw; }
+			ex = new Logical(ex, op, right);
+		}
+		return ex;
+	}
+	Expression * Parser::equality() {
+		Expression * ex = nullptr;
+		try { ex = comparison(); }
+		catch (SyntaxError & s) { throw; }
+		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		ops -> push(TokenType::equality);
+		ops -> push(TokenType::inequality);
+		while (match(ops)) {
+			Token * op = new Token(previous());
+			Expression * rs = nullptr;
+			try { rs = comparison(); }
+			catch (SyntaxError & s) {
+				delete ops;
+				delete ex;
+				delete op;
 				throw;
 			}
-			BasicType type = Converter::typeFromString(stringType);
-			return new VariableStatement(name, initializer, type);
+			ex = new Comparison(ex, op, rs);
 		}
-		Statement * statement() {
-			Statement * st = nullptr;
-			try {
-				Token keyword = peek();
-				switch (keyword.type) {
-					case TokenType::ifKeyword: st = ifStatement(); break;
-					case TokenType::printKeyword: st = printStatement(); break;
-					case TokenType::whileKeyword: st = whileStatement(); break;
-					case TokenType::doKeyword: st = doWhileStatement(); break;
-					case TokenType::untilKeyword: st = untilStatement(); break;
-					case TokenType::repeatKeyword: st = repeatUntilStatement(); break;
-					case TokenType::loopKeyword: st = loopStatement(); break;
-					case TokenType::forKeyword: st = forStatement(); break;
-					case TokenType::openBrace: st = blockStatement(); break;
-					case TokenType::breakKeyword: st = breakStatement(); break;
-					case TokenType::continueKeyword: st = continueStatement(); break;
-					case TokenType::restKeyword: st = restStatement(); break;
-					default: st = expressionStatement(); break;
-				}
-			} catch (SyntaxError & s) { throw; }
-			return st;
-		}
-		Statement * ifStatement() {
-			Token * ifToken = new Token(peekAdvance());
-			Expression * condition = nullptr;
-			Statement * thenBranch = nullptr;
-			Statement * elseBranch = nullptr;
-			try {
-				consume(TokenType::openParenthesis, "(");
-				condition = expression();
-				consume(TokenType::closeParenthesis, ")");
-				thenBranch = statement();
-				elseBranch = nullptr;
-				if (match(TokenType::elseKeyword)) {
-					elseBranch = statement();
-				}
-			} catch (SyntaxError & s) {
-				if (ifToken) delete ifToken;
-				if (condition) delete condition;
-				if (thenBranch) delete thenBranch;
-				if (elseBranch) delete elseBranch;
+		delete ops;
+		return ex;
+	}
+	Expression * Parser::comparison() {
+		Expression * ex = nullptr;
+		try { ex = lowPriorityOperator(); }
+		catch (SyntaxError & s) { throw; }
+		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		ops -> push(TokenType::major);
+		ops -> push(TokenType::minor);
+		ops -> push(TokenType::majorEqual);
+		ops -> push(TokenType::minorEqual);
+		while (match(ops)) {
+			Token * op = new Token(previous());
+			Expression * rs = nullptr;
+			try { rs = lowPriorityOperator(); }
+			catch (SyntaxError & s) {
+				delete ops;
+				delete ex;
+				delete op;
 				throw;
 			}
-			return new IfStatement(condition, thenBranch, elseBranch, ifToken);
+			ex = new Comparison(ex, op, rs);
 		}
-		Statement * blockStatement() {
+		delete ops;
+		return ex;
+	}
+	Expression * Parser::lowPriorityOperator() {
+		Expression * ex = nullptr;
+		try { ex = mediumPriorityOperator(); }
+		catch (SyntaxError & e) { throw; }
+		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		ops -> push(TokenType::plus);
+		ops -> push(TokenType::minus);
+		ops -> push(TokenType::pipe);
+		while (match(ops)) {
+			Token * op = new Token(previous());
+			Expression * rs = nullptr;
+			try { rs = mediumPriorityOperator(); }
+			catch (SyntaxError & e) {
+				delete ops;
+				delete ex;
+				delete op;
+				throw;
+			}
+			ex = new Binary(ex, op, rs);
+		}
+		delete ops;
+		return ex;
+	}
+	Expression * Parser::mediumPriorityOperator() {
+		Expression * ex = nullptr;
+		try { ex = highPriorityOperator(); }
+		catch (SyntaxError & e) { throw; }
+		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		ops -> push(TokenType::star);
+		ops -> push(TokenType::slash);
+		ops -> push(TokenType::ampersand);
+		ops -> push(TokenType::hat);
+		ops -> push(TokenType::modulus);
+		while (match(ops)) {
+			Token * op = new Token(previous());
+			Expression * rs = nullptr;
+			try { rs = highPriorityOperator(); }
+			catch (SyntaxError & e) {
+				delete ops;
+				delete ex;
+				delete op;
+				throw;
+			}
+			ex = new Binary(ex, op, rs);
+		}
+		delete ops;
+		return ex;
+	}
+	Expression * Parser::highPriorityOperator() {
+		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		ops -> push(TokenType::minus);
+		ops -> push(TokenType::plus);
+		ops -> push(TokenType::exclamationMark);
+		ops -> push(TokenType::tilde);
+		if (match(ops)) {
+			Token * op = new Token(previous());
+			Expression * rs = nullptr;
+			try { rs = highPriorityOperator(); }
+			catch (SyntaxError & e) {
+				delete ops;
+				delete op;
+				throw;
+			}
+			return new Unary(op, rs);
+		}
+		delete ops;
+		try { return call(); }
+		catch (SyntaxError & s) { throw; }
+	}
+	Expression * Parser::call() {
+		Expression * ex = nullptr;
+		try { ex = primary(); }
+		catch (SyntaxError & s) { throw; }
+		while (true) {
+			if (match(TokenType::openParenthesis)) {
+				try { ex = completeCall(ex); }
+				catch (SyntaxError & s) { throw; }
+			} else break;
+		}
+		return ex;
+	}
+	Expression * Parser::completeCall(Expression * callee) {
+		Token * parenthesis = new Token(previous());
+		ArrayList<Expression *> arguments = ArrayList<Expression *>();
+		if (!check(TokenType::closeParenthesis)) {
+			do {
+				Expression * ex = nullptr;
+				try { ex = expression(); }
+				catch (SyntaxError & s) { throw; }
+				arguments.push(ex);
+			} while (match(TokenType::comma));
+		}
+		try { consume(TokenType::closeParenthesis, ")"); }
+		catch (SyntaxError & s) {
+			for (Expression * arg : arguments) delete arg;
+			throw;
+		}
+		return new Call(callee, parenthesis, arguments);
+	}
+	Expression * Parser::primary() {
+		Token t = peek();
+		if (t.isTypeLiteral()) {
 			advance();
-			ArrayList<Statement *> statements = ArrayList<Statement *>();
-			try {
-				while (!check(TokenType::closeBrace) && !isAtEnd()) {
-					statements.push(declaration());
-				}
-				consume(TokenType::closeBrace, "}");
-			} catch (SyntaxError & s) {
-				for (Statement * statement : statements) {
-					delete statement;
-				}
-				throw;
-			}
-			statements.shrinkToFit();
-			return new BlockStatement(statements);
-		}
-		Statement * breakStatement() {
-			if (!isInControlFlow) {
-				throw SyntaxError(
-					"Unexpected break statement outside of control flow statements! What am I supposed to break?",
-					Linker::getPosition(input, peek().position)
-				);
-			}
-			Token * breakToken = new Token(peekAdvance());
-			try {
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) {
-				delete breakToken;
-				throw;
-			}
-			return new BreakStatement(breakToken);
-		}
-		Statement * continueStatement() {
-			if (!isInControlFlow) {
-				throw SyntaxError(
-					"Unexpected continue statement outside of control flow statements! Where am I supposed to continue?",
-					Linker::getPosition(input, peek().position)
-				);
-			}
-			Token * continueToken = new Token(peekAdvance());
-			try {
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) {
-				delete continueToken;
-				throw;
-			}
-			return new ContinueStatement(continueToken);
-		}
-		Statement * expressionStatement() {
+			Token * literal = new Token(t);
+			return new Literal(literal);
+		} else if (t.type == TokenType::symbol) {
+			advance();
+			Token * name = new Token(t);
+			return new Identifier(name);
+		} else if (t.type == TokenType::openParenthesis) {
+			advance();
 			Expression * ex = nullptr;
 			try {
 				ex = expression();
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) {
+				consume(TokenType::closeParenthesis, ")");
+			} catch (SyntaxError & e) {
 				if (ex) delete ex;
 				throw;
 			}
-			return new ExpressionStatement(ex);
+			return new Grouping(ex);
 		}
-		Statement * forStatement() {
-			Bool oldControlFlow = isInControlFlow;
-			isInControlFlow = true;
-			Token * forToken = new Token(peekAdvance());
-			Statement * declaration = nullptr;
-			Expression * condition = nullptr;
-			Expression * stepper = nullptr;
-			Statement * body = nullptr;
-			try {
-				consume(TokenType::openParenthesis, "(");
-				if(match(TokenType::basicType)) {
-					declaration = variableDeclaration();
-				} else declaration = expressionStatement();
-				condition = expression();
-				consume(TokenType::semicolon, ";");
-				stepper = expression();
-				consume(TokenType::closeParenthesis, ")");
-				body = statement();
-			} catch (SyntaxError & s) {
-				if (forToken) delete forToken;
-				if (declaration) delete declaration;
-				if (condition) delete condition;
-				if (stepper) delete stepper;
-				if (body) delete body;
-				throw;
+		FilePosition fp = { 0, 0 };
+		if (t.type == TokenType::endFile) {
+			fp = Linker::getPosition(input, previous().position);
+		} else fp = Linker::getPosition(input, t.position);
+		throw SyntaxError(
+			"Expected expression after '" + previous().lexeme + "'!", fp
+		);
+	}
+
+	/* Statements */
+
+	String * Parser::typeString() {
+		if (match(TokenType::basicType) ||
+			match(TokenType::symbol)) {
+			return new String(previous().lexeme);
+		}
+		return nullptr;
+	}
+
+	Statement * Parser::declaration() {
+		Statement * st = nullptr;
+		String * type = nullptr;
+		try {
+			type = typeString();
+			if (type) {
+				st = variableDeclaration(* type);
+				delete type; type = nullptr;
+			} else st = statement();
+		} catch (SyntaxError & s) {
+			if (type) delete type;
+			throw;
+		}
+		if (type) delete type;
+		return st;
+	}
+	Statement * Parser::variableDeclaration(String stringType) {
+		Token * name = nullptr;
+		Expression * initializer = nullptr;
+		try {
+			name = new Token(consume(TokenType::symbol, "identifier"));
+			if (match(TokenType::equal)) initializer = expression();
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			if (name) delete name;
+			if (initializer) delete initializer;
+			throw;
+		}
+		BasicType type = Converter::typeFromString(stringType);
+		return new VariableStatement(name, initializer, type);
+	}
+	Statement * Parser::statement() {
+		Statement * st = nullptr;
+		try {
+			Token keyword = peek();
+			switch (keyword.type) {
+				case TokenType::funcKeyword: st = functionStatement(); break;
+				case TokenType::ifKeyword: st = ifStatement(); break;
+				case TokenType::printKeyword: st = printStatement(); break;
+				case TokenType::whileKeyword: st = whileStatement(); break;
+				case TokenType::doKeyword: st = doWhileStatement(); break;
+				case TokenType::untilKeyword: st = untilStatement(); break;
+				case TokenType::repeatKeyword: st = repeatUntilStatement(); break;
+				case TokenType::loopKeyword: st = loopStatement(); break;
+				case TokenType::forKeyword: st = forStatement(); break;
+				case TokenType::openBrace: st = blockStatement(); break;
+				case TokenType::breakKeyword: st = breakStatement(); break;
+				case TokenType::continueKeyword: st = continueStatement(); break;
+				case TokenType::restKeyword: st = restStatement(); break;
+				default: st = expressionStatement(); break;
 			}
-			isInControlFlow = oldControlFlow;
-			return new BlockStatement(
-				new ForStatement(declaration, condition,
-								 stepper, body, forToken)
+		} catch (SyntaxError & s) { throw; }
+		return st;
+	}
+	Statement * Parser::ifStatement() {
+		Token * ifToken = new Token(peekAdvance());
+		Expression * condition = nullptr;
+		Statement * thenBranch = nullptr;
+		Statement * elseBranch = nullptr;
+		try {
+			consume(TokenType::openParenthesis, "(");
+			condition = expression();
+			consume(TokenType::closeParenthesis, ")");
+			thenBranch = statement();
+			elseBranch = nullptr;
+			if (match(TokenType::elseKeyword)) {
+				elseBranch = statement();
+			}
+		} catch (SyntaxError & s) {
+			if (ifToken) delete ifToken;
+			if (condition) delete condition;
+			if (thenBranch) delete thenBranch;
+			if (elseBranch) delete elseBranch;
+			throw;
+		}
+		return new IfStatement(condition, thenBranch, elseBranch, ifToken);
+	}
+	Statement * Parser::blockStatement() {
+		advance();
+		ArrayList<Statement *> statements = ArrayList<Statement *>();
+		try {
+			while (!check(TokenType::closeBrace) && !isAtEnd()) {
+				statements.push(declaration());
+			}
+			consume(TokenType::closeBrace, "}");
+		} catch (SyntaxError & s) {
+			for (Statement * statement : statements) {
+				delete statement;
+			}
+			throw;
+		}
+		statements.shrinkToFit();
+		return new BlockStatement(statements);
+	}
+	Statement * Parser::breakStatement() {
+		if (!isInControlFlow) {
+			throw SyntaxError(
+				"Unexpected break statement outside of control flow statements! What am I supposed to break?",
+				Linker::getPosition(input, peek().position)
 			);
 		}
-		Statement * printStatement() {
-			advance();
-			Expression * ex = nullptr;
-			try {
-				ex = expression();
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) {
-				if (ex) delete ex;
-				throw;
-			}
-			return new PrintStatement(ex);
+		Token * breakToken = new Token(peekAdvance());
+		try {
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			delete breakToken;
+			throw;
 		}
-		Statement * whileStatement() {
-			Bool oldControlFlow = isInControlFlow;
-			isInControlFlow = true;
-			Token * whileToken = new Token(peekAdvance());
-			Expression * condition = nullptr;
-			Statement * body = nullptr;
-			try {
-				consume(TokenType::openParenthesis, "(");
-				condition = expression();
-				consume(TokenType::closeParenthesis, ")");
-				body = statement();
-			} catch (SyntaxError & s) {
-				if (whileToken) delete whileToken;
-				if (condition) delete condition;
-				if (body) delete body;
-				throw;
-			}
-			isInControlFlow = oldControlFlow;
-			return new WhileStatement(condition, body, whileToken);
+		return new BreakStatement(breakToken);
+	}
+	Statement * Parser::continueStatement() {
+		if (!isInControlFlow) {
+			throw SyntaxError(
+				"Unexpected continue statement outside of control flow statements! Where am I supposed to continue?",
+				Linker::getPosition(input, peek().position)
+			);
 		}
-		Statement * doWhileStatement() {
-			Bool oldControlFlow = isInControlFlow;
-			isInControlFlow = true;
-			advance();
-			Statement * body = nullptr;
-			Expression * condition = nullptr;
-			Token * whileToken = nullptr;
-			try {
-				body = statement();
-				whileToken = new Token(
-					consume(TokenType::whileKeyword, "while")
+		Token * continueToken = new Token(peekAdvance());
+		try {
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			delete continueToken;
+			throw;
+		}
+		return new ContinueStatement(continueToken);
+	}
+	Statement * Parser::expressionStatement() {
+		Expression * ex = nullptr;
+		try {
+			ex = expression();
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			if (ex) delete ex;
+			throw;
+		}
+		return new ExpressionStatement(ex);
+	}
+	Statement * Parser::functionStatement() {
+		advance();
+		Bool oldFunction = isInFunction;
+		Token * name = nullptr;
+		String * stringType = nullptr;
+		ArrayList<Parameter *> params = ArrayList<Parameter *>();
+		Parameter * returnType = nullptr;
+		BlockStatement * body = nullptr;
+		try {
+			name = new Token(consume(TokenType::symbol, "identifier"));
+			consume(TokenType::openParenthesis, "(");
+			if (!check(TokenType::closeParenthesis)) {
+				do {
+					Parameter * p = new Parameter();
+					p -> name = new Token(consume(TokenType::symbol, "identifier"));
+					consume(TokenType::colon, ":");
+					if (match(TokenType::refKeyword)) p -> reference = true;
+					else if (match(TokenType::cpyKeyword)) p -> reference = false;
+					stringType = typeString();
+					if (!stringType) {
+						Token er = peek();
+						throw SyntaxError(
+							"Expected type but found '" + er.lexeme + "'!",
+							Linker::getPosition(input, er.position)
+						);
+					}
+					p -> type = Converter::typeFromString(* stringType);
+					delete stringType; stringType = nullptr;
+					p -> tokenType = new Token(peekAdvance());
+					params.push(p);
+				} while (match(TokenType::comma));
+			}
+			consume(TokenType::closeParenthesis, ")");
+			params.shrinkToFit();
+			consume(TokenType::arrow, "arrow operator ->");
+			stringType = typeString();
+			if (!stringType) {
+				Token er = peek();
+				throw SyntaxError(
+					"Expected type but found '" + er.lexeme + "'!",
+					Linker::getPosition(input, er.position)
 				);
-				consume(TokenType::openParenthesis, "(");
-				condition = expression();
-				consume(TokenType::closeParenthesis, ")");
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) {
-				if (whileToken) delete whileToken;
-				if (condition) delete condition;
-				if (body) delete body;
-				throw;
 			}
-			isInControlFlow = oldControlFlow;
-			return new DoWhileStatement(body, condition, whileToken);
-		}
-		Statement * untilStatement() {
-			Bool oldControlFlow = isInControlFlow;
-			isInControlFlow = true;
-			Token * untilToken = new Token(peekAdvance());
-			Expression * condition = nullptr;
-			Statement * body = nullptr;
-			try {
-				consume(TokenType::openParenthesis, "(");
-				condition = expression();
-				consume(TokenType::closeParenthesis, ")");
-				body = statement();
-			} catch (SyntaxError & s) {
-				if (untilToken) delete untilToken;
-				if (condition) delete condition;
-				if (body) delete body;
-				throw;
-			}
-			isInControlFlow = oldControlFlow;
-			return new UntilStatement(condition, body, untilToken);
-		}
-		Statement * repeatUntilStatement() {
-			Bool oldControlFlow = isInControlFlow;
-			isInControlFlow = true;
-			advance();
-			Statement * body = nullptr;
-			Expression * condition = nullptr;
-			Token * untilToken = nullptr;
-			try {
-				body = statement();
-				untilToken = new Token(
-					consume(TokenType::untilKeyword, "until")
+			returnType -> type = Converter::typeFromString(* stringType);
+			delete stringType; stringType = nullptr;
+			returnType -> tokenType = new Token(peekAdvance());
+			if (!check(TokenType::openBrace)) {
+				Token er = peek();
+				throw SyntaxError(
+					"Expected function body but found '" + er.lexeme + "'!",
+					Linker::getPosition(input, er.position)
 				);
-				consume(TokenType::openParenthesis, "(");
-				condition = expression();
-				consume(TokenType::closeParenthesis, ")");
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) {
-				if (untilToken) delete untilToken;
-				if (condition) delete condition;
-				if (body) delete body;
-				throw;
 			}
-			isInControlFlow = oldControlFlow;
-			return new RepeatUntilStatement(body, condition, untilToken);
+			body = (BlockStatement *)blockStatement();
+		} catch (SyntaxError & s) {
+			if (name) delete name;
+			if (stringType) delete stringType;
+			throw;
 		}
-		Statement * loopStatement() {
-			Bool oldControlFlow = isInControlFlow;
-			isInControlFlow = true;
-			Token * loopToken = new Token(peekAdvance());
-			Statement * body = nullptr;
-			try {
-				body = statement();
-			} catch (SyntaxError & s) {
-				if (loopToken) delete loopToken;
-				if (body) delete body;
-				throw;
-			}
-			isInControlFlow = oldControlFlow;
-			return new LoopStatement(body, loopToken);
+		isInFunction = oldFunction;
+		return new FunctionStatement(name, params, body, returnType);
+	}
+	Statement * Parser::forStatement() {
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = true;
+		Token * forToken = new Token(peekAdvance());
+		Statement * declaration = nullptr;
+		Expression * condition = nullptr;
+		Expression * stepper = nullptr;
+		Statement * body = nullptr;
+		String * type = nullptr;
+		try {
+			consume(TokenType::openParenthesis, "(");
+			type = typeString();
+			if (type) {
+				declaration = variableDeclaration(* type);
+				delete type; type = nullptr;
+			} else declaration = expressionStatement();
+			condition = expression();
+			consume(TokenType::semicolon, ";");
+			stepper = expression();
+			consume(TokenType::closeParenthesis, ")");
+			body = statement();
+		} catch (SyntaxError & s) {
+			if (type) delete type;
+			if (forToken) delete forToken;
+			if (declaration) delete declaration;
+			if (condition) delete condition;
+			if (stepper) delete stepper;
+			if (body) delete body;
+			throw;
 		}
-		Statement * restStatement() {
+		isInControlFlow = oldControlFlow;
+		return new BlockStatement(
+			new ForStatement(declaration, condition,
+								stepper, body, forToken)
+		);
+	}
+	Statement * Parser::printStatement() {
+		advance();
+		Expression * ex = nullptr;
+		try {
+			ex = expression();
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			if (ex) delete ex;
+			throw;
+		}
+		return new PrintStatement(ex);
+	}
+	Statement * Parser::whileStatement() {
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = true;
+		Token * whileToken = new Token(peekAdvance());
+		Expression * condition = nullptr;
+		Statement * body = nullptr;
+		try {
+			consume(TokenType::openParenthesis, "(");
+			condition = expression();
+			consume(TokenType::closeParenthesis, ")");
+			body = statement();
+		} catch (SyntaxError & s) {
+			if (whileToken) delete whileToken;
+			if (condition) delete condition;
+			if (body) delete body;
+			throw;
+		}
+		isInControlFlow = oldControlFlow;
+		return new WhileStatement(condition, body, whileToken);
+	}
+	Statement * Parser::doWhileStatement() {
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = true;
+		advance();
+		Statement * body = nullptr;
+		Expression * condition = nullptr;
+		Token * whileToken = nullptr;
+		try {
+			body = statement();
+			whileToken = new Token(
+				consume(TokenType::whileKeyword, "while")
+			);
+			consume(TokenType::openParenthesis, "(");
+			condition = expression();
+			consume(TokenType::closeParenthesis, ")");
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			if (whileToken) delete whileToken;
+			if (condition) delete condition;
+			if (body) delete body;
+			throw;
+		}
+		isInControlFlow = oldControlFlow;
+		return new DoWhileStatement(body, condition, whileToken);
+	}
+	Statement * Parser::untilStatement() {
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = true;
+		Token * untilToken = new Token(peekAdvance());
+		Expression * condition = nullptr;
+		Statement * body = nullptr;
+		try {
+			consume(TokenType::openParenthesis, "(");
+			condition = expression();
+			consume(TokenType::closeParenthesis, ")");
+			body = statement();
+		} catch (SyntaxError & s) {
+			if (untilToken) delete untilToken;
+			if (condition) delete condition;
+			if (body) delete body;
+			throw;
+		}
+		isInControlFlow = oldControlFlow;
+		return new UntilStatement(condition, body, untilToken);
+	}
+	Statement * Parser::repeatUntilStatement() {
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = true;
+		advance();
+		Statement * body = nullptr;
+		Expression * condition = nullptr;
+		Token * untilToken = nullptr;
+		try {
+			body = statement();
+			untilToken = new Token(
+				consume(TokenType::untilKeyword, "until")
+			);
+			consume(TokenType::openParenthesis, "(");
+			condition = expression();
+			consume(TokenType::closeParenthesis, ")");
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			if (untilToken) delete untilToken;
+			if (condition) delete condition;
+			if (body) delete body;
+			throw;
+		}
+		isInControlFlow = oldControlFlow;
+		return new RepeatUntilStatement(body, condition, untilToken);
+	}
+	Statement * Parser::loopStatement() {
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = true;
+		Token * loopToken = new Token(peekAdvance());
+		Statement * body = nullptr;
+		try {
+			body = statement();
+		} catch (SyntaxError & s) {
+			if (loopToken) delete loopToken;
+			if (body) delete body;
+			throw;
+		}
+		isInControlFlow = oldControlFlow;
+		return new LoopStatement(body, loopToken);
+	}
+	Statement * Parser::restStatement() {
+		advance();
+		try {
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) { throw; }
+		return new RestStatement();
+	}
+
+	/* Core */
+
+	Bool Parser::match(TokenType type) {
+		if (check(type)) {
 			advance();
-			try {
-				consume(TokenType::semicolon, ";");
-			} catch (SyntaxError & s) { throw; }
-			return new RestStatement();
-		}
-
-		/* Core */
-
-		Bool match(TokenType type) {
+			return true;
+		} return false;
+	}
+	Bool Parser::match(ArrayList<TokenType> * types) {
+		for (TokenType & type : * types) {
 			if (check(type)) {
 				advance();
 				return true;
-			} return false;
-		}
-		Bool match(ArrayList<TokenType> * types) {
-			for (TokenType & type : * types) {
-				if (check(type)) {
-					advance();
-					return true;
-				}
-			} return false;
-		}
-		Bool check(TokenType type) {
-			if (isAtEnd()) return false;
-			return peek().type == type;
-		}
-		Bool isOutOfRange() {
-			if (tokens -> size() == 0) return true;
-			if (index >= tokens -> size()) return true;
-			return false;
-		}
-		Bool isAtEnd() {
-			return peek().type == TokenType::endFile;
-		}
-		Token peek() { return tokens -> at(index); }
-		Token peekAdvance() {
-			Token peekToken = peek();
-			advance();
-			return peekToken;
-		}
-		Token previous() { return tokens -> at(index - 1); }
-		Token advance() {
-			if (!isAtEnd()) index += 1;
-			return previous();
-		}
-		Token consume(TokenType type, String lexeme = "") {
+			}
+		} return false;
+	}
+	Bool Parser::check(TokenType type) {
+		if (isAtEnd()) return false;
+		return peek().type == type;
+	}
+	Bool Parser::isOutOfRange() {
+		if (tokens -> size() == 0) return true;
+		if (index >= tokens -> size()) return true;
+		return false;
+	}
+	Bool Parser::isAtEnd() {
+		return peek().type == TokenType::endFile;
+	}
+	Token Parser::peek() { return tokens -> at(index); }
+	Token Parser::peekAdvance() {
+		Token peekToken = peek();
+		advance();
+		return peekToken;
+	}
+	Token Parser::previous() { return tokens -> at(index - 1); }
+	Token Parser::advance() {
+		if (!isAtEnd()) index += 1;
+		return previous();
+	}
+	Token Parser::consume(TokenType type, String lexeme) {
+		Token t = peek();
+		if (check(type)) return advance();
+		FilePosition fp = { 0, 0 };
+		if (t.type == TokenType::endFile) {
+			fp = Linker::getPosition(input, previous().position);
+		} else fp = Linker::getPosition(input, t.position);
+		throw SyntaxError(
+			(lexeme.length() > 0 ? "Expected '" + lexeme +
+			"' but found '" + t.lexeme + "'!" :
+			"Expecting a different token than '" + t.lexeme + "'!"), fp
+		);
+	}
+
+	void Parser::synchronise() {
+		advance();
+		while (!isAtEnd()) {
+			if (previous().type == TokenType::semicolon) {
+				return;
+			}
 			Token t = peek();
-			if (check(type)) return advance();
-			FilePosition fp = { 0, 0 };
-			if (t.type == TokenType::endFile) {
-				fp = Linker::getPosition(input, previous().position);
-			} else fp = Linker::getPosition(input, t.position);
-			throw SyntaxError(
-				(lexeme.length() > 0 ? "Expected '" + lexeme +
-				"' but found '" + t.lexeme + "'!" :
-				"Expecting a different token than '" + t.lexeme + "'!"), fp
-			);
-		}
-
-		void synchronise() {
+			if (t.type >= TokenType::tryKeyword &&
+				t.type <= TokenType::restKeyword) return;
 			advance();
-			while (!isAtEnd()) {
-				if (previous().type == TokenType::semicolon) {
-					return;
-				}
-				Token t = peek();
-				if (t.type >= TokenType::tryKeyword &&
-					t.type <= TokenType::restKeyword) return;
-				advance();
-			}
 		}
+	}
 
-		Parser() = default;
-		~Parser() = default;
-
-		public:
-
-		Parser(const Parser &) = delete;
-		Parser(Parser &&) = delete;
-		Parser & operator = (const Parser &) = delete;
-		Parser & operator = (Parser &&) = delete;
-
-		static Parser * self() {
-			static Parser instance;
-			return & instance;
+	ArrayList<Statement *> * Parser::parse(ArrayList<Token> * tokens, String * input, String fileName) {
+		if (!tokens || tokens -> size() <= 2) {
+			errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
+			errors -> shrinkToFit();
+			throw ParserErrorException(errors, fileName);
 		}
-
-		ArrayList<Statement *> * parse(ArrayList<Token> * tokens,
-											   String * input = nullptr,
-											   String fileName = "Unknown File") {
-			if (!tokens || tokens -> size() <= 2) {
-				errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
-				errors -> shrinkToFit();
-				throw ParserErrorException(errors, fileName);
-			}
-			this -> tokens = tokens;
-			this -> input = input;
+		this -> tokens = tokens;
+		this -> input = input;
+		try {
+			consume(TokenType::beginFile, "beginFile");
+		} catch (SyntaxError & s) {
+			errors -> push(s);
+			errors -> shrinkToFit();
+			throw ParserErrorException(errors, fileName);
+		}
+		ArrayList<Statement *> * statements = new ArrayList<Statement *>();
+		while (!isAtEnd()) {
 			try {
-				consume(TokenType::beginFile, "beginFile");
+				statements -> push(declaration());
 			} catch (SyntaxError & s) {
 				errors -> push(s);
-				errors -> shrinkToFit();
-				throw ParserErrorException(errors, fileName);
+				synchronise();
 			}
-			ArrayList<Statement *> * statements = new ArrayList<Statement *>();
-			while (!isAtEnd()) {
-				try {
-					statements -> push(declaration());
-				} catch (SyntaxError & s) {
-					errors -> push(s);
-					synchronise();
-				}
-			}
-			if (errors -> size() > 0) {
-				errors -> shrinkToFit();
-				throw ParserErrorException(errors, fileName);
-			}
-			delete errors;
-			return statements;
 		}
-
-	};
+		if (errors -> size() > 0) {
+			errors -> shrinkToFit();
+			throw ParserErrorException(errors, fileName);
+		}
+		delete errors;
+		return statements;
+	}
 
 }
 

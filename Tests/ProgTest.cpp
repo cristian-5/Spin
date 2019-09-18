@@ -16,10 +16,7 @@
  *
  */
 
-#include "../Source/Aliases/Aliases.hpp"
-#include "../Source/Lexer/Lexer.hpp"
-#include "../Source/Parser/Parser.hpp"
-#include "../Source/Interpreter/Interpreter.hpp"
+#include "../Source/Aliases/Includes.hpp"
 
 using namespace std;
 
@@ -69,7 +66,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	// Interpreter Test:
 
-	Interpreter * interpreter = Interpreter::self();
+	Interpreter * interpreter = new Interpreter();
 
 	try {
 		interpreter -> evaluate(st, & test, "Virtual File");
