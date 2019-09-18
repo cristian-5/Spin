@@ -2536,8 +2536,6 @@ namespace Stack {
 		Exception(),  _message(message), _position(position), _fileName(name) { }
 	};
 	class Interpreter: public Expression::Visitor, public Statement::Visitor {
-		public:
-		Environment * globals = new Environment();
 		private:
 		Object * value = nullptr;
 		Processor * CPU = Processor::self();
@@ -2580,6 +2578,8 @@ namespace Stack {
 		void executeStatement(Statement * statement);
 		void executeBlock(ArrayList<Statement *> statements, Environment * environment);
 		public:
+		Environment * globals = new Environment();
+		Object * getCurrentValue() const;
 		Interpreter();
 		void executeFunction(BlockStatement * block, Environment * environment);
 		void evaluate(ArrayList<Statement *> * statements, String * input = nullptr, String fileName = "Unknown File");
