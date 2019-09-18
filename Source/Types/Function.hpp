@@ -30,18 +30,14 @@ namespace Stack {
 		for (Parameter * param : declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {
 				throw EvaluationError(
-					"No instance of function '" +
-					(declaration -> name -> lexeme) +
-					"' matches the given arguments!",
+					"Call of " + stringValue() + " doesn't match the predefined parameters!",
 					* (param -> tokenType)
 				);
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) !=
 					(a[j] -> getObjectName())) {
 					throw EvaluationError(
-						"No instance of function '" +
-						(declaration -> name -> lexeme) +
-						"' matches the given arguments!",
+						"Call of " + stringValue() + " doesn't match the predefined parameters!",
 						* (param -> tokenType)
 					);
 				}
@@ -50,7 +46,7 @@ namespace Stack {
 			j += 1;                                        
 		}
 		i -> executeFunction(declaration -> body, environment);
-		return nullptr;
+		return i -> getCurrentValue() -> copy();
 	}
 	String Function::stringValue() const {
 		return "<func " + (declaration -> name -> lexeme) + ">";
@@ -68,7 +64,7 @@ namespace Stack {
 		return _lambda(i, a);
 	}
 	String NativeFunction::stringValue() const {
-		return "<func>";
+		return "<native>";
 	}
 	UInt32 NativeFunction::arity() const { return _arity; }
 	CallProtocol * NativeFunction::copy() const {

@@ -81,7 +81,7 @@ namespace Stack {
 			auto function = (CallProtocol *)(callee -> value);
 			if (arguments.size() != function -> arity()) {
 				throw EvaluationError(
-					"No overloads of function match the given parameters!",
+					"Call of " + function -> stringValue() + " doesn't match the predefined parameters!",
 					* e -> parenthesis
 				);
 			}					
@@ -351,6 +351,8 @@ namespace Stack {
 			executeBlock(block -> statements, environment);
 		} catch (EvaluationError & r) { throw; }
 	}
+
+	Object * Interpreter::getCurrentValue() const { return value; }
 
 	Interpreter::Interpreter() {
 		globals -> define(
