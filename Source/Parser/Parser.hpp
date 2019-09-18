@@ -629,7 +629,9 @@ namespace Stack {
 		for (SizeType i = 0; i < tokenCount; i++) {
 			if (tokens -> at(i).isTypeType()) {
 				i += 1;
-				tokens -> at(i).type = TokenType::customType;
+				if (tokens -> at(i).type == TokenType::symbol) {
+					tokens -> at(i).type = TokenType::customType;
+				}
 			}
 		}
 	} 
