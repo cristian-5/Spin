@@ -24,6 +24,7 @@
 namespace Stack {
 
 	void Interpreter::deleteValue() { delete value; value = nullptr; }
+	void Interpreter::safeDeleteValue() { if (value) delete value; value = nullptr; }
 	void Interpreter::resetValue() { value = nullptr; }
 	void Interpreter::setValue(Object * o) {
 		if (value == o) return;
@@ -85,9 +86,8 @@ namespace Stack {
 					* e -> parenthesis
 				);
 			}
-			try { setValue(function -> call(this, arguments, e -> parenthesis)); }
-			catch (InterpreterReturn & ret) { }
-		} catch (EvaluationError & r) { throw; }
+			setValue(function -> call(this, arguments, e -> parenthesis));
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitComparisonExpression(Comparison * e) {
 		try {
@@ -211,8 +211,10 @@ namespace Stack {
 		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitFunctionStatement(FunctionStatement * e) {
-		Object * function = new Object(BasicType::FunctionType, new Function(e, memory));
-		memory -> define(e -> name -> lexeme, function);
+		try {
+			Object * function = new Object(BasicType::FunctionType, new Function(e, memory));
+			memory -> define(e -> name -> lexeme, function);
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitIfStatement(IfStatement * e) {
 		try {
@@ -245,6 +247,12 @@ namespace Stack {
 			std::cout << value -> getObjectStringValue() << std::endl;
 		} catch (Exception & r) { throw; }
 	}
+	void Interpreter::visitProcedureStatement(ProcedureStatement * e) {
+		try {
+			Object * procedure = new Object(BasicType::FunctionType, new Procedure(e, memory));
+			memory -> define(e -> name -> lexeme, procedure);
+		} catch (Exception & r) { throw; }
+	}
 	void Interpreter::visitRepeatUntilStatement(RepeatUntilStatement * e) {
 		try {
 			evaluateExpression(e -> expression);
@@ -270,7 +278,7 @@ namespace Stack {
 	void Interpreter::visitReturnStatement(ReturnStatement * e) {
 		try {
 			if (e -> e) evaluateExpression(e -> e);
-			else deleteValue();
+			else safeDeleteValue();
 			throw InterpreterReturn();
 		} catch (Exception & r) { throw; }
 	}

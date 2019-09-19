@@ -298,6 +298,7 @@ namespace Stack {
 			Token keyword = peek();
 			switch (keyword.type) {
 				case TokenType::funcKeyword: st = functionStatement(); break;
+				case TokenType::procKeyword: st = procedureStatement(); break;
 				case TokenType::ifKeyword: st = ifStatement(); break;
 				case TokenType::printKeyword: st = printStatement(); break;
 				case TokenType::whileKeyword: st = whileStatement(); break;
@@ -463,6 +464,57 @@ namespace Stack {
 		}
 		isInFunction = oldFunction;
 		return new FunctionStatement(name, params, body, returnType);
+	}
+	Statement * Parser::procedureStatement() {
+		advance();
+		Bool oldProcedure = isInProcedure;
+		isInProcedure = true;
+		Token * name = nullptr;
+		String * stringType = nullptr;
+		ArrayList<Parameter *> params = ArrayList<Parameter *>();
+		BlockStatement * body = nullptr;
+		try {
+			name = new Token(consume(TokenType::symbol, "identifier"));
+			consume(TokenType::openParenthesis, "(");
+			if (!check(TokenType::closeParenthesis)) {
+				do {
+					Parameter * p = new Parameter();
+					p -> name = new Token(consume(TokenType::symbol, "identifier"));
+					consume(TokenType::colon, ":");
+					if (match(TokenType::refKeyword)) p -> reference = true;
+					else if (match(TokenType::cpyKeyword)) p -> reference = false;
+					stringType = typeString();
+					if (!stringType) {
+						Token er = peek();
+						throw SyntaxError(
+							"Expected type but found '" + er.lexeme + "'!",
+							Linker::getPosition(input, er.position)
+						);
+					}
+					p -> type = Converter::typeFromString(* stringType);
+					delete stringType; stringType = nullptr;
+					p -> tokenType = new Token(previous());
+					params.push(p);
+				} while (match(TokenType::comma));
+			}
+			consume(TokenType::closeParenthesis, ")");
+			params.shrinkToFit();
+			if (!check(TokenType::openBrace)) {
+				Token er = peek();
+				throw SyntaxError(
+					"Expected function body but found '" + er.lexeme + "'!",
+					Linker::getPosition(input, er.position)
+				);
+			}
+			body = (BlockStatement *)blockStatement();
+		} catch (SyntaxError & s) {
+			if (name) delete name;
+			if (stringType) delete stringType;
+			for (Parameter * p : params) delete p;
+			throw;
+		}
+		isInProcedure = oldProcedure;
+		return new ProcedureStatement(name, params, body);
 	}
 	Statement * Parser::forStatement() {
 		Bool oldControlFlow = isInControlFlow;

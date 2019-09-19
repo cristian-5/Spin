@@ -276,6 +276,19 @@ namespace Stack {
 		catch (Exception & e) { throw; }
 	}
 	PrintStatement::~PrintStatement() { delete e; }
+
+	ProcedureStatement::ProcedureStatement(Token * n, ArrayList<Parameter *> p,
+										   BlockStatement * b) {
+		name = n, params = p; body = b;
+	}
+	void ProcedureStatement::accept(Visitor * visitor) {
+		try { visitor -> visitProcedureStatement(this); }
+		catch (Exception & e) { throw; }
+	}
+	ProcedureStatement::~ProcedureStatement() {
+		delete name; delete body;
+		for (Parameter * param : params) delete param;
+	}
 	
 	RepeatUntilStatement::RepeatUntilStatement(Statement * b, Expression * e, Token * u) {
 		expression = e; body = b; untilToken = u;

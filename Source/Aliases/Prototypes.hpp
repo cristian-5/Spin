@@ -314,6 +314,7 @@ namespace Stack {
 	class IfStatement;
 	class LoopStatement;	
 	class PrintStatement;
+	class ProcedureStatement;
 	class RepeatUntilStatement;
 	class RestStatement;
 	class ReturnStatement;
@@ -363,6 +364,7 @@ namespace Stack {
 			virtual void visitIfStatement(IfStatement * e) = 0;
 			virtual void visitLoopStatement(LoopStatement * e) = 0;
 			virtual void visitPrintStatement(PrintStatement * e) = 0;
+			virtual void visitProcedureStatement(ProcedureStatement * e) = 0;
 			virtual void visitRepeatUntilStatement(RepeatUntilStatement * e) = 0;
 			virtual void visitRestStatement(RestStatement * e) = 0;
 			virtual void visitReturnStatement(ReturnStatement * e) = 0;
@@ -589,6 +591,15 @@ namespace Stack {
 		void accept(Visitor * visitor) override;
 		~PrintStatement();
 	};
+	class ProcedureStatement: public Statement {
+		public:
+		Token * name = nullptr;
+		ArrayList<Parameter *> params = ArrayList<Parameter *>();
+		BlockStatement * body = nullptr;
+		ProcedureStatement(Token * n, ArrayList<Parameter *> p, BlockStatement * b);
+		void accept(Visitor * visitor) override;
+		~ProcedureStatement();
+	};
 	class RepeatUntilStatement: public Statement {
 		public:
 		Token * untilToken = nullptr;
@@ -749,6 +760,19 @@ namespace Stack {
 		Function() = default;
 		Function(FunctionStatement * d, Environment * c);
 		~Function() = default;
+		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
+		String stringValue() const override;
+		UInt32 arity() const override;
+		CallProtocol * copy() const override;
+    };
+	class Procedure: CallProtocol {
+		private:
+		ProcedureStatement * declaration = nullptr;
+		Environment * closure = nullptr;
+		public:
+		Procedure() = default;
+		Procedure(ProcedureStatement * d, Environment * c);
+		~Procedure() = default;
 		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
@@ -2557,6 +2581,7 @@ namespace Stack {
 		Bool broken = false;
 		Bool continued = false;
 		void deleteValue();
+		void safeDeleteValue();
 		void resetValue();
 		void setValue(Object * o);
 		void visitArrayExpression(Array * e) override;
@@ -2584,6 +2609,7 @@ namespace Stack {
 		void visitIfStatement(IfStatement * e) override;
 		void visitLoopStatement(LoopStatement * e) override;
 		void visitPrintStatement(PrintStatement * e) override;
+		void visitProcedureStatement(ProcedureStatement * e) override;
 		void visitRepeatUntilStatement(RepeatUntilStatement * e) override;
 		void visitRestStatement(RestStatement * e) override;
 		void visitReturnStatement(ReturnStatement * e) override;
@@ -2800,6 +2826,7 @@ namespace Stack {
 		Statement * continueStatement();
 		Statement * expressionStatement();
 		Statement * functionStatement();
+		Statement * procedureStatement();
 		Statement * forStatement();
 		Statement * printStatement();
 		Statement * whileStatement();

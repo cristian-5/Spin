@@ -66,6 +66,44 @@ namespace Stack {
 		return new Function(* this);
 	}
 
+	Procedure::Procedure(ProcedureStatement * d, Environment * c) {
+		declaration = d;
+		closure = c;
+	}
+	Object * Procedure::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
+		Environment * environment = new Environment(closure);
+		SizeType j = 0;
+		for (Parameter * param : declaration -> params) {
+			if ((param -> type) != (a[j] -> type)) {
+				throw EvaluationError(
+					"Call of " + stringValue() + " doesn't match the predefined parameters!",
+					* (param -> tokenType)
+				);
+			} else if (param -> type == BasicType::ClassType) {
+				if ((param -> tokenType -> lexeme) !=
+					(a[j] -> getObjectName())) {
+					throw EvaluationError(
+						"Call of " + stringValue() + " doesn't match the predefined parameters!",
+						* (param -> tokenType)
+					);
+				}
+			}
+			environment -> define(param -> name -> lexeme, a[j]);
+			j += 1;                                        
+		}
+		try {
+			i -> executeFunction(declaration -> body, environment);
+		} catch (InterpreterReturn & ret) { }
+		return nullptr;
+	}
+	String Procedure::stringValue() const {
+		return "<proc " + (declaration -> name -> lexeme) + ">";
+	}
+	UInt32 Procedure::arity() const { return declaration -> params.size(); }
+	CallProtocol * Procedure::copy() const {
+		return new Procedure(* this);
+	}
+
 	NativeFunction::NativeFunction(NativeLambda l, UInt32 a) {
 		_lambda = l;
 		_arity = a;
