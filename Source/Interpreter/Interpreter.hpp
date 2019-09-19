@@ -211,7 +211,7 @@ namespace Stack {
 		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitFunctionStatement(FunctionStatement * e) {
-		Object * function = new Object(BasicType::FunctionType, new Function(e));
+		Object * function = new Object(BasicType::FunctionType, new Function(e, memory));
 		memory -> define(e -> name -> lexeme, function);
 	}
 	void Interpreter::visitIfStatement(IfStatement * e) {
@@ -265,7 +265,8 @@ namespace Stack {
 			}
 		} catch (Exception & r) { throw; }
 	}
-	void Interpreter::visitRestStatement(RestStatement * e) { }
+	void Interpreter::visitRestStatement(RestStatement * e) {	
+	}
 	void Interpreter::visitReturnStatement(ReturnStatement * e) {
 		try {
 			if (e -> e) evaluateExpression(e -> e);

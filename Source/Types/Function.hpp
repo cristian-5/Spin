@@ -23,9 +23,12 @@
 
 namespace Stack {
 
-	Function::Function(FunctionStatement * d) { declaration = d; }
+	Function::Function(FunctionStatement * d, Environment * c) {
+		declaration = d;
+		closure = c;
+	}
 	Object * Function::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
-		Environment * environment = new Environment(i -> globals);
+		Environment * environment = new Environment(closure);
 		SizeType j = 0;
 		for (Parameter * param : declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {

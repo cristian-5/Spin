@@ -744,9 +744,10 @@ namespace Stack {
 	class Function: CallProtocol {
 		private:
 		FunctionStatement * declaration = nullptr;
+		Environment * closure = nullptr;
 		public:
 		Function() = default;
-		Function(FunctionStatement * d);
+		Function(FunctionStatement * d, Environment * c);
 		~Function() = default;
 		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
 		String stringValue() const override;
