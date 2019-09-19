@@ -316,6 +316,7 @@ namespace Stack {
 	class PrintStatement;
 	class RepeatUntilStatement;
 	class RestStatement;
+	class ReturnStatement;
 	class UntilStatement;
 	class VariableStatement;
 	class WhileStatement;
@@ -364,6 +365,7 @@ namespace Stack {
 			virtual void visitPrintStatement(PrintStatement * e) = 0;
 			virtual void visitRepeatUntilStatement(RepeatUntilStatement * e) = 0;
 			virtual void visitRestStatement(RestStatement * e) = 0;
+			virtual void visitReturnStatement(ReturnStatement * e) = 0;
 			virtual void visitUntilStatement(UntilStatement * e) = 0;
 			virtual void visitVariableStatement(VariableStatement * e) = 0;
 			virtual void visitWhileStatement(WhileStatement * e) = 0;
@@ -601,6 +603,14 @@ namespace Stack {
 		RestStatement() = default;
 		void accept(Visitor * visitor) override;
 	};
+	class ReturnStatement: public Statement {
+		public:
+		Token * returnToken = nullptr;
+		Expression * e = nullptr;
+		ReturnStatement(Expression * ex, Token * rt);
+		void accept(Visitor * visitor) override;
+		~ReturnStatement();
+	};
 	class UntilStatement: public Statement {
 		public:
 		Token * untilToken = nullptr;
@@ -726,7 +736,7 @@ namespace Stack {
 	class CallProtocol {
 		public:
 		virtual ~CallProtocol() = default;
-		virtual Object * call(Interpreter * i, ArrayList<Object *> a) = 0;
+		virtual Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) = 0;
 		virtual String stringValue() const = 0;
 		virtual UInt32 arity() const = 0;
 		virtual CallProtocol * copy() const = 0;
@@ -738,7 +748,7 @@ namespace Stack {
 		Function() = default;
 		Function(FunctionStatement * d);
 		~Function() = default;
-		Object * call(Interpreter * i, ArrayList<Object *> a) override;
+		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
@@ -751,7 +761,7 @@ namespace Stack {
 		public:
 		NativeFunction(NativeLambda l, UInt32 a = 0);
 		~NativeFunction() = default;
-		Object * call(Interpreter * i, ArrayList<Object *> a) override;
+		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
@@ -2535,11 +2545,14 @@ namespace Stack {
 		InterpreterErrorException(String message, FilePosition position, String name):
 		Exception(),  _message(message), _position(position), _fileName(name) { }
 	};
+	class InterpreterReturn: public Exception {
+		public: InterpreterReturn(): Exception() { }
+	};
 	class Interpreter: public Expression::Visitor, public Statement::Visitor {
 		private:
 		Object * value = nullptr;
 		Processor * CPU = Processor::self();
-		Environment * memory = globals;
+		Environment * memory = nullptr;
 		Bool broken = false;
 		Bool continued = false;
 		void deleteValue();
@@ -2572,13 +2585,14 @@ namespace Stack {
 		void visitPrintStatement(PrintStatement * e) override;
 		void visitRepeatUntilStatement(RepeatUntilStatement * e) override;
 		void visitRestStatement(RestStatement * e) override;
+		void visitReturnStatement(ReturnStatement * e) override;
 		void visitUntilStatement(UntilStatement * e) override;
 		void visitVariableStatement(VariableStatement * e) override;
 		void visitWhileStatement(WhileStatement * e) override;
 		void executeStatement(Statement * statement);
 		void executeBlock(ArrayList<Statement *> statements, Environment * environment);
 		public:
-		Environment * globals = new Environment();
+		Environment * globals = nullptr;
 		Object * getCurrentValue() const;
 		Interpreter();
 		void executeFunction(BlockStatement * block, Environment * environment);
@@ -2793,6 +2807,7 @@ namespace Stack {
 		Statement * repeatUntilStatement();
 		Statement * loopStatement();
 		Statement * restStatement();
+		Statement * returnStatement();
 		void runTypeClassification();
 		Bool match(TokenType type);
 		Bool match(ArrayList<TokenType> * types);

@@ -310,6 +310,7 @@ namespace Stack {
 				case TokenType::breakKeyword: st = breakStatement(); break;
 				case TokenType::continueKeyword: st = continueStatement(); break;
 				case TokenType::restKeyword: st = restStatement(); break;
+				case TokenType::returnKeyword: st = returnStatement(); break;
 				default: st = expressionStatement(); break;
 			}
 		} catch (SyntaxError & s) { throw; }
@@ -401,6 +402,7 @@ namespace Stack {
 	Statement * Parser::functionStatement() {
 		advance();
 		Bool oldFunction = isInFunction;
+		isInFunction = true;
 		Token * name = nullptr;
 		String * stringType = nullptr;
 		ArrayList<Parameter *> params = ArrayList<Parameter *>();
@@ -621,6 +623,37 @@ namespace Stack {
 			consume(TokenType::semicolon, ";");
 		} catch (SyntaxError & s) { throw; }
 		return new RestStatement();
+	}
+	Statement * Parser::returnStatement() {
+		Token * returnToken = new Token(peekAdvance());
+		Expression * ex = nullptr;
+		try {
+			if (!match(TokenType::semicolon)) {
+				ex = expression();
+				consume(TokenType::semicolon, ";");
+			}
+		} catch (SyntaxError & s) {
+			if (returnToken) delete returnToken;
+			throw;
+		}
+		if (ex) {
+			if (!isInFunction) {
+				UInt32 position = returnToken -> position;
+				if (returnToken) delete returnToken;
+				throw SyntaxError(
+					"Unexpected return statement outside of function! Where am I supposed to return to?",
+					Linker::getPosition(input, position)
+				);
+			}
+		} else if (!isInProcedure) {
+			UInt32 position = returnToken -> position;
+			if (returnToken) delete returnToken;
+			throw SyntaxError(
+				"Unexpected return statement outside of procedure! Where am I supposed to return to?",
+				Linker::getPosition(input, position)
+			);
+		}
+		return new ReturnStatement(ex, returnToken);
 	}
 
 	void Parser::runTypeClassification() {

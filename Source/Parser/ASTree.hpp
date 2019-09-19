@@ -294,6 +294,18 @@ namespace Stack {
 		try { visitor -> visitRestStatement(this); }
 		catch (Exception & e) { throw; }
 	}
+
+	ReturnStatement::ReturnStatement(Expression * ex, Token * rt) {
+		e = ex; returnToken = rt;
+	}
+	void ReturnStatement::accept(Visitor * visitor) {
+		try { visitor -> visitReturnStatement(this); }
+		catch (Exception & e) { throw; }
+	}
+	ReturnStatement::~ReturnStatement() {
+		if (e) delete e;
+		if (returnToken) delete returnToken;
+	}
 		
 	UntilStatement::UntilStatement(Expression * e, Statement * b, Token * u) {
 		expression = e; body = b; untilToken = u;

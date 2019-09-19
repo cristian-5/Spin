@@ -47,7 +47,7 @@ namespace Stack {
 				);
 			}
 			CPU -> applyAssignment(e -> name, o, value);
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitBinaryExpression(Binary * e) {
 		try {
@@ -57,16 +57,16 @@ namespace Stack {
 			Object * r = value -> copy();
 			setValue(CPU -> applyBinaryOperator(e -> o, l, r));
 			delete r; delete l;
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitCallExpression(Call * e) {
 		try {
-			evaluate(e -> callee);
+			evaluateExpression(e -> callee);
 			Object * callee = value -> copy();
 			deleteValue();
 			ArrayList<Object *> arguments = ArrayList<Object *>();
 			for (Expression * a : e -> arguments) {
-				evaluate(a);
+				evaluateExpression(a);
 				// TODO: push reference if ref keyword
 				arguments.push(value -> copy());
 				deleteValue();
@@ -84,8 +84,9 @@ namespace Stack {
 					"Call of " + function -> stringValue() + " doesn't match the predefined parameters!",
 					* e -> parenthesis
 				);
-			}					
-			setValue(function -> call(this, arguments));
+			}
+			try { setValue(function -> call(this, arguments, e -> parenthesis)); }
+			catch (InterpreterReturn & ret) { }
 		} catch (EvaluationError & r) { throw; }
 	}
 	void Interpreter::visitComparisonExpression(Comparison * e) {
@@ -96,12 +97,12 @@ namespace Stack {
 			Object * r = value -> copy();
 			setValue(CPU -> applyComparisonOperator(e -> o, l, r));
 			delete r; delete l;
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitGetExpression(Get * e) { }
 	void Interpreter::visitGroupingExpression(Grouping * e) {
 		try { evaluateExpression(e -> expression); }
-		catch (EvaluationError & r) { throw; }
+		catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitLiteralExpression(Literal * e) {
 		try {
@@ -109,7 +110,7 @@ namespace Stack {
 				e -> object = Converter::literalToObject(e -> token);
 			}
 			setValue((e -> object) -> copy());
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitLogicalExpression(Logical * e) {
 		try {
@@ -125,7 +126,7 @@ namespace Stack {
 			} else if (!(value -> getBoolValue())) return;
 			deleteValue();
 			evaluateExpression(e -> r);
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitSetExpression(Set * e) { }
 	void Interpreter::visitSuperExpression(Super * e) { }
@@ -134,7 +135,7 @@ namespace Stack {
 		try {
 			evaluateExpression(e -> r);
 			setValue(CPU -> applyUnaryOperator(e -> o, value));
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitIdentifierExpression(Identifier * e) {
 		try {
@@ -149,7 +150,7 @@ namespace Stack {
 
 	void Interpreter::evaluateExpression(Expression * e) {
 		try { e -> accept(this); }
-		catch (EvaluationError & r) { throw; }
+		catch (Exception & r) { throw; }
 	}
 
 	/* Statements */
@@ -157,7 +158,7 @@ namespace Stack {
 	void Interpreter::visitBlockStatement(BlockStatement * e) {
 		try {
 			executeBlock(e -> statements, new Environment(memory));
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitBreakStatement(BreakStatement * e) {
 		broken = true;
@@ -183,11 +184,11 @@ namespace Stack {
 				evaluateExpression(e -> expression);
 				condition = value -> getBoolValue();
 			}
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitExpressionStatement(ExpressionStatement * e) {
 		try { evaluateExpression(e -> e); }
-		catch (EvaluationError & r) { throw; }
+		catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitForStatement(ForStatement * e) {
 		try {
@@ -207,7 +208,7 @@ namespace Stack {
 				evaluateExpression(e -> expression);
 				condition = value -> getBoolValue();
 			}
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitFunctionStatement(FunctionStatement * e) {
 		Object * function = new Object(BasicType::FunctionType, new Function(e));
@@ -227,7 +228,7 @@ namespace Stack {
 			} else if (e -> elseBranch) {
 				executeStatement(e -> elseBranch);
 			}
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitLoopStatement(LoopStatement * e) {
 		try {
@@ -235,14 +236,14 @@ namespace Stack {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
 			}
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitPrintStatement(PrintStatement * e) {
 		try {
 			evaluateExpression(e -> e);
 			// TO FIX: Find a better way to output things.
 			std::cout << value -> getObjectStringValue() << std::endl;
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitRepeatUntilStatement(RepeatUntilStatement * e) {
 		try {
@@ -262,9 +263,16 @@ namespace Stack {
 				evaluateExpression(e -> expression);
 				condition = value -> getBoolValue();
 			}
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitRestStatement(RestStatement * e) { }
+	void Interpreter::visitReturnStatement(ReturnStatement * e) {
+		try {
+			if (e -> e) evaluateExpression(e -> e);
+			else deleteValue();
+			throw InterpreterReturn();
+		} catch (Exception & r) { throw; }
+	}
 	void Interpreter::visitUntilStatement(UntilStatement * e) {
 		try {
 			evaluateExpression(e -> expression);
@@ -281,7 +289,7 @@ namespace Stack {
 				evaluateExpression(e -> expression);
 				condition = value -> getBoolValue();
 			}
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitVariableStatement(VariableStatement * e) {
 		try {
@@ -291,7 +299,7 @@ namespace Stack {
 				CPU -> applyAssignment(e -> name, o, value);
 				setValue(o);
 			} else setValue(new Object(e -> type));
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 		try {
 			memory -> define(e -> name -> lexeme, value);
 		} catch (VariableRedefinitionException & r) {
@@ -319,12 +327,12 @@ namespace Stack {
 				evaluateExpression(e -> expression);
 				condition = value -> getBoolValue();
 			}
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 
 	void Interpreter::executeStatement(Statement * statement) {
 		try { statement -> accept(this); }
-		catch (EvaluationError & r) { throw; }
+		catch (Exception & r) { throw; }
 	}
 	void Interpreter::executeBlock(ArrayList<Statement *> statements,
 						Environment * environment) {
@@ -337,7 +345,7 @@ namespace Stack {
 					continued = false; break;
 				}
 			}
-		} catch (EvaluationError & r) {
+		} catch (Exception & r) {
 			memory = previous;
 			delete environment;
 			throw;
@@ -349,12 +357,14 @@ namespace Stack {
 							Environment * environment) {
 		try {
 			executeBlock(block -> statements, environment);
-		} catch (EvaluationError & r) { throw; }
+		} catch (Exception & r) { throw; }
 	}
 
 	Object * Interpreter::getCurrentValue() const { return value; }
 
 	Interpreter::Interpreter() {
+		globals = new Environment();
+		memory = globals;
 		globals -> define(
 			"clock", new Object(BasicType::FunctionType,
 				new NativeFunction(
