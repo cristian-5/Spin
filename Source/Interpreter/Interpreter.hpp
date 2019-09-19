@@ -79,7 +79,7 @@ namespace Stack {
 					* e -> parenthesis
 				);
 			}
-			auto function = (CallProtocol *)(callee -> value);
+			CallProtocol * function = (CallProtocol *)(callee -> value);
 			if (arguments.size() != function -> arity()) {
 				throw EvaluationError(
 					"Call of " + function -> stringValue() + " doesn't match the predefined parameters!",
@@ -87,6 +87,7 @@ namespace Stack {
 				);
 			}
 			setValue(function -> call(this, arguments, e -> parenthesis));
+			delete callee;
 		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitComparisonExpression(Comparison * e) {
@@ -129,6 +130,24 @@ namespace Stack {
 		} catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitSetExpression(Set * e) { }
+	void Interpreter::visitSubscriptExpression(Subscript * e) {
+		try {
+			evaluateExpression(e -> item);
+			Object * item = value -> copy();
+			deleteValue();
+			if (!(item -> isSubscriptable()) ||
+				!(item -> value)) {
+				throw EvaluationError(
+					"The selected object doesn't support subscription!",
+					* e -> bracket
+				);
+			}
+			evaluateExpression(e -> expression);
+			Object * expression = value -> copy();
+			setValue(CPU -> applySubscriptOperator(e -> bracket, item, expression));
+			delete item; delete expression;
+		} catch (Exception & r) { throw; }
+	}
 	void Interpreter::visitSuperExpression(Super * e) { }
 	void Interpreter::visitThisExpression(This * e) { }
 	void Interpreter::visitUnaryExpression(Unary * e) {

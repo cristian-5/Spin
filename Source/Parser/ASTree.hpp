@@ -118,6 +118,17 @@ namespace Stack {
 		catch (Exception & e) { throw; }
 	}
 	Set::~Set() { delete object; delete name; delete value; }
+
+	Subscript::Subscript(Expression * i, Token * b, Expression * e) {
+		bracket = b; item = i; expression = e;
+	}
+	void Subscript::accept(Visitor * visitor) {
+		try { visitor -> visitSubscriptExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	Subscript::~Subscript() {
+		delete bracket; delete item; delete expression;
+	}
 		
 	Super::Super(Token * k, Token * m) { keyword = k; method = m; }
 	void Super::accept(Visitor * visitor) {

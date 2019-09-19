@@ -199,6 +199,10 @@ namespace Stack {
 	}
 	Bool Object::isUnknown() const { return type == BasicType::UnknownType; }
 	Bool Object::isFunction() const { return type == BasicType::FunctionType; }
+	Bool Object::isSubscriptable() const {
+		return type == BasicType::StringType ||
+			   type == BasicType::ArrayListType;
+	}
 	Bool Object::getBoolValue() const {
 		if (isBool()) return *((Bool *)value);
 		else return false;

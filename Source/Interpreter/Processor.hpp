@@ -322,6 +322,33 @@ namespace Stack {
 			r -> getObjectName() + "'!", * t
 		);
 	}
+	Object * Processor::applySubscriptOperator(Token * t, Object * l, Object * r) {
+		if (l -> type == BasicType::StringType) {
+			if (r -> type == BasicType::Int64Type) {
+				Int64 * i = (Int64 *) r -> value;
+				String * s = (String *) l -> value;
+				if (((* i) >= 0) && (s -> length() > (* i))) {
+					Character * c = new Character(s -> at(* i));
+					return new Object(BasicType::CharacterType, c);
+				}
+				throw EvaluationError(
+					"Subscript operator '[ ]' threw index out of range exception!", * t
+				);
+			}
+			throw EvaluationError(
+				"Subscript operator '[ ]' doesn't support operand of type '" +
+				r -> getObjectName() + "' on inner expression of type '" +
+				l -> getObjectName() + "'!", * t
+			);
+		} else if (l -> type == BasicType::ArrayListType) {
+			/* TODO: Ask the array... */
+		}
+		throw EvaluationError(
+			"Subscript operator '[ ]' doesn't support operand of type '" +
+			r -> getObjectName() + "' on inner expression of type '" +
+			l -> getObjectName() + "'!", * t
+		);
+	}
 	Object * Processor::applyUnaryOperator(Token * t, Object * o) {
 		switch (t -> type) {
 			case TokenType::minus: {

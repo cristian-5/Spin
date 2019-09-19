@@ -299,6 +299,7 @@ namespace Stack {
 	class Literal;
 	class Logical;
 	class Set;
+	class Subscript;
 	class Super;
 	class This;
 	class Unary;
@@ -337,6 +338,7 @@ namespace Stack {
 			virtual void visitLiteralExpression(Literal * e) = 0;
 			virtual void visitLogicalExpression(Logical * e) = 0;
 			virtual void visitSetExpression(Set * e) = 0;
+			virtual void visitSubscriptExpression(Subscript * e) = 0;
 			virtual void visitSuperExpression(Super * e) = 0;
 			virtual void visitThisExpression(This * e) = 0;
 			virtual void visitUnaryExpression(Unary * e) = 0;
@@ -463,6 +465,15 @@ namespace Stack {
 		Set(Expression * o, Token * n, Expression * v);
 		void accept(Visitor * visitor) override;
 		~Set();
+	};
+	class Subscript: public Expression {
+		public:
+		Token * bracket = nullptr;
+		Expression * item = nullptr;
+		Expression * expression = nullptr;
+		Subscript(Expression * i, Token * b, Expression * e);
+		void accept(Visitor * visitor) override;
+		~Subscript();
 	};
 	class Super: public Expression {
 		public:
@@ -674,6 +685,7 @@ namespace Stack {
 		String getObjectStringValue() const;
 		Bool isUnknown() const;
 		Bool isFunction() const;
+		Bool isSubscriptable() const;
 		Bool getBoolValue() const;
 	};
 
@@ -2552,6 +2564,7 @@ namespace Stack {
 		}
 		Object * applyComparisonOperator(Token * t, Object * l, Object * r);
 		Object * applyBinaryOperator(Token * t, Object * l, Object * r);
+		Object * applySubscriptOperator(Token * t, Object * l, Object * r);
 		Object * applyUnaryOperator(Token * t, Object * o);
 		void applyAssignment(Token * t, Object * l, Object * r);
 	};
@@ -2594,6 +2607,7 @@ namespace Stack {
 		void visitLiteralExpression(Literal * e) override;
 		void visitLogicalExpression(Logical * e) override;
 		void visitSetExpression(Set * e) override;
+		void visitSubscriptExpression(Subscript * e) override;
 		void visitSuperExpression(Super * e) override;
 		void visitThisExpression(This * e) override;
 		void visitUnaryExpression(Unary * e) override;
@@ -2813,6 +2827,8 @@ namespace Stack {
 		Expression * lowPriorityOperator();
 		Expression * mediumPriorityOperator();
 		Expression * highPriorityOperator();
+		Expression * subscription();
+		Expression * completeSubscript(Expression * item);
 		Expression * call();
 		Expression * completeCall(Expression * callee);
 		Expression * primary();

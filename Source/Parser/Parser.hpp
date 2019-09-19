@@ -188,8 +188,31 @@ namespace Stack {
 			return new Unary(op, rs);
 		}
 		delete ops;
-		try { return call(); }
+		try { return subscription(); }
 		catch (SyntaxError & s) { throw; }
+	}
+	Expression * Parser::subscription() {
+		Expression * ex = nullptr;
+		try { ex = call(); }
+		catch (SyntaxError & s) { throw; }
+		while (true) {
+			if (match(TokenType::openBracket)) {
+				try { ex = completeSubscript(ex); }
+				catch (SyntaxError & s) { throw; }
+			} else break;
+		}
+		return ex;
+	}
+	Expression * Parser::completeSubscript(Expression * item) {
+		Token * bracket = new Token(previous());
+		Expression * ex = nullptr;
+		if (!check(TokenType::closeBracket)) {
+			try { ex = expression(); }
+			catch (SyntaxError & s) { throw; }
+		}
+		try { consume(TokenType::closeBracket, "]"); }
+		catch (SyntaxError & s) { if (ex) delete ex; throw; }
+		return new Subscript(item, bracket, ex);
 	}
 	Expression * Parser::call() {
 		Expression * ex = nullptr;
