@@ -2852,6 +2852,7 @@ namespace Stack {
 		Statement * loopStatement();
 		Statement * restStatement();
 		Statement * returnStatement();
+		void replace(TokenType type, String lexeme, TokenType newType);
 		void runTypeClassification();
 		Bool match(TokenType type);
 		Bool match(ArrayList<TokenType> * types);

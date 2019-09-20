@@ -731,14 +731,21 @@ namespace Stack {
 		return new ReturnStatement(ex, returnToken);
 	}
 
+	void Parser::replace(TokenType type, String lexeme, TokenType newType) {
+		for (Token & t : * tokens) {
+			if (t.type == type && t.lexeme == lexeme) t.type = newType;
+		}
+	}
+
 	void Parser::runTypeClassification() {
 		if (tokens -> size() == 0) return;
 		SizeType tokenCount = (tokens -> size()) - 1;
 		for (SizeType i = 0; i < tokenCount; i++) {
 			if (tokens -> at(i).isTypeType()) {
 				i += 1;
-				if (tokens -> at(i).type == TokenType::symbol) {
-					tokens -> at(i).type = TokenType::customType;
+				Token token = tokens -> at(i);
+				if (token.type == TokenType::symbol) {
+					replace(TokenType::symbol, token.lexeme, TokenType::customType);
 				}
 			}
 		}
