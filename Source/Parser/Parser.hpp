@@ -425,6 +425,10 @@ namespace Stack {
 	}
 	Statement * Parser::functionStatement() {
 		advance();
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = false;
+		Bool oldProcedure = isInProcedure;
+		isInProcedure = false;
 		Bool oldFunction = isInFunction;
 		isInFunction = true;
 		Token * name = nullptr;
@@ -485,11 +489,17 @@ namespace Stack {
 			for (Parameter * p : params) delete p;
 			throw;
 		}
+		isInControlFlow = oldControlFlow;
+		isInProcedure = oldProcedure;
 		isInFunction = oldFunction;
 		return new FunctionStatement(name, params, body, returnType);
 	}
 	Statement * Parser::procedureStatement() {
 		advance();
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = false;
+		Bool oldFunction = isInFunction;
+		isInFunction = false;
 		Bool oldProcedure = isInProcedure;
 		isInProcedure = true;
 		Token * name = nullptr;
@@ -536,6 +546,8 @@ namespace Stack {
 			for (Parameter * p : params) delete p;
 			throw;
 		}
+		isInControlFlow = oldControlFlow;
+		isInFunction = oldFunction;
 		isInProcedure = oldProcedure;
 		return new ProcedureStatement(name, params, body);
 	}
@@ -738,7 +750,7 @@ namespace Stack {
 	}
 
 	void Parser::runTypeClassification() {
-		if (tokens -> size() == 0) return;
+		if (!tokens) return;
 		SizeType tokenCount = (tokens -> size()) - 1;
 		for (SizeType i = 0; i < tokenCount; i++) {
 			if (tokens -> at(i).isTypeType()) {
@@ -749,7 +761,81 @@ namespace Stack {
 				}
 			}
 		}
-	} 
+	}
+
+	String Parser::parseImport(SizeType & i) {
+		tokens -> at(i).type = TokenType::empty;
+		i += 1;
+		String import = "";
+		while (i < tokens -> size()) {
+			if (tokens -> at(i).type == TokenType::symbol) {
+				import += tokens -> at(i).lexeme;
+				tokens -> at(i).type = TokenType::empty;
+			} else throw SyntaxError(
+				"Expected 'identifier' but found '" +
+				tokens -> at(i).lexeme + "'!",
+				Linker::getPosition(input, tokens -> at(i).position)
+			);
+			i += 1;
+			if (i < tokens -> size()) {
+				switch (tokens -> at(i).type) {
+					case TokenType::semicolon: {
+						tokens -> at(i).type = TokenType::empty;
+						return import;
+					}
+					case TokenType::dot: {
+						tokens -> at(i).type = TokenType::empty;
+						import += ".";
+						i += 1;
+						break;
+					}
+					default: throw SyntaxError(
+						"Expected ';' but found '" +
+						tokens -> at(i).lexeme + "'!",
+						Linker::getPosition(input, tokens -> at(i).position)
+					);
+				}
+			} else break;
+		}
+		throw SyntaxError(
+			"Expected ';' but found '" +
+			tokens -> at(i).lexeme + "'!",
+			Linker::getPosition(input, tokens -> at(i).position)
+		);
+	}
+
+	FileScope * Parser::runImportClassification() {
+		FileScope * fileScope = new FileScope();
+		if (!tokens) return nullptr;
+		SizeType tokenCount = tokens -> size();
+		for (SizeType i = 0; i < tokenCount; i++) {
+			if (tokens -> at(i).type == TokenType::importKeyword) {
+				try {
+					SizeType store = i;
+					String s = parseImport(i);
+					if (s == "Maths") fileScope -> mathsLibrary = true;
+					else if (s == "Chronos") fileScope -> chronosLibrary = true;
+					else throw SyntaxError(
+						"Invalid import statement asks for unknown library '" + s + "'!",
+						Linker::getPosition(input, tokens -> at(store).position)
+					);
+				} catch (SyntaxError & r) { throw; }
+			}
+		}
+		return fileScope;
+	}
+
+	void Parser::cleanEmptyTokens() {
+		ArrayList<Token> * newTokens = new ArrayList<Token>();
+		for (Token token : * tokens) {
+			if (token.type != TokenType::empty) {
+				newTokens -> push (token);
+			}
+		}
+		delete tokens;
+		newTokens -> shrinkToFit();
+		tokens = newTokens;
+	}
 
 	/* Core */
 
@@ -817,13 +903,13 @@ namespace Stack {
 		}
 	}
 
-	ArrayList<Statement *> * Parser::parse(ArrayList<Token> * tokens, String * input, String fileName) {
+	FileScope * Parser::parse(ArrayList<Token> * tokens, String * input, String fileName) {
 		if (!tokens || tokens -> size() <= 2) {
 			errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
 			errors -> shrinkToFit();
 			throw ParserErrorException(errors, fileName);
 		}
-		this -> tokens = tokens;
+		this -> tokens = new ArrayList<Token>(* tokens);
 		this -> input = input;
 		try {
 			consume(TokenType::beginFile, "beginFile");
@@ -833,6 +919,15 @@ namespace Stack {
 			throw ParserErrorException(errors, fileName);
 		}
 		runTypeClassification();
+		FileScope * fileScope = nullptr;
+		try {
+			fileScope = runImportClassification();
+		} catch (SyntaxError & s) {
+			errors -> push(s);
+			errors -> shrinkToFit();
+			throw ParserErrorException(errors, fileName);
+		}
+		cleanEmptyTokens();
 		ArrayList<Statement *> * statements = new ArrayList<Statement *>();
 		while (!isAtEnd()) {
 			try {
@@ -843,11 +938,13 @@ namespace Stack {
 			}
 		}
 		if (errors -> size() > 0) {
+			if (fileScope) delete fileScope;
 			errors -> shrinkToFit();
 			throw ParserErrorException(errors, fileName);
 		}
 		delete errors;
-		return statements;
+		fileScope -> statements = statements;
+		return fileScope;
 	}
 
 }

@@ -33,10 +33,10 @@ Int32 main(Int32 argc, Character * argv[]) {
 	ArrayList<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
 
 	Parser * parser = Parser::self();
-	ArrayList<Statement *> * st = nullptr;
+	FileScope * fs = nullptr;
 
 	try {
-		st = parser -> parse(tokens, & test, "Virtual File");
+		fs = parser -> parse(tokens, & test, "Virtual File");
 	} catch (ParserErrorException & p) {
 		const ArrayList<SyntaxError> * const e = p.getErrors();
 		cout << "Found " << e -> size() << " errors in '"
@@ -57,8 +57,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	delete tokens;
 
-	if (!st) {
-		cout << "Syntax Tree Failure!" << endl;
+	if (!fs) {
+		cout << "File Scope Failure!" << endl;
 		cout << "Press enter to exit. ";
 		waitKeyPress();
 		return exitFailure;
@@ -66,20 +66,20 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	// Interpreter Test:
 
-	Interpreter * interpreter = new Interpreter();
+	Interpreter * interpreter = Interpreter::self();
 
 	try {
-		interpreter -> evaluate(st, & test, "Virtual File");
+		interpreter -> evaluate(fs, & test, "Virtual File");
 	} catch (InterpreterErrorException & e) {
 		cout << "[" << e.getPosition().row << ":";
 		cout << e.getPosition().col << "]: " << e.getMessage() << endl;
 		cout << "Press enter to exit. ";
 		waitKeyPress();
-		delete st;
+		delete fs;
 		return exitFailure;
 	}
 
-	delete st;
+	delete fs;
 
 	cout << endl << "Press enter to exit. ";
 	waitKeyPress();

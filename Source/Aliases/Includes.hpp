@@ -23,6 +23,7 @@
 
 #include "../Interpreter/Converter.hpp"
 #include "../Interpreter/Environment.hpp"
+#include "../Interpreter/Libraries.hpp"
 #include "../Interpreter/Interpreter.hpp"
 #include "../Interpreter/Processor.hpp"
 

@@ -2569,7 +2569,35 @@ namespace Stack {
 		void applyAssignment(Token * t, Object * l, Object * r);
 	};
 
+	/* Libraries */
+
+	class Chronos {
+		private:
+		Chronos() = default;
+		public:
+		static void defineLibrary(Environment * global);
+	};
+	class Maths {
+		private:
+		Maths() = default;
+		public:
+		static void defineLibrary(Environment * global);
+	};
+
 	/* Interpreter */
+
+	class FileScope {
+		public:
+		Bool mathsLibrary = false;
+		Bool chronosLibrary = false;
+		ArrayList<Statement *> * statements = nullptr;
+		FileScope() = default;
+		FileScope(ArrayList<Statement *> * s);
+		~FileScope() {
+			for (Statement * s : * statements) delete s;
+			delete statements;
+		}
+	};
 
 	class InterpreterErrorException: public Exception {
 		private:
@@ -2632,13 +2660,22 @@ namespace Stack {
 		void visitWhileStatement(WhileStatement * e) override;
 		void executeStatement(Statement * statement);
 		void executeBlock(ArrayList<Statement *> statements, Environment * environment);
+		Object * evaluate(Expression * expression, String * input = nullptr, String fileName = "Unknown File");
+		Interpreter();
+		~Interpreter() = default;
 		public:
+		Interpreter(const Interpreter &) = delete;
+		Interpreter(Interpreter &&) = delete;
+		Interpreter & operator = (const Interpreter &) = delete;
+		Interpreter & operator = (Interpreter &&) = delete;
+		static Interpreter * self() {
+			static Interpreter instance;
+			return & instance;
+		}
 		Environment * globals = nullptr;
 		Object * getCurrentValue() const;
-		Interpreter();
 		void executeFunction(BlockStatement * block, Environment * environment);
-		void evaluate(ArrayList<Statement *> * statements, String * input = nullptr, String fileName = "Unknown File");
-		Object * evaluate(Expression * expression, String * input = nullptr, String fileName = "Unknown File");
+		void evaluate(FileScope * fileScope, String * input = nullptr, String fileName = "Unknown File");
 	};
 
 	/* Lexer */
@@ -2796,7 +2833,6 @@ namespace Stack {
 		SyntaxError(String message, FilePosition position):
 		Exception(), _message(message), _position(position) { }
 	};
-
 	class ParserErrorException: public Exception {
 		private:
 		const ArrayList<SyntaxError> * const _errors;
@@ -2808,7 +2844,6 @@ namespace Stack {
 		Exception(), _errors(errors), _fileName(name) { }
 		~ParserErrorException() { delete _errors; }
 	};
-
 	class Parser {
 		private:
 		String * input = nullptr;
@@ -2854,6 +2889,9 @@ namespace Stack {
 		Statement * returnStatement();
 		void replace(TokenType type, String lexeme, TokenType newType);
 		void runTypeClassification();
+		String parseImport(SizeType & i);
+		FileScope * runImportClassification();
+		void cleanEmptyTokens();
 		Bool match(TokenType type);
 		Bool match(ArrayList<TokenType> * types);
 		Bool check(TokenType type);
@@ -2876,7 +2914,7 @@ namespace Stack {
 			static Parser instance;
 			return & instance;
 		}
-		ArrayList<Statement *> * parse(ArrayList<Token> * tokens, String * input = nullptr, String fileName = "Unknown File");
+		FileScope * parse(ArrayList<Token> * tokens, String * input = nullptr, String fileName = "Unknown File");
 	};
 
 }

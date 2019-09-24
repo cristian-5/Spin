@@ -388,40 +388,6 @@ namespace Stack {
 		} catch (Exception & r) { throw; }
 	}
 
-	Object * Interpreter::getCurrentValue() const { return value; }
-
-	Interpreter::Interpreter() {
-		globals = new Environment();
-		memory = globals;
-		globals -> define(
-			"clock", new Object(BasicType::FunctionType,
-				new NativeFunction(
-					[] (Interpreter * i, ArrayList<Object *> a) {
-						Int64 time = std::chrono::duration_cast
-									<std::chrono::milliseconds>
-									(std::chrono::system_clock::now()
-									.time_since_epoch()).count();
-						return new Object(BasicType::Int64Type, new Int64(time));
-					}
-				)
-			)
-		);
-	}
-
-	void Interpreter::evaluate(ArrayList<Statement *> * statements, String * input, String fileName) {
-		try {
-			for (Statement * statement : (* statements)) {
-				executeStatement(statement);
-			}
-		} catch (EvaluationError & e) {
-			const UInt32 cursor = e.getToken().position;
-			FilePosition fp = Linker::getPosition(input, cursor);
-			throw InterpreterErrorException(
-				e.getMessage(), fp, fileName
-			);
-		}
-	}
-
 	Object * Interpreter::evaluate(Expression * expression, String * input, String fileName) {
 		try {
 			expression -> accept(this);
@@ -433,6 +399,29 @@ namespace Stack {
 			);
 		}
 		return value;
+	}
+
+	Object * Interpreter::getCurrentValue() const { return value; }
+
+	Interpreter::Interpreter() {
+		globals = new Environment();
+		memory = globals;
+	}
+
+	void Interpreter::evaluate(FileScope * fileScope, String * input, String fileName) {
+		if (fileScope -> mathsLibrary) Maths::defineLibrary(globals);
+		if (fileScope -> chronosLibrary) Chronos::defineLibrary(globals);
+		try {
+			for (Statement * statement : (* fileScope -> statements)) {
+				executeStatement(statement);
+			}
+		} catch (EvaluationError & e) {
+			const UInt32 cursor = e.getToken().position;
+			FilePosition fp = Linker::getPosition(input, cursor);
+			throw InterpreterErrorException(
+				e.getMessage(), fp, fileName
+			);
+		}
 	}
 
 }
