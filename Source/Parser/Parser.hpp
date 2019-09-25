@@ -270,8 +270,8 @@ namespace Stack {
 		} else if (t.type == TokenType::openBracket) {
 			advance();
 			ArrayList<Expression *> * values = new ArrayList<Expression *>();
+			Expression * ex = nullptr;
 			if (!check(TokenType::closeBracket)) {
-				Expression * ex = nullptr;
 				do {
 					try {
 						ex = expression();
