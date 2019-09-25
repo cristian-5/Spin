@@ -80,6 +80,7 @@ namespace Stack {
 		imaginaryLiteral,
 		realLiteral,
 		colourLiteral,
+		basisLiteral,
 		emptyLiteral,
 
 		arrow,
@@ -218,7 +219,7 @@ namespace Stack {
 
 		StringType,
 
-		ArrayListType,
+		ArrayType,
 
 		VectorType,
 
@@ -289,13 +290,13 @@ namespace Stack {
 
 	/* Base Classes */
 
-	class Array;
 	class Assignment;
 	class Binary;
 	class Call;
 	class Comparison;
 	class Get;
 	class Grouping;
+	class List;
 	class Literal;
 	class Logical;
 	class Set;
@@ -328,13 +329,13 @@ namespace Stack {
 		virtual ~Expression() = default;
 		class Visitor {
 			public:
-			virtual void visitArrayExpression(Array * e) = 0;
 			virtual void visitAssignmentExpression(Assignment * e) = 0;
 			virtual void visitBinaryExpression(Binary * e) = 0;
 			virtual void visitCallExpression(Call * e) = 0;
 			virtual void visitComparisonExpression(Comparison * e) = 0;
 			virtual void visitGetExpression(Get * e) = 0;
 			virtual void visitGroupingExpression(Grouping * e) = 0;
+			virtual void visitListExpression(List * e) = 0;
 			virtual void visitLiteralExpression(Literal * e) = 0;
 			virtual void visitLogicalExpression(Logical * e) = 0;
 			virtual void visitSetExpression(Set * e) = 0;
@@ -383,13 +384,6 @@ namespace Stack {
 
 	/* ASTree */
 
-	class Array: public Expression {
-		public:
-		ArrayList<Expression *> * values = nullptr;
-		Array(ArrayList<Expression *> * v);
-		void accept(Visitor * visitor) override;
-		~Array();
-	};
 	class Assignment: public Expression {
 		public:
 		Token * name = nullptr;
@@ -439,6 +433,13 @@ namespace Stack {
 		Grouping(Expression * e);
 		void accept(Visitor * visitor) override;
 		~Grouping();
+	};
+	class List: public Expression {
+		public:
+		ArrayList<Expression *> * values = nullptr;
+		List(ArrayList<Expression *> * v);
+		void accept(Visitor * visitor) override;
+		~List();
 	};
 	class Literal: public Expression {
 		public:
@@ -685,6 +686,7 @@ namespace Stack {
 		String getObjectStringValue() const;
 		Bool isUnknown() const;
 		Bool isFunction() const;
+		Bool isArray() const;
 		Bool isSubscriptable() const;
 		Bool getBoolValue() const;
 	};
@@ -802,6 +804,21 @@ namespace Stack {
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
+	};
+
+	/* Array */
+
+	class Array {
+		public:
+		ArrayList<Object *> * elements = nullptr;
+		Array(ArrayList<Object *> * e);
+		Array(Object * o);
+		Array();
+		~Array();
+		Object * copyAt(SizeType i);
+		Object * referenceAt(SizeType i);
+		Array * copy();
+		String stringValue();
 	};
 
 	/* Processor */
@@ -2633,13 +2650,13 @@ namespace Stack {
 		void safeDeleteValue();
 		void resetValue();
 		void setValue(Object * o);
-		void visitArrayExpression(Array * e) override;
 		void visitAssignmentExpression(Assignment * e) override;
 		void visitBinaryExpression(Binary * e) override;
 		void visitCallExpression(Call * e) override;
 		void visitComparisonExpression(Comparison * e) override;
 		void visitGetExpression(Get * e) override;
 		void visitGroupingExpression(Grouping * e) override;
+		void visitListExpression(List * e) override;
 		void visitLiteralExpression(Literal * e) override;
 		void visitLogicalExpression(Logical * e) override;
 		void visitSetExpression(Set * e) override;
@@ -2704,6 +2721,8 @@ namespace Stack {
 			{ "('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral },
 			{ "(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})\\b", TokenType::colourLiteral },
 			{ "(false|true)\\b", TokenType::boolLiteral },
+
+			{ "(|[ \\t\\n]*[01][ \\t\\n]*>)", TokenType::basisLiteral },
 
 			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::braketSymbol },
 			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol },
@@ -2795,7 +2814,7 @@ namespace Stack {
 			{ "(rest)\\b", TokenType::restKeyword },
 			{ "(return)\\b", TokenType::returnKeyword },
 
-			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Real|String)\\b", TokenType::basicType },
+			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Real|String|Vector)\\b", TokenType::basicType },
 
 			{ "([A-Za-z_][A-Za-z0-9_]*)\\b", TokenType::symbol },
 
@@ -2900,16 +2919,16 @@ namespace Stack {
 		String parseImport(SizeType & i);
 		FileScope * runImportClassification();
 		void cleanEmptyTokens();
-		Bool match(TokenType type);
-		Bool match(ArrayList<TokenType> * types);
-		Bool check(TokenType type);
-		Bool isOutOfRange();
-		Bool isAtEnd();
-		Token peek();
-		Token peekAdvance();
-		Token previous();
-		Token advance();
-		Token consume(TokenType type, String lexeme = "");
+		inline Bool match(TokenType type);
+		inline Bool match(ArrayList<TokenType> * types);
+		inline Bool check(TokenType type);
+		inline Bool isOutOfRange();
+		inline Bool isAtEnd();
+		inline Token peek();
+		inline Token peekAdvance();
+		inline Token previous();
+		inline Token advance();
+		inline Token consume(TokenType type, String lexeme = "");
 		void synchronise();
 		Parser() = default;
 		~Parser() = default;

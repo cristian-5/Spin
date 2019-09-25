@@ -25,18 +25,6 @@ namespace Stack {
 
 	/* Expressions */
 
-	Array::Array(ArrayList<Expression *> * v) { values = v; }
-	void Array::accept(Visitor * visitor) {
-		try { visitor -> visitArrayExpression(this); }
-		catch (Exception & e) { throw; }
-	}
-	Array::~Array() {
-		for (Expression * value : * values) {
-			delete value;
-		}
-		delete values;
-	}
-
 	Assignment::Assignment(Token * name, Expression * value) {
 		this -> name = name;
 		this -> value = value;
@@ -95,6 +83,18 @@ namespace Stack {
 		catch (Exception & e) { throw; }
 	}
 	Grouping::~Grouping() { delete expression; }
+
+	List::List(ArrayList<Expression *> * v) { values = v; }
+	void List::accept(Visitor * visitor) {
+		try { visitor -> visitListExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	List::~List() {
+		for (Expression * value : * values) {
+			delete value;
+		}
+		delete values;
+	}
 
 	Literal::Literal(Token * t) { token = t; }
 	void Literal::accept(Visitor * visitor) {

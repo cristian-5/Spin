@@ -36,7 +36,7 @@ namespace Stack {
 			case BasicType::ImaginaryType: value = new Real(0.0); return;
 			case BasicType::ComplexType: value = new Complex(); return;
 			case BasicType::StringType: value = new String(""); return;
-			case BasicType::ArrayListType: return;
+			case BasicType::ArrayType: value = new Array(); return;
 			case BasicType::VectorType: return;
 			case BasicType::ClassType: return;
 			case BasicType::StructureType: return;
@@ -60,7 +60,7 @@ namespace Stack {
 			case BasicType::ImaginaryType: delete (Real *) value; return;
 			case BasicType::ComplexType: delete (Complex *) value; return;
 			case BasicType::StringType: delete (String *) value; return;
-			case BasicType::ArrayListType: return;
+			case BasicType::ArrayType: delete (Array *) value; return;
 			case BasicType::VectorType: return;
 			case BasicType::FunctionType: delete (CallProtocol *) value; return;
 			case BasicType::ClassType: return;
@@ -94,7 +94,7 @@ namespace Stack {
 			case BasicType::ImaginaryType: return "Imaginary";
 			case BasicType::ComplexType: return "Complex";
 			case BasicType::StringType: return "String";
-			case BasicType::ArrayListType: return "Array";
+			case BasicType::ArrayType: return "Array";
 			case BasicType::VectorType: return "Vector";
 			case BasicType::FunctionType: return "Function";
 			case BasicType::ClassType: {
@@ -119,7 +119,7 @@ namespace Stack {
 			case BasicType::ImaginaryType: copy -> value = new Real(* ((Real *) value)); break;
 			case BasicType::ComplexType: copy -> value = new Complex(* ((Complex *) value)); break;
 			case BasicType::StringType: copy -> value = new String(* ((String *) value)); break;
-			case BasicType::ArrayListType: /* TODO: Ask the class for its copy. */ break;
+			case BasicType::ArrayType: copy -> value = ((Array *) value) -> copy(); break;
 			case BasicType::VectorType: /* TODO: Ask the class for its copy. */ break;
 			case BasicType::FunctionType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::ClassType: /* TODO: Ask the class for its copy. */ break;
@@ -167,9 +167,9 @@ namespace Stack {
 			case BasicType::StringType: {
 				return * ((String *) value);
 			}
-			case BasicType::ArrayListType: {
-				// TODO: fix list value.
-				return "SomeList";
+			case BasicType::ArrayType: {
+				Array * a = (Array *) value;
+				return a -> stringValue();
 			}
 			case BasicType::VectorType: {
 				// TODO: fix vector value.
@@ -199,9 +199,10 @@ namespace Stack {
 	}
 	Bool Object::isUnknown() const { return type == BasicType::UnknownType; }
 	Bool Object::isFunction() const { return type == BasicType::FunctionType; }
+	Bool Object::isArray() const { return type == BasicType::ArrayType; }
 	Bool Object::isSubscriptable() const {
 		return type == BasicType::StringType ||
-			   type == BasicType::ArrayListType;
+			   type == BasicType::ArrayType;
 	}
 	Bool Object::getBoolValue() const {
 		if (isBool()) return *((Bool *)value);

@@ -340,7 +340,7 @@ namespace Stack {
 				r -> getObjectName() + "' on inner expression of type '" +
 				l -> getObjectName() + "'!", * t
 			);
-		} else if (l -> type == BasicType::ArrayListType) {
+		} else if (l -> type == BasicType::ArrayType) {
 			/* TODO: Ask the array... */
 		}
 		throw EvaluationError(

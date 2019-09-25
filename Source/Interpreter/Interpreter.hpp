@@ -34,7 +34,6 @@ namespace Stack {
 
 	/* Expressions */
 
-	void Interpreter::visitArrayExpression(Array * e) { }
 	void Interpreter::visitAssignmentExpression(Assignment * e) {
 		try {
 			evaluate(e -> value);
@@ -104,6 +103,21 @@ namespace Stack {
 	void Interpreter::visitGroupingExpression(Grouping * e) {
 		try { evaluateExpression(e -> expression); }
 		catch (Exception & r) { throw; }
+	}
+	void Interpreter::visitListExpression(List * e) {
+		ArrayList<Object *> * elements = new ArrayList<Object *>();
+		try {
+			for (Expression * ex : * e -> values) {
+				evaluateExpression(ex);
+				elements -> push(value -> copy());
+				deleteValue();
+			}
+		} catch (Exception & r) {
+			for (Object * o : * elements) delete o;
+			delete elements;
+			throw;
+		}
+		setValue(new Object(BasicType::ArrayType, new Array(elements)));
 	}
 	void Interpreter::visitLiteralExpression(Literal * e) {
 		try {
