@@ -270,20 +270,22 @@ namespace Stack {
 		} else if (t.type == TokenType::openBracket) {
 			advance();
 			ArrayList<Expression *> * values = new ArrayList<Expression *>();
-			Expression * ex = nullptr;
-			do {
-				try {
-					ex = expression();
-					values -> push(ex);
-				} catch (SyntaxError & e) {
-					if (ex) delete ex;
-					for (Expression * expression : * values) {
-						delete expression;
+			if (!check(TokenType::closeBracket)) {
+				Expression * ex = nullptr;
+				do {
+					try {
+						ex = expression();
+						values -> push(ex);
+					} catch (SyntaxError & e) {
+						if (ex) delete ex;
+						for (Expression * expression : * values) {
+							delete expression;
+						}
+						delete values;
+						throw;
 					}
-					delete values;
-					throw;
-				}
-			} while (match(TokenType::comma));
+				} while (match(TokenType::comma));
+			}
 			try { consume(TokenType::closeBracket, "]"); }
 			catch (SyntaxError & e) {
 				if (ex) delete ex;
@@ -294,7 +296,7 @@ namespace Stack {
 				throw;
 			}
 			values -> shrinkToFit();
-			return new Array(values);
+			return new List(values);
 		}
 		FilePosition fp = { 0, 0 };
 		if (t.type == TokenType::endFile) {
@@ -876,13 +878,13 @@ namespace Stack {
 
 	/* Core */
 
-	Bool Parser::match(TokenType type) {
+	inline Bool Parser::match(TokenType type) {
 		if (check(type)) {
 			advance();
 			return true;
 		} return false;
 	}
-	Bool Parser::match(ArrayList<TokenType> * types) {
+	inline Bool Parser::match(ArrayList<TokenType> * types) {
 		for (TokenType & type : * types) {
 			if (check(type)) {
 				advance();
@@ -890,30 +892,30 @@ namespace Stack {
 			}
 		} return false;
 	}
-	Bool Parser::check(TokenType type) {
+	inline Bool Parser::check(TokenType type) {
 		if (isAtEnd()) return false;
 		return peek().type == type;
 	}
-	Bool Parser::isOutOfRange() {
+	inline Bool Parser::isOutOfRange() {
 		if (tokens -> size() == 0) return true;
 		if (index >= tokens -> size()) return true;
 		return false;
 	}
-	Bool Parser::isAtEnd() {
+	inline Bool Parser::isAtEnd() {
 		return peek().type == TokenType::endFile;
 	}
-	Token Parser::peek() { return tokens -> at(index); }
-	Token Parser::peekAdvance() {
+	inline Token Parser::peek() { return tokens -> at(index); }
+	inline Token Parser::peekAdvance() {
 		Token peekToken = peek();
 		advance();
 		return peekToken;
 	}
-	Token Parser::previous() { return tokens -> at(index - 1); }
-	Token Parser::advance() {
+	inline Token Parser::previous() { return tokens -> at(index - 1); }
+	inline Token Parser::advance() {
 		if (!isAtEnd()) index += 1;
 		return previous();
 	}
-	Token Parser::consume(TokenType type, String lexeme) {
+	inline Token Parser::consume(TokenType type, String lexeme) {
 		Token t = peek();
 		if (check(type)) return advance();
 		FilePosition fp = { 0, 0 };
