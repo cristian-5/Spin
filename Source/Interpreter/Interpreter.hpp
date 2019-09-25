@@ -66,7 +66,7 @@ namespace Stack {
 			Object * callee = value -> copy();
 			deleteValue();
 			ArrayList<Object *> arguments = ArrayList<Object *>();
-			for (Expression * a : e -> arguments) {
+			for (Expression * a : * e -> arguments) {
 				evaluateExpression(a);
 				// TODO: push reference if ref keyword
 				arguments.push(value -> copy());
@@ -362,12 +362,11 @@ namespace Stack {
 		try { statement -> accept(this); }
 		catch (Exception & r) { throw; }
 	}
-	void Interpreter::executeBlock(ArrayList<Statement *> statements,
-						Environment * environment) {
+	void Interpreter::executeBlock(ArrayList<Statement *> * statements, Environment * environment) {
 		Environment * previous = memory;
 		try {
 			memory = environment;
-			for (Statement * statement : statements) {
+			for (Statement * statement : * statements) {
 				executeStatement(statement);
 				if (broken || continued) {
 					continued = false; break;
@@ -409,6 +408,7 @@ namespace Stack {
 	}
 
 	void Interpreter::evaluate(FileScope * fileScope, String * input, String fileName) {
+		if (fileScope -> standardLibrary) Standard::defineLibrary(globals);
 		if (fileScope -> mathsLibrary) Maths::defineLibrary(globals);
 		if (fileScope -> chronosLibrary) Chronos::defineLibrary(globals);
 		try {

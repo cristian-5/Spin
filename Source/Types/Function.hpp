@@ -30,7 +30,7 @@ namespace Stack {
 	Object * Function::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
 		Environment * environment = new Environment(closure);
 		SizeType j = 0;
-		for (Parameter * param : declaration -> params) {
+		for (Parameter * param : * declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {
 				throw EvaluationError(
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
@@ -61,7 +61,7 @@ namespace Stack {
 	String Function::stringValue() const {
 		return "<func " + (declaration -> name -> lexeme) + ">";
 	}
-	UInt32 Function::arity() const { return declaration -> params.size(); }
+	UInt32 Function::arity() const { return declaration -> params -> size(); }
 	CallProtocol * Function::copy() const {
 		return new Function(* this);
 	}
@@ -73,7 +73,7 @@ namespace Stack {
 	Object * Procedure::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
 		Environment * environment = new Environment(closure);
 		SizeType j = 0;
-		for (Parameter * param : declaration -> params) {
+		for (Parameter * param : * declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {
 				throw EvaluationError(
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
@@ -99,7 +99,7 @@ namespace Stack {
 	String Procedure::stringValue() const {
 		return "<proc " + (declaration -> name -> lexeme) + ">";
 	}
-	UInt32 Procedure::arity() const { return declaration -> params.size(); }
+	UInt32 Procedure::arity() const { return declaration -> params -> size(); }
 	CallProtocol * Procedure::copy() const {
 		return new Procedure(* this);
 	}

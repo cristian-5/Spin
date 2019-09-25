@@ -385,8 +385,8 @@ namespace Stack {
 
 	class Array: public Expression {
 		public:
-		ArrayList<Expression *> values = ArrayList<Expression *>();
-		Array(ArrayList<Expression *> v);
+		ArrayList<Expression *> * values = nullptr;
+		Array(ArrayList<Expression *> * v);
 		void accept(Visitor * visitor) override;
 		~Array();
 	};
@@ -411,8 +411,8 @@ namespace Stack {
 		public:
 		Token * parenthesis = nullptr;
 		Expression * callee = nullptr;
-		ArrayList<Expression *> arguments = ArrayList<Expression *>();
-		Call(Expression * c, Token * p, ArrayList<Expression *> a);
+		ArrayList<Expression *> * arguments = nullptr;
+		Call(Expression * c, Token * p, ArrayList<Expression *> * a);
 		void accept(Visitor * visitor) override;
 		~Call();
 	};
@@ -520,8 +520,8 @@ namespace Stack {
 
 	class BlockStatement: public Statement {
 		public:
-		ArrayList<Statement *> statements = ArrayList<Statement *>();
-		BlockStatement(ArrayList<Statement *> s);
+		ArrayList<Statement *> * statements = nullptr;
+		BlockStatement(ArrayList<Statement *> * s);
 		BlockStatement(Statement * s);
 		void accept(Visitor * visitor) override;
 		~BlockStatement();
@@ -570,10 +570,10 @@ namespace Stack {
 	class FunctionStatement: public Statement {
 		public:
 		Token * name = nullptr;
-		ArrayList<Parameter *> params = ArrayList<Parameter *>();
+		ArrayList<Parameter *> * params = nullptr;
 		BlockStatement * body = nullptr;
 		Parameter * returnType = nullptr;
-		FunctionStatement(Token * n, ArrayList<Parameter *> p, BlockStatement * b, Parameter * r);
+		FunctionStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b, Parameter * r);
 		void accept(Visitor * visitor) override;
 		~FunctionStatement();
 	};
@@ -605,9 +605,9 @@ namespace Stack {
 	class ProcedureStatement: public Statement {
 		public:
 		Token * name = nullptr;
-		ArrayList<Parameter *> params = ArrayList<Parameter *>();
+		ArrayList<Parameter *> * params = nullptr;
 		BlockStatement * body = nullptr;
-		ProcedureStatement(Token * n, ArrayList<Parameter *> p, BlockStatement * b);
+		ProcedureStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b);
 		void accept(Visitor * visitor) override;
 		~ProcedureStatement();
 	};
@@ -2583,17 +2583,25 @@ namespace Stack {
 		public:
 		static void defineLibrary(Environment * global);
 	};
+	class Standard {
+		private:
+		Standard() = default;
+		public:
+		static void defineLibrary(Environment * global);
+	};
 
 	/* Interpreter */
 
 	class FileScope {
 		public:
+		Bool standardLibrary = false;
 		Bool mathsLibrary = false;
 		Bool chronosLibrary = false;
 		ArrayList<Statement *> * statements = nullptr;
 		FileScope() = default;
 		FileScope(ArrayList<Statement *> * s);
 		~FileScope() {
+			if (!statements) return;
 			for (Statement * s : * statements) delete s;
 			delete statements;
 		}
@@ -2659,7 +2667,7 @@ namespace Stack {
 		void visitVariableStatement(VariableStatement * e) override;
 		void visitWhileStatement(WhileStatement * e) override;
 		void executeStatement(Statement * statement);
-		void executeBlock(ArrayList<Statement *> statements, Environment * environment);
+		void executeBlock(ArrayList<Statement *> * statements, Environment * environment);
 		Object * evaluate(Expression * expression, String * input = nullptr, String fileName = "Unknown File");
 		Interpreter();
 		~Interpreter() = default;

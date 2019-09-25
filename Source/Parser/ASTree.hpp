@@ -25,15 +25,16 @@ namespace Stack {
 
 	/* Expressions */
 
-	Array::Array(ArrayList<Expression *> v) { values = v; }
+	Array::Array(ArrayList<Expression *> * v) { values = v; }
 	void Array::accept(Visitor * visitor) {
 		try { visitor -> visitArrayExpression(this); }
 		catch (Exception & e) { throw; }
 	}
 	Array::~Array() {
-		for (Expression * value : values) {
+		for (Expression * value : * values) {
 			delete value;
 		}
+		delete values;
 	}
 
 	Assignment::Assignment(Token * name, Expression * value) {
@@ -55,7 +56,7 @@ namespace Stack {
 	}
 	Binary::~Binary() { delete r; delete l; delete o; }
 
-	Call::Call(Expression * c, Token * p, ArrayList<Expression *> a) {
+	Call::Call(Expression * c, Token * p, ArrayList<Expression *> * a) {
 		parenthesis = p; callee = c; arguments = a;
 	}
 	void Call::accept(Visitor * visitor) {
@@ -64,9 +65,10 @@ namespace Stack {
 	}
 	Call::~Call() {
 		delete parenthesis; delete callee;
-		for (Expression * argument : arguments) {
+		for (Expression * argument : * arguments) {
 			delete argument;
 		}
+		delete arguments;
 	}
 
 	Comparison::Comparison(Expression * ls, Token * op, Expression * rs) {
@@ -178,16 +180,20 @@ namespace Stack {
 
 	/* Statements */
 
-	BlockStatement::BlockStatement(ArrayList<Statement *> s) { statements = s; }
-	BlockStatement::BlockStatement(Statement * s) { statements.push(s); }
+	BlockStatement::BlockStatement(ArrayList<Statement *> * s) { statements = s; }
+	BlockStatement::BlockStatement(Statement * s) {
+		statements = new ArrayList<Statement *>();
+		statements -> push(s);
+	}
 	void BlockStatement::accept(Visitor * visitor) {
 		try { visitor -> visitBlockStatement(this); }
 		catch (Exception & e) { throw; }
 	}
 	BlockStatement::~BlockStatement() {
-		for (Statement * statement : statements) {
+		for (Statement * statement : * statements) {
 			delete statement;
 		}
+		delete statements;
 	}
 
 	BreakStatement::BreakStatement(Token * b) { breakToken = b; }
@@ -241,8 +247,7 @@ namespace Stack {
 		delete body;
 	}
 	
-	FunctionStatement::FunctionStatement(Token * n, ArrayList<Parameter *> p,
-						BlockStatement * b, Parameter * r) {
+	FunctionStatement::FunctionStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b, Parameter * r) {
 		name = n, params = p; body = b; returnType = r;
 	}
 	void FunctionStatement::accept(Visitor * visitor) {
@@ -251,7 +256,8 @@ namespace Stack {
 	}
 	FunctionStatement::~FunctionStatement() {
 		delete name; delete returnType; delete body;
-		for (Parameter * param : params) delete param;
+		for (Parameter * param : * params) delete param;
+		delete params;
 	}
 	
 	IfStatement::IfStatement(Expression * x, Statement * t,
@@ -288,8 +294,7 @@ namespace Stack {
 	}
 	PrintStatement::~PrintStatement() { delete e; }
 
-	ProcedureStatement::ProcedureStatement(Token * n, ArrayList<Parameter *> p,
-										   BlockStatement * b) {
+	ProcedureStatement::ProcedureStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b) {
 		name = n, params = p; body = b;
 	}
 	void ProcedureStatement::accept(Visitor * visitor) {
@@ -298,7 +303,8 @@ namespace Stack {
 	}
 	ProcedureStatement::~ProcedureStatement() {
 		delete name; delete body;
-		for (Parameter * param : params) delete param;
+		for (Parameter * param : * params) delete param;
+		delete params;
 	}
 	
 	RepeatUntilStatement::RepeatUntilStatement(Statement * b, Expression * e, Token * u) {

@@ -228,20 +228,22 @@ namespace Stack {
 	}
 	Expression * Parser::completeCall(Expression * callee) {
 		Token * parenthesis = new Token(previous());
-		ArrayList<Expression *> arguments = ArrayList<Expression *>();
+		ArrayList<Expression *> * arguments = new ArrayList<Expression *>();
 		if (!check(TokenType::closeParenthesis)) {
 			do {
 				Expression * ex = nullptr;
 				try { ex = expression(); }
 				catch (SyntaxError & s) { throw; }
-				arguments.push(ex);
+				arguments -> push(ex);
 			} while (match(TokenType::comma));
 		}
 		try { consume(TokenType::closeParenthesis, ")"); }
 		catch (SyntaxError & s) {
-			for (Expression * arg : arguments) delete arg;
+			for (Expression * arg : * arguments) delete arg;
+			delete arguments;
 			throw;
 		}
+		arguments -> shrinkToFit();
 		return new Call(callee, parenthesis, arguments);
 	}
 	Expression * Parser::primary() {
@@ -265,6 +267,34 @@ namespace Stack {
 				throw;
 			}
 			return new Grouping(ex);
+		} else if (t.type == TokenType::openBracket) {
+			advance();
+			ArrayList<Expression *> * values = new ArrayList<Expression *>();
+			Expression * ex = nullptr;
+			do {
+				try {
+					ex = expression();
+					values -> push(ex);
+				} catch (SyntaxError & e) {
+					if (ex) delete ex;
+					for (Expression * expression : * values) {
+						delete expression;
+					}
+					delete values;
+					throw;
+				}
+			} while (match(TokenType::comma));
+			try { consume(TokenType::closeBracket, "]"); }
+			catch (SyntaxError & e) {
+				if (ex) delete ex;
+				for (Expression * expression : * values) {
+					delete expression;
+				}
+				delete values;
+				throw;
+			}
+			values -> shrinkToFit();
+			return new Array(values);
 		}
 		FilePosition fp = { 0, 0 };
 		if (t.type == TokenType::endFile) {
@@ -365,19 +395,20 @@ namespace Stack {
 	}
 	Statement * Parser::blockStatement() {
 		advance();
-		ArrayList<Statement *> statements = ArrayList<Statement *>();
+		ArrayList<Statement *> * statements = new ArrayList<Statement *>();
 		try {
 			while (!check(TokenType::closeBrace) && !isAtEnd()) {
-				statements.push(declaration());
+				statements -> push(declaration());
 			}
 			consume(TokenType::closeBrace, "}");
 		} catch (SyntaxError & s) {
-			for (Statement * statement : statements) {
+			for (Statement * statement : * statements) {
 				delete statement;
 			}
+			delete statements;
 			throw;
 		}
-		statements.shrinkToFit();
+		statements -> shrinkToFit();
 		return new BlockStatement(statements);
 	}
 	Statement * Parser::breakStatement() {
@@ -433,7 +464,7 @@ namespace Stack {
 		isInFunction = true;
 		Token * name = nullptr;
 		String * stringType = nullptr;
-		ArrayList<Parameter *> params = ArrayList<Parameter *>();
+		ArrayList<Parameter *> * params = new ArrayList<Parameter *>();
 		Parameter * returnType = new Parameter();
 		BlockStatement * body = nullptr;
 		try {
@@ -457,11 +488,11 @@ namespace Stack {
 					p -> type = Converter::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
 					p -> tokenType = new Token(previous());
-					params.push(p);
+					params -> push(p);
 				} while (match(TokenType::comma));
 			}
 			consume(TokenType::closeParenthesis, ")");
-			params.shrinkToFit();
+			params -> shrinkToFit();
 			consume(TokenType::arrow, "arrow operator ->");
 			stringType = typeString();
 			if (!stringType) {
@@ -486,7 +517,8 @@ namespace Stack {
 			if (name) delete name;
 			if (returnType) delete returnType;
 			if (stringType) delete stringType;
-			for (Parameter * p : params) delete p;
+			for (Parameter * p : * params) delete p;
+			delete params;
 			throw;
 		}
 		isInControlFlow = oldControlFlow;
@@ -504,7 +536,7 @@ namespace Stack {
 		isInProcedure = true;
 		Token * name = nullptr;
 		String * stringType = nullptr;
-		ArrayList<Parameter *> params = ArrayList<Parameter *>();
+		ArrayList<Parameter *> * params = new ArrayList<Parameter *>();
 		BlockStatement * body = nullptr;
 		try {
 			name = new Token(consume(TokenType::symbol, "identifier"));
@@ -527,11 +559,11 @@ namespace Stack {
 					p -> type = Converter::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
 					p -> tokenType = new Token(previous());
-					params.push(p);
+					params -> push(p);
 				} while (match(TokenType::comma));
 			}
 			consume(TokenType::closeParenthesis, ")");
-			params.shrinkToFit();
+			params -> shrinkToFit();
 			if (!check(TokenType::openBrace)) {
 				Token er = peek();
 				throw SyntaxError(
@@ -543,7 +575,8 @@ namespace Stack {
 		} catch (SyntaxError & s) {
 			if (name) delete name;
 			if (stringType) delete stringType;
-			for (Parameter * p : params) delete p;
+			for (Parameter * p : * params) delete p;
+			delete params;
 			throw;
 		}
 		isInControlFlow = oldControlFlow;
@@ -813,13 +846,17 @@ namespace Stack {
 				try {
 					SizeType store = i;
 					String s = parseImport(i);
-					if (s == "Maths") fileScope -> mathsLibrary = true;
+					if (s == "Standard") fileScope -> standardLibrary = true;
+					else if (s == "Maths") fileScope -> mathsLibrary = true;
 					else if (s == "Chronos") fileScope -> chronosLibrary = true;
 					else throw SyntaxError(
 						"Invalid import statement asks for unknown library '" + s + "'!",
 						Linker::getPosition(input, tokens -> at(store).position)
 					);
-				} catch (SyntaxError & r) { throw; }
+				} catch (SyntaxError & r) {
+					delete fileScope;
+					throw;
+				}
 			}
 		}
 		return fileScope;
@@ -937,13 +974,13 @@ namespace Stack {
 				synchronise();
 			}
 		}
+		fileScope -> statements = statements;
 		if (errors -> size() > 0) {
 			if (fileScope) delete fileScope;
 			errors -> shrinkToFit();
 			throw ParserErrorException(errors, fileName);
 		}
 		delete errors;
-		fileScope -> statements = statements;
 		return fileScope;
 	}
 

@@ -45,6 +45,12 @@ namespace Stack {
 
 	}
 
+	void Standard::defineLibrary(Environment * global) {
+		if (!global) return;
+		// Define casts
+		// Define console
+	}
+
 }
 
 #endif
