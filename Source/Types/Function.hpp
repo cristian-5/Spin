@@ -104,17 +104,37 @@ namespace Stack {
 		return new Procedure(* this);
 	}
 
-	NativeFunction::NativeFunction(NativeLambda l, UInt32 a) {
-		_lambda = l;
-		_arity = a;
+	NativeFunction::NativeFunction(NativeLambda l, ArrayList<Parameter *> * p) {
+		lambda = l; params = p;
+	}
+	NativeFunction::NativeFunction(NativeLambda l, ArrayList<Parameter *> * p, String n) {
+		lambda = l; params = p; name = n;
 	}
 	Object * NativeFunction::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
-		return _lambda(i, a);
+		SizeType j = 0;
+		for (Parameter * param : * params) {
+			if (!param) { j += 1; continue; }
+			if ((param -> type) != (a[j] -> type)) {
+				throw EvaluationError(
+					"Call of " + stringValue() + " doesn't match the predefined parameters!",
+					* (param -> tokenType)
+				);
+			} else if (param -> type == BasicType::ClassType) {
+				if ((param -> tokenType -> lexeme) !=
+					(a[j] -> getObjectName())) {
+					throw EvaluationError(
+						"Call of " + stringValue() + " doesn't match the predefined parameters!",
+						* (param -> tokenType)
+					);
+				}
+			}
+			j += 1;                                        
+		}
+		try { return lambda(i, a); }
+		catch (Exception & e) { throw; }
 	}
-	String NativeFunction::stringValue() const {
-		return "<native>";
-	}
-	UInt32 NativeFunction::arity() const { return _arity; }
+	String NativeFunction::stringValue() const { return name; }
+	UInt32 NativeFunction::arity() const { return params -> size(); }
 	CallProtocol * NativeFunction::copy() const {
 		return new NativeFunction(* this);
 	}

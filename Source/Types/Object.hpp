@@ -74,7 +74,7 @@ namespace Stack {
 	inline Bool Object::isReal() const { return type == BasicType::RealType; }
 	inline Bool Object::isComplexType() const {
 		return type == BasicType::ComplexType ||
-				type == BasicType::ImaginaryType;
+			   type == BasicType::ImaginaryType;
 	}			
 	inline Bool Object::isNumericType() const {
 		return isInteger() || isReal() || isComplexType();
