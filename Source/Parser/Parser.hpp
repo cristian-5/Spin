@@ -153,7 +153,7 @@ namespace Stack {
 		ops -> push(TokenType::star);
 		ops -> push(TokenType::slash);
 		ops -> push(TokenType::ampersand);
-		ops -> push(TokenType::hat);
+		ops -> push(TokenType::dagger);
 		ops -> push(TokenType::modulus);
 		while (match(ops)) {
 			Token * op = new Token(previous());
@@ -216,7 +216,7 @@ namespace Stack {
 	}
 	Expression * Parser::call() {
 		Expression * ex = nullptr;
-		try { ex = primary(); }
+		try { ex = postfixOperators(); }
 		catch (SyntaxError & s) { throw; }
 		while (true) {
 			if (match(TokenType::openParenthesis)) {
@@ -245,6 +245,17 @@ namespace Stack {
 		}
 		arguments -> shrinkToFit();
 		return new Call(callee, parenthesis, arguments);
+	}
+	Expression * Parser::postfixOperators() {
+		Expression * ex = nullptr;
+		try { ex = primary(); }
+		catch (SyntaxError & s) { throw; }
+		if (match(TokenType::dagger)) {
+			Token * op = new Token(previous());
+			try { ex = new Unary(op, ex); }
+			catch (SyntaxError & s) { throw; }
+		}
+		return ex;
 	}
 	Expression * Parser::primary() {
 		Token t = peek();
