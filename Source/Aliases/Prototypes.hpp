@@ -100,7 +100,7 @@ namespace Stack {
 		pipeEqual,
 		ampersandEqual,
 		modulusEqual,
-		hatEqual,
+		daggerEqual,
 
 		minor,
 		minorEqual,
@@ -127,7 +127,7 @@ namespace Stack {
 		ampersand,
 		modulus,
 		dollar,
-		hat,
+		dagger,
 
 		openParenthesis,
 		closeParenthesis,
@@ -730,13 +730,13 @@ namespace Stack {
 		static Complex fromPolar(Real m, Real a);
 		void setRealPart(Real val);
 		void setImaginaryPart(Real val);
-		Complex getConjugate();
+		Complex getConjugate() const;
 		void conjugate();
-		Real getNormalized();
-		Real getMagnitude();
-		inline Real getModulus();
-		Real getPhase();
-		inline Real getAngle();
+		Real getNormalized() const;
+		Real getMagnitude() const;
+		inline Real getModulus() const;
+		Real getPhase() const;
+		inline Real getAngle() const;
 		void operator = (Real r);
 		Bool operator == (Complex r) const;
 		Bool operator == (Real r) const;
@@ -795,10 +795,12 @@ namespace Stack {
 	typedef Lambda<Object * (Interpreter * i, ArrayList<Object *> a)> NativeLambda;
 	class NativeFunction: CallProtocol {
 		private:
-		UInt32 _arity = 0;
-		NativeLambda _lambda = nullptr;
+		ArrayList<Parameter *> * params = nullptr;
+		NativeLambda lambda = nullptr;
+		String name = "<native>";
 		public:
-		NativeFunction(NativeLambda l, UInt32 a = 0);
+		NativeFunction(NativeLambda l, ArrayList<Parameter *> * p);
+		NativeFunction(NativeLambda l, ArrayList<Parameter *> * p, String n);
 		~NativeFunction() = default;
 		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
 		String stringValue() const override;
@@ -815,9 +817,23 @@ namespace Stack {
 		Array(Object * o);
 		Array();
 		~Array();
+		Object * copyAt(SizeType i) const;
+		Object * referenceAt(SizeType i) const;
+		Array * copy() const;
+		String stringValue() const;
+	};
+
+	/* Vector */
+
+	class Vector {
+		private:
+			
+		public:
+		Vector();
+		~Vector();
 		Object * copyAt(SizeType i);
 		Object * referenceAt(SizeType i);
-		Array * copy();
+		Vector * copy();
 		String stringValue();
 	};
 
@@ -2766,8 +2782,8 @@ namespace Stack {
 			{ "(\\%=)", TokenType::modulusEqual },
 			{ "(\\%)", TokenType::modulus },
 			{ "(\\$)", TokenType::dollar },
-			{ "(\\^=)", TokenType::hatEqual },
-			{ "(\\^)", TokenType::hat },
+			{ "(\\^=)", TokenType::daggerEqual },
+			{ "(\\^)", TokenType::dagger },
 
 			{ "(\\()", TokenType::openParenthesis },
 			{ "(\\))", TokenType::closeParenthesis },
@@ -2893,6 +2909,7 @@ namespace Stack {
 		Expression * completeSubscript(Expression * item);
 		Expression * call();
 		Expression * completeCall(Expression * callee);
+		Expression * postfixOperators();
 		Expression * primary();
 		String * typeString();
 		Statement * declaration();
