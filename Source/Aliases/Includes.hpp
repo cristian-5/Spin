@@ -40,6 +40,7 @@
 #include "../Types/Colour.hpp"
 #include "../Types/Complex.hpp"
 #include "../Types/Function.hpp"
+#include "../Types/Array.hpp"
 #include "../Types/Object.hpp"
 
 #endif
