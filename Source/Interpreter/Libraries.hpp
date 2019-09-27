@@ -34,7 +34,7 @@ namespace Stack {
 									(std::chrono::system_clock::now()
 									.time_since_epoch()).count();
 						return new Object(BasicType::Int64Type, new Int64(time));
-					}
+					}, new ArrayList<Parameter *>()
 				)
 			)
 		);
@@ -47,6 +47,20 @@ namespace Stack {
 
 	void Standard::defineLibrary(Environment * global) {
 		if (!global) return;
+		global -> define(
+			"String", new Object(BasicType::FunctionType,
+				new NativeFunction(
+					[] (Interpreter * i, ArrayList<Object *> a) {
+						//if (!a[0]); // TODO: Throw Cast Exception;
+						return new Object();
+					}, new ArrayList<Parameter *>({ nullptr }),
+					"<dynamic ^ String ^ cast>"
+					/* The nullptr literal specifies one argument
+					   of any type that is going to be handled
+					   later inside the lambda with a typecheck. */
+				)
+			)
+		);
 		// Define casts
 		// Define console
 	}
