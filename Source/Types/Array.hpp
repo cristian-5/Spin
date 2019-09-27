@@ -34,22 +34,22 @@ namespace Stack {
 		for (Object * o : * elements) delete o;
 		delete elements;
 	}
-	Object * Array::copyAt(SizeType i) {
+	Object * Array::copyAt(SizeType i) const {
 		if (i >= elements -> size()) return nullptr;
 		return elements -> at(i) -> copy();
 	}
-	Object * Array::referenceAt(SizeType i) {
+	Object * Array::referenceAt(SizeType i) const {
 		if (i >= elements -> size()) return nullptr;
 		return elements -> at(i);
 	}
-	Array * Array::copy() {
+	Array * Array::copy() const {
 		ArrayList<Object *> * newElements = new ArrayList<Object *>();
 		for (Object * element : * elements) {
 			newElements -> push(element -> copy());
 		}
 		return new Array(newElements);
 	}
-	String Array::stringValue() {
+	String Array::stringValue() const {
 		if (elements -> size() < 1) return "[ ]";
 		String value = "[ " + elements -> at(0) -> getObjectStringValue();
 		for (SizeType i = 1; i < elements -> size(); i++) {
