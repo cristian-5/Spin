@@ -31,13 +31,13 @@ namespace Stack {
 	}
 	void Complex::setRealPart(Real val) { a = val; }
 	void Complex::setImaginaryPart(Real val) { b = val; }
-	Complex Complex::getConjugate() { return Complex(a, -b); }
+	Complex Complex::getConjugate() const { return Complex(a, -b); }
 	void Complex::conjugate() { b = -b; }
-	Real Complex::getNormalized() { return a * a + b * b; }
-	Real Complex::getMagnitude() { return sqrt(a * a + b * b); }
-	inline Real Complex::getModulus() { return getMagnitude(); }
-	Real Complex::getPhase() { return atan2(b, a); }
-	inline Real Complex::getAngle() { return getPhase(); }
+	Real Complex::getNormalized() const { return a * a + b * b; }
+	Real Complex::getMagnitude() const { return sqrt(a * a + b * b); }
+	inline Real Complex::getModulus() const { return getMagnitude(); }
+	Real Complex::getPhase() const { return atan2(b, a); }
+	inline Real Complex::getAngle() const { return getPhase(); }
 	void Complex::operator = (Real r) { a = r; b = 0; }
 	Bool Complex::operator == (Complex r) const {
 		if (a != r.a) return false;

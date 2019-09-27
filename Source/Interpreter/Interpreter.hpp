@@ -394,8 +394,7 @@ namespace Stack {
 		memory = previous;
 		delete environment;
 	}
-	void Interpreter::executeFunction(BlockStatement * block,
-							Environment * environment) {
+	void Interpreter::executeFunction(BlockStatement * block, Environment * environment) {
 		try {
 			executeBlock(block -> statements, environment);
 		} catch (Exception & r) { throw; }
