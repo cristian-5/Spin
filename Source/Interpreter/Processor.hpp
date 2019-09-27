@@ -302,7 +302,7 @@ namespace Stack {
 				try { return applyAND(t, l, r); }
 				catch (EvaluationError & e) { throw; }
 			} break;
-			case TokenType::hat: {
+			case TokenType::dagger: {
 				try { return applyXOR(t, l, r); }
 				catch (EvaluationError & e) { throw; }
 			} break;
@@ -383,24 +383,33 @@ namespace Stack {
 					Bool * b = (Bool *) o -> value;
 					b = new Bool(!(* b));
 					return new Object(o -> type, b);
-				} else {
-					throw EvaluationError(
-						"Unary operator '!' doesn't support any operand of type '" +
-						o -> getObjectName() + "'!", * t
-					);
 				}
+				throw EvaluationError(
+					"Unary operator '!' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::dagger: {
+				if (o -> type == BasicType::ComplexType) {
+					Complex * c = (Complex *) o -> value;
+					c = new Complex(* c); c -> conjugate();
+					return new Object(o -> type, c);
+				}
+				throw EvaluationError(
+					"Unary operator '^' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
 			} break;
 			case TokenType::tilde: {
 				auto search = unaryInversion.find(o -> type);
 				if (search != unaryInversion.end()) {
 					auto handler = search -> second;
 					return handler(o);
-				} else {
-					throw EvaluationError(
-						"Unary operator '~' doesn't support any operand of type '" +
-						o -> getObjectName() + "'!", * t
-					);	
 				}
+				throw EvaluationError(
+					"Unary operator '~' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
 			} break;
 			default: break;
 		}
