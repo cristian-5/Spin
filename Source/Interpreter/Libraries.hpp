@@ -28,13 +28,14 @@ namespace Stack {
 		global -> define(
 			"clock", new Object(BasicType::FunctionType,
 				new NativeFunction(
-					[] (Interpreter * i, Array<Object *> a) {
-						Int64 time = std::chrono::duration_cast
-									<std::chrono::milliseconds>
-									(std::chrono::system_clock::now()
-									.time_since_epoch()).count();
-						return new Object(BasicType::Int64Type, new Int64(time));
-					}, new Array<Parameter *>()
+					[] (Interpreter * i, Array<Object *> a, Token * t) {
+						Int64 * time = new Int64(std::chrono::duration_cast
+												<std::chrono::milliseconds>
+												(std::chrono::system_clock::now()
+												.time_since_epoch()).count());
+						return new Object(BasicType::Int64Type, time);
+					}, new Array<Parameter *>(),
+					"<native Chronos::clock()>"
 				)
 			)
 		);
@@ -47,12 +48,18 @@ namespace Stack {
 
 	void Standard::defineLibrary(Environment * global) {
 		if (!global) return;
+		/* String Cast */
 		global -> define(
 			"String", new Object(BasicType::FunctionType,
 				new NativeFunction(
-					[] (Interpreter * i, Array<Object *> a) {
-						//if (!a[0]); // TODO: Throw Cast Exception;
-						return new Object();
+					[] (Interpreter * i, Array<Object *> a, Token * t) {
+						if (!a[0]) throw EvaluationError(
+							"Dynamic Cast Exception: Invalid Argument!", * t
+						);
+						return new Object(
+							BasicType::StringType,
+							new String(a[0] -> getObjectStringValue())
+						);
 					}, new Array<Parameter *>({ nullptr }),
 					"<dynamic ^ String ^ cast>"
 					/* The nullptr literal specifies one argument
@@ -61,7 +68,6 @@ namespace Stack {
 				)
 			)
 		);
-		// Define casts
 		// Define console
 	}
 

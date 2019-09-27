@@ -794,7 +794,6 @@ namespace Stack {
 			if (t.type == type && t.lexeme == lexeme) t.type = newType;
 		}
 	}
-
 	void Parser::runTypeClassification() {
 		if (!tokens) return;
 		SizeType tokenCount = (tokens -> size()) - 1;
@@ -808,7 +807,6 @@ namespace Stack {
 			}
 		}
 	}
-
 	String Parser::parseImport(SizeType & i) {
 		tokens -> at(i).type = TokenType::empty;
 		i += 1;
@@ -849,7 +847,6 @@ namespace Stack {
 			Linker::getPosition(input, tokens -> at(i).position)
 		);
 	}
-
 	FileScope * Parser::runImportClassification() {
 		FileScope * fileScope = new FileScope();
 		if (!tokens) return nullptr;
@@ -874,7 +871,19 @@ namespace Stack {
 		}
 		return fileScope;
 	}
-
+	void Parser::runCastClassification() {
+		if (!tokens) return;
+		SizeType tokenCount = (tokens -> size()) - 1;
+		for (SizeType i = 0; i < tokenCount; i++) {
+			if (tokens -> at(i).isTypeBasicType()) {
+				i += 1;
+				Token token = tokens -> at(i);
+				if (token.type == TokenType::openParenthesis) {
+					tokens -> at(i - 1).type = TokenType::symbol;
+				}
+			}
+		}
+	}
 	void Parser::cleanEmptyTokens() {
 		Array<Token> * newTokens = new Array<Token>();
 		for (Token token : * tokens) {
@@ -968,6 +977,7 @@ namespace Stack {
 			errors -> shrinkToFit();
 			throw ParserErrorException(errors, fileName);
 		}
+		runCastClassification();
 		runTypeClassification();
 		FileScope * fileScope = nullptr;
 		try {

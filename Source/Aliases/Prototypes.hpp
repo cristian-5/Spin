@@ -189,6 +189,7 @@ namespace Stack {
 		Token() = default;
 		Token(String l, TokenType t, UInt32 p = 0);
 		Bool isTypeLiteral() const;
+		Bool isTypeBasicType() const;
 		Bool isTypeType() const;
 	};
 	class TokenRule {
@@ -792,7 +793,7 @@ namespace Stack {
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
     };
-	typedef Lambda<Object * (Interpreter * i, Array<Object *> a)> NativeLambda;
+	typedef Lambda<Object * (Interpreter * i, Array<Object *> a, Token * t)> NativeLambda;
 	class NativeFunction: CallProtocol {
 		private:
 		Array<Parameter *> * params = nullptr;
@@ -2935,6 +2936,7 @@ namespace Stack {
 		void runTypeClassification();
 		String parseImport(SizeType & i);
 		FileScope * runImportClassification();
+		void runCastClassification();
 		void cleanEmptyTokens();
 		inline Bool match(TokenType type);
 		inline Bool match(Array<TokenType> * types);

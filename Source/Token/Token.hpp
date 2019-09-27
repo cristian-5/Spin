@@ -30,6 +30,9 @@ namespace Stack {
 		return type >= TokenType::intLiteral &&
 			   type <= TokenType::emptyLiteral;
 	}
+	Bool Token::isTypeBasicType() const {
+		return type == TokenType::basicType;
+	}
 	Bool Token::isTypeType() const {
 		return type >= TokenType::classKeyword &&
 			   type <= TokenType::exceptKeyword;

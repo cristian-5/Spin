@@ -130,7 +130,7 @@ namespace Stack {
 			}
 			j += 1;                                        
 		}
-		try { return lambda(i, a); }
+		try { return lambda(i, a, c); }
 		catch (Exception & e) { throw; }
 	}
 	String NativeFunction::stringValue() const { return name; }
