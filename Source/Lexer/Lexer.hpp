@@ -41,14 +41,14 @@ namespace Stack {
 		return input;
 	}
 
-	ArrayList<Token> * Lexer::tokenise(String * input, String fileName) const {
+	Array<Token> * Lexer::tokenise(String * input, String fileName) const {
 		// Handle Last Token:
 		String data = (* input) + "\n";
 		// Handle Single Line Comments:
 		data = handleComments(data);
 		// Handle EndLines:
 		data = RegexTools::replaceMatches("\n", data, " ");
-		ArrayList<Token> * tokens = new ArrayList<Token>();
+		Array<Token> * tokens = new Array<Token>();
 		UInt32 pos = 0;
 		Token temp = Token("beginFile", TokenType::beginFile, 0);
 		tokens -> push(temp);

@@ -44,7 +44,7 @@ namespace Stack {
 	}
 	Binary::~Binary() { delete r; delete l; delete o; }
 
-	Call::Call(Expression * c, Token * p, ArrayList<Expression *> * a) {
+	Call::Call(Expression * c, Token * p, Array<Expression *> * a) {
 		parenthesis = p; callee = c; arguments = a;
 	}
 	void Call::accept(Visitor * visitor) {
@@ -84,7 +84,7 @@ namespace Stack {
 	}
 	Grouping::~Grouping() { delete expression; }
 
-	List::List(ArrayList<Expression *> * v) { values = v; }
+	List::List(Array<Expression *> * v) { values = v; }
 	void List::accept(Visitor * visitor) {
 		try { visitor -> visitListExpression(this); }
 		catch (Exception & e) { throw; }
@@ -180,9 +180,9 @@ namespace Stack {
 
 	/* Statements */
 
-	BlockStatement::BlockStatement(ArrayList<Statement *> * s) { statements = s; }
+	BlockStatement::BlockStatement(Array<Statement *> * s) { statements = s; }
 	BlockStatement::BlockStatement(Statement * s) {
-		statements = new ArrayList<Statement *>();
+		statements = new Array<Statement *>();
 		statements -> push(s);
 	}
 	void BlockStatement::accept(Visitor * visitor) {
@@ -247,7 +247,7 @@ namespace Stack {
 		delete body;
 	}
 	
-	FunctionStatement::FunctionStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b, Parameter * r) {
+	FunctionStatement::FunctionStatement(Token * n, Array<Parameter *> * p, BlockStatement * b, Parameter * r) {
 		name = n, params = p; body = b; returnType = r;
 	}
 	void FunctionStatement::accept(Visitor * visitor) {
@@ -294,7 +294,7 @@ namespace Stack {
 	}
 	PrintStatement::~PrintStatement() { delete e; }
 
-	ProcedureStatement::ProcedureStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b) {
+	ProcedureStatement::ProcedureStatement(Token * n, Array<Parameter *> * p, BlockStatement * b) {
 		name = n, params = p; body = b;
 	}
 	void ProcedureStatement::accept(Visitor * visitor) {

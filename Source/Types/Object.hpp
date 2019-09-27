@@ -36,7 +36,7 @@ namespace Stack {
 			case BasicType::ImaginaryType: value = new Real(0.0); return;
 			case BasicType::ComplexType: value = new Complex(); return;
 			case BasicType::StringType: value = new String(""); return;
-			case BasicType::ArrayType: value = new Array(); return;
+			case BasicType::ArrayType: value = new ArrayList(); return;
 			case BasicType::VectorType: return;
 			case BasicType::ClassType: return;
 			case BasicType::StructureType: return;
@@ -60,7 +60,7 @@ namespace Stack {
 			case BasicType::ImaginaryType: delete (Real *) value; return;
 			case BasicType::ComplexType: delete (Complex *) value; return;
 			case BasicType::StringType: delete (String *) value; return;
-			case BasicType::ArrayType: delete (Array *) value; return;
+			case BasicType::ArrayType: delete (ArrayList *) value; return;
 			case BasicType::VectorType: return;
 			case BasicType::FunctionType: delete (CallProtocol *) value; return;
 			case BasicType::ClassType: return;
@@ -119,7 +119,7 @@ namespace Stack {
 			case BasicType::ImaginaryType: copy -> value = new Real(* ((Real *) value)); break;
 			case BasicType::ComplexType: copy -> value = new Complex(* ((Complex *) value)); break;
 			case BasicType::StringType: copy -> value = new String(* ((String *) value)); break;
-			case BasicType::ArrayType: copy -> value = ((Array *) value) -> copy(); break;
+			case BasicType::ArrayType: copy -> value = ((ArrayList *) value) -> copy(); break;
 			case BasicType::VectorType: /* TODO: Ask the class for its copy. */ break;
 			case BasicType::FunctionType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::ClassType: /* TODO: Ask the class for its copy. */ break;
@@ -168,7 +168,7 @@ namespace Stack {
 				return * ((String *) value);
 			}
 			case BasicType::ArrayType: {
-				Array * a = (Array *) value;
+				ArrayList * a = (ArrayList *) value;
 				return a -> stringValue();
 			}
 			case BasicType::VectorType: {

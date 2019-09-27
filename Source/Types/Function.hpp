@@ -27,7 +27,7 @@ namespace Stack {
 		declaration = d;
 		closure = c;
 	}
-	Object * Function::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
+	Object * Function::call(Interpreter * i, Array<Object *> a, Token * c) {
 		Environment * environment = new Environment(closure);
 		SizeType j = 0;
 		for (Parameter * param : * declaration -> params) {
@@ -70,7 +70,7 @@ namespace Stack {
 		declaration = d;
 		closure = c;
 	}
-	Object * Procedure::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
+	Object * Procedure::call(Interpreter * i, Array<Object *> a, Token * c) {
 		Environment * environment = new Environment(closure);
 		SizeType j = 0;
 		for (Parameter * param : * declaration -> params) {
@@ -104,13 +104,13 @@ namespace Stack {
 		return new Procedure(* this);
 	}
 
-	NativeFunction::NativeFunction(NativeLambda l, ArrayList<Parameter *> * p) {
+	NativeFunction::NativeFunction(NativeLambda l, Array<Parameter *> * p) {
 		lambda = l; params = p;
 	}
-	NativeFunction::NativeFunction(NativeLambda l, ArrayList<Parameter *> * p, String n) {
+	NativeFunction::NativeFunction(NativeLambda l, Array<Parameter *> * p, String n) {
 		lambda = l; params = p; name = n;
 	}
-	Object * NativeFunction::call(Interpreter * i, ArrayList<Object *> a, Token * c) {
+	Object * NativeFunction::call(Interpreter * i, Array<Object *> a, Token * c) {
 		SizeType j = 0;
 		for (Parameter * param : * params) {
 			if (!param) { j += 1; continue; }

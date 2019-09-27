@@ -26,7 +26,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	Lexer * lexer = Lexer::self();
 
-	ArrayList<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
+	Array<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
 
 	Parser * parser = Parser::self();
 	FileScope * fs = nullptr;
@@ -34,7 +34,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		fs = parser -> parse(tokens, & test, "Virtual File");
 	} catch (ParserErrorException & p) {
-		const ArrayList<SyntaxError> * const e = p.getErrors();
+		const Array<SyntaxError> * const e = p.getErrors();
 		cout << "Found " << e -> size() << " errors in '"
 			 << p.getFileName() << "'!" << endl;
 		UInt32 i = 1;

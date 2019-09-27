@@ -80,7 +80,7 @@ namespace Stack {
 		Expression * ex = nullptr;
 		try { ex = comparison(); }
 		catch (SyntaxError & s) { throw; }
-		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		Array<TokenType> * ops = new Array<TokenType>();
 		ops -> push(TokenType::equality);
 		ops -> push(TokenType::inequality);
 		while (match(ops)) {
@@ -102,7 +102,7 @@ namespace Stack {
 		Expression * ex = nullptr;
 		try { ex = lowPriorityOperator(); }
 		catch (SyntaxError & s) { throw; }
-		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		Array<TokenType> * ops = new Array<TokenType>();
 		ops -> push(TokenType::major);
 		ops -> push(TokenType::minor);
 		ops -> push(TokenType::majorEqual);
@@ -126,7 +126,7 @@ namespace Stack {
 		Expression * ex = nullptr;
 		try { ex = mediumPriorityOperator(); }
 		catch (SyntaxError & e) { throw; }
-		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		Array<TokenType> * ops = new Array<TokenType>();
 		ops -> push(TokenType::plus);
 		ops -> push(TokenType::minus);
 		ops -> push(TokenType::pipe);
@@ -149,7 +149,7 @@ namespace Stack {
 		Expression * ex = nullptr;
 		try { ex = highPriorityOperator(); }
 		catch (SyntaxError & e) { throw; }
-		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		Array<TokenType> * ops = new Array<TokenType>();
 		ops -> push(TokenType::star);
 		ops -> push(TokenType::slash);
 		ops -> push(TokenType::ampersand);
@@ -171,7 +171,7 @@ namespace Stack {
 		return ex;
 	}
 	Expression * Parser::highPriorityOperator() {
-		ArrayList<TokenType> * ops = new ArrayList<TokenType>();
+		Array<TokenType> * ops = new Array<TokenType>();
 		ops -> push(TokenType::minus);
 		ops -> push(TokenType::plus);
 		ops -> push(TokenType::exclamationMark);
@@ -228,7 +228,7 @@ namespace Stack {
 	}
 	Expression * Parser::completeCall(Expression * callee) {
 		Token * parenthesis = new Token(previous());
-		ArrayList<Expression *> * arguments = new ArrayList<Expression *>();
+		Array<Expression *> * arguments = new Array<Expression *>();
 		if (!check(TokenType::closeParenthesis)) {
 			do {
 				Expression * ex = nullptr;
@@ -280,7 +280,7 @@ namespace Stack {
 			return new Grouping(ex);
 		} else if (t.type == TokenType::openBracket) {
 			advance();
-			ArrayList<Expression *> * values = new ArrayList<Expression *>();
+			Array<Expression *> * values = new Array<Expression *>();
 			Expression * ex = nullptr;
 			if (!check(TokenType::closeBracket)) {
 				do {
@@ -408,7 +408,7 @@ namespace Stack {
 	}
 	Statement * Parser::blockStatement() {
 		advance();
-		ArrayList<Statement *> * statements = new ArrayList<Statement *>();
+		Array<Statement *> * statements = new Array<Statement *>();
 		try {
 			while (!check(TokenType::closeBrace) && !isAtEnd()) {
 				statements -> push(declaration());
@@ -477,7 +477,7 @@ namespace Stack {
 		isInFunction = true;
 		Token * name = nullptr;
 		String * stringType = nullptr;
-		ArrayList<Parameter *> * params = new ArrayList<Parameter *>();
+		Array<Parameter *> * params = new Array<Parameter *>();
 		Parameter * returnType = new Parameter();
 		BlockStatement * body = nullptr;
 		try {
@@ -549,7 +549,7 @@ namespace Stack {
 		isInProcedure = true;
 		Token * name = nullptr;
 		String * stringType = nullptr;
-		ArrayList<Parameter *> * params = new ArrayList<Parameter *>();
+		Array<Parameter *> * params = new Array<Parameter *>();
 		BlockStatement * body = nullptr;
 		try {
 			name = new Token(consume(TokenType::symbol, "identifier"));
@@ -876,7 +876,7 @@ namespace Stack {
 	}
 
 	void Parser::cleanEmptyTokens() {
-		ArrayList<Token> * newTokens = new ArrayList<Token>();
+		Array<Token> * newTokens = new Array<Token>();
 		for (Token token : * tokens) {
 			if (token.type != TokenType::empty) {
 				newTokens -> push (token);
@@ -895,7 +895,7 @@ namespace Stack {
 			return true;
 		} return false;
 	}
-	inline Bool Parser::match(ArrayList<TokenType> * types) {
+	inline Bool Parser::match(Array<TokenType> * types) {
 		for (TokenType & type : * types) {
 			if (check(type)) {
 				advance();
@@ -953,13 +953,13 @@ namespace Stack {
 		}
 	}
 
-	FileScope * Parser::parse(ArrayList<Token> * tokens, String * input, String fileName) {
+	FileScope * Parser::parse(Array<Token> * tokens, String * input, String fileName) {
 		if (!tokens || tokens -> size() <= 2) {
 			errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
 			errors -> shrinkToFit();
 			throw ParserErrorException(errors, fileName);
 		}
-		this -> tokens = new ArrayList<Token>(* tokens);
+		this -> tokens = new Array<Token>(* tokens);
 		this -> input = input;
 		try {
 			consume(TokenType::beginFile, "beginFile");
@@ -978,7 +978,7 @@ namespace Stack {
 			throw ParserErrorException(errors, fileName);
 		}
 		cleanEmptyTokens();
-		ArrayList<Statement *> * statements = new ArrayList<Statement *>();
+		Array<Statement *> * statements = new Array<Statement *>();
 		while (!isAtEnd()) {
 			try {
 				statements -> push(declaration());

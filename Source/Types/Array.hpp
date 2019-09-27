@@ -18,38 +18,38 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKARRAY
-#define STACKARRAY
+#ifndef STACKARRAYLIST
+#define STACKARRAYLIST
 
 namespace Stack {
 
-	Array::Array() { elements = new ArrayList<Object *>(); }
-	Array::Array(ArrayList<Object *> * e) { elements = e; }
-	Array::Array(Object * o) {
-		elements = new ArrayList<Object *>();
+	ArrayList::ArrayList() { elements = new Array<Object *>(); }
+	ArrayList::ArrayList(Array<Object *> * e) { elements = e; }
+	ArrayList::ArrayList(Object * o) {
+		elements = new Array<Object *>();
 		elements -> push(o);
 	}
-	Array::~Array() {
+	ArrayList::~ArrayList() {
 		if (!elements) return;
 		for (Object * o : * elements) delete o;
 		delete elements;
 	}
-	Object * Array::copyAt(SizeType i) const {
+	Object * ArrayList::copyAt(SizeType i) const {
 		if (i >= elements -> size()) return nullptr;
 		return elements -> at(i) -> copy();
 	}
-	Object * Array::referenceAt(SizeType i) const {
+	Object * ArrayList::referenceAt(SizeType i) const {
 		if (i >= elements -> size()) return nullptr;
 		return elements -> at(i);
 	}
-	Array * Array::copy() const {
-		ArrayList<Object *> * newElements = new ArrayList<Object *>();
+	ArrayList * ArrayList::copy() const {
+		Array<Object *> * newElements = new Array<Object *>();
 		for (Object * element : * elements) {
 			newElements -> push(element -> copy());
 		}
-		return new Array(newElements);
+		return new ArrayList(newElements);
 	}
-	String Array::stringValue() const {
+	String ArrayList::stringValue() const {
 		if (elements -> size() < 1) return "[ ]";
 		String value = "[ " + elements -> at(0) -> getObjectStringValue();
 		for (SizeType i = 1; i < elements -> size(); i++) {

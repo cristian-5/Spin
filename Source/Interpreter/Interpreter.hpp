@@ -64,7 +64,7 @@ namespace Stack {
 			evaluateExpression(e -> callee);
 			Object * callee = value -> copy();
 			deleteValue();
-			ArrayList<Object *> arguments = ArrayList<Object *>();
+			Array<Object *> arguments = Array<Object *>();
 			for (Expression * a : * e -> arguments) {
 				evaluateExpression(a);
 				// TODO: push reference if ref keyword
@@ -105,7 +105,7 @@ namespace Stack {
 		catch (Exception & r) { throw; }
 	}
 	void Interpreter::visitListExpression(List * e) {
-		ArrayList<Object *> * elements = new ArrayList<Object *>();
+		Array<Object *> * elements = new Array<Object *>();
 		try {
 			for (Expression * ex : * e -> values) {
 				evaluateExpression(ex);
@@ -117,7 +117,7 @@ namespace Stack {
 			delete elements;
 			throw;
 		}
-		setValue(new Object(BasicType::ArrayType, new Array(elements)));
+		setValue(new Object(BasicType::ArrayType, new ArrayList(elements)));
 	}
 	void Interpreter::visitLiteralExpression(Literal * e) {
 		try {
@@ -376,7 +376,7 @@ namespace Stack {
 		try { statement -> accept(this); }
 		catch (Exception & r) { throw; }
 	}
-	void Interpreter::executeBlock(ArrayList<Statement *> * statements, Environment * environment) {
+	void Interpreter::executeBlock(Array<Statement *> * statements, Environment * environment) {
 		Environment * previous = memory;
 		try {
 			memory = environment;

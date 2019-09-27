@@ -51,7 +51,7 @@ using SizeType = std::size_t;
 
 using String = std::string;
 
-#define ArrayList std::vector
+#define Array std::vector
 #define Map std::map
 #define Dictionary std::unordered_map
 

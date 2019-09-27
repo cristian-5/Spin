@@ -31,7 +31,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	Lexer * lexer = Lexer::self();
 	
-	ArrayList<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
+	Array<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
 
 	cout << "Tokens: " << endl;
 	UInt32 i = 1;

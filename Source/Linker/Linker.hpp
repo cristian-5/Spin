@@ -38,8 +38,8 @@ namespace Stack {
 		}
 		return result;
 	}
-	ArrayList<String> Linker::linesFromFile(String & path) {
-		ArrayList<String> set = ArrayList<String>();
+	Array<String> Linker::linesFromFile(String & path) {
+		Array<String> set = Array<String>();
 		IFStream file(path.stringValue());
 		if (file.good()) {
 			String line = "";

@@ -90,8 +90,8 @@ namespace Stack {
 	*   @param input Input String.
 	*   @returns The matched groups.
 	*/
-	ArrayList<String> RegexTools::matchGroupClose(String rgx, String & input) {
-		ArrayList<String> result = ArrayList<String>();
+	Array<String> RegexTools::matchGroupClose(String rgx, String & input) {
+		Array<String> result = Array<String>();
 		try {
 			Regex regex(rgx);
 			SMatch match;
@@ -101,9 +101,9 @@ namespace Stack {
 					String temp = String(match.str(i));
 					result.push(temp);
 				}
-			} else return ArrayList<String>();
+			} else return Array<String>();
 		} catch (RegexError & e) {
-			return ArrayList<String>();
+			return Array<String>();
 		}
 		return result;
 	}

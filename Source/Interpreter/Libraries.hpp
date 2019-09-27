@@ -28,13 +28,13 @@ namespace Stack {
 		global -> define(
 			"clock", new Object(BasicType::FunctionType,
 				new NativeFunction(
-					[] (Interpreter * i, ArrayList<Object *> a) {
+					[] (Interpreter * i, Array<Object *> a) {
 						Int64 time = std::chrono::duration_cast
 									<std::chrono::milliseconds>
 									(std::chrono::system_clock::now()
 									.time_since_epoch()).count();
 						return new Object(BasicType::Int64Type, new Int64(time));
-					}, new ArrayList<Parameter *>()
+					}, new Array<Parameter *>()
 				)
 			)
 		);
@@ -50,10 +50,10 @@ namespace Stack {
 		global -> define(
 			"String", new Object(BasicType::FunctionType,
 				new NativeFunction(
-					[] (Interpreter * i, ArrayList<Object *> a) {
+					[] (Interpreter * i, Array<Object *> a) {
 						//if (!a[0]); // TODO: Throw Cast Exception;
 						return new Object();
-					}, new ArrayList<Parameter *>({ nullptr }),
+					}, new Array<Parameter *>({ nullptr }),
 					"<dynamic ^ String ^ cast>"
 					/* The nullptr literal specifies one argument
 					   of any type that is going to be handled

@@ -50,7 +50,7 @@ namespace Stack {
 		Linker() = default;
 		public:
 		static FilePosition getPosition(String * input, UInt32 cursor);
-		static ArrayList<String> linesFromFile(String & path);
+		static Array<String> linesFromFile(String & path);
 		static String stringFromFile(String path);
 		static void createNewFile(String path, String content = "");
 	};
@@ -405,8 +405,8 @@ namespace Stack {
 		public:
 		Token * parenthesis = nullptr;
 		Expression * callee = nullptr;
-		ArrayList<Expression *> * arguments = nullptr;
-		Call(Expression * c, Token * p, ArrayList<Expression *> * a);
+		Array<Expression *> * arguments = nullptr;
+		Call(Expression * c, Token * p, Array<Expression *> * a);
 		void accept(Visitor * visitor) override;
 		~Call();
 	};
@@ -436,8 +436,8 @@ namespace Stack {
 	};
 	class List: public Expression {
 		public:
-		ArrayList<Expression *> * values = nullptr;
-		List(ArrayList<Expression *> * v);
+		Array<Expression *> * values = nullptr;
+		List(Array<Expression *> * v);
 		void accept(Visitor * visitor) override;
 		~List();
 	};
@@ -521,8 +521,8 @@ namespace Stack {
 
 	class BlockStatement: public Statement {
 		public:
-		ArrayList<Statement *> * statements = nullptr;
-		BlockStatement(ArrayList<Statement *> * s);
+		Array<Statement *> * statements = nullptr;
+		BlockStatement(Array<Statement *> * s);
 		BlockStatement(Statement * s);
 		void accept(Visitor * visitor) override;
 		~BlockStatement();
@@ -571,10 +571,10 @@ namespace Stack {
 	class FunctionStatement: public Statement {
 		public:
 		Token * name = nullptr;
-		ArrayList<Parameter *> * params = nullptr;
+		Array<Parameter *> * params = nullptr;
 		BlockStatement * body = nullptr;
 		Parameter * returnType = nullptr;
-		FunctionStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b, Parameter * r);
+		FunctionStatement(Token * n, Array<Parameter *> * p, BlockStatement * b, Parameter * r);
 		void accept(Visitor * visitor) override;
 		~FunctionStatement();
 	};
@@ -606,9 +606,9 @@ namespace Stack {
 	class ProcedureStatement: public Statement {
 		public:
 		Token * name = nullptr;
-		ArrayList<Parameter *> * params = nullptr;
+		Array<Parameter *> * params = nullptr;
 		BlockStatement * body = nullptr;
-		ProcedureStatement(Token * n, ArrayList<Parameter *> * p, BlockStatement * b);
+		ProcedureStatement(Token * n, Array<Parameter *> * p, BlockStatement * b);
 		void accept(Visitor * visitor) override;
 		~ProcedureStatement();
 	};
@@ -761,7 +761,7 @@ namespace Stack {
 	class CallProtocol {
 		public:
 		virtual ~CallProtocol() = default;
-		virtual Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) = 0;
+		virtual Object * call(Interpreter * i, Array<Object *> a, Token * c) = 0;
 		virtual String stringValue() const = 0;
 		virtual UInt32 arity() const = 0;
 		virtual CallProtocol * copy() const = 0;
@@ -774,7 +774,7 @@ namespace Stack {
 		Function() = default;
 		Function(FunctionStatement * d, Environment * c);
 		~Function() = default;
-		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
+		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
@@ -787,39 +787,39 @@ namespace Stack {
 		Procedure() = default;
 		Procedure(ProcedureStatement * d, Environment * c);
 		~Procedure() = default;
-		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
+		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
     };
-	typedef Lambda<Object * (Interpreter * i, ArrayList<Object *> a)> NativeLambda;
+	typedef Lambda<Object * (Interpreter * i, Array<Object *> a)> NativeLambda;
 	class NativeFunction: CallProtocol {
 		private:
-		ArrayList<Parameter *> * params = nullptr;
+		Array<Parameter *> * params = nullptr;
 		NativeLambda lambda = nullptr;
 		String name = "<native>";
 		public:
-		NativeFunction(NativeLambda l, ArrayList<Parameter *> * p);
-		NativeFunction(NativeLambda l, ArrayList<Parameter *> * p, String n);
+		NativeFunction(NativeLambda l, Array<Parameter *> * p);
+		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n);
 		~NativeFunction() = default;
-		Object * call(Interpreter * i, ArrayList<Object *> a, Token * c) override;
+		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
 	};
 
-	/* Array */
+	/* ArrayList */
 
-	class Array {
+	class ArrayList {
 		public:
-		ArrayList<Object *> * elements = nullptr;
-		Array(ArrayList<Object *> * e);
-		Array(Object * o);
-		Array();
-		~Array();
+		Array<Object *> * elements = nullptr;
+		ArrayList(Array<Object *> * e);
+		ArrayList(Object * o);
+		ArrayList();
+		~ArrayList();
 		Object * copyAt(SizeType i) const;
 		Object * referenceAt(SizeType i) const;
-		Array * copy() const;
+		ArrayList * copy() const;
 		String stringValue() const;
 	};
 
@@ -2630,9 +2630,9 @@ namespace Stack {
 		Bool standardLibrary = false;
 		Bool mathsLibrary = false;
 		Bool chronosLibrary = false;
-		ArrayList<Statement *> * statements = nullptr;
+		Array<Statement *> * statements = nullptr;
 		FileScope() = default;
-		FileScope(ArrayList<Statement *> * s);
+		FileScope(Array<Statement *> * s);
 		~FileScope() {
 			if (!statements) return;
 			for (Statement * s : * statements) delete s;
@@ -2700,7 +2700,7 @@ namespace Stack {
 		void visitVariableStatement(VariableStatement * e) override;
 		void visitWhileStatement(WhileStatement * e) override;
 		void executeStatement(Statement * statement);
-		void executeBlock(ArrayList<Statement *> * statements, Environment * environment);
+		void executeBlock(Array<Statement *> * statements, Environment * environment);
 		Object * evaluate(Expression * expression, String * input = nullptr, String fileName = "Unknown File");
 		Interpreter();
 		~Interpreter() = default;
@@ -2724,7 +2724,7 @@ namespace Stack {
 	class Lexer {
 		private:
 		String handleComments(String input) const;
-		ArrayList<TokenRule> grammar = {
+		Array<TokenRule> grammar = {
 
 			{ "([ \\t\\n]+)", TokenType::empty },
 
@@ -2846,7 +2846,7 @@ namespace Stack {
 			static Lexer instance;
 			return & instance;
 		}
-		ArrayList<Token> * tokenise(String * input, String fileName = "Unknown File") const;
+		Array<Token> * tokenise(String * input, String fileName = "Unknown File") const;
 	};
 
 	/* Regex Tools */
@@ -2858,7 +2858,7 @@ namespace Stack {
 		static Bool test(String rgx, String & input);
 		static String match(String rgx, String & input);
 		static String matchClose(String rgx, String & input);
-		static ArrayList<String> matchGroupClose(String rgx, String & input);
+		static Array<String> matchGroupClose(String rgx, String & input);
 		inline static String matchStart(String rgx, String & input);
 		inline static String matchCloseStart(String rgx, String & input);
 		static String replaceMatches(String mtc, String & input, String rpl);
@@ -2878,20 +2878,20 @@ namespace Stack {
 	};
 	class ParserErrorException: public Exception {
 		private:
-		const ArrayList<SyntaxError> * const _errors;
+		const Array<SyntaxError> * const _errors;
 		const String _fileName;
 		public:
-		const ArrayList<SyntaxError> * const getErrors() const { return _errors; }
+		const Array<SyntaxError> * const getErrors() const { return _errors; }
 		const String & getFileName() const { return _fileName; }
-		ParserErrorException(ArrayList<SyntaxError> * errors, String name):
+		ParserErrorException(Array<SyntaxError> * errors, String name):
 		Exception(), _errors(errors), _fileName(name) { }
 		~ParserErrorException() { delete _errors; }
 	};
 	class Parser {
 		private:
 		String * input = nullptr;
-		ArrayList<Token> * tokens = nullptr;
-		ArrayList<SyntaxError> * errors = new ArrayList<SyntaxError>();
+		Array<Token> * tokens = nullptr;
+		Array<SyntaxError> * errors = new Array<SyntaxError>();
 		SizeType index = 0;
 		Bool isInControlFlow = false;
 		Bool isInFunction = false;
@@ -2937,7 +2937,7 @@ namespace Stack {
 		FileScope * runImportClassification();
 		void cleanEmptyTokens();
 		inline Bool match(TokenType type);
-		inline Bool match(ArrayList<TokenType> * types);
+		inline Bool match(Array<TokenType> * types);
 		inline Bool check(TokenType type);
 		inline Bool isOutOfRange();
 		inline Bool isAtEnd();
@@ -2958,7 +2958,7 @@ namespace Stack {
 			static Parser instance;
 			return & instance;
 		}
-		FileScope * parse(ArrayList<Token> * tokens, String * input = nullptr, String fileName = "Unknown File");
+		FileScope * parse(Array<Token> * tokens, String * input = nullptr, String fileName = "Unknown File");
 	};
 
 }
