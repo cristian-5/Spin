@@ -69,8 +69,8 @@ namespace Stack {
 		symbol,
 		identifier,
 
-		braketSymbol,
 		braSymbol,
+		braketSymbol,
 		ketSymbol,
 
 		intLiteral,
@@ -80,7 +80,8 @@ namespace Stack {
 		imaginaryLiteral,
 		realLiteral,
 		colourLiteral,
-		basisLiteral,
+		basisBraLiteral,
+		basisKetLiteral,
 		emptyLiteral,
 
 		arrow,
@@ -191,6 +192,7 @@ namespace Stack {
 		Bool isTypeLiteral() const;
 		Bool isTypeBasicType() const;
 		Bool isTypeType() const;
+		Bool isTypeBraKet() const;
 	};
 	class TokenRule {
 		public:
@@ -330,23 +332,23 @@ namespace Stack {
 		virtual ~Expression() = default;
 		class Visitor {
 			public:
-			virtual void visitAssignmentExpression(Assignment * e) = 0;
-			virtual void visitBinaryExpression(Binary * e) = 0;
-			virtual void visitCallExpression(Call * e) = 0;
-			virtual void visitComparisonExpression(Comparison * e) = 0;
-			virtual void visitGetExpression(Get * e) = 0;
-			virtual void visitGroupingExpression(Grouping * e) = 0;
-			virtual void visitListExpression(List * e) = 0;
-			virtual void visitLiteralExpression(Literal * e) = 0;
-			virtual void visitLogicalExpression(Logical * e) = 0;
-			virtual void visitSetExpression(Set * e) = 0;
-			virtual void visitSubscriptExpression(Subscript * e) = 0;
-			virtual void visitSuperExpression(Super * e) = 0;
-			virtual void visitThisExpression(This * e) = 0;
-			virtual void visitUnaryExpression(Unary * e) = 0;
-			virtual void visitIdentifierExpression(Identifier * e) = 0;
+			virtual Object * visitAssignmentExpression(Assignment * e) = 0;
+			virtual Object * visitBinaryExpression(Binary * e) = 0;
+			virtual Object * visitCallExpression(Call * e) = 0;
+			virtual Object * visitComparisonExpression(Comparison * e) = 0;
+			virtual Object * visitGetExpression(Get * e) = 0;
+			virtual Object * visitGroupingExpression(Grouping * e) = 0;
+			virtual Object * visitListExpression(List * e) = 0;
+			virtual Object * visitLiteralExpression(Literal * e) = 0;
+			virtual Object * visitLogicalExpression(Logical * e) = 0;
+			virtual Object * visitSetExpression(Set * e) = 0;
+			virtual Object * visitSubscriptExpression(Subscript * e) = 0;
+			virtual Object * visitSuperExpression(Super * e) = 0;
+			virtual Object * visitThisExpression(This * e) = 0;
+			virtual Object * visitUnaryExpression(Unary * e) = 0;
+			virtual Object * visitIdentifierExpression(Identifier * e) = 0;
 		};
-		virtual void accept(Visitor *) { }
+		virtual Object * accept(Visitor *) { return nullptr; }
 		template<typename t>
 		Bool isInstanceOf() {
 			return (dynamic<t *>(this));
@@ -390,7 +392,7 @@ namespace Stack {
 		Token * name = nullptr;
 		Expression * value = nullptr;
 		Assignment(Token * name, Expression * value);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Assignment();
 	};
 	class Binary: public Expression {
@@ -399,7 +401,7 @@ namespace Stack {
 		Expression * l = nullptr;
 		Token * o = nullptr;
 		Binary(Expression * ls, Token * op, Expression * rs);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Binary();
 	};
 	class Call: public Expression {
@@ -408,7 +410,7 @@ namespace Stack {
 		Expression * callee = nullptr;
 		Array<Expression *> * arguments = nullptr;
 		Call(Expression * c, Token * p, Array<Expression *> * a);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Call();
 	};
 	class Comparison: public Expression {
@@ -417,7 +419,7 @@ namespace Stack {
 		Expression * l = nullptr;
 		Token * o = nullptr;
 		Comparison(Expression * ls, Token * op, Expression * rs);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Comparison();
 	};
 	class Get: public Expression {
@@ -425,21 +427,21 @@ namespace Stack {
 		Expression * object = nullptr;
 		Token * name = nullptr;
 		Get(Expression * o, Token * n);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Get();
 	};
 	class Grouping: public Expression {
 		public:
 		Expression * expression = nullptr;
 		Grouping(Expression * e);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Grouping();
 	};
 	class List: public Expression {
 		public:
 		Array<Expression *> * values = nullptr;
 		List(Array<Expression *> * v);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~List();
 	};
 	class Literal: public Expression {
@@ -447,7 +449,7 @@ namespace Stack {
 		Token * token = nullptr;
 		Object * object = nullptr;
 		Literal(Token * t);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Literal();
 	};
 	class Logical: public Expression {
@@ -456,7 +458,7 @@ namespace Stack {
 		Expression * l = nullptr;
 		Token * o = nullptr;
 		Logical(Expression * ls, Token * op, Expression * rs);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Logical();
 	};
 	class Set: public Expression {
@@ -465,7 +467,7 @@ namespace Stack {
 		Token * name = nullptr;
 		Expression * value = nullptr;
 		Set(Expression * o, Token * n, Expression * v);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Set();
 	};
 	class Subscript: public Expression {
@@ -474,7 +476,7 @@ namespace Stack {
 		Expression * item = nullptr;
 		Expression * expression = nullptr;
 		Subscript(Expression * i, Token * b, Expression * e);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Subscript();
 	};
 	class Super: public Expression {
@@ -482,14 +484,14 @@ namespace Stack {
 		Token * keyword = nullptr;
 		Token * method = nullptr;
 		Super(Token * k, Token * m);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Super();
 	};
 	class This: public Expression {
 		public:
 		Token * keyword = nullptr;
 		This(Token * k);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~This();
 	};
 	class Unary: public Expression {
@@ -497,14 +499,14 @@ namespace Stack {
 		Expression * r = nullptr;
 		Token * o = nullptr;
 		Unary(Token * op, Expression * rs);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Unary();
 	};
 	class Identifier: public Expression {
 		public:
 		Token * name = nullptr;
 		Identifier(Token * n);
-		void accept(Visitor * visitor) override;
+		Object * accept(Visitor * visitor) override;
 		~Identifier();
 	};
 
@@ -826,29 +828,57 @@ namespace Stack {
 
 	/* Vector */
 
+	class InvalidIndexException: public Exception {
+		public: InvalidIndexException(): Exception() { }
+	};
+	class InvalidOperationException: public Exception {
+		public: InvalidOperationException(): Exception() { }
+	};
+
 	class Vector {
 		private:
-			
+		const Bool braDirection = false;
+		const Bool ketDirection = false;
+		Complex * space = nullptr;
+		SizeType size = 0;
+		Bool direction = ketDirection;
 		public:
-		Vector();
+		Vector(SizeType s);
 		~Vector();
-		Object * copyAt(SizeType i);
-		Object * referenceAt(SizeType i);
-		Vector * copy();
-		String stringValue();
+		SizeType getSize() const;
+		Bool isEmpty() const;
+		Bool isBra() const;
+		Bool isKet() const;
+		inline void negate();
+		void invert();
+		inline Vector * getInverse() const;
+		Vector * getAdditiveInverse() const;
+		Complex & operator [] (SizeType i);
+		Bool operator == (Vector r) const;
+		Bool operator != (Vector r) const;
+		Vector operator + (Vector r) const;
+		Vector operator - () const;
+		Vector operator - (Vector r) const;
+		Vector operator * (Complex z) const;
+		static inline Vector * kroneckerProduct(Vector * a, Vector * b);
+		static Vector * tensorProduct(Vector * a, Vector * b);
+		Complex * copyAt(SizeType i) const;
+		Complex * referenceAt(SizeType i) const;
+		Vector * copy() const;
+		String stringValue() const;
 	};
 
 	/* Processor */
 
 	class EvaluationError: public Exception {
 		private:
-		const String _message;
-		const Token _token;
+		const String message;
+		const Token token;
 		public:
-		const String & getMessage() const { return _message; }
-		const Token & getToken() const { return _token; }
-		EvaluationError(String message, Token token):
-		Exception(), _message(message), _token(token) { }
+		const String & getMessage() const { return message; }
+		const Token & getToken() const { return token; }
+		EvaluationError(String m, Token t):
+		Exception(), message(m), token(t) { }
 	};
 	class Processor {
 		private:
@@ -2643,46 +2673,49 @@ namespace Stack {
 
 	class InterpreterErrorException: public Exception {
 		private:
-		const String _message;
-		const FilePosition _position;
-		const String _fileName;
+		const String message;
+		const FilePosition position;
+		const String fileName;
 		public:
-		const String & getMessage() const { return _message; }
-		const FilePosition & getPosition() const { return _position; }
-		const String & getFileName() const { return _fileName; }
-		InterpreterErrorException(String message, FilePosition position, String name):
-		Exception(),  _message(message), _position(position), _fileName(name) { }
+		const String & getMessage() const { return message; }
+		const FilePosition & getPosition() const { return position; }
+		const String & getFileName() const { return fileName; }
+		InterpreterErrorException(String m, FilePosition p, String n):
+		Exception(),  message(m), position(p), fileName(n) { }
 	};
 	class InterpreterReturn: public Exception {
-		public: InterpreterReturn(): Exception() { }
+		private:
+		Object * value = nullptr;
+		Token * returnToken = nullptr;
+		public:
+		Object * getReturnValue() const { return value; }
+		Token * getReturnToken() const { return returnToken; }
+		InterpreterReturn(Object * v, Token * t): 
+		value(v), returnToken(t), Exception() { }
+		~InterpreterReturn() { if (returnToken) delete returnToken; }
 	};
 	class Interpreter: public Expression::Visitor, public Statement::Visitor {
 		private:
-		Object * value = nullptr;
 		Processor * CPU = Processor::self();
 		Environment * memory = nullptr;
 		Bool broken = false;
 		Bool continued = false;
-		void deleteValue();
-		void safeDeleteValue();
-		void resetValue();
-		void setValue(Object * o);
-		void visitAssignmentExpression(Assignment * e) override;
-		void visitBinaryExpression(Binary * e) override;
-		void visitCallExpression(Call * e) override;
-		void visitComparisonExpression(Comparison * e) override;
-		void visitGetExpression(Get * e) override;
-		void visitGroupingExpression(Grouping * e) override;
-		void visitListExpression(List * e) override;
-		void visitLiteralExpression(Literal * e) override;
-		void visitLogicalExpression(Logical * e) override;
-		void visitSetExpression(Set * e) override;
-		void visitSubscriptExpression(Subscript * e) override;
-		void visitSuperExpression(Super * e) override;
-		void visitThisExpression(This * e) override;
-		void visitUnaryExpression(Unary * e) override;
-		void visitIdentifierExpression(Identifier * e) override;
-		void evaluateExpression(Expression * e);
+		Object * visitAssignmentExpression(Assignment * e) override;
+		Object * visitBinaryExpression(Binary * e) override;
+		Object * visitCallExpression(Call * e) override;
+		Object * visitComparisonExpression(Comparison * e) override;
+		Object * visitGetExpression(Get * e) override;
+		Object * visitGroupingExpression(Grouping * e) override;
+		Object * visitListExpression(List * e) override;
+		Object * visitLiteralExpression(Literal * e) override;
+		Object * visitLogicalExpression(Logical * e) override;
+		Object * visitSetExpression(Set * e) override;
+		Object * visitSubscriptExpression(Subscript * e) override;
+		Object * visitSuperExpression(Super * e) override;
+		Object * visitThisExpression(This * e) override;
+		Object * visitUnaryExpression(Unary * e) override;
+		Object * visitIdentifierExpression(Identifier * e) override;
+		Object * evaluateExpression(Expression * e);
 		void visitBlockStatement(BlockStatement * e) override;
 		void visitBreakStatement(BreakStatement * e) override;
 		void visitContinueStatement(ContinueStatement * e) override;
@@ -2715,7 +2748,6 @@ namespace Stack {
 			return & instance;
 		}
 		Environment * globals = nullptr;
-		Object * getCurrentValue() const;
 		void executeFunction(BlockStatement * block, Environment * environment);
 		void evaluate(FileScope * fileScope, String * input = nullptr, String fileName = "Unknown File");
 	};
@@ -2739,11 +2771,12 @@ namespace Stack {
 			{ "(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})\\b", TokenType::colourLiteral },
 			{ "(false|true)\\b", TokenType::boolLiteral },
 
-			{ "(|[ \\t\\n]*[01][ \\t\\n]*>)", TokenType::basisLiteral },
+			{ "(<[01]\\|)", TokenType::basisBraLiteral },
+			{ "(\\|[01]>)", TokenType::basisKetLiteral },
 
-			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::braketSymbol },
-			{ "(<[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*\\|)", TokenType::braSymbol },
-			{ "(\\|[ \\t\\n]*[A-Za-z_][A-Za-z0-9_]*[ \\t\\n]*>)", TokenType::ketSymbol },
+			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::braketSymbol },
+			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|)", TokenType::braSymbol },
+			{ "(\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::ketSymbol },
 
 			{ "(\\->)", TokenType::arrow },
 			{ "(\\:)", TokenType::colon },
@@ -2869,24 +2902,24 @@ namespace Stack {
 
 	class SyntaxError: public Exception {
 		private:
-		const String _message;
-		const FilePosition _position;
+		const String message;
+		const FilePosition position;
 		public:
-		const FilePosition & getPosition() const { return _position; }
-		const String & getMessage() const { return _message; }
-		SyntaxError(String message, FilePosition position):
-		Exception(), _message(message), _position(position) { }
+		const FilePosition & getPosition() const { return position; }
+		const String & getMessage() const { return message; }
+		SyntaxError(String m, FilePosition p):
+		Exception(), message(m), position(p) { }
 	};
 	class ParserErrorException: public Exception {
 		private:
-		const Array<SyntaxError> * const _errors;
-		const String _fileName;
+		const Array<SyntaxError> * const errors;
+		const String fileName;
 		public:
-		const Array<SyntaxError> * const getErrors() const { return _errors; }
-		const String & getFileName() const { return _fileName; }
-		ParserErrorException(Array<SyntaxError> * errors, String name):
-		Exception(), _errors(errors), _fileName(name) { }
-		~ParserErrorException() { delete _errors; }
+		const Array<SyntaxError> * const getErrors() const { return errors; }
+		const String & getFileName() const { return fileName; }
+		ParserErrorException(Array<SyntaxError> * e, String n):
+		Exception(), errors(e), fileName(n) { }
+		~ParserErrorException() { delete errors; }
 	};
 	class Parser {
 		private:
@@ -2915,6 +2948,7 @@ namespace Stack {
 		String * typeString();
 		Statement * declaration();
 		Statement * variableDeclaration(String stringType);
+		Statement * vectorDeclaration();
 		Statement * statement();
 		Statement * ifStatement();
 		Statement * blockStatement();

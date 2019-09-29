@@ -37,6 +37,10 @@ namespace Stack {
 		return type >= TokenType::classKeyword &&
 			   type <= TokenType::exceptKeyword;
 	}
+	Bool Token::isTypeBraKet() const {
+		return type >= TokenType::braSymbol &&
+			   type <= TokenType::ketSymbol;
+	} 
 
 	TokenRule::TokenRule(String p, TokenType t) {
 		pattern = p; type = t;

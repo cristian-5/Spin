@@ -344,6 +344,10 @@ namespace Stack {
 		return st;
 	}
 	Statement * Parser::variableDeclaration(String stringType) {
+		if (stringType == "Vector") {
+			try { return vectorDeclaration(); }
+			catch (SyntaxError & s) { throw; }
+		}
 		Token * name = nullptr;
 		Expression * initializer = nullptr;
 		try {
@@ -357,6 +361,30 @@ namespace Stack {
 		}
 		BasicType type = Converter::typeFromString(stringType);
 		return new VariableStatement(name, initializer, type);
+	}
+	Statement * Parser::vectorDeclaration() {
+		Token * name = nullptr;
+		Expression * initializer = nullptr;
+		try {
+			if (match(TokenType::braSymbol) ||
+				match(TokenType::ketSymbol)) {
+				name = new Token(previous());
+			} else {
+				Token t = previous();
+				FilePosition fp = Linker::getPosition(input, t.position);
+				throw SyntaxError(
+					"Expected <identifier| or |identifier> in bra-ket notation but found '"
+					+ t.lexeme + "'!", fp
+				);
+			}
+			if (match(TokenType::equal)) initializer = expression();
+			consume(TokenType::semicolon, ";");
+		} catch (SyntaxError & s) {
+			if (name) delete name;
+			if (initializer) delete initializer;
+			throw;
+		}
+		return new VariableStatement(name, initializer, BasicType::VectorType);
 	}
 	Statement * Parser::statement() {
 		Statement * st = nullptr;

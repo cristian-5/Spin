@@ -16,8 +16,7 @@
  *
  */
 
-#include "../Source/Aliases/Aliases.hpp"
-#include "../Source/Lexer/Lexer.hpp"
+#include "../Source/Aliases/Includes.hpp"
 
 using namespace std;
 

@@ -23,20 +23,12 @@
 
 namespace Stack {
 
-	void Interpreter::deleteValue() { delete value; value = nullptr; }
-	void Interpreter::safeDeleteValue() { if (value) delete value; value = nullptr; }
-	void Interpreter::resetValue() { value = nullptr; }
-	void Interpreter::setValue(Object * o) {
-		if (value == o) return;
-		if (value) delete value;
-		value = o;
-	}
-
 	/* Expressions */
 
-	void Interpreter::visitAssignmentExpression(Assignment * e) {
+	Object * Interpreter::visitAssignmentExpression(Assignment * e) {
+		Object * expression = nullptr;
 		try {
-			evaluate(e -> value);
+			expression = evaluateExpression(e -> value);
 			Object * o = nullptr;
 			try {
 				o = memory -> getReference(e -> name-> lexeme);
@@ -46,30 +38,37 @@ namespace Stack {
 					e -> name -> lexeme + "'!", * e -> name
 				);
 			}
-			CPU -> applyAssignment(e -> name, o, value);
-		} catch (Exception & r) { throw; }
+			CPU -> applyAssignment(e -> name, o, expression);
+			return expression;
+		} catch (Exception & exc) { throw; }
 	}
-	void Interpreter::visitBinaryExpression(Binary * e) {
+	Object * Interpreter::visitBinaryExpression(Binary * e) {
+		Object * l = nullptr;
+		Object * r = nullptr;
+		Object * result = nullptr;
 		try {
-			evaluateExpression(e -> l);
-			Object * l = value -> copy();
-			evaluateExpression(e -> r);
-			Object * r = value -> copy();
-			setValue(CPU -> applyBinaryOperator(e -> o, l, r));
-			delete r; delete l;
-		} catch (Exception & r) { throw; }
+			l = evaluateExpression(e -> l);
+			r = evaluateExpression(e -> r);
+			result = CPU -> applyBinaryOperator(e -> o, l, r);
+			delete r; delete l; return result;
+		} catch (Exception & exc) {
+			if (l) delete l;
+			if (r) delete r;
+			if (result) delete result;
+			throw;
+		}
 	}
-	void Interpreter::visitCallExpression(Call * e) {
+	Object * Interpreter::visitCallExpression(Call * e) {
+		Object * callee = nullptr;
+		CallProtocol * function = nullptr;
+		Array<Object *> arguments = Array<Object *>();
 		try {
-			evaluateExpression(e -> callee);
-			Object * callee = value -> copy();
-			deleteValue();
-			Array<Object *> arguments = Array<Object *>();
+			callee = evaluateExpression(e -> callee);
 			for (Expression * a : * e -> arguments) {
-				evaluateExpression(a);
 				// TODO: push reference if ref keyword
-				arguments.push(value -> copy());
-				deleteValue();
+				Object * evaluation = evaluateExpression(a);
+				arguments.push(evaluation -> copy());
+				delete evaluation;
 			}
 			if (!(callee -> isFunction()) ||
 				!(callee -> value)) {
@@ -78,77 +77,90 @@ namespace Stack {
 					* e -> parenthesis
 				);
 			}
-			CallProtocol * function = (CallProtocol *)(callee -> value);
+			function = (CallProtocol *)(callee -> value);
 			if (arguments.size() != function -> arity()) {
 				throw EvaluationError(
 					"Call of " + function -> stringValue() + " doesn't match the predefined parameters!",
 					* e -> parenthesis
 				);
 			}
-			setValue(function -> call(this, arguments, e -> parenthesis));
-			delete callee;
-		} catch (Exception & r) { throw; }
+			Object * result = function -> call(this, arguments, e -> parenthesis);
+			delete callee; return result;
+		} catch (Exception & exc) {
+			if (callee) delete callee;
+			for (Object * o : arguments) delete o;
+			if (function) delete function;
+			throw;
+		}
 	}
-	void Interpreter::visitComparisonExpression(Comparison * e) {
+	Object * Interpreter::visitComparisonExpression(Comparison * e) {
+		Object * l = nullptr;
+		Object * r = nullptr;
+		Object * result = nullptr;
 		try {
-			evaluateExpression(e -> l);
-			Object * l = value -> copy();
-			evaluateExpression(e -> r);
-			Object * r = value -> copy();
-			setValue(CPU -> applyComparisonOperator(e -> o, l, r));
-			delete r; delete l;
-		} catch (Exception & r) { throw; }
+			l = evaluateExpression(e -> l);
+			r = evaluateExpression(e -> r);
+			result = CPU -> applyComparisonOperator(e -> o, l, r);
+			delete r; delete l; return result;
+		} catch (Exception & exc) {
+			if (l) delete l;
+			if (r) delete r;
+			if (result) delete result;
+			throw;
+		}
 	}
-	void Interpreter::visitGetExpression(Get * e) { }
-	void Interpreter::visitGroupingExpression(Grouping * e) {
-		try { evaluateExpression(e -> expression); }
-		catch (Exception & r) { throw; }
+	Object * Interpreter::visitGetExpression(Get * e) { return nullptr; }
+	Object * Interpreter::visitGroupingExpression(Grouping * e) {
+		try { return evaluateExpression(e -> expression); }
+		catch (Exception & exc) { throw; }
 	}
-	void Interpreter::visitListExpression(List * e) {
+	Object * Interpreter::visitListExpression(List * e) {
 		Array<Object *> * elements = new Array<Object *>();
 		try {
 			for (Expression * ex : * e -> values) {
-				evaluateExpression(ex);
-				elements -> push(value -> copy());
-				deleteValue();
+				elements -> push(evaluateExpression(ex));
 			}
-		} catch (Exception & r) {
+		} catch (Exception & exc) {
 			for (Object * o : * elements) delete o;
 			delete elements;
 			throw;
 		}
-		setValue(new Object(BasicType::ArrayType, new ArrayList(elements)));
+		return new Object(BasicType::ArrayType, new ArrayList(elements));
 	}
-	void Interpreter::visitLiteralExpression(Literal * e) {
+	Object * Interpreter::visitLiteralExpression(Literal * e) {
 		try {
 			if (!(e -> object)) {
 				e -> object = Converter::literalToObject(e -> token);
 			}
-			setValue((e -> object) -> copy());
-		} catch (Exception & r) { throw; }
+			return e -> object -> copy();
+		} catch (Exception & exc) { throw; }
 	}
-	void Interpreter::visitLogicalExpression(Logical * e) {
+	Object * Interpreter::visitLogicalExpression(Logical * e) {
+		Object * expression = nullptr;
 		try {
-			evaluateExpression(e -> l);
-			if (!(value -> isBool())) {
+			expression = evaluateExpression(e -> l);
+			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Invalid Bool expression found on left side of circuit operator '||'!",
 					* e -> o
 				);
 			}
 			if ((e -> o -> type) == TokenType::OR) {
-				if (value -> getBoolValue()) return;
-			} else if (!(value -> getBoolValue())) return;
-			deleteValue();
-			evaluateExpression(e -> r);
-		} catch (Exception & r) { throw; }
+				if (expression -> getBoolValue()) return expression;
+			} else if (!(expression -> getBoolValue())) return expression;
+			return evaluateExpression(e -> r);
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
-	void Interpreter::visitSetExpression(Set * e) { }
-	void Interpreter::visitSubscriptExpression(Subscript * e) {
+	Object * Interpreter::visitSetExpression(Set * e) { return nullptr; }
+	Object * Interpreter::visitSubscriptExpression(Subscript * e) {
+		Object * item = nullptr;
+		Object * expression = nullptr;
+		Object * result = nullptr;
 		try {
-			evaluateExpression(e -> item);
-			Object * item = value -> copy();
-			deleteValue();
+			item = evaluateExpression(e -> item);
 			if (!(item -> isSubscriptable()) ||
 				!(item -> value)) {
 				throw EvaluationError(
@@ -156,23 +168,35 @@ namespace Stack {
 					* e -> bracket
 				);
 			}
-			evaluateExpression(e -> expression);
-			Object * expression = value -> copy();
-			setValue(CPU -> applySubscriptOperator(e -> bracket, item, expression));
+			expression = evaluateExpression(e -> expression);
+			result = CPU -> applySubscriptOperator(e -> bracket, item, expression);
 			delete item; delete expression;
-		} catch (Exception & r) { throw; }
+			return result;
+		} catch (Exception & exc) {
+			if (item) delete item;
+			if (expression) delete expression;
+			if (result) delete result;
+			throw;
+		}
 	}
-	void Interpreter::visitSuperExpression(Super * e) { }
-	void Interpreter::visitThisExpression(This * e) { }
-	void Interpreter::visitUnaryExpression(Unary * e) {
+	Object * Interpreter::visitSuperExpression(Super * e) { return nullptr; }
+	Object * Interpreter::visitThisExpression(This * e) { return nullptr; }
+	Object * Interpreter::visitUnaryExpression(Unary * e) {
+		Object * expression = nullptr;
+		Object * result = nullptr;
 		try {
-			evaluateExpression(e -> r);
-			setValue(CPU -> applyUnaryOperator(e -> o, value));
-		} catch (Exception & r) { throw; }
+			expression = evaluateExpression(e -> r);
+			result = CPU -> applyUnaryOperator(e -> o, expression);
+			delete expression; return result;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			if (result) delete result;
+			throw;
+		}
 	}
-	void Interpreter::visitIdentifierExpression(Identifier * e) {
+	Object * Interpreter::visitIdentifierExpression(Identifier * e) {
 		try {
-			setValue(memory -> getValue(e -> name -> lexeme));
+			return memory -> getValue(e -> name -> lexeme) -> copy();
 		} catch (VariableNotFoundException & r) {
 			throw EvaluationError(
 				"Unexpected identifier '" +
@@ -181,9 +205,9 @@ namespace Stack {
 		}
 	}
 
-	void Interpreter::evaluateExpression(Expression * e) {
-		try { e -> accept(this); }
-		catch (Exception & r) { throw; }
+	Object * Interpreter::evaluateExpression(Expression * e) {
+		try { return e -> accept(this); }
+		catch (Exception & exc) { throw; }
 	}
 
 	/* Statements */
@@ -191,7 +215,7 @@ namespace Stack {
 	void Interpreter::visitBlockStatement(BlockStatement * e) {
 		try {
 			executeBlock(e -> statements, new Environment(memory));
-		} catch (Exception & r) { throw; }
+		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitBreakStatement(BreakStatement * e) {
 		broken = true;
@@ -200,70 +224,87 @@ namespace Stack {
 		continued = true;
 	}
 	void Interpreter::visitDoWhileStatement(DoWhileStatement * e) {
+		Object * expression = nullptr;
 		try {
-			evaluateExpression(e -> expression);
-			if (!(value -> isBool())) {
+			expression = evaluateExpression(e -> expression);
+			if (!(expression -> isBool())) {
 				throw EvaluationError(
-					"Unsupported evaluation of non logical expression in iteration statement!",
+					"Unsupported evaluation of non logical condition in iteration statement!",
 					* e -> whileToken
 				);
 			}
-			Bool condition = value -> getBoolValue();
+			Bool condition = expression -> getBoolValue();
 			executeStatement(e -> body);
 			if (broken) { broken = false; return; }
 			while (condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
-				evaluateExpression(e -> expression);
-				condition = value -> getBoolValue();
+				delete expression; expression = nullptr;
+				expression = evaluateExpression(e -> expression);
+				condition = expression -> getBoolValue();
 			}
-		} catch (Exception & r) { throw; }
+			if (expression) delete expression;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 	void Interpreter::visitExpressionStatement(ExpressionStatement * e) {
 		try { evaluateExpression(e -> e); }
-		catch (Exception & r) { throw; }
+		catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitForStatement(ForStatement * e) {
+		Object * expression = nullptr;
 		try {
 			executeStatement(e -> declaration);
-			evaluateExpression(e -> expression);
-			if (!(value -> isBool())) {
+			expression = evaluateExpression(e -> expression);
+			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> forToken
 				);
 			}
-			Bool condition = value -> getBoolValue();
+			Bool condition = expression -> getBoolValue();
 			while (condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
+				delete expression; expression = nullptr;
 				evaluateExpression(e -> stepper);
-				evaluateExpression(e -> expression);
-				condition = value -> getBoolValue();
+				expression = evaluateExpression(e -> expression);
+				condition = expression -> getBoolValue();
 			}
-		} catch (Exception & r) { throw; }
+			if (expression) delete expression;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 	void Interpreter::visitFunctionStatement(FunctionStatement * e) {
 		try {
 			Object * function = new Object(BasicType::FunctionType, new Function(e, memory));
 			memory -> define(e -> name -> lexeme, function);
-		} catch (Exception & r) { throw; }
+		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitIfStatement(IfStatement * e) {
+		Object * expression = nullptr;
 		try {
-			evaluateExpression(e -> expression);
-			if (!(value -> isBool())) {
+			expression = evaluateExpression(e -> expression);
+			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in conditional statement!",
 					* e -> ifToken
 				);
 			}
-			if (value -> getBoolValue()) {
+			if (expression -> getBoolValue()) {
 				executeStatement(e -> thenBranch);
 			} else if (e -> elseBranch) {
 				executeStatement(e -> elseBranch);
 			}
-		} catch (Exception & r) { throw; }
+			if (expression) delete expression;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 	void Interpreter::visitLoopStatement(LoopStatement * e) {
 		try {
@@ -271,79 +312,100 @@ namespace Stack {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
 			}
-		} catch (Exception & r) { throw; }
+		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitPrintStatement(PrintStatement * e) {
+		Object * expression = nullptr;
 		try {
-			evaluateExpression(e -> e);
+			expression = evaluateExpression(e -> e);
 			// TO FIX: Find a better way to output things.
-			std::cout << value -> getObjectStringValue() << std::endl;
-		} catch (Exception & r) { throw; }
+			std::cout << expression -> getObjectStringValue() << std::endl;
+			if (expression) delete expression;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 	void Interpreter::visitProcedureStatement(ProcedureStatement * e) {
 		try {
 			Object * procedure = new Object(BasicType::FunctionType, new Procedure(e, memory));
 			memory -> define(e -> name -> lexeme, procedure);
-		} catch (Exception & r) { throw; }
+		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitRepeatUntilStatement(RepeatUntilStatement * e) {
+		Object * expression = nullptr;
 		try {
-			evaluateExpression(e -> expression);
-			if (!(value -> isBool())) {
+			expression = evaluateExpression(e -> expression);
+			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> untilToken
 				);
 			}
-			Bool condition = value -> getBoolValue();
+			Bool condition = expression -> getBoolValue();
 			executeStatement(e -> body);
 			if (broken) { broken = false; return; }
 			while (!condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
-				evaluateExpression(e -> expression);
-				condition = value -> getBoolValue();
+				delete expression; expression = nullptr;
+				expression = evaluateExpression(e -> expression);
+				condition = expression -> getBoolValue();
 			}
-		} catch (Exception & r) { throw; }
+			if (expression) delete expression;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 	void Interpreter::visitRestStatement(RestStatement * e) {	
 	}
 	void Interpreter::visitReturnStatement(ReturnStatement * e) {
+		Object * expression = nullptr;
 		try {
-			if (e -> e) evaluateExpression(e -> e);
-			else safeDeleteValue();
-			throw InterpreterReturn();
-		} catch (Exception & r) { throw; }
+			if (e -> e) expression = evaluateExpression(e -> e);
+			throw InterpreterReturn(expression, new Token(* e -> returnToken));
+		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitUntilStatement(UntilStatement * e) {
+		Object * expression = nullptr;
 		try {
-			evaluateExpression(e -> expression);
-			if (!(value -> isBool())) {
+			expression = evaluateExpression(e -> expression);
+			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> untilToken
 				);
 			}
-			Bool condition = value -> getBoolValue();
+			Bool condition = expression -> getBoolValue();
 			while (!condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
-				evaluateExpression(e -> expression);
-				condition = value -> getBoolValue();
+				delete expression; expression = nullptr;
+				expression = evaluateExpression(e -> expression);
+				condition = expression -> getBoolValue();
 			}
-		} catch (Exception & r) { throw; }
+			if (expression) delete expression;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 	void Interpreter::visitVariableStatement(VariableStatement * e) {
+		Object * expression = nullptr;
 		try {
 			if (e -> initializer) {
-				evaluate(e -> initializer);
+				expression = evaluateExpression(e -> initializer);
 				Object * o = new Object(e -> type);
-				CPU -> applyAssignment(e -> name, o, value);
-				setValue(o);
-			} else setValue(new Object(e -> type));
-		} catch (Exception & r) { throw; }
+				CPU -> applyAssignment(e -> name, o, expression);
+				delete expression; expression = o;
+			} else expression = new Object(e -> type);
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 		try {
-			memory -> define(e -> name -> lexeme, value);
+			memory -> define(e -> name -> lexeme, expression);
 		} catch (VariableRedefinitionException & r) {
 			throw EvaluationError(
 				"Variable redefinition! The identifier '" +
@@ -351,30 +413,35 @@ namespace Stack {
 				r.getType() + "'!", * e -> name
 			);
 		}
-		resetValue();
 	}
 	void Interpreter::visitWhileStatement(WhileStatement * e) {
+		Object * expression = nullptr;
 		try {
-			evaluateExpression(e -> expression);
-			if (!(value -> isBool())) {
+			expression = evaluateExpression(e -> expression);
+			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> whileToken
 				);
 			}
-			Bool condition = value -> getBoolValue();
+			Bool condition = expression -> getBoolValue();
 			while (condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
-				evaluateExpression(e -> expression);
-				condition = value -> getBoolValue();
+				delete expression; expression = nullptr;
+				expression = evaluateExpression(e -> expression);
+				condition = expression -> getBoolValue();
 			}
-		} catch (Exception & r) { throw; }
+			if (expression) delete expression;
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 
 	void Interpreter::executeStatement(Statement * statement) {
 		try { statement -> accept(this); }
-		catch (Exception & r) { throw; }
+		catch (Exception & exc) { throw; }
 	}
 	void Interpreter::executeBlock(Array<Statement *> * statements, Environment * environment) {
 		Environment * previous = memory;
@@ -386,7 +453,7 @@ namespace Stack {
 					continued = false; break;
 				}
 			}
-		} catch (Exception & r) {
+		} catch (Exception & exc) {
 			memory = previous;
 			delete environment;
 			throw;
@@ -397,12 +464,12 @@ namespace Stack {
 	void Interpreter::executeFunction(BlockStatement * block, Environment * environment) {
 		try {
 			executeBlock(block -> statements, environment);
-		} catch (Exception & r) { throw; }
+		} catch (Exception & exc) { throw; }
 	}
 
 	Object * Interpreter::evaluate(Expression * expression, String * input, String fileName) {
 		try {
-			expression -> accept(this);
+			return expression -> accept(this);
 		} catch (EvaluationError & e) {
 			const UInt32 cursor = e.getToken().position;
 			FilePosition fp = Linker::getPosition(input, cursor);
@@ -410,10 +477,7 @@ namespace Stack {
 				e.getMessage(), fp, fileName
 			);
 		}
-		return value;
 	}
-
-	Object * Interpreter::getCurrentValue() const { return value; }
 
 	Interpreter::Interpreter() {
 		globals = new Environment();

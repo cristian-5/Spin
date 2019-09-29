@@ -50,9 +50,15 @@ namespace Stack {
 		}
 		try {
 			i -> executeFunction(declaration -> body, environment);
-		} catch (InterpreterReturn & ret) { }
-		Object * value = i -> getCurrentValue();
-		if (value) return value -> copy();
+		} catch (InterpreterReturn & ret) {
+			Object * value = ret.getReturnValue();
+			String type = declaration -> returnType -> tokenType -> lexeme;
+			if (value && type == value -> getObjectName()) return value;
+			throw EvaluationError(
+				"Function " + stringValue() + " reached bottom of body without returning a valid '" +
+				(declaration -> returnType -> tokenType -> lexeme) + "' value!", * ret.getReturnToken()
+			);
+		}
 		throw EvaluationError(
 			"Function " + stringValue() + " reached bottom of body without returning a valid '" +
 			(declaration -> returnType -> tokenType -> lexeme) + "' value!", * c
@@ -93,7 +99,14 @@ namespace Stack {
 		}
 		try {
 			i -> executeFunction(declaration -> body, environment);
-		} catch (InterpreterReturn & ret) { }
+		} catch (InterpreterReturn & ret) {
+			if (ret.getReturnValue() -> value) {
+				throw EvaluationError(
+					"Procedure " + stringValue() + " reached invalid return statement with value of type '" +
+					ret.getReturnValue() -> getObjectName() + "' value!", * ret.getReturnToken()
+				);
+			}
+		}
 		return nullptr;
 	}
 	String Procedure::stringValue() const {
