@@ -45,3 +45,12 @@ well as attributes meant for string manipulation.
 |          Type | Size     | Description      |
 |--------------:|----------|:----------------:|
 |    **String** | **N**    | ASCII String     |
+
+### Quantum Types
+
+Quantum types include Vectors, Matrices and QBits.
+
+|          Type | Size     | Description      |
+|--------------:|----------|:----------------:|
+|    **Vector** | **12N**  | Complex Vector   |
+|    **Matrix** | **12NN** | Complex Matrix   |

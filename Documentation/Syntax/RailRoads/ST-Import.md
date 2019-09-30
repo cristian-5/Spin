@@ -6,9 +6,10 @@ token and a library name followed by semicolon.
 
 ### Syntax:
 
-    + ── import ── identifier ── ; ── +
+    + ── import ─╭── identifier ─╮─ ; ── +
+                 ╰─ < ── . ── < ─╯
 
 ### Tokens used in this Rail (Regexes):
 
 - **import** - Defined as `import`
-- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_]*`
+- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_\-]*`

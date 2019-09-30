@@ -15,6 +15,8 @@ Stack offers a wide variety of literals:
 |    **Colour** | RGBA Colour      | `#fff` `#f03a` `#fada00` `#f00ab2ff` |
 |      **Bool** | Bool Value       | `true` `false`                       |
 |      **Null** | Null Value       | `null`                               |
+|    **Vector** | Quantum Basis    | `<0|` `<1|`                          |
+|    **Vector** | Quantum Basis    | `|0>` `|1>`                          |
 
 The types associated with this table can be
 found id the [Types](Types.md) section.

@@ -6,11 +6,11 @@ that calls a **Function**.
 
 ### Syntax:
 
-    + ── [Primary] ── ( ──╮───────────── > ─────────────╭── ) ── +
+    + ── [Postfix] ── ( ──╮───────────── > ─────────────╭── ) ── +
                           ╰─╭── > ──[Expression]── > ─╮─╯
                             ╰── < ────── , ─────── < ─╯
 
 ### Declarations used in this Rail:
 
-- [**Primary**](Primary.md)
+- [**Postfix**](EX-Postfix.md)
 - [**Expression**](Expression.md)
