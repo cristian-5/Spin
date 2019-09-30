@@ -406,6 +406,7 @@ namespace Stack {
 				case TokenType::continueKeyword: st = continueStatement(); break;
 				case TokenType::restKeyword: st = restStatement(); break;
 				case TokenType::returnKeyword: st = returnStatement(); break;
+				case TokenType::deleteKeyword: st = deleteStatement(); break;
 				default: st = expressionStatement(); break;
 			}
 		} catch (SyntaxError & s) { throw; }
@@ -815,6 +816,18 @@ namespace Stack {
 			);
 		}
 		return new ReturnStatement(ex, returnToken);
+	}
+	Statement * Parser::deleteStatement() {
+		advance();
+		try {
+			Token name = consume(TokenType::symbol, "identifier");
+			consume(TokenType::semicolon, ";");
+			return new DeleteStatement(new Token(name));
+		} catch (SyntaxError & s) { throw; }
+		throw SyntaxError(
+			"Unexpected delete statement found outside of valid context!",
+			Linker::getPosition(input, previous().position)
+		);
 	}
 
 	void Parser::replace(TokenType type, String lexeme, TokenType newType) {

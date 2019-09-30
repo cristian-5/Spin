@@ -177,6 +177,8 @@ namespace Stack {
 		refKeyword,
 		cpyKeyword,
 
+		deleteKeyword,
+
 		invalid,
 
 		endFile
@@ -287,6 +289,7 @@ namespace Stack {
 		Environment(Environment * enclosing);
 		~Environment();
 		void define(String name, Object * value);
+		void forget(String name);
 		Object * getReference(String name);
 		Object * getValue(String name);
 	};
@@ -312,6 +315,7 @@ namespace Stack {
 	class BlockStatement;
 	class BreakStatement;
 	class ContinueStatement;
+	class DeleteStatement;
 	class DoWhileStatement;
 	class ExpressionStatement;
 	class ForStatement;
@@ -363,6 +367,7 @@ namespace Stack {
 			virtual void visitBlockStatement(BlockStatement * e) = 0;
 			virtual void visitBreakStatement(BreakStatement * e) = 0;
 			virtual void visitContinueStatement(ContinueStatement * e) = 0;
+			virtual void visitDeleteStatement(DeleteStatement * e) = 0;
 			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
 			virtual void visitForStatement(ForStatement * e) = 0;
@@ -517,9 +522,19 @@ namespace Stack {
 		Token * tokenType = nullptr;
 		Token * name = nullptr;
 		Parameter() = default;
-		Parameter(BasicType bt, Token * tt, Token * nm, Bool rf = false);
-		Parameter * copy() const;
-		~Parameter();
+		Parameter(BasicType bt, Token * tt, Token * nm, Bool rf = false) {
+			type = bt; tokenType = tt; name = nm; reference = rf;
+		}
+		Parameter * copy() const {
+			return new Parameter(
+				type, new Token(* tokenType),
+				new Token(* name), reference
+			);
+		}
+		~Parameter() {
+			if (tokenType) delete tokenType;
+			if (name) delete name;
+		}
 	};
 
 	class BlockStatement: public Statement {
@@ -543,6 +558,13 @@ namespace Stack {
 		ContinueStatement(Token * c);
 		void accept(Visitor * visitor) override;
 		~ContinueStatement();
+	};
+	class DeleteStatement: public Statement {
+		public:
+		Token * name = nullptr;
+		DeleteStatement(Token * n);
+		void accept(Visitor * visitor) override;
+		~DeleteStatement();
 	};
 	class DoWhileStatement: public Statement {
 		public:
@@ -2719,6 +2741,7 @@ namespace Stack {
 		void visitBlockStatement(BlockStatement * e) override;
 		void visitBreakStatement(BreakStatement * e) override;
 		void visitContinueStatement(ContinueStatement * e) override;
+		void visitDeleteStatement(DeleteStatement * e) override;
 		void visitDoWhileStatement(DoWhileStatement * e) override;
 		void visitExpressionStatement(ExpressionStatement * e) override;
 		void visitForStatement(ForStatement * e) override;
@@ -2774,9 +2797,9 @@ namespace Stack {
 			{ "(<[01]\\|)", TokenType::basisBraLiteral },
 			{ "(\\|[01]>)", TokenType::basisKetLiteral },
 
-			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::braketSymbol },
-			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|)", TokenType::braSymbol },
-			{ "(\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::ketSymbol },
+			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*\\|[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::braketSymbol },
+			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*\\|)", TokenType::braSymbol },
+			{ "(\\|[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::ketSymbol },
 
 			{ "(\\->)", TokenType::arrow },
 			{ "(\\:)", TokenType::colon },
@@ -2847,6 +2870,8 @@ namespace Stack {
 			{ "(break)\\b", TokenType::breakKeyword },
 			{ "(continue)\\b", TokenType::continueKeyword },
 
+			{ "(delete)\\b", TokenType::deleteKeyword },
+
 			{ "(import)\\b", TokenType::importKeyword },
 			{ "(func)\\b", TokenType::funcKeyword },
 			{ "(proc)\\b", TokenType::procKeyword },
@@ -2866,7 +2891,7 @@ namespace Stack {
 
 			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Real|String|Vector)\\b", TokenType::basicType },
 
-			{ "([A-Za-z_][A-Za-z0-9_]*)\\b", TokenType::symbol },
+			{ "([A-Za-z_][A-Za-z0-9_\\-]*)\\b", TokenType::symbol },
 
 		};
 		Lexer() = default;
@@ -2966,6 +2991,7 @@ namespace Stack {
 		Statement * loopStatement();
 		Statement * restStatement();
 		Statement * returnStatement();
+		Statement * deleteStatement();
 		void replace(TokenType type, String lexeme, TokenType newType);
 		void runTypeClassification();
 		String parseImport(SizeType & i);

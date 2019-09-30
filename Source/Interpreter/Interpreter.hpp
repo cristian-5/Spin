@@ -197,7 +197,7 @@ namespace Stack {
 	Object * Interpreter::visitIdentifierExpression(Identifier * e) {
 		try {
 			return memory -> getValue(e -> name -> lexeme) -> copy();
-		} catch (VariableNotFoundException & r) {
+		} catch (VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected identifier '" +
 				e -> name -> lexeme + "'!", * e -> name
@@ -222,6 +222,17 @@ namespace Stack {
 	}
 	void Interpreter::visitContinueStatement(ContinueStatement * e) {
 		continued = true;
+	}
+	void Interpreter::visitDeleteStatement(DeleteStatement * e) {
+		try {
+			memory -> forget(e -> name -> lexeme);
+		} catch (VariableNotFoundException & exc) {
+			throw EvaluationError(
+				"Unexpected identifier '" + e -> name -> lexeme +
+				"'! You can only delete variables defined in the innermost scope.",
+				* e -> name
+			);
+		}
 	}
 	void Interpreter::visitDoWhileStatement(DoWhileStatement * e) {
 		Object * expression = nullptr;

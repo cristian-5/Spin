@@ -39,6 +39,13 @@ namespace Stack {
 			);
 		} else values.insert({ name, value });
 	}
+	void Environment::forget(String name) {
+		auto search = values.find(name);
+		if (search == values.end()) {
+			throw VariableNotFoundException();
+		}
+		values.erase(name);
+	}
 	Object * Environment::getReference(String name) {
 		auto search = values.find(name);
 		if (search != values.end()) {
