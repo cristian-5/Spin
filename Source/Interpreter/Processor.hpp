@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Processor.hpp                          |
  *    |                                         |
- *    |             Stack Processor             |
+ *    |             Object Processor            |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKPROCESSOR
-#define STACKPROCESSOR
+#ifndef SPINPROCESSOR
+#define SPINPROCESSOR
 
-namespace Stack {
+namespace Spin {
 
 	Object * Processor::applyAddition(Token * t, Object * l, Object * r) {
 		if (l -> isString() || r -> isString()) {

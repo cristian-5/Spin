@@ -1,5 +1,5 @@
 
-# Stack Syntax RailRoad
+# Spin Syntax RailRoad
 
 Here's a **railway** implementation of statements' syntax.
 

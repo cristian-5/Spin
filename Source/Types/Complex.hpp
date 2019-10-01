@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Complex.hpp                            |
  *    |                                         |
- *    |             Complex Numbers             |
+ *    |               Complex Type              |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKCOMPLEX
-#define STACKCOMPLEX
+#ifndef SPINCOMPLEX
+#define SPINCOMPLEX
 
-namespace Stack {
+namespace Spin {
 
 	Complex::Complex(Real n, Real i) {
 		a = n; b = i;

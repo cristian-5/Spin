@@ -20,7 +20,7 @@
 
 using namespace std;
 
-using namespace Stack;
+using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 

@@ -3,7 +3,7 @@
 
 Literals are special tokens in the source code treated as values.
 
-Stack offers a wide variety of literals:
+Spin offers a wide variety of literals:
 
 |       Literal | Description      | Examples                             |
 |--------------:|------------------|:------------------------------------:|

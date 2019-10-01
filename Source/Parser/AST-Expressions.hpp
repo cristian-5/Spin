@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKEXPRESSIONS
-#define STACKEXPRESSIONS
+#ifndef SPINEXPRESSIONS
+#define SPINEXPRESSIONS
 
-namespace Stack {
+namespace Spin {
 
 	Assignment::Assignment(Token * name, Expression * value) {
 		this -> name = name;

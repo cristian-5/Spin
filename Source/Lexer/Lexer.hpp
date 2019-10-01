@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Lexer.hpp                              |
  *    |                                         |
- *    |                  Lexer                  |
+ *    |              Language Lexer             |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKLEXER
-#define STACKLEXER
+#ifndef SPINLEXER
+#define SPINLEXER
 
-namespace Stack {
+namespace Spin {
 
 	String Lexer::handleComments(String input) const {
 		if (input.length() == 0) return input;

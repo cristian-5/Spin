@@ -21,7 +21,7 @@
 #ifndef PROTOTYPES
 #define PROTOTYPES
 
-namespace Stack {
+namespace Spin {
 
 	/* Linker */
 
@@ -50,8 +50,8 @@ namespace Stack {
 		Linker() = default;
 		public:
 		static FilePosition getPosition(String * input, UInt32 cursor);
-		static Array<String> linesFromFile(String & path);
-		static String stringFromFile(String path);
+		static Array<String *> linesFromFile(String path);
+		static String * stringFromFile(String path);
 		static void createNewFile(String path, String content = "");
 	};
 
@@ -74,24 +74,24 @@ namespace Stack {
 		ketSymbol,
 
 		intLiteral,
+		imaginaryLiteral,
+		basisBraLiteral,
+		basisKetLiteral,
+		realLiteral,
 		stringLiteral,
 		charLiteral,
 		boolLiteral,
-		imaginaryLiteral,
-		realLiteral,
 		colourLiteral,
-		basisBraLiteral,
-		basisKetLiteral,
 		emptyLiteral,
 
 		arrow,
-
-		colon,
+		doublecolon,
 		semicolon,
+		colon,
 		comma,
 		dot,
 
-		diamond,
+		virtualOperator,
 
 		plusEqual,
 		minusEqual,
@@ -122,9 +122,7 @@ namespace Stack {
 		star,
 		backslash,
 		slash,
-		at,
 		pipe,
-		hashtag,
 		ampersand,
 		modulus,
 		dollar,
@@ -138,13 +136,6 @@ namespace Stack {
 
 		openBrace,
 		closeBrace,
-
-		tryKeyword,
-		catchKeyword,
-		throwKeyword,
-		throwsKeyword,
-
-		printKeyword,
 
 		ifKeyword,
 		elseKeyword,
@@ -160,6 +151,8 @@ namespace Stack {
 		breakKeyword,
 		continueKeyword,
 
+		printKeyword,
+
 		importKeyword,
 		funcKeyword,
 		procKeyword,
@@ -167,7 +160,6 @@ namespace Stack {
 		classKeyword,
 		enumKeyword,
 		structKeyword,
-		exceptKeyword,
 		privateKeyword,
 		publicKeyword,
 		constKeyword,
@@ -188,10 +180,11 @@ namespace Stack {
 		public:
 		TokenType type = TokenType::empty;
 		String lexeme = "";
-		UInt32 position = 0;
+		SizeType position = 0;
 		Token() = default;
-		Token(String l, TokenType t, UInt32 p = 0);
+		Token(String l, TokenType t, SizeType p = 0);
 		Bool isTypeLiteral() const;
+		Bool isTypeNumeral() const;
 		Bool isTypeBasicType() const;
 		Bool isTypeType() const;
 		Bool isTypeBraKet() const;
@@ -2806,7 +2799,6 @@ namespace Stack {
 			{ "(\\;)", TokenType::semicolon },
 			{ "(\\,)", TokenType::comma },
 			{ "(\\.)", TokenType::dot },
-			{ "(<>)", TokenType::diamond },
 			{ "(<=)", TokenType::minorEqual },
 			{ "(<)", TokenType::minor },
 			{ "(>=)", TokenType::majorEqual },
@@ -2828,11 +2820,9 @@ namespace Stack {
 			{ "(\\\\)", TokenType::backslash },
 			{ "(\\/=)", TokenType::slashEqual },
 			{ "(\\/)", TokenType::slash },
-			{ "(\\@)", TokenType::at },
 			{ "(\\|=)", TokenType::pipeEqual },
 			{ "(\\|\\|)", TokenType::OR },
 			{ "(\\|)", TokenType::pipe },
-			{ "(\\#)", TokenType::hashtag },
 			{ "(\\&=)", TokenType::ampersandEqual },
 			{ "(\\&\\&)", TokenType::AND },
 			{ "(\\&)", TokenType::ampersand },
@@ -2848,11 +2838,6 @@ namespace Stack {
 			{ "(\\])", TokenType::closeBracket },
 			{ "(\\{)", TokenType::openBrace },
 			{ "(\\})", TokenType::closeBrace },
-
-			{ "(try)\\b", TokenType::tryKeyword },
-			{ "(catch)\\b", TokenType::catchKeyword },
-			{ "(throw)\\b", TokenType::throwKeyword },
-			{ "(throws)\\b", TokenType::throwsKeyword },
 
 			{ "(print)\\b", TokenType::printKeyword },
 
@@ -2879,7 +2864,6 @@ namespace Stack {
 			{ "(class)\\b", TokenType::classKeyword },
 			{ "(enumerator)\\b", TokenType::enumKeyword },
 			{ "(structure)\\b", TokenType::structKeyword },
-			{ "(exception)\\b", TokenType::exceptKeyword },
 			{ "(private)\\b", TokenType::privateKeyword },
 			{ "(public)\\b", TokenType::publicKeyword },
 			{ "(ref)\\b", TokenType::refKeyword },
@@ -2997,6 +2981,7 @@ namespace Stack {
 		String parseImport(SizeType & i);
 		FileScope * runImportClassification();
 		void runCastClassification();
+		void runVectorClassification();
 		void cleanEmptyTokens();
 		inline Bool match(TokenType type);
 		inline Bool match(Array<TokenType> * types);

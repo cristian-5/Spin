@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKCOLOUR
-#define STACKCOLOUR
+#ifndef SPINCOLOUR
+#define SPINCOLOUR
 
-namespace Stack {
+namespace Spin {
 
 	String Colour::valueToHex(UInt8 value) {
 		StringStream s = StringStream();

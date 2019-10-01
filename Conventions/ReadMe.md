@@ -7,7 +7,7 @@ the same code conventions.
 ## File Conventions
 
 File names should be in **TitleCase** and can be contracted
-if the name is made of compound words (Eg: SyntaxRule -> SRule).
+if the name is made of compound words (Eg: AbstractSyntaxTree -> AST).
 
 There's only one .cpp file and that's the Main.
 Libraries are defined under namespaces in .hpp files.
@@ -15,14 +15,11 @@ Libraries are defined under namespaces in .hpp files.
 Group the header files together using folders.
 Folder names should be in TitleCase as well.
 
-Underscore are always forbidden in file names, or code declarations.
+Underscores are always forbidden in file names, or code declarations.
 
 ## Code Conventions
 
 Always use **Guard Includes** for libraries.
-
-Always include every file needed in a library, so that can be
-eventually compiled alone for testing purposes.
 
 Always include the License Header inside the file following
 this pattern:
@@ -60,20 +57,7 @@ for one statement (`if (true) { i++; }` -> `if (true) i++;`).
 
 Function identifiers should be camelCased and Objects TitleCased.
 
-Includes should be divided in System, Local and Grouped;
-in this order, separated by one empty line:
-
-``` cpp
-#include <iostream>
-#include <string>
-
-#include "../Aliases/Aliases.hpp"
-#include "../Collection/Collection.hpp"
-#include "../Syntax/SRule.hpp"
-
-#include "ASTree.hpp"
-```
-
 ## Documentation Conventions
 
-Always write documentation for your code in the multiline doxygen style.
+Always write documentation (if needed) for your code
+in the multiline doxygen style.

@@ -1,12 +1,12 @@
 
-# Stack Language
+# Spin Language
 
 [![language](Badges/Language.svg)](ReadMe.md)
 [![license](Badges/License.svg)](License)
 [![version](Badges/Version.svg)](ReadMe.md)
 [![contributions](Badges/Contributions.svg)](ReadMe.md)
 
-**Stack Programming Language**
+**Spin Programming Language**
 
 High level programming language for *research* and
 **Quantum Computing** based on C++, Swift and C#.
@@ -49,7 +49,7 @@ The recommended version of *Visual Studio* is VS2019.
 ### macOS and Linux Compilation
 
 From the *Terminal* change the current directory to
-the Stack project directory.
+the Spin project directory.
 Execute the following to compile using **clang++**:
 
 ``` bash
@@ -63,7 +63,7 @@ drop it in the console to execute it.
 ### Windows Compilation
 
 Open up *Visual Studio Developer Command Prompt* and change
-the working directory to the Stack project directory.
+the working directory to the Spin project directory.
 Execute the following to compile with **cl**:
 
 ``` bat

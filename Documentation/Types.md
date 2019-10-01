@@ -1,7 +1,7 @@
 
-# Stack Types
+# Spin Types
 
-Stack has a set of native types like C or C++.
+Spin has a set of native types like C or C++.
 Those types are actually virtual classes that
 contain methods and properties.
 
@@ -29,7 +29,7 @@ contain methods and properties.
 
 ### Complex Type
 
-Every `Complex` Number ins Stack is made of a Real part and
+Every `Complex` Number ins Spin is made of a Real part and
 an Imaginary one.
 
 |          Type | Size     | Description      |
@@ -38,7 +38,7 @@ an Imaginary one.
 
 ### String Type
 
-Every `String` in Stack is a dynamic array of
+Every `String` in Spin is a dynamic array of
 characters and contains methods and properties as
 well as attributes meant for string manipulation.
 

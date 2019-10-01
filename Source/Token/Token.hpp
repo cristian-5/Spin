@@ -16,12 +16,12 @@
  *
  */
 
-#ifndef STACKTOKEN
-#define STACKTOKEN
+#ifndef SPINTOKEN
+#define SPINTOKEN
 
 #include "../Aliases/Prototypes.hpp"
 
-namespace Stack {
+namespace Spin {
 
 	Token::Token(String l, TokenType t, UInt32 p) {
 		lexeme = l; type = t; position = p;
@@ -29,6 +29,10 @@ namespace Stack {
 	Bool Token::isTypeLiteral() const {
 		return type >= TokenType::intLiteral &&
 			   type <= TokenType::emptyLiteral;
+	}
+	Bool Token::isTypeNumeral() const {
+		return type >= TokenType::intLiteral &&
+			   type <= TokenType::realLiteral;
 	}
 	Bool Token::isTypeBasicType() const {
 		return type == TokenType::basicType;

@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKVECTOR
-#define STACKVECTOR
+#ifndef SPINVECTOR
+#define SPINVECTOR
 
-namespace Stack {
+namespace Spin {
 
 	Vector::Vector(SizeType s) {
 		size = s;

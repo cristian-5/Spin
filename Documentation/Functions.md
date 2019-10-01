@@ -1,9 +1,9 @@
 
-# Stack Functions
+# Spin Functions
 
 ### Declaration
 
-Functions in Stack are defined with the keyword `func`
+Functions in Spin are defined with the keyword `func`
 followed by an identifier, parameters enclosed in round
 parenthesis, the return type and the block of code.
 
@@ -16,11 +16,11 @@ func addition(a: Integer, b: Integer) -> Integer {
 }
 ```
 
-# Stack Procedures
+# Spin Procedures
 
 ### Declaration
 
-Procedures in Stack are defined with the keyword `proc`
+Procedures in Spin are defined with the keyword `proc`
 followed by an identifier, parameters enclosed in round
 brackets and the block of code.
 
@@ -35,7 +35,7 @@ proc increment(val: ref Integer) {
 
 ## Call
 
-To call a Stack function or procedure you must use
+To call a Spin function or procedure you must use
 the identifier followed by eventual parameters
 enclosed in round brackets.
 

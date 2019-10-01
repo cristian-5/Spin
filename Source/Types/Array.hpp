@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKARRAYLIST
-#define STACKARRAYLIST
+#ifndef SPINARRAYLIST
+#define SPINARRAYLIST
 
-namespace Stack {
+namespace Spin {
 
 	ArrayList::ArrayList() { elements = new Array<Object *>(); }
 	ArrayList::ArrayList(Array<Object *> * e) { elements = e; }

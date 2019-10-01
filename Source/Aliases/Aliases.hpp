@@ -31,6 +31,10 @@
 #include <map>
 #include <chrono>
 
+#define Input std::cin
+#define Output std::cout
+#define endLine std::endl
+
 using Exception = std::exception;
 
 using IFStream = std::ifstream;
@@ -99,7 +103,7 @@ inline void waitKeyPress() { std::cin.get(); }
 const Int32 exitSuccess = 0;
 const Int32 exitFailure = 1;
 
-namespace Stack {
+namespace Spin {
 
 	static String getInput() {
 		String input = "";

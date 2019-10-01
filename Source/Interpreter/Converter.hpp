@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Converter.hpp                          |
  *    |                                         |
- *    |             Stack Converter             |
+ *    |             Object Converter            |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,8 +18,8 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKCONVERTER
-#define STACKCONVERTER
+#ifndef SPINCONVERTER
+#define SPINCONVERTER
 
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
 #define REAL "^[0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?$"
@@ -30,7 +30,7 @@
 #define RGBAFULL "^[A-Fa-f0-9]{8}$"
 #define RGBASHORT "^[A-Fa-f0-9]{4}$"
 
-namespace Stack {
+namespace Spin {
 
 	Bool Converter::checkBase(String base, String & s) {
 		return RegexTools::test(base, s);

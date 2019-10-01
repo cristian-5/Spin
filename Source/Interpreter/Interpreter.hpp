@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Interpreter.hpp                        |
  *    |                                         |
- *    |            Stack Interpreter            |
+ *    |           Language Interpreter          |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKINTERPRETER
-#define STACKINTERPRETER
+#ifndef SPININTERPRETER
+#define SPININTERPRETER
 
-namespace Stack {
+namespace Spin {
 
 	/* Expressions */
 

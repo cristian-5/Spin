@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Libraries.hpp                          |
  *    |                                         |
- *    |             Stack Libraries             |
+ *    |             Native Libraries            |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKLIBRARIES
-#define STACKLIBRARIES
+#ifndef SPINLIBRARIES
+#define SPINLIBRARIES
 
-namespace Stack {
+namespace Spin {
 
 	void Chronos::defineLibrary(Environment * global) {
 		if (!global) return;

@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Function.hpp                           |
  *    |                                         |
- *    |              Stack Function             |
+ *    |              Function Type              |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKFUNCTION
-#define STACKFUNCTION
+#ifndef SPINFUNCTION
+#define SPINFUNCTION
 
-namespace Stack {
+namespace Spin {
 
 	Function::Function(FunctionStatement * d, Environment * c) {
 		declaration = d;

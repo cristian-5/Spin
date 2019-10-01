@@ -21,7 +21,7 @@
 #ifndef REGEXTOOLS
 #define REGEXTOOLS
 
-namespace Stack {
+namespace Spin {
 
 	/*!
 	*   @brief Tests a regex against a String.

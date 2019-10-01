@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Environment.hpp                        |
  *    |                                         |
- *    |            Stack Environment            |
+ *    |            Memory Environment           |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKENVIRONMENT
-#define STACKENVIRONMENT
+#ifndef SPINENVIRONMENT
+#define SPINENVIRONMENT
 
-namespace Stack {
+namespace Spin {
 
 	Environment::Environment(Environment * enclosing) {
 		this -> enclosing = enclosing;

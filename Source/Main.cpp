@@ -18,11 +18,30 @@
 
 #include "Aliases/Includes.hpp"
 
-using namespace std;
+using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	/* get a list of files and parse them */
+	if (argc == 2 && String(argv[1]) == "-v") {
+		Output << "";
+	}
+
+	Array<String *> files = Array<String *>();
+	for (UInt64 i = 0; i < argc; i++) {
+		String * file = nullptr;
+		try {
+			file = Linker::stringFromFile(argv[i]);
+		} catch (BadFileException & exc) {
+			for (String * s : files) delete s;
+			Output << "Bad Access! Invalid input file at path '"
+				   << exc.getPath() << "'!" << endLine;
+			Output << "Press enter to exit. ";
+			waitKeyPress();
+			return exitFailure;
+		}
+	}
+
+	// TO FIX: Filescope
 
 	Lexer * lexer = Lexer::self();
 
@@ -35,17 +54,17 @@ Int32 main(Int32 argc, Character * argv[]) {
 		fs = parser -> parse(tokens, & test, "Virtual File");
 	} catch (ParserErrorException & p) {
 		const Array<SyntaxError> * const e = p.getErrors();
-		cout << "Found " << e -> size() << " errors in '"
-			 << p.getFileName() << "'!" << endl;
+		Output << "Found " << e -> size() << " errors in '"
+			   << p.getFileName() << "'!" << endLine;
 		UInt32 i = 1;
 		for (SyntaxError s : * e) {
 			FilePosition f = s.getPosition();
-			cout << padding << i << " [" << f.row
-				 << ":" << f.col << "]: "
-				 << s.getMessage() << endl;
+			Output << padding << i << " [" << f.row
+				   << ":" << f.col << "]: "
+				   << s.getMessage() << endLine;
 			i += 1;
 		}
-		cout << endl << "Press enter to exit. ";
+		Output << endLine << "Press enter to exit. ";
 		waitKeyPress();
 		delete tokens;
 		return exitFailure;
@@ -54,8 +73,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 	delete tokens;
 
 	if (!fs) {
-		cout << "File Scope Failure!" << endl;
-		cout << "Press enter to exit. ";
+		Output << "File Scope Failure!" << endLine;
+		Output << "Press enter to exit. ";
 		waitKeyPress();
 		return exitFailure;
 	}
@@ -65,9 +84,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		interpreter -> evaluate(fs, & test, "Virtual File");
 	} catch (InterpreterErrorException & e) {
-		cout << "[" << e.getPosition().row << ":";
-		cout << e.getPosition().col << "]: " << e.getMessage() << endl;
-		cout << "Press enter to exit. ";
+		Output << "[" << e.getPosition().row << ":";
+		Output << e.getPosition().col << "]: " << e.getMessage() << endLine;
+		Output << "Press enter to exit. ";
 		waitKeyPress();
 		delete fs;
 		return exitFailure;
@@ -75,7 +94,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	delete fs;
 
-	cout << endl << "Press enter to exit. ";
+	Output << endLine << "Press enter to exit. ";
 	waitKeyPress();
 	
 	return exitSuccess;

@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Parser.hpp                             |
  *    |                                         |
- *    |                  Parser                 |
+ *    |             Language Parser             |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKPARSER
-#define STACKPARSER
+#ifndef SPINPARSER
+#define SPINPARSER
 
-namespace Stack {
+namespace Spin {
 
 	Expression * Parser::expression() {
 		try { return assignment(); }
@@ -925,6 +925,37 @@ namespace Stack {
 			}
 		}
 	}
+	void Parser::runVectorClassification() {
+		if (!tokens) return;
+		SizeType tokenCount = tokens -> size() - 1;
+		for (SizeType i = 0; i < tokenCount; i++) {
+			Token token = tokens -> at(i);
+			switch (token.type) {
+				case TokenType::closeParenthesis: {
+					Token next = tokens -> at(i + 1);
+					if (next.type == TokenType::openParenthesis ||
+						next.type == TokenType::ketSymbol ||
+						next.isTypeNumeral()) {
+						i = i + 1;
+						SizeType pos = token.position + token.lexeme.length() - 1;
+						//tokens -> insert(i, Token("*", TokenType::virtualOperator, pos));
+					}
+
+				} break;
+				case TokenType::braSymbol: {
+
+				} break;
+				case TokenType::ketSymbol: {
+
+				} break;
+				case TokenType::braketSymbol: {
+
+				} break;
+
+			}
+		}
+
+	} 
 	void Parser::cleanEmptyTokens() {
 		Array<Token> * newTokens = new Array<Token>();
 		for (Token token : * tokens) {
@@ -997,8 +1028,8 @@ namespace Stack {
 				return;
 			}
 			Token t = peek();
-			if (t.type >= TokenType::tryKeyword &&
-				t.type <= TokenType::restKeyword) return;
+			if (t.type >= TokenType::ifKeyword &&
+				t.type <= TokenType::deleteKeyword) return;
 			advance();
 		}
 	}

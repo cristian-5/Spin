@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKSTATEMENTS
-#define STACKSTATEMENTS
+#ifndef SPINSTATEMENTS
+#define SPINSTATEMENTS
 
-namespace Stack {
+namespace Spin {
 
 	BlockStatement::BlockStatement(Array<Statement *> * s) { statements = s; }
 	BlockStatement::BlockStatement(Statement * s) {

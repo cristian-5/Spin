@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Object.hpp                             |
  *    |                                         |
- *    |               Stack Object              |
+ *    |               Object Type               |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKOBJECT
-#define STACKOBJECT
+#ifndef SPINOBJECT
+#define SPINOBJECT
 
-namespace Stack {
+namespace Spin {
 	
 	Object::Object(BasicType t) {
 		// TODO: Handle all types.

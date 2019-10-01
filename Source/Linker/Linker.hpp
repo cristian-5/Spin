@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Linker.hpp                             |
  *    |                                         |
- *    |               Stack Linker              |
+ *    |               File Linker               |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -18,10 +18,10 @@
 
 #include "../Aliases/Prototypes.hpp"
 
-#ifndef STACKLINKER
-#define STACKLINKER
+#ifndef SPINLINKER
+#define SPINLINKER
 
-namespace Stack {
+namespace Spin {
 
 	FilePosition Linker::getPosition(String * input, UInt32 cursor) {
 		FilePosition result = { 1, 1 };
@@ -38,24 +38,24 @@ namespace Stack {
 		}
 		return result;
 	}
-	Array<String> Linker::linesFromFile(String & path) {
-		Array<String> set = Array<String>();
+	Array<String *> Linker::linesFromFile(String path) {
+		Array<String *> set = Array<String *>();
 		IFStream file(path.stringValue());
 		if (file.good()) {
 			String line = "";
 			while (getline(file, line)) {
-				set.push(line);
+				set.push(new String(line));
 			}
 		} else throw BadFileException(path);
 		return set;
 	}
-	String Linker::stringFromFile(String path) {
-		String line = "";
+	String * Linker::stringFromFile(String path) {
+		String * line = new String();
 		IFStream file(path.stringValue());
 		if (file.good()) {
 			String tmp = "";
 			while (getline(file, tmp)) {
-				line += "\n" + tmp;
+				line -> append(String("\n" + tmp));
 			}
 		} else throw BadFileException(path);
 		return line;

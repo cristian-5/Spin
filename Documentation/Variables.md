@@ -3,7 +3,7 @@
 
 Variables represent storage locations. Every variable has a
 type that determines what values can be stored in the variable.
-Stack is a type-safe language, and the compiler guarantees that
+Spin is a type-safe language, and the compiler guarantees that
 values stored in variables are always of the appropriate type.
 
 A variable doesn't need to be assigned before its value can
@@ -11,7 +11,7 @@ be obtained because every basic type has a default value.
 
 ## Variable categories
 
-Stack defines several categories of variables: static
+Spin defines several categories of variables: static
 variables, instance variables, array elements, value
 parameters, reference parameters and local variables.
 The sections that follow describe each of these categories.
