@@ -32,8 +32,8 @@
 
 #include "../Linker/Linker.hpp"
 
-#include "../Parser/AST-Expressions.hpp"
-#include "../Parser/AST-Statements.hpp"
+#include "../ASTree/Expressions.hpp"
+#include "../ASTree/Statements.hpp"
 #include "../Parser/Parser.hpp"
 
 #include "../Token/Token.hpp"
