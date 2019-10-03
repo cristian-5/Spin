@@ -23,7 +23,7 @@
 
 namespace Spin {
 
-	Token::Token(String l, TokenType t, UInt32 p) {
+	Token::Token(String l, TokenType t, SizeType p) {
 		lexeme = l; type = t; position = p;
 	}
 	Bool Token::isTypeLiteral() const {
@@ -39,7 +39,7 @@ namespace Spin {
 	}
 	Bool Token::isTypeType() const {
 		return type >= TokenType::classKeyword &&
-			   type <= TokenType::exceptKeyword;
+			   type <= TokenType::structKeyword;
 	}
 	Bool Token::isTypeBraKet() const {
 		return type >= TokenType::braSymbol &&

@@ -41,7 +41,7 @@ namespace Spin {
 		return input;
 	}
 
-	Array<Token> * Lexer::tokenise(String * input, String fileName) const {
+	Array<Token> * Lexer::tokenise(String * input) const {
 		// Handle Last Token:
 		String data = (* input) + "\n";
 		// Handle Single Line Comments:

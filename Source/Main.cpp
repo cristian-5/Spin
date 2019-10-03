@@ -23,16 +23,23 @@ using namespace Spin;
 Int32 main(Int32 argc, Character * argv[]) {
 
 	if (argc == 2 && String(argv[1]) == "-v") {
-		Output << "";
+		Output << "Spin Language Version: 3.0 beta.";
 	}
 
-	Array<String *> files = Array<String *>();
-	for (UInt64 i = 0; i < argc; i++) {
+	Array<FileFrame *> * files = new Array<FileFrame *>();
+	for (UInt64 i = 1; i < argc; i++) {
 		String * file = nullptr;
 		try {
 			file = Linker::stringFromFile(argv[i]);
+			files -> push(
+				new FileFrame(
+					nullptr,
+					new String(argv[i]),
+					file
+				)
+			);
 		} catch (BadFileException & exc) {
-			for (String * s : files) delete s;
+			for (FileFrame * f : * files) delete f; delete files;
 			Output << "Bad Access! Invalid input file at path '"
 				   << exc.getPath() << "'!" << endLine;
 			Output << "Press enter to exit. ";
@@ -41,14 +48,21 @@ Int32 main(Int32 argc, Character * argv[]) {
 		}
 	}
 
-	// TO FIX: Filescope
+	/* TO FIX: Filescope */
 
 	Lexer * lexer = Lexer::self();
 
-	Array<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
+	for (FileFrame * file : * files) {
+		file -> tokens = lexer -> tokenise(
+			file -> contents
+		);
+	}
 
 	Parser * parser = Parser::self();
 	FileScope * fs = nullptr;
+
+
+	
 
 	try {
 		fs = parser -> parse(tokens, & test, "Virtual File");
@@ -92,7 +106,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		return exitFailure;
 	}
 
-	delete fs;
+	delete fs;*/
 
 	Output << endLine << "Press enter to exit. ";
 	waitKeyPress();

@@ -45,7 +45,7 @@ namespace Spin {
 			delete ex; delete equals;
 			throw SyntaxError(
 				"Expected identifier before assignment operator '='!",
-				Linker::getPosition(input, equals -> position)
+				Linker::getPosition(currentFile -> contents, equals -> position)
 			);
 		}
 		return ex;
@@ -311,8 +311,8 @@ namespace Spin {
 		}
 		FilePosition fp = { 0, 0 };
 		if (t.type == TokenType::endFile) {
-			fp = Linker::getPosition(input, previous().position);
-		} else fp = Linker::getPosition(input, t.position);
+			fp = Linker::getPosition(currentFile -> contents, previous().position);
+		} else fp = Linker::getPosition(currentFile -> contents, t.position);
 		throw SyntaxError(
 			"Expected expression after '" + previous().lexeme + "'!", fp
 		);
@@ -371,7 +371,7 @@ namespace Spin {
 				name = new Token(previous());
 			} else {
 				Token t = previous();
-				FilePosition fp = Linker::getPosition(input, t.position);
+				FilePosition fp = Linker::getPosition(currentFile -> contents, t.position);
 				throw SyntaxError(
 					"Expected <identifier| or |identifier> in bra-ket notation but found '"
 					+ t.lexeme + "'!", fp
@@ -457,7 +457,7 @@ namespace Spin {
 		if (!isInControlFlow) {
 			throw SyntaxError(
 				"Unexpected break statement outside of control flow statements! What am I supposed to break?",
-				Linker::getPosition(input, peek().position)
+				Linker::getPosition(currentFile -> contents, peek().position)
 			);
 		}
 		Token * breakToken = new Token(peekAdvance());
@@ -473,7 +473,7 @@ namespace Spin {
 		if (!isInControlFlow) {
 			throw SyntaxError(
 				"Unexpected continue statement outside of control flow statements! Where am I supposed to continue?",
-				Linker::getPosition(input, peek().position)
+				Linker::getPosition(currentFile -> contents, peek().position)
 			);
 		}
 		Token * continueToken = new Token(peekAdvance());
@@ -524,7 +524,7 @@ namespace Spin {
 						Token er = peek();
 						throw SyntaxError(
 							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getPosition(input, er.position)
+							Linker::getPosition(currentFile -> contents, er.position)
 						);
 					}
 					p -> type = Converter::typeFromString(* stringType);
@@ -541,7 +541,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected type but found '" + er.lexeme + "'!",
-					Linker::getPosition(input, er.position)
+					Linker::getPosition(currentFile -> contents, er.position)
 				);
 			}
 			returnType -> type = Converter::typeFromString(* stringType);
@@ -551,7 +551,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected function body but found '" + er.lexeme + "'!",
-					Linker::getPosition(input, er.position)
+					Linker::getPosition(currentFile -> contents, er.position)
 				);
 			}
 			body = (BlockStatement *)blockStatement();
@@ -595,7 +595,7 @@ namespace Spin {
 						Token er = peek();
 						throw SyntaxError(
 							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getPosition(input, er.position)
+							Linker::getPosition(currentFile -> contents, er.position)
 						);
 					}
 					p -> type = Converter::typeFromString(* stringType);
@@ -610,7 +610,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected function body but found '" + er.lexeme + "'!",
-					Linker::getPosition(input, er.position)
+					Linker::getPosition(currentFile -> contents, er.position)
 				);
 			}
 			body = (BlockStatement *)blockStatement();
@@ -804,7 +804,7 @@ namespace Spin {
 				if (returnToken) delete returnToken;
 				throw SyntaxError(
 					"Unexpected return statement outside of function! Where am I supposed to return to?",
-					Linker::getPosition(input, position)
+					Linker::getPosition(currentFile -> contents, position)
 				);
 			}
 		} else if (!isInProcedure) {
@@ -812,7 +812,7 @@ namespace Spin {
 			if (returnToken) delete returnToken;
 			throw SyntaxError(
 				"Unexpected return statement outside of procedure! Where am I supposed to return to?",
-				Linker::getPosition(input, position)
+				Linker::getPosition(currentFile -> contents, position)
 			);
 		}
 		return new ReturnStatement(ex, returnToken);
@@ -826,7 +826,7 @@ namespace Spin {
 		} catch (SyntaxError & s) { throw; }
 		throw SyntaxError(
 			"Unexpected delete statement found outside of valid context!",
-			Linker::getPosition(input, previous().position)
+			Linker::getPosition(currentFile -> contents, previous().position)
 		);
 	}
 
@@ -859,7 +859,7 @@ namespace Spin {
 			} else throw SyntaxError(
 				"Expected 'identifier' but found '" +
 				tokens -> at(i).lexeme + "'!",
-				Linker::getPosition(input, tokens -> at(i).position)
+				Linker::getPosition(currentFile -> contents, tokens -> at(i).position)
 			);
 			i += 1;
 			if (i < tokens -> size()) {
@@ -877,7 +877,7 @@ namespace Spin {
 					default: throw SyntaxError(
 						"Expected ';' but found '" +
 						tokens -> at(i).lexeme + "'!",
-						Linker::getPosition(input, tokens -> at(i).position)
+						Linker::getPosition(currentFile -> contents, tokens -> at(i).position)
 					);
 				}
 			} else break;
@@ -885,7 +885,7 @@ namespace Spin {
 		throw SyntaxError(
 			"Expected ';' but found '" +
 			tokens -> at(i).lexeme + "'!",
-			Linker::getPosition(input, tokens -> at(i).position)
+			Linker::getPosition(currentFile -> contents, tokens -> at(i).position)
 		);
 	}
 	FileScope * Parser::runImportClassification() {
@@ -902,7 +902,7 @@ namespace Spin {
 					else if (s == "Chronos") fileScope -> chronosLibrary = true;
 					else throw SyntaxError(
 						"Invalid import statement asks for unknown library '" + s + "'!",
-						Linker::getPosition(input, tokens -> at(store).position)
+						Linker::getPosition(currentFile -> contents, tokens -> at(store).position)
 					);
 				} catch (SyntaxError & r) {
 					delete fileScope;
@@ -951,7 +951,7 @@ namespace Spin {
 				case TokenType::braketSymbol: {
 
 				} break;
-
+				default: break;
 			}
 		}
 
@@ -1012,8 +1012,8 @@ namespace Spin {
 		if (check(type)) return advance();
 		FilePosition fp = { 0, 0 };
 		if (t.type == TokenType::endFile) {
-			fp = Linker::getPosition(input, previous().position);
-		} else fp = Linker::getPosition(input, t.position);
+			fp = Linker::getPosition(currentFile -> contents, previous().position);
+		} else fp = Linker::getPosition(currentFile -> contents, t.position);
 		throw SyntaxError(
 			(lexeme.length() > 0 ? "Expected '" + lexeme +
 			"' but found '" + t.lexeme + "'!" :
@@ -1034,30 +1034,35 @@ namespace Spin {
 		}
 	}
 
-	FileScope * Parser::parse(Array<Token> * tokens, String * input, String fileName) {
-		if (!tokens || tokens -> size() <= 2) {
+	FileScope * parse(Array<FileFrame *> * files) {
+		return nullptr;
+	}
+
+	FileScope * Parser::parse(FileFrame * file) {
+		if (!file) return nullptr;
+		if (!(file -> contents)) return nullptr;
+		if (!(file -> tokens)) return nullptr;
+		if (!(file -> name)) return nullptr;
+		if (file -> tokens -> size() <= 2) {
 			errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, fileName);
+			throw ParserErrorException(errors, * file -> name);
 		}
 		this -> tokens = new Array<Token>(* tokens);
-		this -> input = input;
-		try {
-			consume(TokenType::beginFile, "beginFile");
-		} catch (SyntaxError & s) {
+		try { consume(TokenType::beginFile, "beginFile"); }
+		catch (SyntaxError & s) {
 			errors -> push(s);
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, fileName);
+			throw ParserErrorException(errors, * file -> name);
 		}
 		runCastClassification();
 		runTypeClassification();
 		FileScope * fileScope = nullptr;
-		try {
-			fileScope = runImportClassification();
-		} catch (SyntaxError & s) {
+		try { fileScope = runImportClassification(); }
+		catch (SyntaxError & s) {
 			errors -> push(s);
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, fileName);
+			throw ParserErrorException(errors, * file -> name);
 		}
 		cleanEmptyTokens();
 		Array<Statement *> * statements = new Array<Statement *>();
@@ -1072,8 +1077,9 @@ namespace Spin {
 		fileScope -> statements = statements;
 		if (errors -> size() > 0) {
 			if (fileScope) delete fileScope;
+			// Delete Statements you moron!
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, fileName);
+			throw ParserErrorException(errors, * file -> name);
 		}
 		delete errors;
 		return fileScope;

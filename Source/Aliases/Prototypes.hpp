@@ -158,8 +158,8 @@ namespace Spin {
 		procKeyword,
 		staticKeyword,
 		classKeyword,
-		enumKeyword,
 		structKeyword,
+		enumKeyword,
 		privateKeyword,
 		publicKeyword,
 		constKeyword,
@@ -2770,6 +2770,22 @@ namespace Spin {
 
 	/* Lexer */
 
+	class FileFrame {
+		public:
+		Array<Token> * tokens = nullptr;
+		String * name = nullptr;
+		String * contents = nullptr;
+		FileFrame() = default;
+		FileFrame(Array<Token> * t, String * n, String * c) {
+			tokens = t; name = n; contents = c;
+		}
+		~FileFrame() {
+			if (tokens) delete tokens;
+			if (name) delete name;
+			if (contents) delete contents;
+		}
+	};
+
 	class Lexer {
 		private:
 		String handleComments(String input) const;
@@ -2889,7 +2905,7 @@ namespace Spin {
 			static Lexer instance;
 			return & instance;
 		}
-		Array<Token> * tokenise(String * input, String fileName = "Unknown File") const;
+		Array<Token> * tokenise(String * input) const;
 	};
 
 	/* Regex Tools */
@@ -2932,7 +2948,7 @@ namespace Spin {
 	};
 	class Parser {
 		private:
-		String * input = nullptr;
+		FileFrame * currentFile = nullptr;
 		Array<Token> * tokens = nullptr;
 		Array<SyntaxError> * errors = new Array<SyntaxError>();
 		SizeType index = 0;
@@ -3005,7 +3021,8 @@ namespace Spin {
 			static Parser instance;
 			return & instance;
 		}
-		FileScope * parse(Array<Token> * tokens, String * input = nullptr, String fileName = "Unknown File");
+		FileScope * parse(Array<FileFrame *> * files);
+		FileScope * parse(FileFrame * file);
 	};
 
 }
