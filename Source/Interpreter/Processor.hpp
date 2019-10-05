@@ -108,7 +108,7 @@ namespace Spin {
 			if ((* b) == 0) {
 				// Check if in try catch block.
 				throw EvaluationError(
-					"Binary operator '\%' threw division by 0 exception!", * t
+					"Binary operator '%' threw division by 0 exception!", * t
 				);
 			}
 			Int64 * c = new Int64((* a) % (* b));
@@ -123,7 +123,7 @@ namespace Spin {
 			
 		}
 		throw EvaluationError(
-			"Binary operator '\%' doesn't support operands of type '" +
+			"Binary operator '%' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
 			r -> getObjectName() + "'!", * t
 		);
