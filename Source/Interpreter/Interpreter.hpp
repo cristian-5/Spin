@@ -58,6 +58,10 @@ namespace Spin {
 			throw;
 		}
 	}
+	Object * Interpreter::visitBraExpression(Bra * e) {
+		// TODO: Fix bras.
+		return nullptr;
+	}
 	Object * Interpreter::visitCallExpression(Call * e) {
 		Object * callee = nullptr;
 		CallProtocol * function = nullptr;
@@ -113,6 +117,10 @@ namespace Spin {
 	Object * Interpreter::visitGroupingExpression(Grouping * e) {
 		try { return evaluateExpression(e -> expression); }
 		catch (Exception & exc) { throw; }
+	}
+	Object * Interpreter::visitKetExpression(Ket * e) {
+		// TODO: Fix kets.
+		return nullptr;
 	}
 	Object * Interpreter::visitListExpression(List * e) {
 		Array<Object *> * elements = new Array<Object *>();

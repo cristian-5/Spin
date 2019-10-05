@@ -293,10 +293,12 @@ namespace Spin {
 
 	class Assignment;
 	class Binary;
+	class Bra;
 	class Call;
 	class Comparison;
 	class Get;
 	class Grouping;
+	class Ket;
 	class List;
 	class Literal;
 	class Logical;
@@ -334,10 +336,12 @@ namespace Spin {
 			public:
 			virtual Object * visitAssignmentExpression(Assignment * e) = 0;
 			virtual Object * visitBinaryExpression(Binary * e) = 0;
+			virtual Object * visitBraExpression(Bra * e) = 0;
 			virtual Object * visitCallExpression(Call * e) = 0;
 			virtual Object * visitComparisonExpression(Comparison * e) = 0;
 			virtual Object * visitGetExpression(Get * e) = 0;
 			virtual Object * visitGroupingExpression(Grouping * e) = 0;
+			virtual Object * visitKetExpression(Ket * e) = 0;
 			virtual Object * visitListExpression(List * e) = 0;
 			virtual Object * visitLiteralExpression(Literal * e) = 0;
 			virtual Object * visitLogicalExpression(Logical * e) = 0;
@@ -405,6 +409,14 @@ namespace Spin {
 		Object * accept(Visitor * visitor) override;
 		~Binary();
 	};
+	class Bra: public Expression {
+		public:
+		String * n = nullptr;
+		Token * o = nullptr;
+		Bra(String * nm, Token * op);
+		Object * accept(Visitor * visitor) override;
+		~Bra();
+	};
 	class Call: public Expression {
 		public:
 		Token * parenthesis = nullptr;
@@ -437,6 +449,14 @@ namespace Spin {
 		Grouping(Expression * e);
 		Object * accept(Visitor * visitor) override;
 		~Grouping();
+	};
+	class Ket: public Expression {
+		public:
+		String * n = nullptr;
+		Token * o = nullptr;
+		Ket(String * nm, Token * op);
+		Object * accept(Visitor * visitor) override;
+		~Ket();
 	};
 	class List: public Expression {
 		public:
@@ -2727,10 +2747,12 @@ namespace Spin {
 		Bool continued = false;
 		Object * visitAssignmentExpression(Assignment * e) override;
 		Object * visitBinaryExpression(Binary * e) override;
+		Object * visitBraExpression(Bra * e) override;
 		Object * visitCallExpression(Call * e) override;
 		Object * visitComparisonExpression(Comparison * e) override;
 		Object * visitGetExpression(Get * e) override;
 		Object * visitGroupingExpression(Grouping * e) override;
+		Object * visitKetExpression(Ket * e) override;
 		Object * visitListExpression(List * e) override;
 		Object * visitLiteralExpression(Literal * e) override;
 		Object * visitLogicalExpression(Logical * e) override;

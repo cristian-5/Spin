@@ -42,6 +42,15 @@ namespace Spin {
 	}
 	Binary::~Binary() { delete r; delete l; delete o; }
 
+	Bra::Bra(String * nm, Token * op) {
+		n = nm; o = op;
+	}
+	Object * Bra::accept(Visitor * visitor) {
+		try { return visitor -> visitBraExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	Bra::~Bra() { delete n; delete o; }
+
 	Call::Call(Expression * c, Token * p, Array<Expression *> * a) {
 		parenthesis = p; callee = c; arguments = a;
 	}
@@ -81,6 +90,15 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	Grouping::~Grouping() { delete expression; }
+
+	Ket::Ket(String * nm, Token * op) {
+		n = nm; o = op;
+	}
+	Object * Ket::accept(Visitor * visitor) {
+		try { return visitor -> visitKetExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	Ket::~Ket() { delete n; delete o; }
 
 	List::List(Array<Expression *> * v) { values = v; }
 	Object * List::accept(Visitor * visitor) {
