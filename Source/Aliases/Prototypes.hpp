@@ -69,9 +69,11 @@ namespace Spin {
 		symbol,
 		identifier,
 
-		braSymbol,
 		braketSymbol,
+		braSymbol,
+		measureSymbol,
 		ketSymbol,
+		ketbraSymbol,
 
 		intLiteral,
 		imaginaryLiteral,
@@ -2814,8 +2816,10 @@ namespace Spin {
 			{ "(<[01]\\|)", TokenType::basisBraLiteral },
 			{ "(\\|[01]>)", TokenType::basisKetLiteral },
 
+			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::measureSymbol },
 			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*\\|[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::braketSymbol },
 			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*\\|)", TokenType::braSymbol },
+			{ "(\\|[A-Za-z_][A-Za-z0-9_\\-]*><[A-Za-z_][A-Za-z0-9_\\-]*\\|)", TokenType::ketbraSymbol },
 			{ "(\\|[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::ketSymbol },
 
 			{ "(\\->)", TokenType::arrow },
