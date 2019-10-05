@@ -2901,7 +2901,7 @@ namespace Spin {
 			{ "(rest)\\b", TokenType::restKeyword },
 			{ "(return)\\b", TokenType::returnKeyword },
 
-			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Real|String|Vector)\\b", TokenType::basicType },
+			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Measurement|Real|String|Vector)\\b", TokenType::basicType },
 
 			{ "([A-Za-z_][A-Za-z0-9_\\-]*)\\b", TokenType::symbol },
 
