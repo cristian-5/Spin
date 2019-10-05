@@ -18,32 +18,30 @@
 
 #include "../Source/Aliases/Includes.hpp"
 
-using namespace std;
-
 using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	cout << "Insert test string: ";
+	Output << "Insert test string: ";
 	String test = getInput();
-	cout << endl;
+	Output << endLine;
 
 	Lexer * lexer = Lexer::self();
 	
-	Array<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
+	Array<Token> * tokens = lexer -> tokenise(& test);
 
-	cout << "Tokens: " << endl;
+	Output << "Tokens: " << endLine;
 	UInt32 i = 1;
 	for (Token & token : * tokens) {
-		cout << padding << i << " | Type: ";
-		cout << padding << token.type;
-		cout << " | Token: " << token.lexeme << endl;
+		Output << padding << i << " | Type: ";
+		Output << padding << token.type;
+		Output << " | Token: " << token.lexeme << endLine;
 		i += 1;
 	}
 
 	delete tokens;
 
-	cout << endl << "Press enter to exit. ";
+	Output << endLine << "Press enter to exit. ";
 	waitKeyPress();
 	
 	return exitSuccess;
