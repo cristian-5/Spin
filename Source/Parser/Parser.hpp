@@ -45,7 +45,7 @@ namespace Spin {
 			delete ex; delete equals;
 			throw SyntaxError(
 				"Expected identifier before assignment operator '='!",
-				Linker::getPosition(currentFile -> contents, equals -> position)
+				Linker::getPosition(currentUnit -> contents, equals -> position)
 			);
 		}
 		return ex;
@@ -80,114 +80,94 @@ namespace Spin {
 		Expression * ex = nullptr;
 		try { ex = comparison(); }
 		catch (SyntaxError & s) { throw; }
-		Array<TokenType> * ops = new Array<TokenType>();
-		ops -> push(TokenType::equality);
-		ops -> push(TokenType::inequality);
-		while (match(ops)) {
+		while (match(TokenType::equality) ||
+			   match(TokenType::inequality)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
 			try { rs = comparison(); }
 			catch (SyntaxError & s) {
-				delete ops;
 				delete ex;
 				delete op;
 				throw;
 			}
 			ex = new Comparison(ex, op, rs);
 		}
-		delete ops;
 		return ex;
 	}
 	Expression * Parser::comparison() {
 		Expression * ex = nullptr;
 		try { ex = lowPriorityOperator(); }
 		catch (SyntaxError & s) { throw; }
-		Array<TokenType> * ops = new Array<TokenType>();
-		ops -> push(TokenType::major);
-		ops -> push(TokenType::minor);
-		ops -> push(TokenType::majorEqual);
-		ops -> push(TokenType::minorEqual);
-		while (match(ops)) {
+		while (match(TokenType::major) ||
+			   match(TokenType::minor) ||
+			   match(TokenType::majorEqual) ||
+			   match(TokenType::minorEqual)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
 			try { rs = lowPriorityOperator(); }
 			catch (SyntaxError & s) {
-				delete ops;
 				delete ex;
 				delete op;
 				throw;
 			}
 			ex = new Comparison(ex, op, rs);
 		}
-		delete ops;
 		return ex;
 	}
 	Expression * Parser::lowPriorityOperator() {
 		Expression * ex = nullptr;
 		try { ex = mediumPriorityOperator(); }
 		catch (SyntaxError & e) { throw; }
-		Array<TokenType> * ops = new Array<TokenType>();
-		ops -> push(TokenType::plus);
-		ops -> push(TokenType::minus);
-		ops -> push(TokenType::pipe);
-		while (match(ops)) {
+		while (match(TokenType::plus)  ||
+			   match(TokenType::minus) ||
+			   match(TokenType::pipe)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
 			try { rs = mediumPriorityOperator(); }
 			catch (SyntaxError & e) {
-				delete ops;
 				delete ex;
 				delete op;
 				throw;
 			}
 			ex = new Binary(ex, op, rs);
 		}
-		delete ops;
 		return ex;
 	}
 	Expression * Parser::mediumPriorityOperator() {
 		Expression * ex = nullptr;
 		try { ex = highPriorityOperator(); }
 		catch (SyntaxError & e) { throw; }
-		Array<TokenType> * ops = new Array<TokenType>();
-		ops -> push(TokenType::star);
-		ops -> push(TokenType::slash);
-		ops -> push(TokenType::ampersand);
-		ops -> push(TokenType::dagger);
-		ops -> push(TokenType::modulus);
-		while (match(ops)) {
+		while (match(TokenType::star)      ||
+			   match(TokenType::slash)     ||
+			   match(TokenType::ampersand) ||
+			   match(TokenType::dagger)    ||
+			   match(TokenType::modulus)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
 			try { rs = highPriorityOperator(); }
 			catch (SyntaxError & e) {
-				delete ops;
 				delete ex;
 				delete op;
 				throw;
 			}
 			ex = new Binary(ex, op, rs);
 		}
-		delete ops;
 		return ex;
 	}
 	Expression * Parser::highPriorityOperator() {
-		Array<TokenType> * ops = new Array<TokenType>();
-		ops -> push(TokenType::minus);
-		ops -> push(TokenType::plus);
-		ops -> push(TokenType::exclamationMark);
-		ops -> push(TokenType::tilde);
-		if (match(ops)) {
+		if (match(TokenType::minus) ||
+			match(TokenType::plus)  ||
+			match(TokenType::tilde) ||
+			match(TokenType::exclamationMark)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
 			try { rs = highPriorityOperator(); }
 			catch (SyntaxError & e) {
-				delete ops;
 				delete op;
 				throw;
 			}
 			return new Unary(op, rs);
 		}
-		delete ops;
 		try { return subscription(); }
 		catch (SyntaxError & s) { throw; }
 	}
@@ -311,8 +291,8 @@ namespace Spin {
 		}
 		FilePosition fp = { 0, 0 };
 		if (t.type == TokenType::endFile) {
-			fp = Linker::getPosition(currentFile -> contents, previous().position);
-		} else fp = Linker::getPosition(currentFile -> contents, t.position);
+			fp = Linker::getPosition(currentUnit -> contents, previous().position);
+		} else fp = Linker::getPosition(currentUnit -> contents, t.position);
 		throw SyntaxError(
 			"Expected expression after '" + previous().lexeme + "'!", fp
 		);
@@ -371,7 +351,7 @@ namespace Spin {
 				name = new Token(previous());
 			} else {
 				Token t = previous();
-				FilePosition fp = Linker::getPosition(currentFile -> contents, t.position);
+				FilePosition fp = Linker::getPosition(currentUnit -> contents, t.position);
 				throw SyntaxError(
 					"Expected <identifier| or |identifier> in bra-ket notation but found '"
 					+ t.lexeme + "'!", fp
@@ -457,7 +437,7 @@ namespace Spin {
 		if (!isInControlFlow) {
 			throw SyntaxError(
 				"Unexpected break statement outside of control flow statements! What am I supposed to break?",
-				Linker::getPosition(currentFile -> contents, peek().position)
+				Linker::getPosition(currentUnit -> contents, peek().position)
 			);
 		}
 		Token * breakToken = new Token(peekAdvance());
@@ -473,7 +453,7 @@ namespace Spin {
 		if (!isInControlFlow) {
 			throw SyntaxError(
 				"Unexpected continue statement outside of control flow statements! Where am I supposed to continue?",
-				Linker::getPosition(currentFile -> contents, peek().position)
+				Linker::getPosition(currentUnit -> contents, peek().position)
 			);
 		}
 		Token * continueToken = new Token(peekAdvance());
@@ -524,7 +504,7 @@ namespace Spin {
 						Token er = peek();
 						throw SyntaxError(
 							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getPosition(currentFile -> contents, er.position)
+							Linker::getPosition(currentUnit -> contents, er.position)
 						);
 					}
 					p -> type = Converter::typeFromString(* stringType);
@@ -541,7 +521,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected type but found '" + er.lexeme + "'!",
-					Linker::getPosition(currentFile -> contents, er.position)
+					Linker::getPosition(currentUnit -> contents, er.position)
 				);
 			}
 			returnType -> type = Converter::typeFromString(* stringType);
@@ -551,7 +531,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected function body but found '" + er.lexeme + "'!",
-					Linker::getPosition(currentFile -> contents, er.position)
+					Linker::getPosition(currentUnit -> contents, er.position)
 				);
 			}
 			body = (BlockStatement *)blockStatement();
@@ -595,7 +575,7 @@ namespace Spin {
 						Token er = peek();
 						throw SyntaxError(
 							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getPosition(currentFile -> contents, er.position)
+							Linker::getPosition(currentUnit -> contents, er.position)
 						);
 					}
 					p -> type = Converter::typeFromString(* stringType);
@@ -610,7 +590,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected function body but found '" + er.lexeme + "'!",
-					Linker::getPosition(currentFile -> contents, er.position)
+					Linker::getPosition(currentUnit -> contents, er.position)
 				);
 			}
 			body = (BlockStatement *)blockStatement();
@@ -804,7 +784,7 @@ namespace Spin {
 				if (returnToken) delete returnToken;
 				throw SyntaxError(
 					"Unexpected return statement outside of function! Where am I supposed to return to?",
-					Linker::getPosition(currentFile -> contents, position)
+					Linker::getPosition(currentUnit -> contents, position)
 				);
 			}
 		} else if (!isInProcedure) {
@@ -812,7 +792,7 @@ namespace Spin {
 			if (returnToken) delete returnToken;
 			throw SyntaxError(
 				"Unexpected return statement outside of procedure! Where am I supposed to return to?",
-				Linker::getPosition(currentFile -> contents, position)
+				Linker::getPosition(currentUnit -> contents, position)
 			);
 		}
 		return new ReturnStatement(ex, returnToken);
@@ -826,7 +806,13 @@ namespace Spin {
 		} catch (SyntaxError & s) { throw; }
 		throw SyntaxError(
 			"Unexpected delete statement found outside of valid context!",
-			Linker::getPosition(currentFile -> contents, previous().position)
+			Linker::getPosition(currentUnit -> contents, previous().position)
+		);
+	}
+	Statement * Parser::fileStatement() {
+		return new FileStatement(
+			currentUnit -> name,
+			currentUnit -> contents
 		);
 	}
 
@@ -859,7 +845,7 @@ namespace Spin {
 			} else throw SyntaxError(
 				"Expected 'identifier' but found '" +
 				tokens -> at(i).lexeme + "'!",
-				Linker::getPosition(currentFile -> contents, tokens -> at(i).position)
+				Linker::getPosition(currentUnit -> contents, tokens -> at(i).position)
 			);
 			i += 1;
 			if (i < tokens -> size()) {
@@ -877,7 +863,7 @@ namespace Spin {
 					default: throw SyntaxError(
 						"Expected ';' but found '" +
 						tokens -> at(i).lexeme + "'!",
-						Linker::getPosition(currentFile -> contents, tokens -> at(i).position)
+						Linker::getPosition(currentUnit -> contents, tokens -> at(i).position)
 					);
 				}
 			} else break;
@@ -885,11 +871,11 @@ namespace Spin {
 		throw SyntaxError(
 			"Expected ';' but found '" +
 			tokens -> at(i).lexeme + "'!",
-			Linker::getPosition(currentFile -> contents, tokens -> at(i).position)
+			Linker::getPosition(currentUnit -> contents, tokens -> at(i).position)
 		);
 	}
-	FileScope * Parser::runImportClassification() {
-		FileScope * fileScope = new FileScope();
+	SyntaxTree * Parser::runImportClassification(SyntaxTree * syntaxTree) {
+		if (!syntaxTree) syntaxTree = new SyntaxTree();
 		if (!tokens) return nullptr;
 		SizeType tokenCount = tokens -> size();
 		for (SizeType i = 0; i < tokenCount; i++) {
@@ -897,20 +883,17 @@ namespace Spin {
 				try {
 					SizeType store = i;
 					String s = parseImport(i);
-					if (s == "Standard") fileScope -> standardLibrary = true;
-					else if (s == "Maths") fileScope -> mathsLibrary = true;
-					else if (s == "Chronos") fileScope -> chronosLibrary = true;
+					if (s == "Standard") syntaxTree -> standardLibrary = true;
+					else if (s == "Maths") syntaxTree -> mathsLibrary = true;
+					else if (s == "Kronos") syntaxTree -> kronosLibrary = true;
 					else throw SyntaxError(
 						"Invalid import statement asks for unknown library '" + s + "'!",
-						Linker::getPosition(currentFile -> contents, tokens -> at(store).position)
+						Linker::getPosition(currentUnit -> contents, tokens -> at(store).position)
 					);
-				} catch (SyntaxError & r) {
-					delete fileScope;
-					throw;
-				}
+				} catch (SyntaxError & r) { throw; }
 			}
 		}
-		return fileScope;
+		return syntaxTree;
 	}
 	void Parser::runCastClassification() {
 		if (!tokens) return;
@@ -976,14 +959,6 @@ namespace Spin {
 			return true;
 		} return false;
 	}
-	inline Bool Parser::match(Array<TokenType> * types) {
-		for (TokenType & type : * types) {
-			if (check(type)) {
-				advance();
-				return true;
-			}
-		} return false;
-	}
 	inline Bool Parser::check(TokenType type) {
 		if (isAtEnd()) return false;
 		return peek().type == type;
@@ -1012,13 +987,20 @@ namespace Spin {
 		if (check(type)) return advance();
 		FilePosition fp = { 0, 0 };
 		if (t.type == TokenType::endFile) {
-			fp = Linker::getPosition(currentFile -> contents, previous().position);
-		} else fp = Linker::getPosition(currentFile -> contents, t.position);
+			fp = Linker::getPosition(currentUnit -> contents, previous().position);
+		} else fp = Linker::getPosition(currentUnit -> contents, t.position);
 		throw SyntaxError(
 			(lexeme.length() > 0 ? "Expected '" + lexeme +
 			"' but found '" + t.lexeme + "'!" :
 			"Expecting a different token than '" + t.lexeme + "'!"), fp
 		);
+	}
+
+	inline void Parser::resetState() {
+		index = 0;
+		isInControlFlow = false;
+		isInFunction = false;
+		isInProcedure = false;
 	}
 
 	void Parser::synchronise() {
@@ -1034,38 +1016,122 @@ namespace Spin {
 		}
 	}
 
-	FileScope * parse(Array<FileFrame *> * files) {
-		return nullptr;
+	SyntaxTree * Parser::parse(Array<CodeUnit *> * units) {
+		if (!units) return nullptr;
+		SyntaxTree * syntaxTree = nullptr;
+		if (!errors) errors = new Array<SyntaxError>();
+		Array<UnitError *> * syntaxErrors = new Array<UnitError *>();
+		for (CodeUnit * unit : * units) {
+			if (!(unit -> contents)) return nullptr;
+			if (!(unit -> tokens)) return nullptr;
+			if (!(unit -> name)) return nullptr;
+			if (unit -> tokens -> size() <= 2) {
+				errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
+				errors -> shrinkToFit();
+				syntaxErrors -> push(new UnitError(errors, * unit -> name));
+				errors = new Array<SyntaxError>(); resetState(); continue;
+			}
+			tokens = new Array<Token>(* unit -> tokens);
+			currentUnit = unit;
+			try { consume(TokenType::beginFile, "beginFile"); }
+			catch (SyntaxError & s) {
+				errors -> push(s);
+				errors -> shrinkToFit();
+				syntaxErrors -> push(new UnitError(errors, * unit -> name));
+				errors = new Array<SyntaxError>();
+				delete tokens; resetState(); continue;
+			}
+			runCastClassification();
+			runTypeClassification();
+			try { syntaxTree = runImportClassification(syntaxTree); }
+			catch (SyntaxError & s) {
+				if (syntaxTree) {
+					delete syntaxTree;
+					syntaxTree = nullptr;
+				}
+				errors -> push(s);
+				errors -> shrinkToFit();
+				syntaxErrors -> push(new UnitError(errors, * unit -> name));
+				errors = new Array<SyntaxError>();
+				delete tokens; resetState(); continue;
+			}
+			cleanEmptyTokens();
+			if (!(syntaxTree -> statements)) {
+				syntaxTree -> statements = new Array<Statement *>();
+			}
+			syntaxTree -> statements -> push(fileStatement());
+			while (!isAtEnd()) {
+				try {
+					syntaxTree -> statements -> push(declaration());
+				} catch (SyntaxError & s) {
+					errors -> push(s);
+					synchronise();
+				}
+			}
+			if (errors -> size() > 0) {
+				if (syntaxTree) {
+					delete syntaxTree;
+					syntaxTree = nullptr;
+				}
+				syntaxErrors -> push(new UnitError(errors, * unit -> name));
+				errors = new Array<SyntaxError>();
+				delete tokens; resetState(); continue;
+			}
+			delete tokens; resetState();
+		}
+		delete errors; errors = nullptr;
+		if (syntaxErrors -> size() > 0) {
+			if (syntaxTree) delete syntaxTree;
+			resetState();
+			throw ParserErrorException(syntaxErrors);
+		}
+		delete syntaxErrors;
+		resetState();
+		return syntaxTree;
 	}
-
-	FileScope * Parser::parse(FileFrame * file) {
-		if (!file) return nullptr;
-		if (!(file -> contents)) return nullptr;
-		if (!(file -> tokens)) return nullptr;
-		if (!(file -> name)) return nullptr;
-		if (file -> tokens -> size() <= 2) {
+	SyntaxTree * Parser::parse(CodeUnit * unit) {
+		if (!unit) return nullptr;
+		if (!(unit -> contents)) return nullptr;
+		if (!(unit -> tokens)) return nullptr;
+		if (!(unit -> name)) return nullptr;
+		SyntaxTree * syntaxTree = nullptr;
+		if (!errors) errors = new Array<SyntaxError>();
+		if (unit -> tokens -> size() <= 2) {
 			errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, * file -> name);
+			UnitError * syntaxErrors = new UnitError(
+				errors, * unit -> name
+			);
+			resetState();
+			throw ParserErrorException(syntaxErrors);
 		}
-		this -> tokens = new Array<Token>(* tokens);
+		tokens = new Array<Token>(* unit -> tokens);
+		currentUnit = unit;
 		try { consume(TokenType::beginFile, "beginFile"); }
 		catch (SyntaxError & s) {
 			errors -> push(s);
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, * file -> name);
+			UnitError * syntaxErrors = new UnitError(
+				errors, * unit -> name
+			);
+			delete tokens; resetState();
+			throw ParserErrorException(syntaxErrors);
 		}
 		runCastClassification();
 		runTypeClassification();
-		FileScope * fileScope = nullptr;
-		try { fileScope = runImportClassification(); }
+		try { syntaxTree = runImportClassification(syntaxTree); }
 		catch (SyntaxError & s) {
 			errors -> push(s);
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, * file -> name);
+			UnitError * syntaxErrors = new UnitError(
+				errors, * unit -> name
+			);
+			delete tokens; resetState();
+			throw ParserErrorException(syntaxErrors);
 		}
 		cleanEmptyTokens();
 		Array<Statement *> * statements = new Array<Statement *>();
+		statements -> push(fileStatement());
 		while (!isAtEnd()) {
 			try {
 				statements -> push(declaration());
@@ -1074,15 +1140,19 @@ namespace Spin {
 				synchronise();
 			}
 		}
-		fileScope -> statements = statements;
+		syntaxTree -> statements = statements;
 		if (errors -> size() > 0) {
-			if (fileScope) delete fileScope;
-			// Delete Statements you moron!
+			if (syntaxTree) delete syntaxTree;
 			errors -> shrinkToFit();
-			throw ParserErrorException(errors, * file -> name);
+			UnitError * syntaxErrors = new UnitError(
+				errors, * unit -> name
+			);
+			delete tokens; resetState();
+			throw ParserErrorException(syntaxErrors);
 		}
-		delete errors;
-		return fileScope;
+		delete tokens; delete errors;
+		errors = nullptr; resetState();
+		return syntaxTree;
 	}
 
 }

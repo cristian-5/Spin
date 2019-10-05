@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <functional>
 #include <math.h>
 #include <string>
 #include <fstream>

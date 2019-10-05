@@ -264,6 +264,11 @@ namespace Spin {
 		try { evaluateExpression(e -> e); }
 		catch (Exception & exc) { throw; }
 	}
+	void Interpreter::visitFileStatement(FileStatement * e) {
+		if (fileName) delete fileName;
+		fileName = new String(* e -> name);
+		fileContents = e -> file;
+	}
 	void Interpreter::visitForStatement(ForStatement * e) {
 		Object * expression = nullptr;
 		try {
@@ -329,8 +334,7 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluateExpression(e -> e);
-			// TO FIX: Find a better way to output things.
-			std::cout << expression -> getObjectStringValue() << std::endl;
+			Output << expression -> getObjectStringValue() << endLine;
 			if (expression) delete expression;
 		} catch (Exception & exc) {
 			if (expression) delete expression;
@@ -483,7 +487,7 @@ namespace Spin {
 			return expression -> accept(this);
 		} catch (EvaluationError & e) {
 			const UInt32 cursor = e.getToken().position;
-			FilePosition fp = Linker::getPosition(input, cursor);
+			FilePosition fp = Linker::getPosition(fileContents, cursor);
 			throw InterpreterErrorException(
 				e.getMessage(), fp, fileName
 			);
@@ -495,19 +499,21 @@ namespace Spin {
 		memory = globals;
 	}
 
-	void Interpreter::evaluate(FileScope * fileScope, String * input, String fileName) {
-		if (fileScope -> standardLibrary) Standard::defineLibrary(globals);
-		if (fileScope -> mathsLibrary) Maths::defineLibrary(globals);
-		if (fileScope -> chronosLibrary) Chronos::defineLibrary(globals);
+	void Interpreter::evaluate(SyntaxTree * syntaxTree) {
+		if (!syntaxTree) return;
+		if (syntaxTree -> standardLibrary) Standard::defineLibrary(globals);
+		if (syntaxTree -> mathsLibrary) Maths::defineLibrary(globals);
+		if (syntaxTree -> kronosLibrary) Kronos::defineLibrary(globals);
 		try {
-			for (Statement * statement : (* fileScope -> statements)) {
+			for (Statement * statement : * syntaxTree -> statements) {
 				executeStatement(statement);
 			}
 		} catch (EvaluationError & e) {
-			const UInt32 cursor = e.getToken().position;
-			FilePosition fp = Linker::getPosition(input, cursor);
+			const SizeType cursor = e.getToken().position;
+			FilePosition fp = Linker::getPosition(fileContents, cursor);
+			if (!fileName) fileName = new String("Unknown File");
 			throw InterpreterErrorException(
-				e.getMessage(), fp, fileName
+				e.getMessage(), fp, * fileName
 			);
 		}
 	}

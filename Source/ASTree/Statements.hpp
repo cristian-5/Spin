@@ -79,6 +79,14 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	ExpressionStatement::~ExpressionStatement() { delete e; }
+
+	FileStatement::FileStatement(String * n, String * f) {
+		file = f; name = n;
+	}
+	void FileStatement::accept(Visitor * visitor) {
+		try { visitor -> visitFileStatement(this); }
+		catch (Exception & e) { throw; }
+	}
 	
 	ForStatement::ForStatement(Statement * d, Expression * e,
 					Expression * s, Statement * b, Token * f) {

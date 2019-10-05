@@ -23,14 +23,14 @@
 
 namespace Spin {
 
-	FilePosition Linker::getPosition(String * input, UInt32 cursor) {
+	FilePosition Linker::getPosition(String * input, SizeType cursor) {
 		FilePosition result = { 1, 1 };
 		if (!input || input -> length() == 0) return { 0, 0 };
 		if (cursor == 0 && input -> length() > 0) return result;
 		if (cursor >= input -> length()) {
 			return getPosition(input, input -> length() - 1);
 		}
-		for (UInt32 i = 0; i < cursor; i++) {
+		for (SizeType i = 0; i < cursor; i++) {
 			if (input -> at(i) == '\n') {
 				result.row++;
 				result.col = 1;

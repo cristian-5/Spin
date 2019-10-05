@@ -49,7 +49,7 @@ namespace Spin {
 		private:
 		Linker() = default;
 		public:
-		static FilePosition getPosition(String * input, UInt32 cursor);
+		static FilePosition getPosition(String * input, SizeType cursor);
 		static Array<String *> linesFromFile(String path);
 		static String * stringFromFile(String path);
 		static void createNewFile(String path, String content = "");
@@ -311,6 +311,7 @@ namespace Spin {
 	class DeleteStatement;
 	class DoWhileStatement;
 	class ExpressionStatement;
+	class FileStatement;
 	class ForStatement;
 	class FunctionStatement;
 	class IfStatement;
@@ -351,7 +352,6 @@ namespace Spin {
 			return (dynamic<t *>(this));
 		}
 	};
-
 	class Statement {
 		public:
 		virtual ~Statement() = default;
@@ -363,6 +363,7 @@ namespace Spin {
 			virtual void visitDeleteStatement(DeleteStatement * e) = 0;
 			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
+			virtual void visitFileStatement(FileStatement * e) = 0;
 			virtual void visitForStatement(ForStatement * e) = 0;
 			virtual void visitFunctionStatement(FunctionStatement * e) = 0;
 			virtual void visitIfStatement(IfStatement * e) = 0;
@@ -575,6 +576,13 @@ namespace Spin {
 		void accept(Visitor * visitor) override;
 		~ExpressionStatement();
 	};
+	class FileStatement: public Statement {
+		public:
+		String * file = nullptr;
+		String * name = nullptr;
+		FileStatement(String * n, String * f);
+		void accept(Visitor * visitor) override;
+	};
 	class ForStatement: public Statement {
 		public:
 		Token * forToken = nullptr;
@@ -613,7 +621,7 @@ namespace Spin {
 		LoopStatement(Statement * b, Token * l);
 		void accept(Visitor * visitor) override;
 		~LoopStatement();
-	};	
+	};
 	class PrintStatement: public Statement {
 		public:
 		Expression * e = nullptr;
@@ -849,7 +857,6 @@ namespace Spin {
 	class InvalidOperationException: public Exception {
 		public: InvalidOperationException(): Exception() { }
 	};
-
 	class Vector {
 		private:
 		const Bool braDirection = false;
@@ -2650,9 +2657,9 @@ namespace Spin {
 
 	/* Libraries */
 
-	class Chronos {
+	class Kronos {
 		private:
-		Chronos() = default;
+		Kronos() = default;
 		public:
 		static void defineLibrary(Environment * global);
 	};
@@ -2671,21 +2678,20 @@ namespace Spin {
 
 	/* Interpreter */
 
-	class FileScope {
+	class SyntaxTree {
 		public:
 		Bool standardLibrary = false;
 		Bool mathsLibrary = false;
-		Bool chronosLibrary = false;
+		Bool kronosLibrary = false;
 		Array<Statement *> * statements = nullptr;
-		FileScope() = default;
-		FileScope(Array<Statement *> * s);
-		~FileScope() {
+		SyntaxTree() = default;
+		SyntaxTree(Array<Statement *> * s);
+		~SyntaxTree() {
 			if (!statements) return;
 			for (Statement * s : * statements) delete s;
 			delete statements;
 		}
 	};
-
 	class InterpreterErrorException: public Exception {
 		private:
 		const String message;
@@ -2711,6 +2717,8 @@ namespace Spin {
 	};
 	class Interpreter: public Expression::Visitor, public Statement::Visitor {
 		private:
+		String * fileName = nullptr;
+		String * fileContents = nullptr;
 		Processor * CPU = Processor::self();
 		Environment * memory = nullptr;
 		Bool broken = false;
@@ -2737,6 +2745,7 @@ namespace Spin {
 		void visitDeleteStatement(DeleteStatement * e) override;
 		void visitDoWhileStatement(DoWhileStatement * e) override;
 		void visitExpressionStatement(ExpressionStatement * e) override;
+		void visitFileStatement(FileStatement * e) override;
 		void visitForStatement(ForStatement * e) override;
 		void visitFunctionStatement(FunctionStatement * e) override;
 		void visitIfStatement(IfStatement * e) override;
@@ -2765,27 +2774,26 @@ namespace Spin {
 		}
 		Environment * globals = nullptr;
 		void executeFunction(BlockStatement * block, Environment * environment);
-		void evaluate(FileScope * fileScope, String * input = nullptr, String fileName = "Unknown File");
+		void evaluate(SyntaxTree * syntaxTree);
 	};
 
 	/* Lexer */
 
-	class FileFrame {
+	class CodeUnit {
 		public:
 		Array<Token> * tokens = nullptr;
 		String * name = nullptr;
 		String * contents = nullptr;
-		FileFrame() = default;
-		FileFrame(Array<Token> * t, String * n, String * c) {
+		CodeUnit() = default;
+		CodeUnit(Array<Token> * t, String * n, String * c) {
 			tokens = t; name = n; contents = c;
 		}
-		~FileFrame() {
+		~CodeUnit() {
 			if (tokens) delete tokens;
 			if (name) delete name;
 			if (contents) delete contents;
 		}
 	};
-
 	class Lexer {
 		private:
 		String handleComments(String input) const;
@@ -2935,20 +2943,33 @@ namespace Spin {
 		SyntaxError(String m, FilePosition p):
 		Exception(), message(m), position(p) { }
 	};
-	class ParserErrorException: public Exception {
+	class UnitError {
 		private:
 		const Array<SyntaxError> * const errors;
-		const String fileName;
+		const String name;
 		public:
 		const Array<SyntaxError> * const getErrors() const { return errors; }
-		const String & getFileName() const { return fileName; }
-		ParserErrorException(Array<SyntaxError> * e, String n):
-		Exception(), errors(e), fileName(n) { }
-		~ParserErrorException() { delete errors; }
+		const String & getName() const { return name; }
+		UnitError(Array<SyntaxError> * e, String n): errors(e), name(n) { }
+		~UnitError() { delete errors; }
+	};
+	class ParserErrorException: public Exception {
+		private:
+		const Array<UnitError *> * const units;
+		public:
+		const Array<UnitError *> * const getUnitErrors() const { return units; }
+		ParserErrorException(Array<UnitError *> * u): Exception(), units(u) { }
+		ParserErrorException(UnitError * u):
+		Exception(), units(new Array<UnitError *>({ u })) { }
+		~ParserErrorException() {
+			if (!units) return;
+			for (UnitError * u : * units) delete u;
+			delete units;
+		}
 	};
 	class Parser {
 		private:
-		FileFrame * currentFile = nullptr;
+		CodeUnit * currentUnit = nullptr;
 		Array<Token> * tokens = nullptr;
 		Array<SyntaxError> * errors = new Array<SyntaxError>();
 		SizeType index = 0;
@@ -2992,15 +3013,15 @@ namespace Spin {
 		Statement * restStatement();
 		Statement * returnStatement();
 		Statement * deleteStatement();
+		Statement * fileStatement();
 		void replace(TokenType type, String lexeme, TokenType newType);
 		void runTypeClassification();
 		String parseImport(SizeType & i);
-		FileScope * runImportClassification();
+		SyntaxTree * runImportClassification(SyntaxTree * syntaxTree);
 		void runCastClassification();
 		void runVectorClassification();
 		void cleanEmptyTokens();
 		inline Bool match(TokenType type);
-		inline Bool match(Array<TokenType> * types);
 		inline Bool check(TokenType type);
 		inline Bool isOutOfRange();
 		inline Bool isAtEnd();
@@ -3009,6 +3030,7 @@ namespace Spin {
 		inline Token previous();
 		inline Token advance();
 		inline Token consume(TokenType type, String lexeme = "");
+		inline void resetState();
 		void synchronise();
 		Parser() = default;
 		~Parser() = default;
@@ -3021,8 +3043,8 @@ namespace Spin {
 			static Parser instance;
 			return & instance;
 		}
-		FileScope * parse(Array<FileFrame *> * files);
-		FileScope * parse(FileFrame * file);
+		SyntaxTree * parse(Array<CodeUnit *> * units);
+		SyntaxTree * parse(CodeUnit * unit);
 	};
 
 }

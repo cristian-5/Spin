@@ -23,7 +23,7 @@
 
 namespace Spin {
 
-	void Chronos::defineLibrary(Environment * global) {
+	void Kronos::defineLibrary(Environment * global) {
 		if (!global) return;
 		global -> define(
 			"clock", new Object(BasicType::FunctionType,
@@ -35,7 +35,7 @@ namespace Spin {
 												.time_since_epoch()).count());
 						return new Object(BasicType::Int64Type, time);
 					}, new Array<Parameter *>(),
-					"<native Chronos::clock()>"
+					"<native Kronos::clock()>"
 				)
 			)
 		);

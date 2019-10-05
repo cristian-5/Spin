@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  main.cpp                               |
+ *    |  Spin.cpp                               |
  *    |                                         |
  *    |                  Main                   |
  *    |                                         |
@@ -23,23 +23,25 @@ using namespace Spin;
 Int32 main(Int32 argc, Character * argv[]) {
 
 	if (argc == 2 && String(argv[1]) == "-v") {
-		Output << "Spin Language Version: 3.0 beta.";
+		Output << endLine << "Spin Language Version: 3.0 beta." << endLine;
+		return exitSuccess;
 	}
 
-	Array<FileFrame *> * files = new Array<FileFrame *>();
+	Array<CodeUnit *> * units = new Array<CodeUnit *>();
 	for (UInt64 i = 1; i < argc; i++) {
 		String * file = nullptr;
 		try {
 			file = Linker::stringFromFile(argv[i]);
-			files -> push(
-				new FileFrame(
+			if (!file || (file -> length() == 0)) continue;
+			units -> push(
+				new CodeUnit(
 					nullptr,
 					new String(argv[i]),
 					file
 				)
 			);
 		} catch (BadFileException & exc) {
-			for (FileFrame * f : * files) delete f; delete files;
+			for (CodeUnit * u : * units) delete u; delete units;
 			Output << "Bad Access! Invalid input file at path '"
 				   << exc.getPath() << "'!" << endLine;
 			Output << "Press enter to exit. ";
@@ -48,45 +50,45 @@ Int32 main(Int32 argc, Character * argv[]) {
 		}
 	}
 
-	/* TO FIX: Filescope */
+	if (units -> size() == 0) return exitSuccess;
 
 	Lexer * lexer = Lexer::self();
 
-	for (FileFrame * file : * files) {
-		file -> tokens = lexer -> tokenise(
-			file -> contents
+	for (CodeUnit * unit : * units) {
+		unit -> tokens = lexer -> tokenise(
+			unit -> contents
 		);
 	}
 
 	Parser * parser = Parser::self();
-	FileScope * fs = nullptr;
 
-
-	
+	SyntaxTree * syntaxTree = nullptr;
 
 	try {
-		fs = parser -> parse(tokens, & test, "Virtual File");
+		syntaxTree = parser -> parse(units);
 	} catch (ParserErrorException & p) {
-		const Array<SyntaxError> * const e = p.getErrors();
-		Output << "Found " << e -> size() << " errors in '"
-			   << p.getFileName() << "'!" << endLine;
-		UInt32 i = 1;
-		for (SyntaxError s : * e) {
-			FilePosition f = s.getPosition();
-			Output << padding << i << " [" << f.row
-				   << ":" << f.col << "]: "
-				   << s.getMessage() << endLine;
-			i += 1;
+		auto units = p.getUnitErrors();
+		for (UnitError * unit : * units) {
+			auto errors = unit -> getErrors();
+			Output << "Found " << errors -> size()
+				   << " errors in '" << unit -> getName()
+				   << "':" << endLine;
+			UInt32 i = 1;
+			for (SyntaxError error : * errors) {
+				FilePosition f = error.getPosition();
+				Output << padding << i << " [" << f.row
+					   << ":" << f.col << "]: "
+					   << error.getMessage() << endLine;
+				i += 1;
+			}
+			Output << endLine;
 		}
-		Output << endLine << "Press enter to exit. ";
+		Output << "Press enter to exit. ";
 		waitKeyPress();
-		delete tokens;
 		return exitFailure;
 	}
 
-	delete tokens;
-
-	if (!fs) {
+	if (!syntaxTree) {
 		Output << "File Scope Failure!" << endLine;
 		Output << "Press enter to exit. ";
 		waitKeyPress();
@@ -96,20 +98,22 @@ Int32 main(Int32 argc, Character * argv[]) {
 	Interpreter * interpreter = Interpreter::self();
 
 	try {
-		interpreter -> evaluate(fs, & test, "Virtual File");
+		interpreter -> evaluate(syntaxTree);
 	} catch (InterpreterErrorException & e) {
-		Output << "[" << e.getPosition().row << ":";
-		Output << e.getPosition().col << "]: " << e.getMessage() << endLine;
+		Output << "Found evaluation error in file '"
+			   << e.getFileName() << "' at position "
+			   << "[" << e.getPosition().row << ":"
+			   << e.getPosition().col << "]:" << endLine
+			   << e.getMessage() << endLine;
 		Output << "Press enter to exit. ";
 		waitKeyPress();
-		delete fs;
+		delete syntaxTree;
 		return exitFailure;
 	}
 
-	delete fs;*/
+	for (CodeUnit * unit : * units) delete unit;
 
-	Output << endLine << "Press enter to exit. ";
-	waitKeyPress();
-	
+	delete syntaxTree;
+
 	return exitSuccess;
 }
