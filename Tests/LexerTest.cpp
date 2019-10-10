@@ -23,12 +23,12 @@ using namespace Spin;
 Int32 main(Int32 argc, Character * argv[]) {
 
 	Output << "Insert test string: ";
-	String test = getInput();
+	String * test = new String(getInput());
 	Output << endLine;
 
 	Lexer * lexer = Lexer::self();
 	
-	Array<Token> * tokens = lexer -> tokenise(& test);
+	Array<Token> * tokens = lexer -> tokenise(test);
 
 	Output << "Tokens: " << endLine;
 	UInt32 i = 1;

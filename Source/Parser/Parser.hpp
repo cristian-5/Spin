@@ -118,9 +118,8 @@ namespace Spin {
 		Expression * ex = nullptr;
 		try { ex = mediumPriorityOperator(); }
 		catch (SyntaxError & e) { throw; }
-		while (match(TokenType::plus)  ||
-			   match(TokenType::minus) ||
-			   match(TokenType::pipe)) {
+		while (matchRange(TokenType::plusEqual,
+						  TokenType::pipe)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
 			try { rs = mediumPriorityOperator(); }
@@ -137,11 +136,8 @@ namespace Spin {
 		Expression * ex = nullptr;
 		try { ex = highPriorityOperator(); }
 		catch (SyntaxError & e) { throw; }
-		while (match(TokenType::star)      ||
-			   match(TokenType::slash)     ||
-			   match(TokenType::ampersand) ||
-			   match(TokenType::dagger)    ||
-			   match(TokenType::modulus)) {
+		while (matchRange(TokenType::starEqual,
+						  TokenType::modulus)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
 			try { rs = highPriorityOperator(); }
@@ -196,7 +192,7 @@ namespace Spin {
 	}
 	Expression * Parser::call() {
 		Expression * ex = nullptr;
-		try { ex = postfixOperators(); }
+		try { ex = primary(); }
 		catch (SyntaxError & s) { throw; }
 		while (true) {
 			if (match(TokenType::openParenthesis)) {
@@ -225,17 +221,6 @@ namespace Spin {
 		}
 		arguments -> shrinkToFit();
 		return new Call(callee, parenthesis, arguments);
-	}
-	Expression * Parser::postfixOperators() {
-		Expression * ex = nullptr;
-		try { ex = primary(); }
-		catch (SyntaxError & s) { throw; }
-		if (match(TokenType::dagger)) {
-			Token * op = new Token(previous());
-			try { ex = new Unary(op, ex); }
-			catch (SyntaxError & s) { throw; }
-		}
-		return ex;
 	}
 	Expression * Parser::primary() {
 		Token t = peek();
@@ -955,6 +940,14 @@ namespace Spin {
 
 	inline Bool Parser::match(TokenType type) {
 		if (check(type)) {
+			advance();
+			return true;
+		} return false;
+	}
+	inline Bool Parser::matchRange(TokenType from, TokenType to) {
+		if (isAtEnd()) return false;
+		TokenType current = peek().type;
+		if (current >= from && current <= to) {
 			advance();
 			return true;
 		} return false;

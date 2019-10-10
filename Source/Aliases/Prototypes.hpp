@@ -95,15 +95,28 @@ namespace Spin {
 
 		virtualOperator,
 
+		/* Low Priority */
+
 		plusEqual,
 		minusEqual,
+		pipeEqual,
+		plus,
+		minus,
+		pipe,
+
+		/* Medium Priority */
+
 		starEqual,
 		slashEqual,
-		tildeEqual,
-		pipeEqual,
 		ampersandEqual,
-		modulusEqual,
 		daggerEqual,
+		modulusEqual,
+		tildeEqual,
+		star,
+		slash,
+		ampersand,
+		dagger,
+		modulus,
 
 		minor,
 		minorEqual,
@@ -118,17 +131,8 @@ namespace Spin {
 		AND,
 		OR,
 
-		plus,
-		minus,
 		tilde,
-		star,
 		backslash,
-		slash,
-		pipe,
-		ampersand,
-		modulus,
-		dollar,
-		dagger,
 
 		openParenthesis,
 		closeParenthesis,
@@ -2838,11 +2842,11 @@ namespace Spin {
 			{ "(<[01]\\|)", TokenType::basisBraLiteral },
 			{ "(\\|[01]>)", TokenType::basisKetLiteral },
 
-			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::measureSymbol },
-			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*\\|[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::braketSymbol },
-			{ "(<[A-Za-z_][A-Za-z0-9_\\-]*\\|)", TokenType::braSymbol },
-			{ "(\\|[A-Za-z_][A-Za-z0-9_\\-]*><[A-Za-z_][A-Za-z0-9_\\-]*\\|)", TokenType::ketbraSymbol },
-			{ "(\\|[A-Za-z_][A-Za-z0-9_\\-]*>)", TokenType::ketSymbol },
+			{ "(<[A-Za-z_][A-Za-z0-9_]*>)", TokenType::measureSymbol },
+			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::braketSymbol },
+			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|)", TokenType::braSymbol },
+			{ "(\\|[A-Za-z_][A-Za-z0-9_]*><[A-Za-z_][A-Za-z0-9_]*\\|)", TokenType::ketbraSymbol },
+			{ "(\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::ketSymbol },
 
 			{ "(\\->)", TokenType::arrow },
 			{ "(\\:)", TokenType::colon },
@@ -2878,7 +2882,6 @@ namespace Spin {
 			{ "(\\&)", TokenType::ampersand },
 			{ "(\\%=)", TokenType::modulusEqual },
 			{ "(\\%)", TokenType::modulus },
-			{ "(\\$)", TokenType::dollar },
 			{ "(\\^=)", TokenType::daggerEqual },
 			{ "(\\^)", TokenType::dagger },
 
@@ -2925,7 +2928,7 @@ namespace Spin {
 
 			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Measurement|Real|String|Vector)\\b", TokenType::basicType },
 
-			{ "([A-Za-z_][A-Za-z0-9_\\-]*)\\b", TokenType::symbol },
+			{ "([A-Za-z_][A-Za-z0-9_]*)\\b", TokenType::symbol },
 
 		};
 		Lexer() = default;
@@ -3015,7 +3018,6 @@ namespace Spin {
 		Expression * completeSubscript(Expression * item);
 		Expression * call();
 		Expression * completeCall(Expression * callee);
-		Expression * postfixOperators();
 		Expression * primary();
 		String * typeString();
 		Statement * declaration();
@@ -3048,6 +3050,7 @@ namespace Spin {
 		void runVectorClassification();
 		void cleanEmptyTokens();
 		inline Bool match(TokenType type);
+		inline Bool matchRange(TokenType from, TokenType to);
 		inline Bool check(TokenType type);
 		inline Bool isOutOfRange();
 		inline Bool isAtEnd();

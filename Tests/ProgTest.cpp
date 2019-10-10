@@ -18,70 +18,79 @@
 
 #include "../Source/Aliases/Includes.hpp"
 
-using namespace std;
-
 using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	cout << "Insert test string: ";
-	String test = getInput();
-	cout << endl;
+	Output << "Insert test string: ";
+	String * test = new String(getInput());
+	Output << endLine;
 
 	Lexer * lexer = Lexer::self();
 
-	Array<Token> * tokens = lexer -> tokenise(& test, "Virtual File");
+	CodeUnit * unit = new CodeUnit(
+		nullptr,
+		new String("Virtual File"),
+		test
+	);
+	
+	unit -> tokens = lexer -> tokenise(unit -> contents);
 
 	Parser * parser = Parser::self();
-	FileScope * fs = nullptr;
+
+	SyntaxTree * syntaxTree = nullptr;
 
 	try {
-		fs = parser -> parse(tokens, & test, "Virtual File");
+		syntaxTree = parser -> parse(unit);
 	} catch (ParserErrorException & p) {
-		const Array<SyntaxError> * const e = p.getErrors();
-		cout << "Found " << e -> size() << " errors in '"
-			 << p.getFileName() << "'!" << endl;
-		UInt32 i = 1;
-		for (SyntaxError s : * e) {
-			FilePosition f = s.getPosition();
-			cout << padding << i << " [" << f.row
-				 << ":" << f.col << "]: "
-				 << s.getMessage() << endl;
-			i += 1;
+		auto units = p.getUnitErrors();
+		for (UnitError * unit : * units) {
+			auto errors = unit -> getErrors();
+			Output << "Found " << errors -> size()
+				   << " errors in '" << unit -> getName()
+				   << "':" << endLine;
+			UInt32 i = 1;
+			for (SyntaxError error : * errors) {
+				FilePosition f = error.getPosition();
+				Output << padding << i << " [" << f.row
+					   << ":" << f.col << "]: "
+					   << error.getMessage() << endLine;
+				i += 1;
+			}
+			Output << endLine;
 		}
-		cout << endl << "Press enter to exit. ";
-		waitKeyPress();
-		delete tokens;
-		return exitFailure;
-	}
-
-	delete tokens;
-
-	if (!fs) {
-		cout << "File Scope Failure!" << endl;
-		cout << "Press enter to exit. ";
+		Output << "Press enter to exit. ";
 		waitKeyPress();
 		return exitFailure;
 	}
 
-	// Interpreter Test:
+	if (!syntaxTree) {
+		Output << "File Scope Failure!" << endLine;
+		Output << "Press enter to exit. ";
+		waitKeyPress();
+		return exitFailure;
+	}
 
 	Interpreter * interpreter = Interpreter::self();
 
 	try {
-		interpreter -> evaluate(fs, & test, "Virtual File");
+		interpreter -> evaluate(syntaxTree);
 	} catch (InterpreterErrorException & e) {
-		cout << "[" << e.getPosition().row << ":";
-		cout << e.getPosition().col << "]: " << e.getMessage() << endl;
-		cout << "Press enter to exit. ";
+		Output << "Found evaluation error in file '"
+			   << e.getFileName() << "' at position "
+			   << "[" << e.getPosition().row << ":"
+			   << e.getPosition().col << "]:" << endLine
+			   << e.getMessage() << endLine;
+		Output << "Press enter to exit. ";
 		waitKeyPress();
-		delete fs;
+		delete syntaxTree;
 		return exitFailure;
 	}
 
-	delete fs;
+	delete unit;
+	delete syntaxTree;
 
-	cout << endl << "Press enter to exit. ";
+	Output << endLine;
 	waitKeyPress();
 	
 	return exitSuccess;

@@ -44,7 +44,7 @@ namespace Spin {
 	Bool Token::isTypeBraKet() const {
 		return type >= TokenType::braketSymbol &&
 			   type <= TokenType::ketbraSymbol;
-	} 
+	}
 
 	TokenRule::TokenRule(String p, TokenType t) {
 		pattern = p; type = t;
