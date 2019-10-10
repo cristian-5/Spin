@@ -205,7 +205,7 @@ namespace Spin {
 
 	/* Basic Types */
 
-	enum BasicType {
+	enum BasicType : UInt8 {
 
 		BoolType,
 		CharacterType,
@@ -236,6 +236,8 @@ namespace Spin {
 		UnknownType
 
 	};
+
+	using BasicTypes = UInt16;
 
 	/* Converter */
 
@@ -935,8 +937,7 @@ namespace Spin {
 		typedef Lambda<Object * (Object *)> UnaryHandler;
 		typedef Lambda<Object * (Object *, Object *)> BinaryHandler;
 		typedef Lambda<void (Object *, Object *)> AssignmentHandler;
-		typedef Pair<BasicType, BasicType> BasicTypes;
-		Map<BasicType, UnaryHandler> unaryNegation = {
+		Dictionary<BasicType, UnaryHandler> unaryNegation = {
 			{
 				BasicType::Int64Type,
 				[] (Object * o) {
@@ -966,7 +967,7 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicType, UnaryHandler> unaryInversion = {
+		Dictionary<BasicType, UnaryHandler> unaryInversion = {
 			{
 				BasicType::ByteType,
 				[] (Object * o) {
@@ -992,9 +993,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryAddition = {
+		Dictionary<BasicTypes, BinaryHandler> binaryAddition = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1003,7 +1004,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1012,7 +1013,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1021,7 +1022,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1030,7 +1031,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ImaginaryType },
+				compose(BasicType::Int64Type, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1039,7 +1040,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ComplexType },
+				compose(BasicType::Int64Type, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1048,7 +1049,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::RealType },
+				compose(BasicType::ComplexType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1057,7 +1058,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1066,7 +1067,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ImaginaryType },
+				compose(BasicType::ComplexType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1075,7 +1076,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::RealType },
+				compose(BasicType::ImaginaryType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1084,7 +1085,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ColourType, BasicType::ColourType },
+				compose(BasicType::ColourType, BasicType::ColourType),
 				[] (Object * l, Object * r) {
 					Colour * a = (Colour *) l -> value;
 					Colour * b = (Colour *) r -> value;
@@ -1093,7 +1094,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1102,7 +1103,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1111,9 +1112,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> stringAddition = {
+		Dictionary<BasicTypes, BinaryHandler> stringAddition = {
 			{
-				{ BasicType::StringType, BasicType::StringType },
+				compose(BasicType::StringType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					String * b = (String *) r -> value;
@@ -1122,7 +1123,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::CharacterType },
+				compose(BasicType::StringType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1133,7 +1134,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::RealType },
+				compose(BasicType::StringType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1142,7 +1143,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::ImaginaryType },
+				compose(BasicType::StringType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1151,7 +1152,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::Int64Type },
+				compose(BasicType::StringType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1160,7 +1161,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::ColourType },
+				compose(BasicType::StringType, BasicType::ColourType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Colour * b = (Colour *) r -> value;
@@ -1169,7 +1170,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::ComplexType },
+				compose(BasicType::StringType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1178,7 +1179,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::StringType },
+				compose(BasicType::CharacterType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					String * b = (String *) r -> value;
@@ -1189,7 +1190,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::StringType },
+				compose(BasicType::RealType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					String * b = (String *) r -> value;
@@ -1198,7 +1199,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::StringType },
+				compose(BasicType::ImaginaryType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					String * b = (String *) r -> value;
@@ -1207,7 +1208,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::StringType },
+				compose(BasicType::Int64Type, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					String * b = (String *) r -> value;
@@ -1216,7 +1217,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ColourType, BasicType::StringType },
+				compose(BasicType::ColourType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					Colour * a = (Colour *) l -> value;
 					String * b = (String *) r -> value;
@@ -1225,7 +1226,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType,  BasicType::StringType },
+				compose(BasicType::ComplexType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					String * b = (String *) r -> value;
@@ -1234,9 +1235,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binarySubtraction = {
+		Dictionary<BasicTypes, BinaryHandler> binarySubtraction = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1245,7 +1246,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1254,7 +1255,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1263,7 +1264,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::Int64Type },
+				compose(BasicType::RealType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1272,7 +1273,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1281,7 +1282,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1290,7 +1291,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ComplexType },
+				compose(BasicType::ComplexType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1299,7 +1300,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::Int64Type },
+				compose(BasicType::ImaginaryType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1308,7 +1309,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ImaginaryType },
+				compose(BasicType::Int64Type, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1317,7 +1318,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::RealType },
+				compose(BasicType::ImaginaryType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1326,7 +1327,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::ImaginaryType },
+				compose(BasicType::RealType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1335,7 +1336,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ImaginaryType },
+				compose(BasicType::ComplexType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1344,7 +1345,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ComplexType },
+				compose(BasicType::ImaginaryType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1353,7 +1354,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::RealType },
+				compose(BasicType::ComplexType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1362,7 +1363,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::ComplexType },
+				compose(BasicType::RealType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1371,7 +1372,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::Int64Type },
+				compose(BasicType::ComplexType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1380,7 +1381,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ComplexType },
+				compose(BasicType::Int64Type, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1389,7 +1390,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1398,9 +1399,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryMultiplication = {
+		Dictionary<BasicTypes, BinaryHandler> binaryMultiplication = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1409,7 +1410,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1418,7 +1419,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1427,7 +1428,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1436,7 +1437,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1445,7 +1446,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1454,7 +1455,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::Int64Type },
+				compose(BasicType::CharacterType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1463,7 +1464,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ColourType, BasicType::ColourType },
+				compose(BasicType::ColourType, BasicType::ColourType),
 				[] (Object * l, Object * r) {
 					Colour * a = (Colour *) l -> value;
 					Colour * b = (Colour *) r -> value;
@@ -1472,7 +1473,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::RealType },
+				compose(BasicType::ImaginaryType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1481,7 +1482,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::Int64Type },
+				compose(BasicType::ImaginaryType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1490,7 +1491,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1499,7 +1500,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ComplexType },
+				compose(BasicType::ImaginaryType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1508,7 +1509,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ComplexType },
+				compose(BasicType::ComplexType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1517,7 +1518,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::RealType },
+				compose(BasicType::ComplexType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1526,7 +1527,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::Int64Type },
+				compose(BasicType::ComplexType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1535,9 +1536,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryDivision = {
+		Dictionary<BasicTypes, BinaryHandler> binaryDivision = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1547,7 +1548,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1557,7 +1558,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::Int64Type },
+				compose(BasicType::RealType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1567,7 +1568,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1577,7 +1578,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1587,7 +1588,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1597,7 +1598,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1607,7 +1608,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1617,7 +1618,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::Int64Type },
+				compose(BasicType::CharacterType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1627,7 +1628,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::ByteType },
+				compose(BasicType::CharacterType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1637,7 +1638,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ColourType, BasicType::ColourType },
+				compose(BasicType::ColourType, BasicType::ColourType),
 				[] (Object * l, Object * r) {
 					Colour * a = (Colour *) l -> value;
 					Colour * b = (Colour *) r -> value;
@@ -1646,7 +1647,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::RealType },
+				compose(BasicType::ImaginaryType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1656,7 +1657,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::Int64Type },
+				compose(BasicType::ImaginaryType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1666,7 +1667,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1676,7 +1677,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ComplexType },
+				compose(BasicType::ComplexType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1687,9 +1688,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryAND = {
+		Dictionary<BasicTypes, BinaryHandler> binaryAND = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1698,7 +1699,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1707,7 +1708,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1716,7 +1717,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::BoolType, BasicType::BoolType },
+				compose(BasicType::BoolType, BasicType::BoolType),
 				[] (Object * l, Object * r) {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
@@ -1725,9 +1726,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryXOR = {
+		Dictionary<BasicTypes, BinaryHandler> binaryXOR = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1736,7 +1737,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1745,7 +1746,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1754,7 +1755,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::BoolType, BasicType::BoolType },
+				compose(BasicType::BoolType, BasicType::BoolType),
 				[] (Object * l, Object * r) {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
@@ -1763,9 +1764,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryOR = {
+		Dictionary<BasicTypes, BinaryHandler> binaryOR = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1774,7 +1775,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1783,7 +1784,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1792,7 +1793,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::BoolType, BasicType::BoolType },
+				compose(BasicType::BoolType, BasicType::BoolType),
 				[] (Object * l, Object * r) {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
@@ -1809,9 +1810,9 @@ namespace Spin {
 		Object * applyAND(Token * t, Object * l, Object * r);
 		Object * applyXOR(Token * t, Object * l, Object * r);
 		Object * applyOR(Token * t, Object * l, Object * r);
-		Map<BasicTypes, BinaryHandler> binaryStrictEquality = {
+		Dictionary<BasicTypes, BinaryHandler> binaryStrictEquality = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1820,7 +1821,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1829,7 +1830,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::StringType },
+				compose(BasicType::StringType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					String * b = (String *) r -> value;
@@ -1838,7 +1839,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::BoolType, BasicType::BoolType },
+				compose(BasicType::BoolType, BasicType::BoolType),
 				[] (Object * l, Object * r) {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
@@ -1847,7 +1848,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ColourType, BasicType::ColourType },
+				compose(BasicType::ColourType, BasicType::ColourType),
 				[] (Object * l, Object * r) {
 					Colour * a = (Colour *) l -> value;
 					Colour * b = (Colour *) r -> value;
@@ -1856,7 +1857,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ComplexType },
+				compose(BasicType::ComplexType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1865,7 +1866,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1874,7 +1875,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1883,7 +1884,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1892,9 +1893,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryMixedEquality = {
+		Dictionary<BasicTypes, BinaryHandler> binaryMixedEquality = {
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1903,7 +1904,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1912,7 +1913,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::ByteType },
+				compose(BasicType::CharacterType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1921,7 +1922,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::CharacterType },
+				compose(BasicType::Int64Type, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1930,7 +1931,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ComplexType },
+				compose(BasicType::ImaginaryType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1939,7 +1940,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::ComplexType },
+				compose(BasicType::RealType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -1948,7 +1949,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::CharacterType },
+				compose(BasicType::StringType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1961,9 +1962,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryMajor = {
+		Dictionary<BasicTypes, BinaryHandler> binaryMajor = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -1972,7 +1973,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -1981,7 +1982,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -1990,7 +1991,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::CharacterType },
+				compose(BasicType::Int64Type, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -1999,7 +2000,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::Int64Type },
+				compose(BasicType::RealType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2008,7 +2009,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2017,7 +2018,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2026,7 +2027,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2035,7 +2036,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2044,7 +2045,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2053,7 +2054,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::Int64Type },
+				compose(BasicType::CharacterType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2062,7 +2063,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::ByteType },
+				compose(BasicType::CharacterType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2071,7 +2072,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::CharacterType },
+				compose(BasicType::ByteType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2080,9 +2081,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryMajorEqual = {
+		Dictionary<BasicTypes, BinaryHandler> binaryMajorEqual = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2091,7 +2092,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2100,7 +2101,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2109,7 +2110,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::CharacterType },
+				compose(BasicType::Int64Type, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2118,7 +2119,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::Int64Type },
+				compose(BasicType::RealType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2127,7 +2128,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2136,7 +2137,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2145,7 +2146,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2154,7 +2155,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2163,7 +2164,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2172,7 +2173,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::Int64Type },
+				compose(BasicType::CharacterType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2181,7 +2182,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::ByteType },
+				compose(BasicType::CharacterType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2190,7 +2191,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::CharacterType },
+				compose(BasicType::ByteType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2199,9 +2200,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryMinor = {
+		Dictionary<BasicTypes, BinaryHandler> binaryMinor = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2210,7 +2211,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2219,7 +2220,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2228,7 +2229,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::CharacterType },
+				compose(BasicType::Int64Type, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2237,7 +2238,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::Int64Type },
+				compose(BasicType::RealType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2246,7 +2247,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2255,7 +2256,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2264,7 +2265,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2273,7 +2274,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2282,7 +2283,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2291,7 +2292,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::Int64Type },
+				compose(BasicType::CharacterType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2300,7 +2301,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::ByteType },
+				compose(BasicType::CharacterType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2309,7 +2310,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::CharacterType },
+				compose(BasicType::ByteType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2318,9 +2319,9 @@ namespace Spin {
 				}
 			}
 		};
-		Map<BasicTypes, BinaryHandler> binaryMinorEqual = {
+		Dictionary<BasicTypes, BinaryHandler> binaryMinorEqual = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2329,7 +2330,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2338,7 +2339,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2347,7 +2348,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::CharacterType },
+				compose(BasicType::Int64Type, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2356,7 +2357,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::Int64Type },
+				compose(BasicType::RealType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2365,7 +2366,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2374,7 +2375,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2383,7 +2384,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2392,7 +2393,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2401,7 +2402,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2410,7 +2411,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::Int64Type },
+				compose(BasicType::CharacterType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2419,7 +2420,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::ByteType },
+				compose(BasicType::CharacterType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2428,7 +2429,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::CharacterType },
+				compose(BasicType::ByteType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2443,9 +2444,9 @@ namespace Spin {
 		Object * applyMajorEqual(Token * t, Object * l, Object * r);
 		Object * applyMinor(Token * t, Object * l, Object * r);
 		Object * applyMinorEqual(Token * t, Object * l, Object * r);
-		Map<BasicTypes, AssignmentHandler> pureAssignment = {
+		Dictionary<BasicTypes, AssignmentHandler> pureAssignment = {
 			{
-				{ BasicType::Int64Type, BasicType::Int64Type },
+				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2453,7 +2454,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::BoolType, BasicType::BoolType },
+				compose(BasicType::BoolType, BasicType::BoolType),
 				[] (Object * l, Object * r) {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
@@ -2461,7 +2462,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::ByteType },
+				compose(BasicType::ByteType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2469,7 +2470,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::StringType },
+				compose(BasicType::StringType, BasicType::StringType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					String * b = (String *) r -> value;
@@ -2477,7 +2478,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::RealType },
+				compose(BasicType::RealType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2485,7 +2486,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::CharacterType },
+				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2493,7 +2494,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ImaginaryType, BasicType::ImaginaryType },
+				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2501,7 +2502,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ComplexType },
+				compose(BasicType::ComplexType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -2509,7 +2510,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ColourType, BasicType::ColourType },
+				compose(BasicType::ColourType, BasicType::ColourType),
 				[] (Object * l, Object * r) {
 					Colour * a = (Colour *) l -> value;
 					Colour * b = (Colour *) r -> value;
@@ -2517,9 +2518,9 @@ namespace Spin {
 				}
 			},
 		};
-		Map<BasicTypes, AssignmentHandler> mixedAssignment = {
+		Dictionary<BasicTypes, AssignmentHandler> mixedAssignment = {
 			{
-				{ BasicType::Int64Type, BasicType::RealType },
+				compose(BasicType::Int64Type, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2527,7 +2528,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::RealType, BasicType::Int64Type },
+				compose(BasicType::RealType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2535,7 +2536,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::Int64Type },
+				compose(BasicType::ComplexType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2543,7 +2544,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::RealType },
+				compose(BasicType::ComplexType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2551,7 +2552,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ComplexType, BasicType::ImaginaryType },
+				compose(BasicType::ComplexType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2559,7 +2560,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::CharacterType },
+				compose(BasicType::Int64Type, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2567,7 +2568,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::Int64Type, BasicType::ByteType },
+				compose(BasicType::Int64Type, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2575,7 +2576,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::Int64Type },
+				compose(BasicType::CharacterType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2583,7 +2584,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::CharacterType, BasicType::ByteType },
+				compose(BasicType::CharacterType, BasicType::ByteType),
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2591,7 +2592,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::Int64Type },
+				compose(BasicType::ByteType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2599,7 +2600,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::ByteType, BasicType::CharacterType },
+				compose(BasicType::ByteType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2607,7 +2608,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::CharacterType },
+				compose(BasicType::StringType, BasicType::CharacterType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2617,7 +2618,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::Int64Type },
+				compose(BasicType::StringType, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2625,7 +2626,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::RealType },
+				compose(BasicType::StringType, BasicType::RealType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2633,7 +2634,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::ImaginaryType },
+				compose(BasicType::StringType, BasicType::ImaginaryType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2641,7 +2642,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::ComplexType },
+				compose(BasicType::StringType, BasicType::ComplexType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -2649,7 +2650,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::ColourType },
+				compose(BasicType::StringType, BasicType::ColourType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Colour * b = (Colour *) r -> value;
@@ -2657,7 +2658,7 @@ namespace Spin {
 				}
 			},
 			{
-				{ BasicType::StringType, BasicType::BoolType },
+				compose(BasicType::StringType, BasicType::BoolType),
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Bool * b = (Bool *) r -> value;
@@ -2665,6 +2666,7 @@ namespace Spin {
 				}
 			}
 		};
+		inline BasicTypes compose(BasicType a, BasicType b);
 		public:
 		Processor(const Processor &) = delete;
 		Processor(Processor &&) = delete;

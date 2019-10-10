@@ -29,7 +29,6 @@
 #include <regex>
 #include <vector>
 #include <unordered_map>
-#include <map>
 #include <chrono>
 
 #define Input std::cin
@@ -57,7 +56,6 @@ using SizeType = std::size_t;
 using String = std::string;
 
 #define Array std::vector
-#define Map std::map
 #define Dictionary std::unordered_map
 
 #define Pair std::pair

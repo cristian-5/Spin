@@ -25,7 +25,7 @@ namespace Spin {
 
 	Object * Processor::applyAddition(Token * t, Object * l, Object * r) {
 		if (l -> isString() || r -> isString()) {
-			auto search = stringAddition.find({ l -> type, r -> type });
+			auto search = stringAddition.find(compose(l -> type, r -> type));
 			if (search != stringAddition.end()) {
 				auto handler = search -> second;
 				return handler(l, r);
@@ -36,12 +36,12 @@ namespace Spin {
 				r -> getObjectName() + "'!", * t
 			);
 		}
-		auto search = binaryAddition.find({ l -> type, r -> type });
+		auto search = binaryAddition.find(compose(l -> type, r -> type));
 		if (search != binaryAddition.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		search = binaryAddition.find({ r -> type, l -> type });
+		search = binaryAddition.find(compose(r -> type, l -> type));
 		if (search != binaryAddition.end()) {
 			auto handler = search -> second;
 			return handler(r, l);
@@ -53,7 +53,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applySubtraction(Token * t, Object * l, Object * r) {
-		auto search = binarySubtraction.find({ l -> type, r -> type });
+		auto search = binarySubtraction.find(compose(l -> type, r -> type));
 		if (search != binarySubtraction.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -65,12 +65,12 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyMultiplication(Token * t, Object * l, Object * r) {
-		auto search = binaryMultiplication.find({ l -> type, r -> type });
+		auto search = binaryMultiplication.find(compose(l -> type, r -> type));
 		if (search != binaryMultiplication.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		search = binaryMultiplication.find({ r -> type, l -> type });
+		search = binaryMultiplication.find(compose(r -> type, l -> type));
 		if (search != binaryMultiplication.end()) {
 			auto handler = search -> second;
 			return handler(r, l);
@@ -82,7 +82,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyDivision(Token * t, Object * l, Object * r) {
-		auto search = binaryDivision.find({ l -> type, r -> type });
+		auto search = binaryDivision.find(compose(l -> type, r -> type));
 		if (search != binaryDivision.end()) {
 			auto handler = search -> second;
 			Object * o = handler(l, r);
@@ -129,7 +129,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyAND(Token * t, Object * l, Object * r) {
-		auto search = binaryAND.find({ l -> type, r -> type });
+		auto search = binaryAND.find(compose(l -> type, r -> type));
 		if (search != binaryAND.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -141,7 +141,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyXOR(Token * t, Object * l, Object * r) {
-		auto search = binaryXOR.find({ l -> type, r -> type });
+		auto search = binaryXOR.find(compose(l -> type, r -> type));
 		if (search != binaryXOR.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -153,7 +153,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyOR(Token * t, Object * l, Object * r) {
-		auto search = binaryOR.find({ l -> type, r -> type });
+		auto search = binaryOR.find(compose(l -> type, r -> type));
 		if (search != binaryOR.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -166,7 +166,7 @@ namespace Spin {
 	}
 	Object * Processor::applyEquality(Token * t, Object * l, Object * r) {
 		if (l -> type == r -> type) {
-			auto search = binaryStrictEquality.find({ l -> type, r -> type });
+			auto search = binaryStrictEquality.find(compose(l -> type, r -> type));
 			if (search != binaryStrictEquality.end()) {
 				auto handler = search -> second;
 				return handler(l, r);
@@ -177,12 +177,12 @@ namespace Spin {
 				r -> getObjectName() + "'!", * t
 			);
 		}
-		auto search = binaryMixedEquality.find({ l -> type, r -> type });
+		auto search = binaryMixedEquality.find(compose(l -> type, r -> type));
 		if (search != binaryMixedEquality.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		search = binaryMixedEquality.find({ r -> type, l -> type });
+		search = binaryMixedEquality.find(compose(r -> type, l -> type));
 		if (search != binaryMixedEquality.end()) {
 			auto handler = search -> second;
 			return handler(r, l);
@@ -199,7 +199,7 @@ namespace Spin {
 		* b = !(* b); return a;
 	}
 	Object * Processor::applyMajor(Token * t, Object * l, Object * r) {
-		auto search = binaryMajor.find({ l -> type, r -> type });
+		auto search = binaryMajor.find(compose(l -> type, r -> type));
 		if (search != binaryMajor.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -211,7 +211,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyMajorEqual(Token * t, Object * l, Object * r) {
-		auto search = binaryMajorEqual.find({ l -> type, r -> type });
+		auto search = binaryMajorEqual.find(compose(l -> type, r -> type));
 		if (search != binaryMajorEqual.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -223,7 +223,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyMinor(Token * t, Object * l, Object * r) {
-		auto search = binaryMinor.find({ l -> type, r -> type });
+		auto search = binaryMinor.find(compose(l -> type, r -> type));
 		if (search != binaryMinor.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -235,7 +235,7 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyMinorEqual(Token * t, Object * l, Object * r) {
-		auto search = binaryMinorEqual.find({ l -> type, r -> type });
+		auto search = binaryMinorEqual.find(compose(l -> type, r -> type));
 		if (search != binaryMinorEqual.end()) {
 			auto handler = search -> second;
 			return handler(l, r);
@@ -246,6 +246,11 @@ namespace Spin {
 			r -> getObjectName() + "'!", * t
 		);
 	}
+
+	inline BasicTypes Processor::compose(BasicType a, BasicType b) {
+		return (BasicTypes)(((BasicTypes)a << 8) | b);
+	}
+
 	Object * Processor::applyComparisonOperator(Token * t, Object * l, Object * r) {
 		switch (t -> type) {
 			case TokenType::equality: {
@@ -421,13 +426,13 @@ namespace Spin {
 	}
 	void Processor::applyAssignment(Token * t, Object * l, Object * r) {
 		if (l -> type == r -> type) {
-			auto search = pureAssignment.find({ l -> type, r -> type });
+			auto search = pureAssignment.find(compose(l -> type, r -> type));
 			if (search != pureAssignment.end()) {
 				auto handler = search -> second;
 				handler(l, r); return;
 			}
 		}
-		auto search = mixedAssignment.find({ l -> type, r -> type });
+		auto search = mixedAssignment.find(compose(l -> type, r -> type));
 		if (search != mixedAssignment.end()) {
 			auto handler = search -> second;
 			handler(l, r); return;
