@@ -91,7 +91,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 	delete syntaxTree;
 
 	Output << endLine;
-	waitKeyPress();
 	
 	return exitSuccess;
 }
