@@ -23,15 +23,14 @@
 
 namespace Spin {
 
-	Assignment::Assignment(Token * name, Expression * value) {
-		this -> name = name;
-		this -> value = value;
+	Assignment::Assignment(Token * name, Expression * value, Token * o) {
+		this -> name = name; this -> value = value; this -> o = o;
 	}
 	Object * Assignment::accept(Visitor * visitor) {
 		try { return visitor -> visitAssignmentExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Assignment::~Assignment() { delete name; delete value; }
+	Assignment::~Assignment() { delete name; delete value; delete o; }
 
 	Binary::Binary(Expression * ls, Token * op, Expression * rs) {
 		r = rs, l = ls; o = op;
@@ -127,6 +126,15 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	Logical::~Logical() { delete r; delete l; delete o; }
+
+	Mutable::Mutable(Token * name, Expression * value, Token * o) {
+		this -> name = name; this -> value = value; this -> o = o;
+	}
+	Object * Mutable::accept(Visitor * visitor) {
+		try { return visitor -> visitMutableExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	Mutable::~Mutable() { delete name; delete value; delete o; }
 		
 	Set::Set(Expression * o, Token * n, Expression * v) {
 		object = o; name = n; value = v;

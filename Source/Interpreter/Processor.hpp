@@ -23,6 +23,182 @@
 
 namespace Spin {
 
+	void Processor::applyAdditionAssignment(Token * t, Object * l, Object * r) {
+		if (l -> isString() || r -> isString()) {
+			auto search = stringAddition.find(compose(l -> type, r -> type));
+			if (search != stringAddition.end()) {
+				auto handler = search -> second;
+				Object * temp = handler(l, r);
+				try { applyAssignment(t, l, temp); }
+				catch (EvaluationError & e) { throw; }
+				delete temp; return;
+			}
+			throw EvaluationError(
+				"Binary operator '+=' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
+		}
+		auto search = binaryAddition.find(compose(l -> type, r -> type));
+		if (search != binaryAddition.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		search = binaryAddition.find(compose(r -> type, l -> type));
+		if (search != binaryAddition.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(r, l);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '+=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applySubtractionAssignment(Token * t, Object * l, Object * r) {
+		auto search = binarySubtraction.find(compose(l -> type, r -> type));
+		if (search != binarySubtraction.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '-=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyMultiplicationAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryMultiplication.find(compose(l -> type, r -> type));
+		if (search != binaryMultiplication.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		search = binaryMultiplication.find(compose(r -> type, l -> type));
+		if (search != binaryMultiplication.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(r, l);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '*=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyDivisionAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryDivision.find(compose(l -> type, r -> type));
+		if (search != binaryDivision.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			if (!temp) {
+				// Check if in try catch block.
+				throw EvaluationError(
+					"Binary operator '/=' threw division by 0 exception!", * t
+				);
+			}
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '/=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyModulusAssignment(Token * t, Object * l, Object * r) {
+		if (l -> type == BasicType::Int64Type &&
+			r -> type == BasicType::Int64Type) {
+			Int64 * a = (Int64 *) l -> value;
+			Int64 * b = (Int64 *) r -> value;
+			if ((* b) == 0) {
+				// Check if in try catch block.
+				throw EvaluationError(
+					"Binary operator '%=' threw division by 0 exception!", * t
+				);
+			}
+			Int64 * c = new Int64((* a) % (* b));
+			Object * temp = new Object(BasicType::Int64Type, c);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		if (l -> type == BasicType::ColourType &&
+			r -> type == BasicType::ColourType) {
+			Colour * a = (Colour *) l -> value;
+			Colour * b = (Colour *) r -> value;
+			Colour * c = new Colour((* a) % (* b));
+			Object * temp = new Object(BasicType::ColourType, c);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '%=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyORAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryOR.find(compose(l -> type, r -> type));
+		if (search != binaryOR.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '|=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyANDAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryAND.find(compose(l -> type, r -> type));
+		if (search != binaryAND.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '&=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyXORAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryXOR.find(compose(l -> type, r -> type));
+		if (search != binaryXOR.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '^=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+
 	Object * Processor::applyAddition(Token * t, Object * l, Object * r) {
 		if (l -> isString() || r -> isString()) {
 			auto search = stringAddition.find(compose(l -> type, r -> type));
@@ -85,14 +261,14 @@ namespace Spin {
 		auto search = binaryDivision.find(compose(l -> type, r -> type));
 		if (search != binaryDivision.end()) {
 			auto handler = search -> second;
-			Object * o = handler(l, r);
-			if (o -> isUnknown()) {
+			Object * temp = handler(l, r);
+			if (!temp) {
 				// Check if in try catch block.
 				throw EvaluationError(
 					"Binary operator '/' threw division by 0 exception!", * t
 				);
 			}
-			return o;
+			return temp;
 		}
 		throw EvaluationError(
 			"Binary operator '/' doesn't support operands of type '" +
@@ -438,7 +614,49 @@ namespace Spin {
 			handler(l, r); return;
 		}
 		throw EvaluationError(
-			"Assignment operator '=' doesn't support operands of type '" +
+			"Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyMutableAssignment(Token * t, Object * l, Object * r) {
+		switch (t -> type) {
+			case TokenType::plusEqual: {
+				try { applyAdditionAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::minusEqual: {
+				try { applySubtractionAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::starEqual: {
+				try { applyMultiplicationAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::slashEqual: {
+				try { applyDivisionAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::modulusEqual: {
+				try { applyModulusAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::pipeEqual: {
+				try { applyORAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::ampersandEqual: {
+				try { applyANDAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::daggerEqual: {
+				try { applyXORAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			default: break;
+		}
+		throw EvaluationError(
+			"Mutable Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
 			r -> getObjectName() + "'!", * t
 		);

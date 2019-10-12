@@ -38,14 +38,15 @@ namespace Spin {
 			catch (SyntaxError & s) { delete ex; delete equals; throw; }
 			if (ex -> isInstanceOf<Identifier>()) {
 				Token * name = new Token(* (((Identifier *)(ex)) -> name));
-				delete equals;
-				return new Assignment(name, value);
+				return new Assignment(name, value, equals);
 			}
 			if (value) delete value;
-			delete ex; delete equals;
+			delete ex;
+			SizeType position = equals -> position;
+			delete equals;
 			throw SyntaxError(
 				"Expected identifier before assignment operator '='!",
-				Linker::getPosition(currentUnit -> contents, equals -> position)
+				Linker::getPosition(currentUnit -> contents, position)
 			);
 		}
 		return ex;
@@ -128,7 +129,23 @@ namespace Spin {
 				delete op;
 				throw;
 			}
-			ex = new Binary(ex, op, rs);
+			if (op -> type >= TokenType::plusEqual &&
+				op -> type <= TokenType::pipeEqual) {
+				if (ex -> isInstanceOf<Identifier>()) {
+					Token * name = new Token(* (((Identifier *)(ex)) -> name));
+					ex = new Mutable(name, rs, op);
+				} else {
+					if (rs) delete rs;
+					delete ex;
+					String sign = op -> lexeme;
+					SizeType position = op -> position;
+					delete op;
+					throw SyntaxError(
+						"Expected identifier before mutable assignment operator '" + sign + "'!",
+						Linker::getPosition(currentUnit -> contents, position)
+					);
+				}
+			} else ex = new Binary(ex, op, rs);
 		}
 		return ex;
 	}
@@ -146,7 +163,23 @@ namespace Spin {
 				delete op;
 				throw;
 			}
-			ex = new Binary(ex, op, rs);
+			if (op -> type >= TokenType::starEqual &&
+				op -> type <= TokenType::modulusEqual) {
+				if (ex -> isInstanceOf<Identifier>()) {
+					Token * name = new Token(* (((Identifier *)(ex)) -> name));
+					ex = new Mutable(name, rs, op);
+				} else {
+					if (rs) delete rs;
+					delete ex;
+					String sign = op -> lexeme;
+					SizeType position = op -> position;
+					delete op;
+					throw SyntaxError(
+						"Expected identifier before mutable assignment operator '" + sign + "'!",
+						Linker::getPosition(currentUnit -> contents, position)
+					);
+				}
+			} else ex = new Binary(ex, op, rs);
 		}
 		return ex;
 	}

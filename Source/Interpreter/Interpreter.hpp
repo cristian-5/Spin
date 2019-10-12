@@ -29,16 +29,16 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluateExpression(e -> value);
-			Object * o = nullptr;
+			Object * obj = nullptr;
 			try {
-				o = memory -> getReference(e -> name-> lexeme);
+				obj = memory -> getReference(e -> name -> lexeme);
 			} catch (VariableNotFoundException & r) {
 				throw EvaluationError(
 					"Unexpected identifier '" +
 					e -> name -> lexeme + "'!", * e -> name
 				);
 			}
-			CPU -> applyAssignment(e -> name, o, expression);
+			CPU -> applyAssignment(e -> o, obj, expression);
 			return expression;
 		} catch (Exception & exc) { throw; }
 	}
@@ -161,6 +161,23 @@ namespace Spin {
 			if (expression) delete expression;
 			throw;
 		}
+	}
+	Object * Interpreter::visitMutableExpression(Mutable * e) {
+		Object * expression = nullptr;
+		try {
+			expression = evaluateExpression(e -> value);
+			Object * obj = nullptr;
+			try {
+				obj = memory -> getReference(e -> name -> lexeme);
+			} catch (VariableNotFoundException & r) {
+				throw EvaluationError(
+					"Unexpected identifier '" +
+					e -> name -> lexeme + "'!", * e -> name
+				);
+			}
+			CPU -> applyMutableAssignment(e -> o, obj, expression);
+			return obj -> copy();
+		} catch (Exception & exc) { throw; }
 	}
 	Object * Interpreter::visitSetExpression(Set * e) { return nullptr; }
 	Object * Interpreter::visitSubscriptExpression(Subscript * e) {

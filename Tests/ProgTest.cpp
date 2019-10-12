@@ -81,7 +81,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 			   << "[" << e.getPosition().row << ":"
 			   << e.getPosition().col << "]:" << endLine
 			   << e.getMessage() << endLine;
-		Output << "Press enter to exit. ";
+		Output << endLine << "Press enter to exit. ";
 		waitKeyPress();
 		delete syntaxTree;
 		return exitFailure;
@@ -90,7 +90,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 	delete unit;
 	delete syntaxTree;
 
-	Output << endLine;
+	Output << endLine << "Press enter to exit. ";
+	waitKeyPress();
 	
 	return exitSuccess;
 }
