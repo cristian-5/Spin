@@ -11,7 +11,7 @@ A **Parameter** is a input variable specification.
 
 ### Tokens used in this Rail (Regexes):
 
-- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_\-]*`
+- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_]*`
 
 ### Declarations used in this Rail:
 

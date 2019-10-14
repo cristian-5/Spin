@@ -1,7 +1,7 @@
 
 # Spin Types
 
-Spin has a set of native types like C or C++.
+Spin has a set of native types like **c** or **c++**.
 Those types are actually virtual classes that
 contain methods and properties.
 

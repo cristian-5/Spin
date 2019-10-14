@@ -11,7 +11,7 @@ A **Procedure** declares a procedure in scope.
 ### Tokens used in this Rail (Regexes):
 
 - **proc** - Defined as `proc`
-- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_\-]*`
+- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_]*`
 
 ### Declarations used in this Rail:
 

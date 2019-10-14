@@ -27,8 +27,6 @@ Here's a **railway** implementation of statements' syntax.
 - [**Subscription**](RailRoads/EX-Subscription.md)
 - [**Call**](RailRoads/EX-Call.md)
 
-- [**Postfix**](RailRoads/EX-Postfix.md)
-
 - [**Primary**](RailRoads/EX-Primary.md)
 
 - [**Array**](RailRoads/EX-Array.md)

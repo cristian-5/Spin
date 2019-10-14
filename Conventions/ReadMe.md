@@ -53,7 +53,7 @@ and *keywords* (with their brackets). Also separate `&` and `*`.
 Always use the aliases defined instead of the **Type Keywords**.
 
 Try to wrap code when necessary and don't use context braces
-for one statement (`if (true) { i++; }` -> `if (true) i++;`).
+for one statement (`if (true) { i += 1; }` -> `if (true) i += 1;`).
 
 Function identifiers should be camelCased and Objects TitleCased.
 

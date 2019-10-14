@@ -13,7 +13,7 @@ A **Function** declares a function in scope.
 ### Tokens used in this Rail (Regexes):
 
 - **func** - Defined as `func`
-- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_\-]*`
+- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_]*`
 - **arrow** - Defined as `->`
 
 ### Declarations used in this Rail:

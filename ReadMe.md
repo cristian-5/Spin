@@ -9,7 +9,7 @@
 **Spin Programming Language**
 
 High level programming language for *research* and
-**Quantum Computing** based on C++, Swift and C#.
+**Quantum Computing** based on c++, Swift and C#.
 
 This language is also suitable for Biologists,
 Engineers, Mathematicians (libraries coming soon)

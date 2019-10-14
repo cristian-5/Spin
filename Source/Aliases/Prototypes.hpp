@@ -317,6 +317,7 @@ namespace Spin {
 
 	class BlockStatement;
 	class BreakStatement;
+	class ClassStatement;
 	class ContinueStatement;
 	class DeleteStatement;
 	class DoWhileStatement;
@@ -372,6 +373,7 @@ namespace Spin {
 			public:
 			virtual void visitBlockStatement(BlockStatement * e) = 0;
 			virtual void visitBreakStatement(BreakStatement * e) = 0;
+			virtual void visitClassStatement(ClassStatement * e) = 0;
 			virtual void visitContinueStatement(ContinueStatement * e) = 0;
 			virtual void visitDeleteStatement(DeleteStatement * e) = 0;
 			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
@@ -584,6 +586,14 @@ namespace Spin {
 		BreakStatement(Token * b);
 		void accept(Visitor * visitor) override;
 		~BreakStatement();
+	};
+	class ClassStatement: public Statement {
+		public:
+		Token * name = nullptr;
+		Array<CallProtocol *> * methods = nullptr;
+		ClassStatement(Token * n, Array<CallProtocol *> * m);
+		void accept(Visitor * visitor) override;
+		~ClassStatement();
 	};
 	class ContinueStatement: public Statement {
 		public:
@@ -3053,6 +3063,7 @@ namespace Spin {
 		Statement * expressionStatement();
 		Statement * functionStatement();
 		Statement * procedureStatement();
+		Statement * classDeclaration();
 		Statement * forStatement();
 		Statement * printStatement();
 		Statement * whileStatement();

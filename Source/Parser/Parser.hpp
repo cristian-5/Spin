@@ -389,6 +389,7 @@ namespace Spin {
 		try {
 			Token keyword = peek();
 			switch (keyword.type) {
+				case TokenType::classKeyword: st = classDeclaration(); break;
 				case TokenType::funcKeyword: st = functionStatement(); break;
 				case TokenType::procKeyword: st = procedureStatement(); break;
 				case TokenType::ifKeyword: st = ifStatement(); break;
@@ -623,6 +624,25 @@ namespace Spin {
 		isInFunction = oldFunction;
 		isInProcedure = oldProcedure;
 		return new ProcedureStatement(name, params, body);
+	}
+	Statement * Parser::classDeclaration() {
+		advance();
+		Bool oldControlFlow = isInControlFlow;
+		isInControlFlow = false;
+		Bool oldProcedure = isInProcedure;
+		isInProcedure = false;
+		Bool oldFunction = isInFunction;
+		isInFunction = false;
+
+		
+
+		
+
+
+		isInControlFlow = oldControlFlow;
+		isInProcedure = oldProcedure;
+		isInFunction = oldFunction;
+		return nullptr;
 	}
 	Statement * Parser::forStatement() {
 		Bool oldControlFlow = isInControlFlow;

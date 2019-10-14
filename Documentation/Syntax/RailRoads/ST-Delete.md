@@ -13,4 +13,4 @@ also results in calling its destructor.
 ### Tokens used in this Rail (Regexes):
 
 - **delete** - Defined as `delete`
-- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_\-]*`
+- **identifier** - Defined as `[A-Za-z_][A-Za-z0-9_]*`

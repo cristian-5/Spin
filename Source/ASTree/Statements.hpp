@@ -45,6 +45,15 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	BreakStatement::~BreakStatement() { delete breakToken; }
+
+	ClassStatement::ClassStatement(Token * n, Array<CallProtocol *> * m) {
+		name = n; methods = m;
+	}
+	void ClassStatement::accept(Visitor * visitor) {
+		try { visitor -> visitClassStatement(this); }
+		catch (Exception & e) { throw; }
+	}
+	ClassStatement::~ClassStatement() { delete name; delete methods; }
 	
 	ContinueStatement::ContinueStatement(Token * c) { continueToken = c; }
 	void ContinueStatement::accept(Visitor * visitor) {
