@@ -174,6 +174,7 @@ namespace Spin {
 		refKeyword,
 		cpyKeyword,
 
+		newKeyword,
 		deleteKeyword,
 
 		invalid,
@@ -204,7 +205,7 @@ namespace Spin {
 
 	/* Basic Types */
 
-	enum BasicType : UInt8 {
+	enum BasicType: UInt8 {
 
 		BoolType,
 		CharacterType,
@@ -229,6 +230,7 @@ namespace Spin {
 		FunctionType,
 
 		ClassType,
+		InstanceType,
 		StructureType,
 		ExceptionType,
 
@@ -242,6 +244,7 @@ namespace Spin {
 
 	class Object;
 	class Colour;
+	class CallProtocol;
 
 	class Converter {
 		private:
@@ -432,7 +435,8 @@ namespace Spin {
 		Token * parenthesis = nullptr;
 		Expression * callee = nullptr;
 		Array<Expression *> * arguments = nullptr;
-		Call(Expression * c, Token * p, Array<Expression *> * a);
+		Bool isConstructor = false;
+		Call(Expression * c, Token * p, Array<Expression *> * a, Bool i);
 		Object * accept(Visitor * visitor) override;
 		~Call();
 	};
@@ -761,6 +765,7 @@ namespace Spin {
 		String getObjectStringValue() const;
 		Bool isUnknown() const;
 		Bool isFunction() const;
+		Bool isCallable() const;
 		Bool isArray() const;
 		Bool isSubscriptable() const;
 		Bool getBoolValue() const;
@@ -840,8 +845,12 @@ namespace Spin {
 		virtual String stringValue() const = 0;
 		virtual UInt32 arity() const = 0;
 		virtual CallProtocol * copy() const = 0;
+		template<typename t>
+		Bool isInstanceOf() {
+			return (dynamic<t *>(this));
+		}
 	};
-	class Function: CallProtocol {
+	class Function: public CallProtocol {
 		private:
 		FunctionStatement * declaration = nullptr;
 		Environment * closure = nullptr;
@@ -854,7 +863,7 @@ namespace Spin {
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
     };
-	class Procedure: CallProtocol {
+	class Procedure: public CallProtocol {
 		private:
 		ProcedureStatement * declaration = nullptr;
 		Environment * closure = nullptr;
@@ -868,7 +877,7 @@ namespace Spin {
 		CallProtocol * copy() const override;
     };
 	typedef Lambda<Object * (Interpreter * i, Array<Object *> a, Token * t)> NativeLambda;
-	class NativeFunction: CallProtocol {
+	class NativeFunction: public CallProtocol {
 		private:
 		Array<Parameter *> * params = nullptr;
 		NativeLambda lambda = nullptr;
@@ -881,6 +890,26 @@ namespace Spin {
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
+	};
+
+	/* Class */
+
+	class Class: public CallProtocol {
+		public:
+		String name = "";
+		Class(String n);
+		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		String stringValue() const override;
+		UInt32 arity() const override;
+		CallProtocol * copy() const override;
+	};
+	class Instance {
+		private:
+		Class * type = nullptr;
+		public:
+		Instance(Class * t);
+		String stringValue() const;
+		Instance * copy() const;
 	};
 
 	/* ArrayList */
@@ -2475,6 +2504,15 @@ namespace Spin {
 		Object * applyMinorEqual(Token * t, Object * l, Object * r);
 		Dictionary<BasicTypes, AssignmentHandler> pureAssignment = {
 			{
+				compose(BasicType::InstanceType, BasicType::InstanceType),
+				[] (Object * l, Object * r) {
+					Instance * a = (Instance *) l -> value;
+					Instance * b = (Instance *) r -> value;
+					Instance * c = b -> copy();
+					* a = * c; delete c;
+				}
+			},
+			{
 				compose(BasicType::Int64Type, BasicType::Int64Type),
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
@@ -2802,6 +2840,7 @@ namespace Spin {
 		Object * evaluateExpression(Expression * e);
 		void visitBlockStatement(BlockStatement * e) override;
 		void visitBreakStatement(BreakStatement * e) override;
+		void visitClassStatement(ClassStatement * e) override;
 		void visitContinueStatement(ContinueStatement * e) override;
 		void visitDeleteStatement(DeleteStatement * e) override;
 		void visitDoWhileStatement(DoWhileStatement * e) override;
@@ -3049,11 +3088,11 @@ namespace Spin {
 		Expression * subscription();
 		Expression * completeSubscript(Expression * item);
 		Expression * call();
-		Expression * completeCall(Expression * callee);
+		Expression * completeCall(Expression * callee, Bool isConstructor);
 		Expression * primary();
 		String * typeString();
 		Statement * declaration();
-		Statement * variableDeclaration(String stringType);
+		Statement * variableDeclaration(String stringType, Bool isClass = false);
 		Statement * vectorDeclaration();
 		Statement * statement();
 		Statement * ifStatement();

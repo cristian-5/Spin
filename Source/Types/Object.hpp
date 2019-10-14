@@ -39,6 +39,7 @@ namespace Spin {
 			case BasicType::ArrayType: value = new ArrayList(); return;
 			case BasicType::VectorType: return;
 			case BasicType::ClassType: return;
+			case BasicType::InstanceType: return;
 			case BasicType::StructureType: return;
 			case BasicType::ExceptionType: return;
 			case BasicType::UnknownType: default: return;
@@ -63,7 +64,8 @@ namespace Spin {
 			case BasicType::ArrayType: delete (ArrayList *) value; return;
 			case BasicType::VectorType: return;
 			case BasicType::FunctionType: delete (CallProtocol *) value; return;
-			case BasicType::ClassType: return;
+			case BasicType::ClassType: delete (Class *) value; return;
+			case BasicType::InstanceType: delete (Instance *) value; return;
 			case BasicType::StructureType: return;
 			case BasicType::ExceptionType: return;
 			case BasicType::UnknownType: default: return;
@@ -97,10 +99,8 @@ namespace Spin {
 			case BasicType::ArrayType: return "Array";
 			case BasicType::VectorType: return "Vector";
 			case BasicType::FunctionType: return "Function";
-			case BasicType::ClassType: {
-				return "Class";
-				// TODO: Ask the class for its type.
-			}
+			case BasicType::ClassType: return "Class Definition";
+			case BasicType::InstanceType: return "Object Instance";
 			case BasicType::StructureType: return "Structure";
 			case BasicType::ExceptionType: return "Exception";
 			case BasicType::UnknownType: default: return "Unknown";
@@ -122,7 +122,8 @@ namespace Spin {
 			case BasicType::ArrayType: copy -> value = ((ArrayList *) value) -> copy(); break;
 			case BasicType::VectorType: /* TODO: Ask the class for its copy. */ break;
 			case BasicType::FunctionType: copy -> value = ((CallProtocol *) value) -> copy(); break;
-			case BasicType::ClassType: /* TODO: Ask the class for its copy. */ break;
+			case BasicType::ClassType: copy -> value = ((CallProtocol *) value) -> copy(); break;
+			case BasicType::InstanceType: copy -> value = ((Instance *) value) -> copy(); break;
 			case BasicType::StructureType: /* TODO: Ask the class for its copy. */ break;
 			case BasicType::ExceptionType: /* TODO: Ask the class for its copy. */ break;
 			case BasicType::UnknownType: default: copy -> value = value; break;
@@ -180,9 +181,12 @@ namespace Spin {
 				return ((CallProtocol *) value) -> stringValue();
 			}
 			case BasicType::ClassType: {
-				if (!value) return "null";
-				// TODO: fix class value.
-				return "SomeClass";
+				if (!value) return "<empty>";
+				return ((Class *) value) -> stringValue();
+			}
+			case BasicType::InstanceType: {
+				if (!value) return "<empty>";
+				return ((Instance *) value) -> stringValue();
 			}
 			case BasicType::StructureType: {
 				// TODO: fix structure value.
@@ -199,6 +203,10 @@ namespace Spin {
 	}
 	Bool Object::isUnknown() const { return type == BasicType::UnknownType; }
 	Bool Object::isFunction() const { return type == BasicType::FunctionType; }
+	Bool Object::isCallable() const {
+		return type == BasicType::FunctionType ||
+			   type == BasicType::ClassType;
+	}
 	Bool Object::isArray() const { return type == BasicType::ArrayType; }
 	Bool Object::isSubscriptable() const {
 		return type == BasicType::StringType ||

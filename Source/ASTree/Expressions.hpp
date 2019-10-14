@@ -50,8 +50,8 @@ namespace Spin {
 	}
 	Bra::~Bra() { delete n; delete o; }
 
-	Call::Call(Expression * c, Token * p, Array<Expression *> * a) {
-		parenthesis = p; callee = c; arguments = a;
+	Call::Call(Expression * c, Token * p, Array<Expression *> * a, Bool i) {
+		parenthesis = p; callee = c; arguments = a; isConstructor = i;
 	}
 	Object * Call::accept(Visitor * visitor) {
 		try { return visitor -> visitCallExpression(this); }

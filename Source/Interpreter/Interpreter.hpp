@@ -74,7 +74,7 @@ namespace Spin {
 				arguments.push(evaluation -> copy());
 				delete evaluation;
 			}
-			if (!(callee -> isFunction()) ||
+			if (!(callee -> isCallable()) ||
 				!(callee -> value)) {
 				throw EvaluationError(
 					"Failed call of invalid function!",
@@ -82,6 +82,19 @@ namespace Spin {
 				);
 			}
 			function = (CallProtocol *)(callee -> value);
+			if (function -> isInstanceOf<Class>()) {
+				if (!e -> isConstructor)	{
+					throw EvaluationError(
+						"Invalid constructor call missing 'new' keyword!",
+						* e -> parenthesis
+					);
+				}
+			} else if (e -> isConstructor) {
+				throw EvaluationError(
+					"Function call forbids unnecessary 'new' keyword!",
+					* e -> parenthesis
+				);
+			}
 			if (arguments.size() != function -> arity()) {
 				throw EvaluationError(
 					"Call of " + function -> stringValue() + " doesn't match the predefined parameters!",
@@ -244,6 +257,23 @@ namespace Spin {
 	}
 	void Interpreter::visitBreakStatement(BreakStatement * e) {
 		broken = true;
+	}
+	void Interpreter::visitClassStatement(ClassStatement * e) {
+		try {
+			memory -> define(
+				e -> name -> lexeme,
+				new Object(
+					BasicType::ClassType,
+					new Class(e -> name -> lexeme)
+				)
+			);
+		} catch (VariableRedefinitionException & r) {
+			throw EvaluationError(
+				"Object redefinition! The object '" +
+				e -> name -> lexeme + "' was already declared with type '" +
+				r.getType() + "'!", * e -> name
+			);
+		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitContinueStatement(ContinueStatement * e) {
 		continued = true;

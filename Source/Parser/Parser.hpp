@@ -225,17 +225,40 @@ namespace Spin {
 	}
 	Expression * Parser::call() {
 		Expression * ex = nullptr;
-		try { ex = primary(); }
-		catch (SyntaxError & s) { throw; }
+		Bool isConstructor = false;
+		try {
+			if (check(TokenType::newKeyword)) {
+				advance();
+				if (peek().type == TokenType::customType) {
+					tokens -> at(index).type = TokenType::symbol;
+				} else {
+					Token temp = peek();
+					throw SyntaxError(
+						"Expected constructor after 'new' keyword but found '" +
+						temp.lexeme + "'!",
+						Linker::getPosition(currentUnit -> contents, temp.position)
+					);
+				}
+				isConstructor = true;
+			}
+			ex = primary();
+		} catch (SyntaxError & s) { throw; }
 		while (true) {
 			if (match(TokenType::openParenthesis)) {
-				try { ex = completeCall(ex); }
+				try { ex = completeCall(ex, isConstructor); }
 				catch (SyntaxError & s) { throw; }
+			} else if (isConstructor) {
+				Token temp = peek();
+				throw SyntaxError(
+					"Expected constructor call after 'new' keyword but found '" +
+					temp.lexeme + "'!",
+					Linker::getPosition(currentUnit -> contents, temp.position)
+				);
 			} else break;
 		}
 		return ex;
 	}
-	Expression * Parser::completeCall(Expression * callee) {
+	Expression * Parser::completeCall(Expression * callee, Bool isConstructor) {
 		Token * parenthesis = new Token(previous());
 		Array<Expression *> * arguments = new Array<Expression *>();
 		if (!check(TokenType::closeParenthesis)) {
@@ -253,7 +276,7 @@ namespace Spin {
 			throw;
 		}
 		arguments -> shrinkToFit();
-		return new Call(callee, parenthesis, arguments);
+		return new Call(callee, parenthesis, arguments, isConstructor);
 	}
 	Expression * Parser::primary() {
 		Token t = peek();
@@ -319,18 +342,18 @@ namespace Spin {
 	/* Statements */
 
 	String * Parser::typeString() {
-		if (match(TokenType::basicType) ||
-			match(TokenType::customType)) {
-			return new String(previous().lexeme);
-		}
-		return nullptr;
+		return new String(previous().lexeme);
 	}
 	Statement * Parser::declaration() {
 		Statement * st = nullptr;
 		String * type = nullptr;
 		try {
-			type = typeString();
-			if (type) {
+			if (match(TokenType::customType)) {
+				type = typeString();
+				st = variableDeclaration(* type, true);
+				delete type; type = nullptr;
+			} else if (match(TokenType::basicType)) {
+				type = typeString();
 				st = variableDeclaration(* type);
 				delete type; type = nullptr;
 			} else st = statement();
@@ -341,7 +364,7 @@ namespace Spin {
 		if (type) delete type;
 		return st;
 	}
-	Statement * Parser::variableDeclaration(String stringType) {
+	Statement * Parser::variableDeclaration(String stringType, Bool isClass) {
 		if (stringType == "Vector") {
 			try { return vectorDeclaration(); }
 			catch (SyntaxError & s) { throw; }
@@ -357,7 +380,9 @@ namespace Spin {
 			if (initializer) delete initializer;
 			throw;
 		}
-		BasicType type = Converter::typeFromString(stringType);
+		BasicType type = isClass ?
+						 BasicType::InstanceType :
+						 Converter::typeFromString(stringType);
 		return new VariableStatement(name, initializer, type);
 	}
 	Statement * Parser::vectorDeclaration() {
@@ -633,16 +658,28 @@ namespace Spin {
 		isInProcedure = false;
 		Bool oldFunction = isInFunction;
 		isInFunction = false;
-
-		
-
-		
-
-
+		Token * name = nullptr;
+		Array<CallProtocol *> * methods = nullptr;
+		try {
+			name = new Token(consume(TokenType::customType, "identifier"));
+			consume(TokenType::openBrace, "{");
+			methods = new Array<CallProtocol *>();
+			while (!check(TokenType::closeBrace) && !isAtEnd()) {
+				methods -> push(new Function(nullptr, nullptr));
+			}
+			consume(TokenType::closeBrace, "}");
+		} catch (SyntaxError & s) {
+			if (name) delete name;
+			if (methods) {
+				for (CallProtocol * f : * methods) delete f;
+				delete methods;
+			}
+			throw;
+		}
 		isInControlFlow = oldControlFlow;
 		isInProcedure = oldProcedure;
 		isInFunction = oldFunction;
-		return nullptr;
+		return new ClassStatement(name, methods);
 	}
 	Statement * Parser::forStatement() {
 		Bool oldControlFlow = isInControlFlow;
