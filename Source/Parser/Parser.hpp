@@ -561,6 +561,7 @@ namespace Spin {
 			params -> shrinkToFit();
 			consume(TokenType::arrow, "arrow operator ->");
 			stringType = typeString();
+			advance();
 			if (!stringType) {
 				Token er = peek();
 				throw SyntaxError(
@@ -1145,7 +1146,14 @@ namespace Spin {
 			syntaxTree -> statements -> push(fileStatement());
 			while (!isAtEnd()) {
 				try {
-					syntaxTree -> statements -> push(declaration());
+					Statement * d = declaration();
+					if (d -> isInstanceOf<ClassStatement>()    ||
+						d -> isInstanceOf<FunctionStatement>() ||
+						d -> isInstanceOf<ProcedureStatement>()) {
+						syntaxTree -> statements -> insert(
+							syntaxTree -> statements -> begin(), d
+						);
+					} else syntaxTree -> statements -> push(d);
 				} catch (SyntaxError & s) {
 					errors -> push(s);
 					synchronise();
@@ -1217,7 +1225,12 @@ namespace Spin {
 		statements -> push(fileStatement());
 		while (!isAtEnd()) {
 			try {
-				statements -> push(declaration());
+				Statement * d = declaration();
+				if (d -> isInstanceOf<ClassStatement>()    ||
+					d -> isInstanceOf<FunctionStatement>() ||
+					d -> isInstanceOf<ProcedureStatement>()) {
+					statements -> insert(statements -> begin(), d);
+				} else statements -> push(d);
 			} catch (SyntaxError & s) {
 				errors -> push(s);
 				synchronise();
