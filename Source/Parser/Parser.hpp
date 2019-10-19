@@ -46,7 +46,7 @@ namespace Spin {
 			delete equals;
 			throw SyntaxError(
 				"Expected identifier before assignment operator '='!",
-				Linker::getPosition(currentUnit -> contents, position)
+				Linker::getLine(currentUnit -> contents, position)
 			);
 		}
 		return ex;
@@ -142,7 +142,7 @@ namespace Spin {
 					delete op;
 					throw SyntaxError(
 						"Expected identifier before mutable assignment operator '" + sign + "'!",
-						Linker::getPosition(currentUnit -> contents, position)
+						Linker::getLine(currentUnit -> contents, position)
 					);
 				}
 			} else ex = new Binary(ex, op, rs);
@@ -176,7 +176,7 @@ namespace Spin {
 					delete op;
 					throw SyntaxError(
 						"Expected identifier before mutable assignment operator '" + sign + "'!",
-						Linker::getPosition(currentUnit -> contents, position)
+						Linker::getLine(currentUnit -> contents, position)
 					);
 				}
 			} else ex = new Binary(ex, op, rs);
@@ -236,7 +236,7 @@ namespace Spin {
 					throw SyntaxError(
 						"Expected constructor after 'new' keyword but found '" +
 						temp.lexeme + "'!",
-						Linker::getPosition(currentUnit -> contents, temp.position)
+						Linker::getLine(currentUnit -> contents, temp.position)
 					);
 				}
 				isConstructor = true;
@@ -252,7 +252,7 @@ namespace Spin {
 				throw SyntaxError(
 					"Expected constructor call after 'new' keyword but found '" +
 					temp.lexeme + "'!",
-					Linker::getPosition(currentUnit -> contents, temp.position)
+					Linker::getLine(currentUnit -> contents, temp.position)
 				);
 			} else break;
 		}
@@ -330,12 +330,12 @@ namespace Spin {
 			values -> shrinkToFit();
 			return new List(values);
 		}
-		FilePosition fp = { 0, 0 };
+		UInt64 line = 0;
 		if (t.type == TokenType::endFile) {
-			fp = Linker::getPosition(currentUnit -> contents, previous().position);
-		} else fp = Linker::getPosition(currentUnit -> contents, t.position);
+			line = Linker::getLine(currentUnit -> contents, previous().position);
+		} else line = Linker::getLine(currentUnit -> contents, t.position);
 		throw SyntaxError(
-			"Expected expression after '" + previous().lexeme + "'!", fp
+			"Expected expression after '" + previous().lexeme + "'!", line
 		);
 	}
 
@@ -394,10 +394,10 @@ namespace Spin {
 				name = new Token(previous());
 			} else {
 				Token t = previous();
-				FilePosition fp = Linker::getPosition(currentUnit -> contents, t.position);
+				UInt64 line = Linker::getLine(currentUnit -> contents, t.position);
 				throw SyntaxError(
 					"Expected <identifier| or |identifier> in bra-ket notation but found '"
-					+ t.lexeme + "'!", fp
+					+ t.lexeme + "'!", line
 				);
 			}
 			if (match(TokenType::equal)) initializer = expression();
@@ -481,7 +481,7 @@ namespace Spin {
 		if (!isInControlFlow) {
 			throw SyntaxError(
 				"Unexpected break statement outside of control flow statements! What am I supposed to break?",
-				Linker::getPosition(currentUnit -> contents, peek().position)
+				Linker::getLine(currentUnit -> contents, peek().position)
 			);
 		}
 		Token * breakToken = new Token(peekAdvance());
@@ -497,7 +497,7 @@ namespace Spin {
 		if (!isInControlFlow) {
 			throw SyntaxError(
 				"Unexpected continue statement outside of control flow statements! Where am I supposed to continue?",
-				Linker::getPosition(currentUnit -> contents, peek().position)
+				Linker::getLine(currentUnit -> contents, peek().position)
 			);
 		}
 		Token * continueToken = new Token(peekAdvance());
@@ -548,7 +548,7 @@ namespace Spin {
 						Token er = peek();
 						throw SyntaxError(
 							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getPosition(currentUnit -> contents, er.position)
+							Linker::getLine(currentUnit -> contents, er.position)
 						);
 					}
 					p -> type = Converter::typeFromString(* stringType);
@@ -566,7 +566,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected type but found '" + er.lexeme + "'!",
-					Linker::getPosition(currentUnit -> contents, er.position)
+					Linker::getLine(currentUnit -> contents, er.position)
 				);
 			}
 			returnType -> type = Converter::typeFromString(* stringType);
@@ -576,7 +576,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected function body but found '" + er.lexeme + "'!",
-					Linker::getPosition(currentUnit -> contents, er.position)
+					Linker::getLine(currentUnit -> contents, er.position)
 				);
 			}
 			body = (BlockStatement *)blockStatement();
@@ -620,7 +620,7 @@ namespace Spin {
 						Token er = peek();
 						throw SyntaxError(
 							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getPosition(currentUnit -> contents, er.position)
+							Linker::getLine(currentUnit -> contents, er.position)
 						);
 					}
 					p -> type = Converter::typeFromString(* stringType);
@@ -635,7 +635,7 @@ namespace Spin {
 				Token er = peek();
 				throw SyntaxError(
 					"Expected function body but found '" + er.lexeme + "'!",
-					Linker::getPosition(currentUnit -> contents, er.position)
+					Linker::getLine(currentUnit -> contents, er.position)
 				);
 			}
 			body = (BlockStatement *)blockStatement();
@@ -860,7 +860,7 @@ namespace Spin {
 				if (returnToken) delete returnToken;
 				throw SyntaxError(
 					"Unexpected return statement outside of function! Where am I supposed to return to?",
-					Linker::getPosition(currentUnit -> contents, position)
+					Linker::getLine(currentUnit -> contents, position)
 				);
 			}
 		} else if (!isInProcedure) {
@@ -868,7 +868,7 @@ namespace Spin {
 			if (returnToken) delete returnToken;
 			throw SyntaxError(
 				"Unexpected return statement outside of procedure! Where am I supposed to return to?",
-				Linker::getPosition(currentUnit -> contents, position)
+				Linker::getLine(currentUnit -> contents, position)
 			);
 		}
 		return new ReturnStatement(ex, returnToken);
@@ -882,7 +882,7 @@ namespace Spin {
 		} catch (SyntaxError & s) { throw; }
 		throw SyntaxError(
 			"Unexpected delete statement found outside of valid context!",
-			Linker::getPosition(currentUnit -> contents, previous().position)
+			Linker::getLine(currentUnit -> contents, previous().position)
 		);
 	}
 	Statement * Parser::fileStatement() {
@@ -921,7 +921,7 @@ namespace Spin {
 			} else throw SyntaxError(
 				"Expected 'identifier' but found '" +
 				tokens -> at(i).lexeme + "'!",
-				Linker::getPosition(currentUnit -> contents, tokens -> at(i).position)
+				Linker::getLine(currentUnit -> contents, tokens -> at(i).position)
 			);
 			i += 1;
 			if (i < tokens -> size()) {
@@ -939,7 +939,7 @@ namespace Spin {
 					default: throw SyntaxError(
 						"Expected ';' but found '" +
 						tokens -> at(i).lexeme + "'!",
-						Linker::getPosition(currentUnit -> contents, tokens -> at(i).position)
+						Linker::getLine(currentUnit -> contents, tokens -> at(i).position)
 					);
 				}
 			} else break;
@@ -947,7 +947,7 @@ namespace Spin {
 		throw SyntaxError(
 			"Expected ';' but found '" +
 			tokens -> at(i).lexeme + "'!",
-			Linker::getPosition(currentUnit -> contents, tokens -> at(i).position)
+			Linker::getLine(currentUnit -> contents, tokens -> at(i).position)
 		);
 	}
 	SyntaxTree * Parser::runImportClassification(SyntaxTree * syntaxTree) {
@@ -964,7 +964,7 @@ namespace Spin {
 					else if (s == "Kronos") syntaxTree -> kronosLibrary = true;
 					else throw SyntaxError(
 						"Invalid import statement asks for unknown library '" + s + "'!",
-						Linker::getPosition(currentUnit -> contents, tokens -> at(store).position)
+						Linker::getLine(currentUnit -> contents, tokens -> at(store).position)
 					);
 				} catch (SyntaxError & r) { throw; }
 			}
@@ -1069,14 +1069,14 @@ namespace Spin {
 	inline Token Parser::consume(TokenType type, String lexeme) {
 		Token t = peek();
 		if (check(type)) return advance();
-		FilePosition fp = { 0, 0 };
+		UInt64 line = 0;
 		if (t.type == TokenType::endFile) {
-			fp = Linker::getPosition(currentUnit -> contents, previous().position);
-		} else fp = Linker::getPosition(currentUnit -> contents, t.position);
+			line = Linker::getLine(currentUnit -> contents, previous().position);
+		} else line = Linker::getLine(currentUnit -> contents, t.position);
 		throw SyntaxError(
 			(lexeme.length() > 0 ? "Expected '" + lexeme +
 			"' but found '" + t.lexeme + "'!" :
-			"Expecting a different token than '" + t.lexeme + "'!"), fp
+			"Expecting a different token than '" + t.lexeme + "'!"), line
 		);
 	}
 
@@ -1110,7 +1110,7 @@ namespace Spin {
 			if (!(unit -> tokens)) return nullptr;
 			if (!(unit -> name)) return nullptr;
 			if (unit -> tokens -> size() <= 2) {
-				errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
+				errors -> push(SyntaxError("The code unit is empty!", 0));
 				errors -> shrinkToFit();
 				syntaxErrors -> push(new UnitError(errors, * unit -> name));
 				errors = new Array<SyntaxError>(); resetState(); continue;
@@ -1188,7 +1188,7 @@ namespace Spin {
 		SyntaxTree * syntaxTree = nullptr;
 		if (!errors) errors = new Array<SyntaxError>();
 		if (unit -> tokens -> size() <= 2) {
-			errors -> push(SyntaxError("The code unit is empty!", { 0, 0 }));
+			errors -> push(SyntaxError("The code unit is empty!", 0));
 			errors -> shrinkToFit();
 			UnitError * syntaxErrors = new UnitError(
 				errors, * unit -> name

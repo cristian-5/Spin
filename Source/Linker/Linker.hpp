@@ -23,20 +23,17 @@
 
 namespace Spin {
 
-	FilePosition Linker::getPosition(String * input, SizeType cursor) {
-		FilePosition result = { 1, 1 };
-		if (!input || input -> length() == 0) return { 0, 0 };
-		if (cursor == 0 && input -> length() > 0) return result;
+	UInt64 Linker::getLine(String * input, SizeType cursor) {
+		if (!input || input -> length() == 0) return 0;
+		if (cursor == 0 && input -> length() > 0) return 1;
 		if (cursor >= input -> length()) {
-			return getPosition(input, input -> length() - 1);
+			return getLine(input, input -> length() - 1);
 		}
+		UInt64 line = 1;
 		for (SizeType i = 0; i < cursor; i++) {
-			if (input -> at(i) == '\n') {
-				result.row++;
-				result.col = 1;
-			} else result.col++;
+			if (input -> at(i) == '\n') line += 1;
 		}
-		return result;
+		return line;
 	}
 	Array<String *> Linker::linesFromFile(String path) {
 		Array<String *> set = Array<String *>();

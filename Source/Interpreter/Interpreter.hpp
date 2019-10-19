@@ -542,9 +542,9 @@ namespace Spin {
 			return expression -> accept(this);
 		} catch (EvaluationError & e) {
 			const UInt32 cursor = e.getToken().position;
-			FilePosition fp = Linker::getPosition(fileContents, cursor);
+			SizeType line = Linker::getLine(fileContents, cursor);
 			throw InterpreterErrorException(
-				e.getMessage(), fp, fileName
+				e.getMessage(), line, fileName
 			);
 		}
 	}
@@ -565,10 +565,10 @@ namespace Spin {
 			}
 		} catch (EvaluationError & e) {
 			const SizeType cursor = e.getToken().position;
-			FilePosition fp = Linker::getPosition(fileContents, cursor);
+			SizeType line = Linker::getLine(fileContents, cursor);
 			if (!fileName) fileName = new String("Unknown File");
 			throw InterpreterErrorException(
-				e.getMessage(), fp, * fileName
+				e.getMessage(), line, * fileName
 			);
 		}
 	}

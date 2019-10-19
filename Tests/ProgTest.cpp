@@ -49,13 +49,10 @@ Int32 main(Int32 argc, Character * argv[]) {
 			Output << "Found " << errors -> size()
 				   << " errors in '" << unit -> getName()
 				   << "':" << endLine;
-			UInt32 i = 1;
 			for (SyntaxError error : * errors) {
-				FilePosition f = error.getPosition();
-				Output << padding << i << " [" << f.row
-					   << ":" << f.col << "]: "
+				UInt64 line = error.getLine();
+				Output << "[line " << line << "]: "
 					   << error.getMessage() << endLine;
-				i += 1;
 			}
 			Output << endLine;
 		}
@@ -77,9 +74,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 		interpreter -> evaluate(syntaxTree);
 	} catch (InterpreterErrorException & e) {
 		Output << "Found evaluation error in file '"
-			   << e.getFileName() << "' at position "
-			   << "[" << e.getPosition().row << ":"
-			   << e.getPosition().col << "]:" << endLine
+			   << e.getFileName() << "' [line "
+			   << e.getLine() << "]:" << endLine
 			   << e.getMessage() << endLine;
 		Output << endLine << "Press enter to exit. ";
 		waitKeyPress();

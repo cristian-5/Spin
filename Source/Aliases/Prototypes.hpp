@@ -41,15 +41,11 @@ namespace Spin {
 		BadAccessException(const String & p):
 		Exception(), path(p) { }
 	};
-	struct FilePosition {
-		UInt32 col = 0;
-		UInt32 row = 0;
-	};
 	class Linker {
 		private:
 		Linker() = default;
 		public:
-		static FilePosition getPosition(String * input, SizeType cursor);
+		static UInt64 getLine(String * input, SizeType cursor);
 		static Array<String *> linesFromFile(String path);
 		static String * stringFromFile(String path);
 		static void createNewFile(String path, String content = "");
@@ -2791,14 +2787,14 @@ namespace Spin {
 	class InterpreterErrorException: public Exception {
 		private:
 		const String message;
-		const FilePosition position;
+		const UInt64 line;
 		const String fileName;
 		public:
 		const String & getMessage() const { return message; }
-		const FilePosition & getPosition() const { return position; }
+		const UInt64 & getLine() const { return line; }
 		const String & getFileName() const { return fileName; }
-		InterpreterErrorException(String m, FilePosition p, String n):
-		Exception(),  message(m), position(p), fileName(n) { }
+		InterpreterErrorException(String m, UInt64 l, String n):
+		Exception(),  message(m), line(l), fileName(n) { }
 	};
 	class InterpreterReturn: public Exception {
 		private:
@@ -3036,12 +3032,12 @@ namespace Spin {
 	class SyntaxError: public Exception {
 		private:
 		const String message;
-		const FilePosition position;
+		const UInt64 line;
 		public:
-		const FilePosition & getPosition() const { return position; }
+		const UInt64 & getLine() const { return line; }
 		const String & getMessage() const { return message; }
-		SyntaxError(String m, FilePosition p):
-		Exception(), message(m), position(p) { }
+		SyntaxError(String m, UInt64 l):
+		Exception(), message(m), line(l) { }
 	};
 	class UnitError {
 		private:
