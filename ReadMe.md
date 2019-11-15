@@ -11,9 +11,9 @@
 High level programming language for *research* and
 **Quantum Computing** based on c++, Swift and C#.
 
-This language is currently interpreted but after
+This language is currently *interpreted* but after
 a stable release our team will eventually
-turn the interpreter into a virtual machine.
+turn the interpreter into a *virtual machine*.
 We aim to create a powerful language.
 
 The documentation contains the language syntax specification.
