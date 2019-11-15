@@ -35,8 +35,6 @@
 #define Output std::cout
 #define endLine std::endl
 
-using Exception = std::exception;
-
 using IFStream = std::ifstream;
 using OFStream = std::ofstream;
 

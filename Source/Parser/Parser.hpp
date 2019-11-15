@@ -284,7 +284,9 @@ namespace Spin {
 			advance();
 			Token * literal = new Token(t);
 			return new Literal(literal);
-		} else if (t.type == TokenType::symbol) {
+		} else if (t.type == TokenType::symbol ||
+				   t.type == TokenType::customType ||
+				   t.type == TokenType::basicType) {
 			advance();
 			Token * name = new Token(t);
 			return new Identifier(name);

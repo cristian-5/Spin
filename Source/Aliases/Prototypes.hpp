@@ -23,6 +23,10 @@
 
 namespace Spin {
 
+	/* Exception */
+
+	class Exception { };
+
 	/* Linker */
 
 	class BadFileException: public Exception {
