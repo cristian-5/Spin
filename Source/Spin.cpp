@@ -28,7 +28,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	}
 
 	Array<CodeUnit *> * units = new Array<CodeUnit *>();
-	for (UInt64 i = 1; i < argc; i++) {
+	for (UInt64 i = 1; i < argc; i += 1) {
 		String * file = nullptr;
 		try {
 			file = Linker::stringFromFile(argv[i]);

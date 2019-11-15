@@ -24,24 +24,25 @@
 namespace Spin {
 
 	UInt64 Linker::getLine(String * input, SizeType cursor) {
-		if (!input || input -> length() == 0) return 0;
-		if (cursor == 0 && input -> length() > 0) return 1;
-		if (cursor >= input -> length()) {
-			return getLine(input, input -> length() - 1);
+		if (!input || input -> empty()) return 0;
+		if (cursor == 0 && !input -> empty()) return 1;
+		const SizeType length = input -> length();
+		if (cursor >= length) {
+			return getLine(input, length - 1);
 		}
 		UInt64 line = 1;
-		for (SizeType i = 0; i < cursor; i++) {
+		for (SizeType i = 0; i < cursor; i += 1) {
 			if (input -> at(i) == '\n') line += 1;
 		}
 		return line;
 	}
-	Array<String *> Linker::linesFromFile(String path) {
-		Array<String *> set = Array<String *>();
+	Array<String> Linker::linesFromFile(String path) {
+		Array<String> set = Array<String>();
 		IFStream file(path.stringValue());
 		if (file.good()) {
-			String line = "";
+			String line;
 			while (getline(file, line)) {
-				set.push(new String(line));
+				set.push(line);
 			}
 		} else throw BadFileException(path);
 		return set;
@@ -50,9 +51,10 @@ namespace Spin {
 		String * line = new String();
 		IFStream file(path.stringValue());
 		if (file.good()) {
-			String tmp = "";
-			while (getline(file, tmp)) {
-				line -> append(String("\n" + tmp));
+			String temp;
+			while (getline(file, temp)) {
+				line -> append("\n");
+				line -> append(temp);
 			}
 		} else throw BadFileException(path);
 		return line;

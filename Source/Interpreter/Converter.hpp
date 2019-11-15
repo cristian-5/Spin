@@ -32,8 +32,11 @@
 
 namespace Spin {
 
-	Bool Converter::checkBase(String base, String & s) {
+	inline Bool Converter::checkBase(Regex base, String s) {
 		return RegexTools::test(base, s);
+	}
+	inline Bool Converter::test(Regex r, String s) {
+		return RegexTools::test(r, s);
 	}
 	Bool Converter::isHexChar(Character c) {
 		return ((c >= '0') && (c <= '9')) ||
@@ -42,18 +45,18 @@ namespace Spin {
 	}
 	Character Converter::hexToChar(String & s) {
 		if (s.length() == 0) return 0x00;
-		if (!checkBase(HEX, s)) return 0x00;
+		if (!checkBase(Regex(HEX), s)) return 0x00;
 		Character result = 0;
-		for (SizeType i = 0; i < s.length(); i++) {
+		for (SizeType i = 0; i < s.length(); i += 1) {
 			result = result * 16 + charToHex(s[i]);
 		}
 		return result;
 	}
 	Int64 Converter::decToInt64(String & s) {
 		if (s.length() == 0) return 0;
-		if (!checkBase("^[0-9]+$", s)) return 0;
+		if (!checkBase(Regex("^[0-9]+$"), s)) return 0;
 		Int64 result = 0;
-		for (SizeType i = 0; i < s.length(); i++) {
+		for (SizeType i = 0; i < s.length(); i += 1) {
 			result = result * 10 + s[i] - '0';
 		}
 		return result;
@@ -66,36 +69,36 @@ namespace Spin {
 	}
 	Int64 Converter::hexToInt64(String & s) {
 		if (s.length() == 0) return 0;
-		if (!checkBase(HEX, s)) return 0;
+		if (!checkBase(Regex(HEX), s)) return 0;
 		Int64 result = 0;
-		for (SizeType i = 0; i < s.length(); i++) {
+		for (SizeType i = 0; i < s.length(); i += 1) {
 			result = result * 16 + charToHex(s[i]);
 		}
 		return result;
 	}
 	UInt32 Converter::hexToUInt32(String & s) {
 		if (s.length() == 0) return 0;
-		if (!checkBase(HEX, s)) return 0;
+		if (!checkBase(Regex(HEX), s)) return 0;
 		UInt32 result = 0;
-		for (SizeType i = 0; i < s.length(); i++) {
+		for (SizeType i = 0; i < s.length(); i += 1) {
 			result = result * 16 + charToHex(s[i]);
 		}
 		return result;
 	}
 	Int64 Converter::octToInt64(String & s) {
 		if (s.length() == 0) return 0;
-		if (!checkBase("^[0-7]+$", s)) return 0;
+		if (!checkBase(Regex("^[0-7]+$"), s)) return 0;
 		Int64 result = 0;
-		for (SizeType i = 0; i < s.length(); i++) {
+		for (SizeType i = 0; i < s.length(); i += 1) {
 			result = result * 8 + s[i] - '0';
 		}
 		return result;
 	}
 	Int64 Converter::binToInt64(String & s) {
 		if (s.length() == 0) return 0;
-		if (!checkBase("^[01]+$", s)) return 0;
+		if (!checkBase(Regex("^[01]+$"), s)) return 0;
 		Int64 result = 0;
-		for (SizeType i = 0; i < s.length(); i++) {
+		for (SizeType i = 0; i < s.length(); i += 1) {
 			result = result * 2 + s[i] - '0';
 		}
 		return result;
@@ -180,11 +183,11 @@ namespace Spin {
 		return decToInt64(s);
 	}
 	Real Converter::stringToReal(String & s) {
-		if (!RegexTools::test(REAL, s)) return 0.0;
+		if (!test(Regex(REAL), s)) return 0.0;
 		return stringToLongDouble(s);
 	}
 	Real Converter::stringToImaginary(String & s) {
-		if (!RegexTools::test(IMAGINARY, s)) return 0.0;
+		if (!test(Regex(IMAGINARY), s)) return 0.0;
 		if (s.length() > 1) s.pop();
 		return stringToLongDouble(s);
 	}
@@ -194,9 +197,10 @@ namespace Spin {
 		const SizeType length = s.length();
 		SizeType i = 0;
 		while (i < length) {
-			Character c = s[i++];
+			Character c = s[i];
+			i += 1;
 			if (c == '\\' && (i < length)) {
-				c = s[i++];
+				c = s[i]; i += 1;
 				switch (c) {
 					case 'a': c = '\a'; break;
 					case 'b': c = '\b'; break;
@@ -210,14 +214,15 @@ namespace Spin {
 					case '"': c = '"'; break;
 					case '0': {
 						if (i >= length) { c = '?'; break; }
-						c = s[i++];
+						c = s[i]; i += 1;
 						if (c == 'x' && (i < length)
 							&& isHexChar(s[i])) {
-							UInt8 a = charToHex(s[i++]);
+							UInt8 a = charToHex(s[i]);
+							i += 1;
 							if ((i < length) && isHexChar(s[i])) {
 								a = a << 4;
-								a = a | charToHex(s[i++]);
-								c = a; break;
+								a = a | charToHex(s[i]);
+								i += 1; c = a; break;
 							}
 						}
 						c = '?';
@@ -232,18 +237,18 @@ namespace Spin {
 	Colour Converter::stringToColour(String & s) {
 		if (s.length() > 3) s = s.substr(1, s.size() - 1);
 		if (s.length() < 3) return Colour();
-		if (RegexTools::test(RGBFULL, s)) {
+		if (test(Regex(RGBFULL), s)) {
 			s += "FF";
 			return Colour(hexToUInt32(s));
-		} else if (RegexTools::test(RGBSHORT, s)) {
+		} else if (test(Regex(RGBSHORT), s)) {
 			StringStream x = StringStream();
 			x << s[0] << s[0] << s[1] << s[1] <<
 					s[2] << s[2] << "FF";
 			String final = x.str();
 			return Colour(hexToUInt32(final));
-		} else if (RegexTools::test(RGBAFULL, s)) {
+		} else if (test(Regex(RGBAFULL), s)) {
 			return Colour(hexToUInt32(s));
-		} else if (RegexTools::test(RGBASHORT, s)) {
+		} else if (test(Regex(RGBASHORT), s)) {
 			StringStream x = StringStream();
 			x << s[0] << s[0] << s[1] << s[1] <<
 					s[2] << s[2] << s[3] << s[3];
@@ -254,7 +259,7 @@ namespace Spin {
 	}
 	Character Converter::escapeChar(String & s) {
 		if (s.length() == 0) return 0x00;
-		if (RegexTools::test(ESCAPESEQUENCE, s)) {
+		if (test(Regex(ESCAPESEQUENCE), s)) {
 			if (s == "\\\\") return '\\';
 			if (s == "\\0") return 0x00;
 			if (s.length() < 2) return 0x00;
@@ -263,7 +268,7 @@ namespace Spin {
 					case '0': {
 						if (s.length() != 5) return 0x00;
 						if (s[2] != 'x') return 0x00;
-						String hex = "";
+						String hex;
 						hex += s[3]; hex += s[4];
 						return hexToChar(hex);
 					} break;

@@ -902,7 +902,7 @@ namespace Spin {
 	void Parser::runTypeClassification() {
 		if (!tokens) return;
 		SizeType tokenCount = (tokens -> size()) - 1;
-		for (SizeType i = 0; i < tokenCount; i++) {
+		for (SizeType i = 0; i < tokenCount; i += 1) {
 			if (tokens -> at(i).isTypeType()) {
 				i += 1;
 				Token token = tokens -> at(i);
@@ -915,7 +915,7 @@ namespace Spin {
 	String Parser::parseImport(SizeType & i) {
 		tokens -> at(i).type = TokenType::empty;
 		i += 1;
-		String import = "";
+		String import;
 		while (i < tokens -> size()) {
 			if (tokens -> at(i).type == TokenType::symbol) {
 				import += tokens -> at(i).lexeme;
@@ -956,7 +956,7 @@ namespace Spin {
 		if (!syntaxTree) syntaxTree = new SyntaxTree();
 		if (!tokens) return nullptr;
 		SizeType tokenCount = tokens -> size();
-		for (SizeType i = 0; i < tokenCount; i++) {
+		for (SizeType i = 0; i < tokenCount; i += 1) {
 			if (tokens -> at(i).type == TokenType::importKeyword) {
 				try {
 					SizeType store = i;
@@ -976,7 +976,7 @@ namespace Spin {
 	void Parser::runCastClassification() {
 		if (!tokens) return;
 		SizeType tokenCount = (tokens -> size()) - 1;
-		for (SizeType i = 0; i < tokenCount; i++) {
+		for (SizeType i = 0; i < tokenCount; i += 1) {
 			if (tokens -> at(i).isTypeBasicType()) {
 				i += 1;
 				Token token = tokens -> at(i);
@@ -989,7 +989,7 @@ namespace Spin {
 	void Parser::runVectorClassification() {
 		if (!tokens) return;
 		SizeType tokenCount = tokens -> size() - 1;
-		for (SizeType i = 0; i < tokenCount; i++) {
+		for (SizeType i = 0; i < tokenCount; i += 1) {
 			Token token = tokens -> at(i);
 			switch (token.type) {
 				case TokenType::closeParenthesis: {

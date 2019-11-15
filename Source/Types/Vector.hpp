@@ -48,7 +48,7 @@ namespace Spin {
 		invert();
 	}
 	void Vector::invert() {
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			space[i] = - space[i];
 		}
 	}
@@ -57,7 +57,7 @@ namespace Spin {
 	}
 	Vector * Vector::getAdditiveInverse() const {
 		Vector * result = new Vector(size);
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			result -> operator[] (i) = - space[i];
 		}
 		return result;
@@ -68,14 +68,14 @@ namespace Spin {
 	}
 	Bool Vector::operator == (Vector r) const {
 		if (size != r.size) return false;
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			if (r[i] != space[i]) return false;
 		}
 		return true;
 	}
 	Bool Vector::operator != (Vector r) const {
 		if (size != r.size) return true;
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			if (r[i] != space[i]) return true;
 		}
 		return false;
@@ -83,14 +83,14 @@ namespace Spin {
 	Vector Vector::operator + (Vector r) const {
 		if (size != r.size) throw InvalidOperationException();
 		Vector result = Vector(size);
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = r[i] + space[i];
 		}
 		return result;
 	}
 	Vector Vector::operator - () const {
 		Vector result = Vector(size);
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = - result[i];
 		}
 		return result;
@@ -98,14 +98,14 @@ namespace Spin {
 	Vector Vector::operator - (Vector r) const {
 		if (size != r.size) throw InvalidOperationException();
 		Vector result = Vector(size);
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = r[i] - space[i];
 		}
 		return result;
 	}
 	Vector Vector::operator * (Complex z) const {
 		Vector result = Vector(size);
-		for (SizeType i = 0; i < size; i++) {
+		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = space[i] * z;
 		}
 		return result;
@@ -117,8 +117,8 @@ namespace Spin {
 		SizeType s1 = a -> getSize();
 		SizeType s2 = b -> getSize();
 		Vector * result = new Vector(s1 * s2);
-		for (SizeType i = 0; i < s1; i++) {
-			for (SizeType j = 0; j < s2; j++) {
+		for (SizeType i = 0; i < s1; i += 1) {
+			for (SizeType j = 0; j < s2; j += 1) {
 				Complex c1 = a -> operator[] (i);
 				Complex c2 = b -> operator[] (j);
 				result -> operator[] ((i * s2) + j) = c1 * c2;

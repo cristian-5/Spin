@@ -50,9 +50,9 @@ namespace Spin {
 		Linker() = default;
 		public:
 		static UInt64 getLine(String * input, SizeType cursor);
-		static Array<String *> linesFromFile(String path);
+		static Array<String> linesFromFile(String path);
 		static String * stringFromFile(String path);
-		static void createNewFile(String path, String content = "");
+		static void createNewFile(String path, String content = String());
 	};
 
 	/* Token */
@@ -185,7 +185,7 @@ namespace Spin {
 	class Token {
 		public:
 		TokenType type = TokenType::empty;
-		String lexeme = "";
+		String lexeme;
 		SizeType position = 0;
 		Token() = default;
 		Token(String l, TokenType t, SizeType p = 0);
@@ -198,9 +198,9 @@ namespace Spin {
 	class TokenRule {
 		public:
 		TokenType type = TokenType::empty;
-		String pattern = "";
+		Regex pattern;
 		TokenRule() = default;
-		TokenRule(String p, TokenType t);
+		TokenRule(Regex p, TokenType t);
 	};
 
 	/* Basic Types */
@@ -249,7 +249,8 @@ namespace Spin {
 	class Converter {
 		private:
 		Converter() = default;
-		static Bool checkBase(String base, String & s);
+		static inline Bool checkBase(Regex base, String s);
+		static inline Bool test(Regex r, String s);
 		static Bool isHexChar(Character c);
 		static Character hexToChar(String & s);
 		static Int64 decToInt64(String & s);
@@ -896,7 +897,7 @@ namespace Spin {
 
 	class Class: public CallProtocol {
 		public:
-		String name = "";
+		String name;
 		Class(String n);
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		String stringValue() const override;
@@ -2896,112 +2897,112 @@ namespace Spin {
 	};
 	class Lexer {
 		private:
-		String handleComments(String input) const;
 		Array<TokenRule> grammar = {
 
-			{ "([ \\t\\n]+)", TokenType::empty },
+			{ Regex("^([ \\t\\n]+)"), TokenType::empty },
 
-			{ "(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)", TokenType::comment },
+			{ Regex("^(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)"), TokenType::comment },
 
-			{ "([0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i)", TokenType::imaginaryLiteral },
-			{ "([0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?)", TokenType::realLiteral },
-			{ "((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))", TokenType::intLiteral },
-			{ "(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")", TokenType::stringLiteral },
-			{ "('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')", TokenType::charLiteral },
-			{ "(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})\\b", TokenType::colourLiteral },
-			{ "(false|true)\\b", TokenType::boolLiteral },
+			{ Regex("^([0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i)"), TokenType::imaginaryLiteral },
+			{ Regex("^([0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?)"), TokenType::realLiteral },
+			{ Regex("^((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))"), TokenType::intLiteral },
+			{ Regex("^(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")"), TokenType::stringLiteral },
+			{ Regex("^('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')"), TokenType::charLiteral },
+			{ Regex("^(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})\\b"), TokenType::colourLiteral },
+			{ Regex("^(false|true)\\b"), TokenType::boolLiteral },
 
-			{ "(<[01]\\|)", TokenType::basisBraLiteral },
-			{ "(\\|[01]>)", TokenType::basisKetLiteral },
+			{ Regex("^(<[01]\\|)"), TokenType::basisBraLiteral },
+			{ Regex("^(\\|[01]>)"), TokenType::basisKetLiteral },
 
-			{ "(<[A-Za-z_][A-Za-z0-9_]*>)", TokenType::measureSymbol },
-			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::braketSymbol },
-			{ "(<[A-Za-z_][A-Za-z0-9_]*\\|)", TokenType::braSymbol },
-			{ "(\\|[A-Za-z_][A-Za-z0-9_]*><[A-Za-z_][A-Za-z0-9_]*\\|)", TokenType::ketbraSymbol },
-			{ "(\\|[A-Za-z_][A-Za-z0-9_]*>)", TokenType::ketSymbol },
+			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::measureSymbol },
+			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::braketSymbol },
+			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::braSymbol },
+			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*><[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::ketbraSymbol },
+			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::ketSymbol },
 
-			{ "(\\->)", TokenType::arrow },
-			{ "(\\:)", TokenType::colon },
-			{ "(\\;)", TokenType::semicolon },
-			{ "(\\,)", TokenType::comma },
-			{ "(\\.)", TokenType::dot },
-			{ "(<=)", TokenType::minorEqual },
-			{ "(<)", TokenType::minor },
-			{ "(>=)", TokenType::majorEqual },
-			{ "(>)", TokenType::major },
-			{ "(==)", TokenType::equality },
-			{ "(=)", TokenType::equal },
-			{ "(\\?)", TokenType::questionMark },
-			{ "(\\!=)", TokenType::inequality },
-			{ "(\\!)", TokenType::exclamationMark },
+			{ Regex("^(\\->)"), TokenType::arrow },
+			{ Regex("^(\\:)"), TokenType::colon },
+			{ Regex("^(\\;)"), TokenType::semicolon },
+			{ Regex("^(\\,)"), TokenType::comma },
+			{ Regex("^(\\.)"), TokenType::dot },
+			{ Regex("^(<=)"), TokenType::minorEqual },
+			{ Regex("^(<)"), TokenType::minor },
+			{ Regex("^(>=)"), TokenType::majorEqual },
+			{ Regex("^(>)"), TokenType::major },
+			{ Regex("^(==)"), TokenType::equality },
+			{ Regex("^(=)"), TokenType::equal },
+			{ Regex("^(\\?)"), TokenType::questionMark },
+			{ Regex("^(\\!=)"), TokenType::inequality },
+			{ Regex("^(\\!)"), TokenType::exclamationMark },
 
-			{ "(\\+=)", TokenType::plusEqual },
-			{ "(\\+)", TokenType::plus },
-			{ "(\\-=)", TokenType::minusEqual },
-			{ "(\\-)", TokenType::minus },
-			{ "(\\~)", TokenType::tilde },
-			{ "(\\*=)", TokenType::starEqual },
-			{ "(\\*)", TokenType::star },
-			{ "(\\\\)", TokenType::backslash },
-			{ "(\\/=)", TokenType::slashEqual },
-			{ "(\\/)", TokenType::slash },
-			{ "(\\|=)", TokenType::pipeEqual },
-			{ "(\\|\\|)", TokenType::OR },
-			{ "(\\|)", TokenType::pipe },
-			{ "(\\&=)", TokenType::ampersandEqual },
-			{ "(\\&\\&)", TokenType::AND },
-			{ "(\\&)", TokenType::ampersand },
-			{ "(\\%=)", TokenType::modulusEqual },
-			{ "(\\%)", TokenType::modulus },
-			{ "(\\^=)", TokenType::daggerEqual },
-			{ "(\\^)", TokenType::dagger },
+			{ Regex("^(\\+=)"), TokenType::plusEqual },
+			{ Regex("^(\\+)"), TokenType::plus },
+			{ Regex("^(\\-=)"), TokenType::minusEqual },
+			{ Regex("^(\\-)"), TokenType::minus },
+			{ Regex("^(\\~)"), TokenType::tilde },
+			{ Regex("^(\\*=)"), TokenType::starEqual },
+			{ Regex("^(\\*)"), TokenType::star },
+			{ Regex("^(\\\\)"), TokenType::backslash },
+			{ Regex("^(\\/=)"), TokenType::slashEqual },
+			{ Regex("^(\\/)"), TokenType::slash },
+			{ Regex("^(\\|=)"), TokenType::pipeEqual },
+			{ Regex("^(\\|\\|)"), TokenType::OR },
+			{ Regex("^(\\|)"), TokenType::pipe },
+			{ Regex("^(\\&=)"), TokenType::ampersandEqual },
+			{ Regex("^(\\&\\&)"), TokenType::AND },
+			{ Regex("^(\\&)"), TokenType::ampersand },
+			{ Regex("^(\\%=)"), TokenType::modulusEqual },
+			{ Regex("^(\\%)"), TokenType::modulus },
+			{ Regex("^(\\^=)"), TokenType::daggerEqual },
+			{ Regex("^(\\^)"), TokenType::dagger },
 
-			{ "(\\()", TokenType::openParenthesis },
-			{ "(\\))", TokenType::closeParenthesis },
-			{ "(\\[)", TokenType::openBracket },
-			{ "(\\])", TokenType::closeBracket },
-			{ "(\\{)", TokenType::openBrace },
-			{ "(\\})", TokenType::closeBrace },
+			{ Regex("^(\\()"), TokenType::openParenthesis },
+			{ Regex("^(\\))"), TokenType::closeParenthesis },
+			{ Regex("^(\\[)"), TokenType::openBracket },
+			{ Regex("^(\\])"), TokenType::closeBracket },
+			{ Regex("^(\\{)"), TokenType::openBrace },
+			{ Regex("^(\\})"), TokenType::closeBrace },
 
-			{ "(print)\\b", TokenType::printKeyword },
+			{ Regex("^(print)\\b"), TokenType::printKeyword },
 
-			{ "(if)\\b", TokenType::ifKeyword },
-			{ "(else)\\b", TokenType::elseKeyword },
-			{ "(switch)\\b", TokenType::switchKeyword },
-			{ "(case)\\b", TokenType::caseKeyword },
-			{ "(default)\\b", TokenType::defaultKeyword },
-			{ "(while)\\b", TokenType::whileKeyword },
-			{ "(do)\\b", TokenType::doKeyword },
-			{ "(loop)\\b", TokenType::loopKeyword },
-			{ "(for)\\b", TokenType::forKeyword },
-			{ "(repeat)\\b", TokenType::repeatKeyword },
-			{ "(until)\\b", TokenType::untilKeyword },
-			{ "(break)\\b", TokenType::breakKeyword },
-			{ "(continue)\\b", TokenType::continueKeyword },
+			{ Regex("^(if)\\b"), TokenType::ifKeyword },
+			{ Regex("^(else)\\b"), TokenType::elseKeyword },
+			{ Regex("^(switch)\\b"), TokenType::switchKeyword },
+			{ Regex("^(case)\\b"), TokenType::caseKeyword },
+			{ Regex("^(default)\\b"), TokenType::defaultKeyword },
+			{ Regex("^(while)\\b"), TokenType::whileKeyword },
+			{ Regex("^(do)\\b"), TokenType::doKeyword },
+			{ Regex("^(loop)\\b"), TokenType::loopKeyword },
+			{ Regex("^(for)\\b"), TokenType::forKeyword },
+			{ Regex("^(repeat)\\b"), TokenType::repeatKeyword },
+			{ Regex("^(until)\\b"), TokenType::untilKeyword },
+			{ Regex("^(break)\\b"), TokenType::breakKeyword },
+			{ Regex("^(continue)\\b"), TokenType::continueKeyword },
 
-			{ "(delete)\\b", TokenType::deleteKeyword },
+			{ Regex("^(delete)\\b"), TokenType::deleteKeyword },
 
-			{ "(import)\\b", TokenType::importKeyword },
-			{ "(func)\\b", TokenType::funcKeyword },
-			{ "(proc)\\b", TokenType::procKeyword },
-			{ "(static)\\b", TokenType::staticKeyword },
-			{ "(class)\\b", TokenType::classKeyword },
-			{ "(enumerator)\\b", TokenType::enumKeyword },
-			{ "(structure)\\b", TokenType::structKeyword },
-			{ "(private)\\b", TokenType::privateKeyword },
-			{ "(public)\\b", TokenType::publicKeyword },
-			{ "(ref)\\b", TokenType::refKeyword },
-			{ "(cpy)\\b", TokenType::cpyKeyword },
-			{ "(const)\\b", TokenType::constKeyword },
-			{ "(empty)\\b", TokenType::emptyLiteral },
-			{ "(rest)\\b", TokenType::restKeyword },
-			{ "(return)\\b", TokenType::returnKeyword },
+			{ Regex("^(import)\\b"), TokenType::importKeyword },
+			{ Regex("^(func)\\b"), TokenType::funcKeyword },
+			{ Regex("^(proc)\\b"), TokenType::procKeyword },
+			{ Regex("^(static)\\b"), TokenType::staticKeyword },
+			{ Regex("^(class)\\b"), TokenType::classKeyword },
+			{ Regex("^(enumerator)\\b"), TokenType::enumKeyword },
+			{ Regex("^(structure)\\b"), TokenType::structKeyword },
+			{ Regex("^(private)\\b"), TokenType::privateKeyword },
+			{ Regex("^(public)\\b"), TokenType::publicKeyword },
+			{ Regex("^(ref)\\b"), TokenType::refKeyword },
+			{ Regex("^(cpy)\\b"), TokenType::cpyKeyword },
+			{ Regex("^(const)\\b"), TokenType::constKeyword },
+			{ Regex("^(empty)\\b"), TokenType::emptyLiteral },
+			{ Regex("^(rest)\\b"), TokenType::restKeyword },
+			{ Regex("^(return)\\b"), TokenType::returnKeyword },
 
-			{ "(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Measurement|Real|String|Vector)\\b", TokenType::basicType },
+			{ Regex("^(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Measurement|Real|String|Vector)\\b"), TokenType::basicType },
 
-			{ "([A-Za-z_][A-Za-z0-9_]*)\\b", TokenType::symbol },
+			{ Regex("^([A-Za-z_][A-Za-z0-9_]*)\\b"), TokenType::symbol },
 
 		};
+		static void removeComments(String & input);
 		Lexer() = default;
 		~Lexer() = default;
 		public:
@@ -3022,13 +3023,11 @@ namespace Spin {
 		private:
 		RegexTools() = default;
 		public:
-		static Bool test(String rgx, String & input);
-		static String match(String rgx, String & input);
-		static String matchClose(String rgx, String & input);
-		static Array<String> matchGroupClose(String rgx, String & input);
-		inline static String matchStart(String rgx, String & input);
-		inline static String matchCloseStart(String rgx, String & input);
-		static String replaceMatches(String mtc, String & input, String rpl);
+		static Bool test(Regex & regex, const String & input);
+		static String match(Regex & regex, const String & input);
+		static String findFirstGroup(Regex & regex, const String & input);
+		static Array<String> findAllGroups(Regex & regex, const String & input);
+		static void replaceMatches(const String & mtc, String & input, const String & rpl);
 	};
 
 	/* Parser */
@@ -3130,7 +3129,7 @@ namespace Spin {
 		inline Token peekAdvance();
 		inline Token previous();
 		inline Token advance();
-		inline Token consume(TokenType type, String lexeme = "");
+		inline Token consume(TokenType type, String lexeme = String());
 		inline void resetState();
 		void synchronise();
 		Parser() = default;

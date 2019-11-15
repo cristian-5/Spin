@@ -46,7 +46,7 @@ namespace Spin {
 			   type <= TokenType::ketbraSymbol;
 	}
 
-	TokenRule::TokenRule(String p, TokenType t) {
+	TokenRule::TokenRule(Regex p, TokenType t) {
 		pattern = p; type = t;
 	}
 

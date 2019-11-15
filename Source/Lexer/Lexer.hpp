@@ -23,40 +23,39 @@
 
 namespace Spin {
 
-	String Lexer::handleComments(String input) const {
-		if (input.length() == 0) return input;
+	void Lexer::removeComments(String & input) {
+		if (input.empty()) return;
 		try {
-			Regex regex("\\/[\\/]+.*");
+			Regex regex = Regex("\\/[\\/]+.*");
 			SMatch match;
 			regexSearch(input, match, regex);
 			while (match.size() >= 1) {
-				UInt32 len = match.str(0).length();
-				UInt32 pos = match.position(0);
-				for (UInt32 i = pos; i < pos + len; i++) {
+				SizeType len = match.str(0).length();
+				SizeType pos = match.position(0);
+				for (SizeType i = pos; i < pos + len; i += 1) {
 					input[i] = ' ';
 				}
 				regexSearch(input, match, regex);
 			}
 		} catch (RegexError & e) { }
-		return input;
 	}
 
 	Array<Token> * Lexer::tokenise(String * input) const {
-		// Handle Last Token:
+		// Last Token Fallback:
 		String data = (* input) + "\n";
-		// Handle Single Line Comments:
-		data = handleComments(data);
-		// Handle EndLines:
-		data = RegexTools::replaceMatches("\n", data, " ");
+		// Remove Single Line Comments:
+		Lexer::removeComments(data);
+		// Remove Line Endings:
+		RegexTools::replaceMatches("\n", data, " ");
 		Array<Token> * tokens = new Array<Token>();
-		UInt32 pos = 0;
+		SizeType pos = 0;
 		Token temp = Token("beginFile", TokenType::beginFile, 0);
 		tokens -> push(temp);
 		Bool previousInvalid = false;
 		while (data.length() > 0) {
 			Bool tokenised = false;
 			for (TokenRule rule : grammar) {
-				String result = RegexTools::matchCloseStart(rule.pattern, data);
+				String result = RegexTools::findFirstGroup(rule.pattern, data);
 				if (result.length() > 0) {
 					tokenised = true;
 					data = data.subString(result.length());

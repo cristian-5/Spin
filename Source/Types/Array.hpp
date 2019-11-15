@@ -52,7 +52,7 @@ namespace Spin {
 	String ArrayList::stringValue() const {
 		if (elements -> size() < 1) return "[ ]";
 		String value = "[ " + elements -> at(0) -> getObjectStringValue();
-		for (SizeType i = 1; i < elements -> size(); i++) {
+		for (SizeType i = 1; i < elements -> size(); i += 1) {
 			value += ", " + elements -> at(i) -> getObjectStringValue();
 		}
 		return value + " ]";

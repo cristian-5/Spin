@@ -103,7 +103,7 @@ const Int32 exitFailure = 1;
 namespace Spin {
 
 	static String getInput() {
-		String input = "";
+		String input;
 		getline(std::cin, input);
 		return input;
 	}
