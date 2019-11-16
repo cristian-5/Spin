@@ -44,8 +44,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 			for (CodeUnit * u : * units) delete u; delete units;
 			Output << "Bad Access! Invalid input file at path '"
 				   << exc.getPath() << "'!" << endLine;
-			Output << "Press enter to exit. ";
-			waitKeyPress();
 			return exitFailure;
 		}
 	}
@@ -80,15 +78,11 @@ Int32 main(Int32 argc, Character * argv[]) {
 			}
 			Output << endLine;
 		}
-		Output << "Press enter to exit. ";
-		waitKeyPress();
 		return exitFailure;
 	}
 
 	if (!syntaxTree) {
 		Output << "File Scope Failure!" << endLine;
-		Output << "Press enter to exit. ";
-		waitKeyPress();
 		return exitFailure;
 	}
 
@@ -101,8 +95,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 			   << e.getFileName() << "' [line "
 			   << e.getLine() << "]:" << endLine
 			   << e.getMessage() << endLine;
-		Output << "Press enter to exit. ";
-		waitKeyPress();
 		delete syntaxTree;
 		return exitFailure;
 	}
