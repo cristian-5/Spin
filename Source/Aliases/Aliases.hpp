@@ -52,6 +52,7 @@ using Int64 = std::int64_t;
 using SizeType = std::size_t;
 
 using String = std::string;
+using WString = std::wstring;
 
 #define Array std::vector
 #define Dictionary std::unordered_map

@@ -371,13 +371,16 @@ namespace Spin {
 			try { return vectorDeclaration(); }
 			catch (SyntaxError & s) { throw; }
 		}
+		Token * obj = nullptr;
 		Token * name = nullptr;
 		Expression * initializer = nullptr;
 		try {
+			if (isClass) obj = new Token(previous());
 			name = new Token(consume(TokenType::symbol, "identifier"));
 			if (match(TokenType::equal)) initializer = expression();
 			consume(TokenType::semicolon, ";");
 		} catch (SyntaxError & s) {
+			if (obj) delete obj;
 			if (name) delete name;
 			if (initializer) delete initializer;
 			throw;
@@ -385,7 +388,7 @@ namespace Spin {
 		BasicType type = isClass ?
 						 BasicType::InstanceType :
 						 Converter::typeFromString(stringType);
-		return new VariableStatement(name, initializer, type);
+		return new VariableStatement(name, initializer, type, obj);
 	}
 	Statement * Parser::vectorDeclaration() {
 		Token * name = nullptr;

@@ -32,7 +32,7 @@ namespace Spin {
 	}
 	UInt32 Class::arity() const { return 0; }
 	CallProtocol * Class::copy() const {
-		return new Class(* this);
+		return new Class(name);
 	}
 
 	Instance::Instance(Class * t) { type = t; }
@@ -41,8 +41,7 @@ namespace Spin {
 		return "<instance " + type -> name + ">";
 	}
 	Instance * Instance::copy() const {
-		// TODO: Handle class copies.
-		return new Instance(* this);
+		return new Instance(type);
 	}
 
 }

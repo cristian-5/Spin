@@ -25,7 +25,7 @@ namespace Spin {
 
 	UInt64 Linker::getLine(String * input, SizeType cursor) {
 		if (!input || input -> empty()) return 0;
-		if (cursor == 0 && !input -> empty()) return 1;
+		if (cursor == 0) return 1;
 		const SizeType length = input -> length();
 		if (cursor >= length) {
 			return getLine(input, length - 1);
@@ -36,28 +36,13 @@ namespace Spin {
 		}
 		return line;
 	}
-	Array<String> Linker::linesFromFile(String path) {
-		Array<String> set = Array<String>();
-		IFStream file(path.stringValue());
-		if (file.good()) {
-			String line;
-			while (getline(file, line)) {
-				set.push(line);
-			}
-		} else throw BadFileException(path);
-		return set;
-	}
 	String * Linker::stringFromFile(String path) {
-		String * line = new String();
 		IFStream file(path.stringValue());
+		StringStream buffer = StringStream();
 		if (file.good()) {
-			String temp;
-			while (getline(file, temp)) {
-				line -> append("\n");
-				line -> append(temp);
-			}
+			buffer << file.rdbuf();
 		} else throw BadFileException(path);
-		return line;
+		return new String(buffer.str());
 	}
 	void Linker::createNewFile(String path, String content) {
 		OFStream file(path.stringValue());

@@ -39,9 +39,7 @@ namespace Spin {
 			case BasicType::ArrayType: value = new ArrayList(); return;
 			case BasicType::VectorType: return;
 			case BasicType::ClassType: return;
-			case BasicType::InstanceType: return;
-			case BasicType::StructureType: return;
-			case BasicType::ExceptionType: return;
+			case BasicType::InstanceType: value = new Instance(nullptr);
 			case BasicType::UnknownType: default: return;
 		}
 	}
@@ -66,8 +64,6 @@ namespace Spin {
 			case BasicType::FunctionType: delete (CallProtocol *) value; return;
 			case BasicType::ClassType: delete (Class *) value; return;
 			case BasicType::InstanceType: delete (Instance *) value; return;
-			case BasicType::StructureType: return;
-			case BasicType::ExceptionType: return;
 			case BasicType::UnknownType: default: return;
 		}
 	}
@@ -99,10 +95,8 @@ namespace Spin {
 			case BasicType::ArrayType: return "Array";
 			case BasicType::VectorType: return "Vector";
 			case BasicType::FunctionType: return "Function";
-			case BasicType::ClassType: return "Class Definition";
+			case BasicType::ClassType: return "Object Definition";
 			case BasicType::InstanceType: return "Object Instance";
-			case BasicType::StructureType: return "Structure";
-			case BasicType::ExceptionType: return "Exception";
 			case BasicType::UnknownType: default: return "Unknown";
 		}
 	}
@@ -124,8 +118,6 @@ namespace Spin {
 			case BasicType::FunctionType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::ClassType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::InstanceType: copy -> value = ((Instance *) value) -> copy(); break;
-			case BasicType::StructureType: /* TODO: Ask the class for its copy. */ break;
-			case BasicType::ExceptionType: /* TODO: Ask the class for its copy. */ break;
 			case BasicType::UnknownType: default: copy -> value = value; break;
 		}
 		return copy;
@@ -187,14 +179,6 @@ namespace Spin {
 			case BasicType::InstanceType: {
 				if (!value) return "<empty>";
 				return ((Instance *) value) -> stringValue();
-			}
-			case BasicType::StructureType: {
-				// TODO: fix structure value.
-				return "SomeStructure";
-			}
-			case BasicType::ExceptionType: {
-				// TODO: fix exception value.
-				return "SomeException";
 			}
 			case BasicType::UnknownType: default: {
 				return "Unknown"; break;

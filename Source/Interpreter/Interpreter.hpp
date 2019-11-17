@@ -469,6 +469,16 @@ namespace Spin {
 				Object * o = new Object(e -> type);
 				CPU -> applyAssignment(e -> name, o, expression);
 				delete expression; expression = o;
+			} else if (e -> object) {
+				Object * o = nullptr;
+				try { o = memory -> getValue(e -> object -> lexeme); }
+				catch (Exception & oex) {
+					throw EvaluationError(
+						"Object definition not found!", * e -> object
+					);
+				}
+				Instance * i = new Instance((Class *)o -> value);
+				expression = new Object(e -> type, i);
 			} else expression = new Object(e -> type);
 		} catch (Exception & exc) {
 			if (expression) delete expression;

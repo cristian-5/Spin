@@ -50,7 +50,6 @@ namespace Spin {
 		Linker() = default;
 		public:
 		static UInt64 getLine(String * input, SizeType cursor);
-		static Array<String> linesFromFile(String path);
 		static String * stringFromFile(String path);
 		static void createNewFile(String path, String content = String());
 	};
@@ -728,7 +727,8 @@ namespace Spin {
 		Token * name = nullptr;
 		BasicType type = BasicType::UnknownType;
 		Expression * initializer = nullptr;
-		VariableStatement(Token * n, Expression * i, BasicType t);
+		Token * object = nullptr;
+		VariableStatement(Token * n, Expression * i, BasicType t, Token * o = nullptr);
 		void accept(Visitor * visitor) override;
 		~VariableStatement();
 	};
