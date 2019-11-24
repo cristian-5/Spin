@@ -18,7 +18,7 @@ We aim to create a powerful language.
 
 The documentation contains the language syntax specification.
 
-- [**Syntax Specification**](Documentation/Syntax/)
+- [**Syntax Specification**](Documentation/)
 
 ## Code Contribution
 
