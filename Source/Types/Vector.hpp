@@ -194,6 +194,26 @@ namespace Spin {
 		}
 		return result;
 	}
+	void Vector::multiplyByScalarComplex(Complex & z) {
+		for (SizeType i = 0; i < size; i += 1) {
+			space[i] = space[i] * z;
+		}
+	}
+	void Vector::multiplyByScalarImaginary(Real & i) {
+		for (SizeType i = 0; i < size; i += 1) {
+			space[i] = Complex(-i * space[i].b, i * space[i].a);
+		}
+	}
+	void Vector::multiplyByScalarReal(Real & r) {
+		for (SizeType i = 0; i < size; i += 1) {
+			space[i] = Complex(space[i].a * r, space[i].b * r);
+		}
+	}
+	void Vector::multiplyByScalarInteger(Int64 & i) {
+		for (SizeType i = 0; i < size; i += 1) {
+			space[i] = Complex(space[i].a * (Real)(i), space[i].b * (Real)(i));
+		}
+	}
 	Vector * Vector::basis(Bool d, Bool s) {
 		Vector * b = new Vector(2, d);
 		if (s) b -> at(0) = Complex(1, 0);
