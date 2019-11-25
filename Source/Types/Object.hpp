@@ -29,7 +29,7 @@ namespace Spin {
 			case BasicType::BoolType: value = new Bool(false); return;
 			case BasicType::CharacterType: value = new Character(0); return;
 			case BasicType::ByteType: value = new UInt8(0); return;
-			case BasicType::Int64Type: value = new Int64(0); return;
+			case BasicType::IntegerType: value = new Int64(0); return;
 			case BasicType::ColourType: value = new Colour(); return;
 			case BasicType::RealType: value = new Real(0.0); return;
 			case BasicType::ImaginaryType: value = new Real(0.0); return;
@@ -50,7 +50,7 @@ namespace Spin {
 			case BasicType::BoolType: delete (Bool *) value; return;
 			case BasicType::CharacterType: delete (Character *) value; return;
 			case BasicType::ByteType: delete (UInt8 *) value; return;
-			case BasicType::Int64Type: delete (Int64 *) value; return;
+			case BasicType::IntegerType: delete (Int64 *) value; return;
 			case BasicType::ColourType: delete (Colour *) value; return;
 			case BasicType::RealType: delete (Real *) value; return;
 			case BasicType::ImaginaryType: delete (Real *) value; return;
@@ -65,7 +65,7 @@ namespace Spin {
 		}
 	}
 	inline Bool Object::isByte() const { return type == BasicType::ByteType; }
-	inline Bool Object::isInteger() const { return type == BasicType::Int64Type; }
+	inline Bool Object::isInteger() const { return type == BasicType::IntegerType; }
 	inline Bool Object::isReal() const { return type == BasicType::RealType; }
 	inline Bool Object::isComplexType() const {
 		return type == BasicType::ComplexType ||
@@ -83,7 +83,7 @@ namespace Spin {
 			case BasicType::BoolType: return "Bool";
 			case BasicType::CharacterType: return "Character";
 			case BasicType::ByteType: return "Byte";
-			case BasicType::Int64Type: return "Integer";
+			case BasicType::IntegerType: return "Integer";
 			case BasicType::ColourType: return "Colour";
 			case BasicType::RealType: return "Real";
 			case BasicType::ImaginaryType: return "Imaginary";
@@ -104,7 +104,7 @@ namespace Spin {
 			case BasicType::BoolType: copy -> value = new Bool(* ((Bool *) value)); break;
 			case BasicType::CharacterType: copy -> value = new Character(* ((Character *) value)); break;
 			case BasicType::ByteType: copy -> value = new UInt8(* ((UInt8 *) value)); break;
-			case BasicType::Int64Type: copy -> value = new Int64(* ((Int64 *) value)); break;
+			case BasicType::IntegerType: copy -> value = new Int64(* ((Int64 *) value)); break;
 			case BasicType::ColourType: copy -> value = new Colour(* ((Colour *) value)); break;
 			case BasicType::RealType: copy -> value = new Real(* ((Real *) value)); break;
 			case BasicType::ImaginaryType: copy -> value = new Real(* ((Real *) value)); break;
@@ -134,7 +134,7 @@ namespace Spin {
 				UInt8 * i = (UInt8 *) value;
 				return toString((UInt64)(* i));
 			}
-			case BasicType::Int64Type: {
+			case BasicType::IntegerType: {
 				Int64 * i = (Int64 *) value;
 				return intToString(* i);
 			}

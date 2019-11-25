@@ -121,8 +121,8 @@ namespace Spin {
 		);
 	}
 	void Processor::applyModulusAssignment(Token * t, Object * l, Object * r) {
-		if (l -> type == BasicType::Int64Type &&
-			r -> type == BasicType::Int64Type) {
+		if (l -> type == BasicType::IntegerType &&
+			r -> type == BasicType::IntegerType) {
 			Int64 * a = (Int64 *) l -> value;
 			Int64 * b = (Int64 *) r -> value;
 			if ((* b) == 0) {
@@ -132,7 +132,7 @@ namespace Spin {
 				);
 			}
 			Int64 * c = new Int64((* a) % (* b));
-			Object * temp = new Object(BasicType::Int64Type, c);
+			Object * temp = new Object(BasicType::IntegerType, c);
 			try { applyAssignment(t, l, temp); }
 			catch (EvaluationError & e) { throw; }
 			delete temp; return;
@@ -304,8 +304,8 @@ namespace Spin {
 		);
 	}
 	Object * Processor::applyModulus(Token * t, Object * l, Object * r) {
-		if (l -> type == BasicType::Int64Type &&
-			r -> type == BasicType::Int64Type) {
+		if (l -> type == BasicType::IntegerType &&
+			r -> type == BasicType::IntegerType) {
 			Int64 * a = (Int64 *) l -> value;
 			Int64 * b = (Int64 *) r -> value;
 			if ((* b) == 0) {
@@ -315,7 +315,7 @@ namespace Spin {
 				);
 			}
 			Int64 * c = new Int64((* a) % (* b));
-			return new Object(BasicType::Int64Type, c);
+			return new Object(BasicType::IntegerType, c);
 		}
 		if (l -> type == BasicType::ColourType &&
 			r -> type == BasicType::ColourType) {
@@ -532,7 +532,7 @@ namespace Spin {
 	}
 	Object * Processor::applySubscriptOperator(Token * t, Object * l, Object * r) {
 		if (l -> type == BasicType::StringType) {
-			if (r -> type == BasicType::Int64Type) {
+			if (r -> type == BasicType::IntegerType) {
 				Int64 * i = (Int64 *) r -> value;
 				String * s = (String *) l -> value;
 				if (((* i) >= 0) && (s -> length() > (* i))) {
@@ -574,7 +574,7 @@ namespace Spin {
 				switch (o -> type) {
 					case BasicType::CharacterType:
 					case BasicType::ByteType:
-					case BasicType::Int64Type:
+					case BasicType::IntegerType:
 					case BasicType::RealType:
 					case BasicType::ImaginaryType:
 					case BasicType::ComplexType:

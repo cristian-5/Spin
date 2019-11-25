@@ -109,7 +109,7 @@ namespace Spin {
 		if (!t -> isTypeLiteral()) return o;
 		switch (t -> type) {
 			case TokenType::intLiteral: {
-				o -> type = BasicType::Int64Type;
+				o -> type = BasicType::IntegerType;
 				o -> value = new Int64(stringToInt64(t -> lexeme));
 			} break;
 			case TokenType::stringLiteral: {
@@ -301,7 +301,7 @@ namespace Spin {
 		return s[0];
 	}
 	BasicType Converter::typeFromString(String & s) {
-		if (s == "Integer") return BasicType::Int64Type;
+		if (s == "Integer") return BasicType::IntegerType;
 		if (s == "Real") return BasicType::RealType;
 		if (s == "String") return BasicType::StringType;
 		if (s == "Imaginary") return BasicType::ImaginaryType;

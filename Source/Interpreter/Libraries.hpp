@@ -33,7 +33,7 @@ namespace Spin {
 												<std::chrono::milliseconds>
 												(std::chrono::system_clock::now()
 												.time_since_epoch()).count());
-						return new Object(BasicType::Int64Type, time);
+						return new Object(BasicType::IntegerType, time);
 					}, new Array<Parameter *>(),
 					"<native Kronos::clock()>"
 				)
