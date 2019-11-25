@@ -108,12 +108,12 @@ namespace Spin {
 		starEqual,
 		slashEqual,
 		ampersandEqual,
-		daggerEqual,
+		dollarEqual,
 		modulusEqual,
 		star,
 		slash,
 		ampersand,
-		dagger,
+		dollar,
 		modulus,
 
 		minor,
@@ -128,6 +128,10 @@ namespace Spin {
 
 		AND,
 		OR,
+
+		conjugate,
+		transpose,
+		dagger,
 
 		tilde,
 		backslash,
@@ -248,9 +252,9 @@ namespace Spin {
 	class Converter {
 		private:
 		Converter() = default;
-		static inline Bool checkBase(Regex base, String s);
-		static inline Bool test(Regex r, String s);
-		static Bool isHexChar(Character c);
+		static inline Bool checkBase(Regex base, String & s);
+		static inline Bool test(Regex r, String & s);
+		static Bool isHexChar(Character & c);
 		static Character hexToChar(String & s);
 		static Int64 decToInt64(String & s);
 		static UInt8 charToHex(Character & c);
@@ -267,7 +271,7 @@ namespace Spin {
 		static String escapeString(String & s);
 		static Colour stringToColour(String & s);
 		static Character escapeChar(String & s);
-		static BasicType typeFromString(String s);
+		static BasicType typeFromString(String & s);
 	};
 
 	/* Environment */
@@ -306,11 +310,13 @@ namespace Spin {
 	class Comparison;
 	class Get;
 	class Grouping;
+	class Inner;
 	class Ket;
 	class List;
 	class Literal;
 	class Logical;
 	class Mutable;
+	class Outher;
 	class Set;
 	class Subscript;
 	class Super;
@@ -337,6 +343,7 @@ namespace Spin {
 	class ReturnStatement;
 	class UntilStatement;
 	class VariableStatement;
+	class VectorStatement;
 	class WhileStatement;
 
 	class Expression {
@@ -351,11 +358,13 @@ namespace Spin {
 			virtual Object * visitComparisonExpression(Comparison * e) = 0;
 			virtual Object * visitGetExpression(Get * e) = 0;
 			virtual Object * visitGroupingExpression(Grouping * e) = 0;
+			virtual Object * visitInnerExpression(Inner * e) = 0;
 			virtual Object * visitKetExpression(Ket * e) = 0;
 			virtual Object * visitListExpression(List * e) = 0;
 			virtual Object * visitLiteralExpression(Literal * e) = 0;
 			virtual Object * visitLogicalExpression(Logical * e) = 0;
 			virtual Object * visitMutableExpression(Mutable * e) = 0;
+			virtual Object * visitOutherExpression(Outher * e) = 0;
 			virtual Object * visitSetExpression(Set * e) = 0;
 			virtual Object * visitSubscriptExpression(Subscript * e) = 0;
 			virtual Object * visitSuperExpression(Super * e) = 0;
@@ -393,6 +402,7 @@ namespace Spin {
 			virtual void visitReturnStatement(ReturnStatement * e) = 0;
 			virtual void visitUntilStatement(UntilStatement * e) = 0;
 			virtual void visitVariableStatement(VariableStatement * e) = 0;
+			virtual void visitVectorStatement(VectorStatement * e) = 0;
 			virtual void visitWhileStatement(WhileStatement * e) = 0;
 		};
 		virtual void accept(Visitor *) { }
@@ -424,9 +434,9 @@ namespace Spin {
 	};
 	class Bra: public Expression {
 		public:
-		String * n = nullptr;
-		Token * o = nullptr;
-		Bra(String * nm, Token * op);
+		String name;
+		Token * bra = nullptr;
+		Bra(Token * b, String & n);
 		Object * accept(Visitor * visitor) override;
 		~Bra();
 	};
@@ -464,11 +474,20 @@ namespace Spin {
 		Object * accept(Visitor * visitor) override;
 		~Grouping();
 	};
+	class Inner: public Expression {
+		public:
+		String bra;
+		String ket;
+		Token * inner = nullptr;
+		Inner(Token * i, String & b, String & k);
+		Object * accept(Visitor * visitor) override;
+		~Inner();
+	};
 	class Ket: public Expression {
 		public:
-		String * n = nullptr;
-		Token * o = nullptr;
-		Ket(String * nm, Token * op);
+		String name;
+		Token * ket = nullptr;
+		Ket(Token * k, String & n);
 		Object * accept(Visitor * visitor) override;
 		~Ket();
 	};
@@ -504,6 +523,15 @@ namespace Spin {
 		Mutable(Token * name, Expression * value, Token * o);
 		Object * accept(Visitor * visitor) override;
 		~Mutable();
+	};
+	class Outher: public Expression {
+		public:
+		String ket;
+		String bra;
+		Token * outher = nullptr;
+		Outher(Token * o, String & k, String & b);
+		Object * accept(Visitor * visitor) override;
+		~Outher();
 	};
 	class Set: public Expression {
 		public:
@@ -726,11 +754,22 @@ namespace Spin {
 		public:
 		Token * name = nullptr;
 		BasicType type = BasicType::UnknownType;
-		Expression * initializer = nullptr;
+		Expression * initialiser = nullptr;
 		Token * object = nullptr;
-		VariableStatement(Token * n, Expression * i, BasicType t, Token * o = nullptr);
+		Token * equal = nullptr;
+		VariableStatement(Token * n, Expression * i, BasicType t, Token * e, Token * o = nullptr);
 		void accept(Visitor * visitor) override;
 		~VariableStatement();
+	};
+	class VectorStatement: public Statement {
+		public:
+		String name;
+		Token * vector = nullptr;
+		Expression * initialiser = nullptr;
+		Token * equal = nullptr;
+		VectorStatement(Token * v, String & n, Expression * i, Token * e);
+		void accept(Visitor * visitor) override;
+		~VectorStatement();
 	};
 	class WhileStatement: public Statement {
 		public:
@@ -938,31 +977,59 @@ namespace Spin {
 	};
 	class Vector {
 		private:
-		const Bool braDirection = false;
-		const Bool ketDirection = false;
 		Complex * space = nullptr;
 		SizeType size = 0;
 		Bool direction = ketDirection;
 		public:
-		Vector(SizeType s);
+
+		static const Bool braDirection = true;
+		static const Bool ketDirection = false;
+
+		Vector(SizeType s, Bool d);
+		Vector(Bool d);
+		Vector() = default;
 		~Vector();
+
+		Bool getDirection() const;
 		SizeType getSize() const;
 		Bool isEmpty() const;
+
 		Bool isBra() const;
 		Bool isKet() const;
+		void setDirection(Bool d);
+
 		inline void negate();
 		void invert();
 		inline Vector * getInverse() const;
 		Vector * getAdditiveInverse() const;
+
+		void conjugate();
+		Vector * getConjugate() const;
+
+		void transpose();
+		Vector * getTransposed() const;
+
+		inline void dagger();
+		inline void adjoint();
+		void conjugateTranspose();
+		inline Vector * getDagger() const;
+		inline Vector * getAdjoint() const;
+		Vector * getConjugateTranspose() const;
+
+		void inBraForm();
+		void inKetForm();
+
 		Complex & operator [] (SizeType i);
+		Complex & at(SizeType i);
+
 		Bool operator == (Vector r) const;
 		Bool operator != (Vector r) const;
 		Vector operator + (Vector r) const;
 		Vector operator - () const;
 		Vector operator - (Vector r) const;
 		Vector operator * (Complex z) const;
-		static inline Vector * kroneckerProduct(Vector * a, Vector * b);
-		static Vector * tensorProduct(Vector * a, Vector * b);
+
+		static Vector * basis(Bool d, Bool s);
 		Complex * copyAt(SizeType i) const;
 		Complex * referenceAt(SizeType i) const;
 		Vector * copy() const;
@@ -1015,6 +1082,14 @@ namespace Spin {
 				[] (Object * o) -> Object * {
 					Complex * c = (Complex *) o -> value;
 					return new Object(o -> type, new Complex(-(* c)));
+				}
+			},
+			{
+				BasicType::VectorType,
+				[] (Object * o) -> Object * {
+					Vector * v = (Vector *) o -> value;
+					v = v -> getAdditiveInverse();
+					return new Object(o -> type, v);
 				}
 			}
 		};
@@ -2505,6 +2580,8 @@ namespace Spin {
 		Object * applyMinorEqual(Token * t, Object * l, Object * r);
 		Dictionary<BasicTypes, AssignmentHandler> pureAssignment = {
 			{
+				// TODO: Maybe they don't have same type of definition...
+				// we should check and make sure they do...
 				compose(BasicType::InstanceType, BasicType::InstanceType),
 				[] (Object * l, Object * r) {
 					Instance * a = (Instance *) l -> value;
@@ -2575,6 +2652,13 @@ namespace Spin {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
 					* a = * b;
+				}
+			},
+			{
+				compose(BasicType::VectorType, BasicType::VectorType),
+				[] (Object * l, Object * r) {
+					delete (Vector *) l -> value;
+					l -> value = ((Vector *) r -> value) -> copy();
 				}
 			},
 			{
@@ -2749,7 +2833,11 @@ namespace Spin {
 		Object * applySubscriptOperator(Token * t, Object * l, Object * r);
 		Object * applyUnaryOperator(Token * t, Object * o);
 		void applyAssignment(Token * t, Object * l, Object * r);
+		void applyVectorAssignment(Token * t, Object * l, Object * r);
 		void applyMutableAssignment(Token * t, Object * l, Object * r);
+
+		Object * applyInnerProduct(Token * t, Object * l, Object * r);
+		Object * applyOutherProduct(Token * t, Object * l, Object * r);
 	};
 
 	/* Libraries */
@@ -2827,11 +2915,13 @@ namespace Spin {
 		Object * visitComparisonExpression(Comparison * e) override;
 		Object * visitGetExpression(Get * e) override;
 		Object * visitGroupingExpression(Grouping * e) override;
+		Object * visitInnerExpression(Inner * e) override;
 		Object * visitKetExpression(Ket * e) override;
 		Object * visitListExpression(List * e) override;
 		Object * visitLiteralExpression(Literal * e) override;
 		Object * visitLogicalExpression(Logical * e) override;
 		Object * visitMutableExpression(Mutable * e) override;
+		Object * visitOutherExpression(Outher * e) override;
 		Object * visitSetExpression(Set * e) override;
 		Object * visitSubscriptExpression(Subscript * e) override;
 		Object * visitSuperExpression(Super * e) override;
@@ -2858,6 +2948,7 @@ namespace Spin {
 		void visitReturnStatement(ReturnStatement * e) override;
 		void visitUntilStatement(UntilStatement * e) override;
 		void visitVariableStatement(VariableStatement * e) override;
+		void visitVectorStatement(VectorStatement * e) override;
 		void visitWhileStatement(WhileStatement * e) override;
 		void executeStatement(Statement * statement);
 		void executeBlock(Array<Statement *> * statements, Environment * environment);
@@ -2953,8 +3044,11 @@ namespace Spin {
 			{ Regex("^(\\&)"), TokenType::ampersand },
 			{ Regex("^(\\%=)"), TokenType::modulusEqual },
 			{ Regex("^(\\%)"), TokenType::modulus },
-			{ Regex("^(\\^=)"), TokenType::daggerEqual },
-			{ Regex("^(\\^)"), TokenType::dagger },
+			{ Regex("^(\\$=)"), TokenType::dollarEqual },
+			{ Regex("^(\\$)"), TokenType::dollar },
+			{ Regex("^(°)"), TokenType::conjugate },
+			{ Regex("^(\\^)"), TokenType::transpose },
+			{ Regex("^(\\')"), TokenType::dagger },
 
 			{ Regex("^(\\()"), TokenType::openParenthesis },
 			{ Regex("^(\\))"), TokenType::closeParenthesis },
@@ -3083,7 +3177,8 @@ namespace Spin {
 		Expression * comparison();
 		Expression * lowPriorityOperator();
 		Expression * mediumPriorityOperator();
-		Expression * highPriorityOperator();
+		Expression * postfixOperator();
+		Expression * prefixOperator();
 		Expression * subscription();
 		Expression * completeSubscript(Expression * item);
 		Expression * call();

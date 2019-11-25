@@ -109,43 +109,37 @@ namespace Spin {
 		return input;
 	}
 
-	static String realToString(Real a) {
-		String result = a >= 0 ? "" : "-";
+	static String realToGroupedString(Real a) {
+		StringStream result;
+		result << (a >= 0 ? "+ " : "- ");
 		Int64 i = (Int64) a;
 		if (i < 0) { i = -i; a = -a; }
-		result += toString(i) + ".";
+		result << i;
 		a -= (Real)i;
 		a *= 100;
 		i = (Int64) a;
-		if (i == 0) result += toString(i) + "0";
-		else result += toString(i);
-		return result;
+		if (i == 0) result << ".0";
+		else result << '.' << i;
+		if (i < 10) result << '0';
+		return result.str();
 	}
 
-	static String realToGroupedString(Real a) {
-		String result = a >= 0 ? "+(" : "-(";
-		Int64 i = (Int64) a;
-		if (i < 0) { i = -i; a = -a; }
-		result += toString(i) + ".";
-		a -= (Real)i;
-		a *= 100;
-		i = (Int64) a;
-		if (i == 0) result += toString(i) + "0";
-		else result += toString(i);
-		return result + ")";
+	static inline String realToString(Real a) {
+		return realToGroupedString(a);
 	}
 
 	static String imaginaryToGroupedString(Real a) {
-		String result = a >= 0 ? "+(" : "-(";
+		StringStream result;
+		result << (a >= 0 ? "+ " : "- ");
 		Int64 i = (Int64) a;
 		if (i < 0) { i = -i; a = -a; }
-		result += toString(i) + ".";
+		result << i;
 		a -= (Real)i;
 		a *= 100;
 		i = (Int64) a;
-		if (i == 0) result += toString(i) + "0";
-		else result += toString(i);
-		return result + "i)";
+		if (i < 10) result << '.' << i << '0';
+		else result << '.' << i;
+		result << 'i'; return result.str();
 	}
 
 	static String intToString(Int64 a) {

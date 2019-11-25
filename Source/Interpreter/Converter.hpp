@@ -22,23 +22,23 @@
 #define SPINCONVERTER
 
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
-#define REAL "^[0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?$"
-#define IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i$"
-#define HEX "^[A-Fa-f0-9]+$"
-#define RGBFULL "^[A-Fa-f0-9]{6}$"
-#define RGBSHORT "^[A-Fa-f0-9]{3}$"
-#define RGBAFULL "^[A-Fa-f0-9]{8}$"
-#define RGBASHORT "^[A-Fa-f0-9]{4}$"
+#define           REAL "^[0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?$"
+#define      IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i$"
+#define            HEX "^[A-Fa-f0-9]+$"
+#define        RGBFULL "^[A-Fa-f0-9]{6}$"
+#define       RGBSHORT "^[A-Fa-f0-9]{3}$"
+#define       RGBAFULL "^[A-Fa-f0-9]{8}$"
+#define      RGBASHORT "^[A-Fa-f0-9]{4}$"
 
 namespace Spin {
 
-	inline Bool Converter::checkBase(Regex base, String s) {
+	inline Bool Converter::checkBase(Regex base, String & s) {
 		return RegexTools::test(base, s);
 	}
-	inline Bool Converter::test(Regex r, String s) {
+	inline Bool Converter::test(Regex r, String & s) {
 		return RegexTools::test(r, s);
 	}
-	Bool Converter::isHexChar(Character c) {
+	Bool Converter::isHexChar(Character & c) {
 		return ((c >= '0') && (c <= '9')) ||
 				((c >= 'a') && (c <= 'f')) ||
 				((c >= 'A') && (c <= 'F'));
@@ -148,6 +148,16 @@ namespace Spin {
 				o -> type = BasicType::ColourType;
 				o -> value = new Colour(stringToColour(t -> lexeme));
 			} break;
+			case TokenType::basisBraLiteral: {
+				o -> type = BasicType::VectorType;
+				Bool state = (t -> lexeme)[1] == '0' ? 0 : 1;
+				o -> value = Vector::basis(Vector::braDirection, state);
+			} break;
+			case TokenType::basisKetLiteral: {
+				o -> type = BasicType::VectorType;
+				Bool state = (t -> lexeme)[1] == '0' ? 0 : 1;
+				o -> value = Vector::basis(Vector::ketDirection, state);
+			} break;
 			default: return o;
 		}
 		return o;
@@ -189,9 +199,11 @@ namespace Spin {
 	Real Converter::stringToImaginary(String & s) {
 		if (!test(Regex(IMAGINARY), s)) return 0.0;
 		if (s.length() > 1) s.pop();
+		else return 0.0;
 		return stringToLongDouble(s);
 	}
 	String Converter::escapeString(String & s) {
+		// OPTIMISE:
 		if (s.find("\\") == String::npos) return s;
 		StringStream result = StringStream();
 		const SizeType length = s.length();
@@ -235,6 +247,7 @@ namespace Spin {
 		return result.str();
 	}
 	Colour Converter::stringToColour(String & s) {
+		// OPTIMISE:
 		if (s.length() > 3) s = s.substr(1, s.size() - 1);
 		if (s.length() < 3) return Colour();
 		if (test(Regex(RGBFULL), s)) {
@@ -258,6 +271,7 @@ namespace Spin {
 		return Colour();
 	}
 	Character Converter::escapeChar(String & s) {
+		// OPTIMISE:
 		if (s.length() == 0) return 0x00;
 		if (test(Regex(ESCAPESEQUENCE), s)) {
 			if (s == "\\\\") return '\\';
@@ -286,8 +300,7 @@ namespace Spin {
 		}
 		return s[0];
 	}
-	// TODO: Handle class type.
-	BasicType Converter::typeFromString(String s) {
+	BasicType Converter::typeFromString(String & s) {
 		if (s == "Integer") return BasicType::Int64Type;
 		if (s == "Real") return BasicType::RealType;
 		if (s == "String") return BasicType::StringType;

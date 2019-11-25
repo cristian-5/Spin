@@ -34,17 +34,15 @@ namespace Spin {
 	}
 
 	String RegexTools::match(Regex & regex, const String & input) {
-		String result;
 		try {
 			SMatch match;
 			regexSearch(input, match, regex);
 			if (match.size() > 0) {
-				result = match.str(0);
+				return match.str(0);
 			} else return String();
 		} catch (RegexError & e) {
 			return String();
 		}
-		return result;
 	}
 
 	String RegexTools::findFirstGroup(Regex & regex, const String & input) {
@@ -61,7 +59,6 @@ namespace Spin {
 		return result;
 	}
 
-	// TODO: Check this function out.... temporary push....
 	Array<String> RegexTools::findAllGroups(Regex & regex, const String & input) {
 		Array<String> result = Array<String>();
 		try {
@@ -69,8 +66,7 @@ namespace Spin {
 			regexSearch(input, match, regex);
 			if (match.size() > 1) {
 				for (SizeType i = 1; i < match.size(); i += 1) {
-					String temp = String(match.str(i));
-					result.push(temp);
+					result.push(match.str(i));
 				}
 			} else return Array<String>();
 		} catch (RegexError & e) {

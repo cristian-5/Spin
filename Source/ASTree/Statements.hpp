@@ -217,8 +217,8 @@ namespace Spin {
 		delete body;
 	}
 		
-	VariableStatement::VariableStatement(Token * n, Expression * i, BasicType t, Token * o) {
-		name = n; initializer = i; type = t; object = o;
+	VariableStatement::VariableStatement(Token * n, Expression * i, BasicType t, Token * e, Token * o) {
+		name = n; initialiser = i; type = t; equal = e; object = o;
 	}
 	void VariableStatement::accept(Visitor * visitor) {
 		try { visitor -> visitVariableStatement(this); }
@@ -226,8 +226,22 @@ namespace Spin {
 	}
 	VariableStatement::~VariableStatement() {
 		delete name;
-		delete initializer;
+		delete initialiser;
+		delete equal;
 		delete object;
+	}
+
+	VectorStatement::VectorStatement(Token * v, String & n, Expression * i, Token * e) {
+		vector = v; name = n; initialiser = i; equal = e;
+	}
+	void VectorStatement::accept(Visitor * visitor) {
+		try { visitor -> visitVectorStatement(this); }
+		catch (Exception & e) { throw; }
+	}
+	VectorStatement::~VectorStatement() {
+		delete vector;
+		delete initialiser;
+		delete equal;
 	}
 	
 	WhileStatement::WhileStatement(Expression * e, Statement * b, Token * w) {

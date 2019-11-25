@@ -33,6 +33,8 @@ namespace Spin {
 			try {
 				obj = memory -> getReference(e -> name -> lexeme);
 			} catch (VariableNotFoundException & r) {
+				if (expression) delete expression;
+				expression = nullptr;
 				throw EvaluationError(
 					"Unexpected identifier '" +
 					e -> name -> lexeme + "'!", * e -> name
@@ -40,7 +42,10 @@ namespace Spin {
 			}
 			CPU -> applyAssignment(e -> o, obj, expression);
 			return expression;
-		} catch (Exception & exc) { throw; }
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
 	}
 	Object * Interpreter::visitBinaryExpression(Binary * e) {
 		Object * l = nullptr;
@@ -59,8 +64,24 @@ namespace Spin {
 		}
 	}
 	Object * Interpreter::visitBraExpression(Bra * e) {
-		// TODO: Fix bras.
-		return nullptr;
+		Object * v = nullptr;
+		try {
+			v = memory -> getValue(e -> name) -> copy();
+		} catch (VariableNotFoundException & exc) {
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> name + "'!", * e -> bra
+			);
+		}
+		if (v -> type != BasicType::VectorType) {
+			delete v;
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> name + "'!", * e -> bra
+			);
+		}
+		((Vector *) v -> value) -> inBraForm();
+		return v;
 	}
 	Object * Interpreter::visitCallExpression(Call * e) {
 		Object * callee = nullptr;
@@ -126,14 +147,79 @@ namespace Spin {
 			throw;
 		}
 	}
-	Object * Interpreter::visitGetExpression(Get * e) { return nullptr; }
+	Object * Interpreter::visitGetExpression(Get * e) {
+		Object * object = nullptr;
+		try {
+			object = evaluateExpression(e -> object);
+			if (object -> type == BasicType::InstanceType) {
+				// TODO: fix this.
+				//return ((Instance *) object -> value).get(expr.name);
+			}
+		} catch (Exception & exc) { throw; }
+		return object;
+	}
 	Object * Interpreter::visitGroupingExpression(Grouping * e) {
 		try { return evaluateExpression(e -> expression); }
 		catch (Exception & exc) { throw; }
 	}
+	Object * Interpreter::visitInnerExpression(Inner * e) {
+		Object * b = nullptr;
+		Object * k = nullptr;
+		try {
+			b = memory -> getValue(e -> bra) -> copy();
+		} catch (VariableNotFoundException & exc) {
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> bra + "'!", * e -> inner
+			);
+		}
+		try {
+			k = memory -> getValue(e -> ket) -> copy();
+		} catch (VariableNotFoundException & exc) {
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> ket + "'!", * e -> inner
+			);
+		}
+		if (b -> type != BasicType::VectorType) {
+			delete b; delete k;
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> bra + "'!", * e -> inner
+			);
+		}
+		if (k -> type != BasicType::VectorType) {
+			delete b; delete k;
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> ket + "'!", * e -> inner
+			);
+		}
+		((Vector *) b -> value) -> inBraForm();
+		((Vector *) k -> value) -> inKetForm();
+		try {
+			return CPU -> applyInnerProduct(e -> inner, b, k);
+		} catch (Exception & exc) { throw; }
+	}
 	Object * Interpreter::visitKetExpression(Ket * e) {
-		// TODO: Fix kets.
-		return nullptr;
+		Object * v = nullptr;
+		try {
+			v = memory -> getValue(e -> name) -> copy();
+		} catch (VariableNotFoundException & exc) {
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> name + "'!", * e -> ket
+			);
+		}
+		if (v -> type != BasicType::VectorType) {
+			delete v;
+			throw EvaluationError(
+				"Unexpected Vector identifier '" +
+				e -> name + "'!", * e -> ket
+			);
+		}
+		((Vector *) v -> value) -> inKetForm();
+		return v;
 	}
 	Object * Interpreter::visitListExpression(List * e) {
 		Array<Object *> * elements = new Array<Object *>();
@@ -191,6 +277,9 @@ namespace Spin {
 			CPU -> applyMutableAssignment(e -> o, obj, expression);
 			return obj -> copy();
 		} catch (Exception & exc) { throw; }
+	}
+	Object * Interpreter::visitOutherExpression(Outher * e) {
+		return nullptr;
 	}
 	Object * Interpreter::visitSetExpression(Set * e) { return nullptr; }
 	Object * Interpreter::visitSubscriptExpression(Subscript * e) {
@@ -428,7 +517,7 @@ namespace Spin {
 			throw;
 		}
 	}
-	void Interpreter::visitRestStatement(RestStatement * e) {	
+	void Interpreter::visitRestStatement(RestStatement * e) {
 	}
 	void Interpreter::visitReturnStatement(ReturnStatement * e) {
 		Object * expression = nullptr;
@@ -464,10 +553,10 @@ namespace Spin {
 	void Interpreter::visitVariableStatement(VariableStatement * e) {
 		Object * expression = nullptr;
 		try {
-			if (e -> initializer) {
-				expression = evaluateExpression(e -> initializer);
+			if (e -> initialiser) {
+				expression = evaluateExpression(e -> initialiser);
 				Object * o = new Object(e -> type);
-				CPU -> applyAssignment(e -> name, o, expression);
+				CPU -> applyAssignment(e -> equal, o, expression);
 				delete expression; expression = o;
 			} else if (e -> object) {
 				Object * o = nullptr;
@@ -491,6 +580,39 @@ namespace Spin {
 				"Variable redefinition! The identifier '" +
 				e -> name -> lexeme + "' was already declared with type '" +
 				r.getType() + "'!", * e -> name
+			);
+		}
+	}
+	void Interpreter::visitVectorStatement(VectorStatement * e) {
+		Object * expression = nullptr;
+		try {
+			if (e -> initialiser) {
+				expression = evaluateExpression(e -> initialiser);
+				Object * o = new Object(
+					BasicType::VectorType,
+					/* A ket starts with '|': */
+					new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
+				);
+				CPU -> applyVectorAssignment(e -> equal, o, expression);
+				delete expression; expression = o;
+			} else {
+				expression = new Object(
+					BasicType::VectorType,
+					/* A ket starts with '|': */
+					new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
+				);
+			}
+		} catch (Exception & exc) {
+			if (expression) delete expression;
+			throw;
+		}
+		try {
+			memory -> define(e -> name, expression);
+		} catch (VariableRedefinitionException & r) {
+			throw EvaluationError(
+				"Vector redefinition! The identifier '" +
+				e -> name + "' was already declared with type '" +
+				r.getType() + "'!", * e -> vector
 			);
 		}
 	}

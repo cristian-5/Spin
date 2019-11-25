@@ -42,6 +42,7 @@
 #include "../Types/Complex.hpp"
 #include "../Types/Function.hpp"
 #include "../Types/Array.hpp"
+#include "../Types/Vector.hpp"
 #include "../Types/Class.hpp"
 #include "../Types/Object.hpp"
 

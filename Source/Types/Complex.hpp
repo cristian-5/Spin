@@ -85,23 +85,20 @@ namespace Spin {
 		Real d = r.a * r.a + r.b * r.b;
 		if (d == 0) throw ComplexDBZException();
 		return Complex((a * r.a + b * r.b) / d,
-						(r.a * b - a * r.b) / d);
+					   (r.a * b - a * r.b) / d);
 	}
 	void Complex::operator /= (Complex r) {
 		a = (a * r.a + b * r.b) / (r.a * r.a + r.b * r.b);
 		b = (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b);
 	}
 	String Complex::stringValue() const {
-		return realToGroupedString(a) +
-				imaginaryToGroupedString(b);
+		return realToGroupedString(a) + " " +
+			   imaginaryToGroupedString(b);
 	}
 
 	Complex operator "" _i(Real i) {
 		return Complex(0, (Real)i);
 	}
-	
-	const Complex i = Complex(0, 1);
-	const Complex nullComplex = Complex(0, 0);
 
 }
 

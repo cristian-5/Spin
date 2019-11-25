@@ -23,14 +23,28 @@
 
 namespace Spin {
 
-	Vector::Vector(SizeType s) {
+	// bra * ket = inner product (Complex in result)
+	// ket * bra = outher product (tensor product) (Matrix in result)
+	// bra +- bra (same size) = bra (Vector in result)
+	// ket +- ket (same size) = ket (Vector in result)
+	// bra +- ket = error TODO: Better error handling in processor
+	// ket +- bra = error
+
+	Vector::Vector(SizeType s, Bool d) {
 		size = s;
 		if (size == 0) return;
 		space = new Complex[size];
+		direction = d;
+	}
+	Vector::Vector(Bool d) {
+		direction = d;
 	}
 	Vector::~Vector() {
 		if (size == 0) return;
 		delete [] space;
+	}
+	Bool Vector::getDirection() const {
+		return direction;
 	}
 	SizeType Vector::getSize() const {
 		return size;
@@ -44,6 +58,9 @@ namespace Spin {
 	Bool Vector::isKet() const {
 		return direction == ketDirection;
 	}
+	void Vector::setDirection(Bool d) {
+		direction = d;
+	}
 	inline void Vector::negate() {
 		invert();
 	}
@@ -56,73 +73,137 @@ namespace Spin {
 		return getAdditiveInverse();
 	}
 	Vector * Vector::getAdditiveInverse() const {
-		Vector * result = new Vector(size);
+		Vector * result = new Vector(size, direction);
 		for (SizeType i = 0; i < size; i += 1) {
 			result -> operator[] (i) = - space[i];
 		}
 		return result;
 	}
+	void Vector::conjugate() {
+		for (SizeType i = 0; i < size; i += 1) {
+			space[i].conjugate();
+		}
+	}
+	Vector * Vector::getConjugate() const {
+		Vector * result = new Vector(size, direction);
+		for (SizeType i = 0; i < size; i += 1) {
+			result -> operator[] (i) = space[i].getConjugate();
+		}
+		return result;
+	}
+	void Vector::transpose() {
+		direction = !direction;
+	}
+	Vector * Vector::getTransposed() const {
+		Vector * result = copy();
+		result -> transpose();
+		return result;
+	}
+	inline void Vector::dagger() {
+		conjugateTranspose();
+	}
+	inline void Vector::adjoint() {
+		conjugateTranspose();
+	}
+	void Vector::conjugateTranspose() {
+		direction = !direction;
+		for (SizeType i = 0; i < size; i += 1) {
+			space[i].conjugate();
+		}
+	}
+	inline Vector * Vector::getDagger() const {
+		return getConjugateTranspose();
+	}
+	inline Vector * Vector::getAdjoint() const {
+		return getConjugateTranspose();
+	}
+	Vector * Vector::getConjugateTranspose() const {
+		Vector * result = new Vector(size, !direction);
+		for (SizeType i = 0; i < size; i += 1) {
+			result -> operator[] (i) = space[i].getConjugate();
+		}
+		return result;
+	}
+	void Vector::inBraForm() {
+		if (direction) return;
+		conjugateTranspose();
+	}
+	void Vector::inKetForm() {
+		if (!direction) return;
+		conjugateTranspose();
+	}
 	Complex & Vector::operator [] (SizeType i) {
 		if (i >= size) throw InvalidIndexException();
 		return space[i];
 	}
+	Complex & Vector::at(SizeType i) {
+		if (i >= size) throw InvalidIndexException();
+		return space[i];
+	}
 	Bool Vector::operator == (Vector r) const {
-		if (size != r.size) return false;
+		if (size != r.size ||
+			direction != r.direction) {
+			return false;
+		}
 		for (SizeType i = 0; i < size; i += 1) {
 			if (r[i] != space[i]) return false;
 		}
 		return true;
 	}
 	Bool Vector::operator != (Vector r) const {
-		if (size != r.size) return true;
+		if (size != r.size ||
+			direction != r.direction) {
+			return true;
+		}
 		for (SizeType i = 0; i < size; i += 1) {
 			if (r[i] != space[i]) return true;
 		}
 		return false;
 	}
 	Vector Vector::operator + (Vector r) const {
-		if (size != r.size) throw InvalidOperationException();
-		Vector result = Vector(size);
+		if (size != r.size || direction != r.direction) {
+			throw InvalidOperationException();
+		}
+		Vector result = Vector(size, direction);
 		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = r[i] + space[i];
 		}
 		return result;
 	}
 	Vector Vector::operator - () const {
-		Vector result = Vector(size);
+		Vector result = Vector(size, direction);
 		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = - result[i];
 		}
 		return result;
 	}
 	Vector Vector::operator - (Vector r) const {
-		if (size != r.size) throw InvalidOperationException();
-		Vector result = Vector(size);
+		if (size != r.size || direction != r.direction) {
+			throw InvalidOperationException();
+		}
+		Vector result = Vector(size, direction);
 		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = r[i] - space[i];
 		}
 		return result;
 	}
 	Vector Vector::operator * (Complex z) const {
-		Vector result = Vector(size);
+		Vector result = Vector(size, direction);
 		for (SizeType i = 0; i < size; i += 1) {
 			result[i] = space[i] * z;
 		}
 		return result;
 	}
-	inline Vector * Vector::kroneckerProduct(Vector * a, Vector * b) {
-		return tensorProduct(a, b);
+	Vector * Vector::basis(Bool d, Bool s) {
+		Vector * b = new Vector(2, d);
+		if (s) b -> at(0) = Complex(1, 0);
+		else b -> at(1) = Complex(1, 0);
+		return b;
 	}
-	Vector * Vector::tensorProduct(Vector * a, Vector * b) {
-		SizeType s1 = a -> getSize();
-		SizeType s2 = b -> getSize();
-		Vector * result = new Vector(s1 * s2);
-		for (SizeType i = 0; i < s1; i += 1) {
-			for (SizeType j = 0; j < s2; j += 1) {
-				Complex c1 = a -> operator[] (i);
-				Complex c2 = b -> operator[] (j);
-				result -> operator[] ((i * s2) + j) = c1 * c2;
-			}
+	Vector * Vector::copy() const {
+		Vector * result = new Vector(size, direction);
+		for (SizeType i = 0; i < size; i += 1) {
+			result -> operator[] (i) = space[i];
 		}
 		return result;
 	}
@@ -134,7 +215,26 @@ namespace Spin {
 		if (i >= size) throw InvalidIndexException();
 		return & space[i];
 	}
-
+	String Vector::stringValue() const {
+		if (size == 0) return direction ? "[ ]" : "[\n]";
+		StringStream result;
+		if (direction) {
+			/* Print Bra */
+			result << "[ ";
+			for (SizeType i = 0; i < size - 1; i += 1) {
+				result << space[i].stringValue() << ", ";
+			}
+			result << space[size - 1].stringValue() << " ]";
+		} else {
+			/* Print Ket */
+			result << "[\n";
+			for (SizeType i = 0; i < size - 1; i += 1) {
+				result << "    " << space[i].stringValue() << ",\n";
+			}
+			result << "    " << space[size - 1].stringValue() << ",\n]";
+		}
+		return result.str();
+	}
 
 }
 

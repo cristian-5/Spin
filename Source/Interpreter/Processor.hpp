@@ -251,6 +251,33 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(r, l);
 		}
+		if (l -> type == BasicType::VectorType &&
+			r -> type == BasicType::VectorType) {
+			Vector * a = (Vector *) l -> value;
+			Vector * b = (Vector *) r -> value;
+			if (a -> getDirection() == b -> getDirection()) {
+				throw EvaluationError(
+					"Binary operator '*' doesn't support Vectors that occupy the same space!", * t
+				);
+			}
+			if (a -> getSize() != b -> getSize()) {
+				throw EvaluationError(
+					"Binary operator '*' doesn't support Vectors with different dimensions!", * t
+				);
+			}
+			if (a -> getDirection()) {
+				/* Bra * Ket */
+				Complex * c = new Complex();
+				for (SizeType i = 0; i < a -> getSize(); i += 1) {
+					(* c) = (* c) + (a -> at(i) * b -> at(i));
+				}
+				return new Object(BasicType::ComplexType, c);
+			} else {
+				/* Ket * Bra */
+				// TODO: Outher Product.
+				return nullptr;
+			}
+		}
 		throw EvaluationError(
 			"Binary operator '*' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
@@ -483,7 +510,7 @@ namespace Spin {
 				try { return applyAND(t, l, r); }
 				catch (EvaluationError & e) { throw; }
 			} break;
-			case TokenType::dagger: {
+			case TokenType::dollar: {
 				try { return applyXOR(t, l, r); }
 				catch (EvaluationError & e) { throw; }
 			} break;
@@ -550,7 +577,8 @@ namespace Spin {
 					case BasicType::Int64Type:
 					case BasicType::RealType:
 					case BasicType::ImaginaryType:
-					case BasicType::ComplexType: return o -> copy();
+					case BasicType::ComplexType:
+					case BasicType::VectorType: return o -> copy();
 					default: {
 						throw EvaluationError(
 							"Unary operator '+' doesn't support any operand of type '" +
@@ -570,14 +598,37 @@ namespace Spin {
 					o -> getObjectName() + "'!", * t
 				);
 			} break;
-			case TokenType::dagger: {
+			case TokenType::conjugate: {
 				if (o -> type == BasicType::ComplexType) {
 					Complex * c = (Complex *) o -> value;
 					c = new Complex(* c); c -> conjugate();
 					return new Object(o -> type, c);
+				} else if (o -> type == BasicType::VectorType) {
+					Vector * v = ((Vector *) o -> value) -> getConjugate();
+					return new Object(o -> type, v);
+				}
+				throw EvaluationError(
+					"Unary operator '°' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::transpose: {
+				if (o -> type == BasicType::VectorType) {
+					Vector * v = ((Vector *) o -> value) -> getTransposed();
+					return new Object(o -> type, v);
 				}
 				throw EvaluationError(
 					"Unary operator '^' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::dagger: {
+				if (o -> type == BasicType::VectorType) {
+					Vector * v = ((Vector *) o -> value) -> getConjugateTranspose();
+					return new Object(o -> type, v);
+				}
+				throw EvaluationError(
+					"Unary operator ''' doesn't support any operand of type '" +
 					o -> getObjectName() + "'!", * t
 				);
 			} break;
@@ -619,6 +670,24 @@ namespace Spin {
 			r -> getObjectName() + "'!", * t
 		);
 	}
+	void Processor::applyVectorAssignment(Token * t, Object * l, Object * r) {
+		/* This void takes in consideration eventual conjugate transpose. */
+		if (l -> type == BasicType::VectorType &&
+			r -> type == BasicType::VectorType) {
+			Vector * a = (Vector *) l -> value;
+			Vector * b = (Vector *) r -> value;
+			if (a -> getDirection()) {
+				b -> inBraForm();
+			} else b -> inKetForm();
+			delete a; l -> value = b -> copy();
+			return;
+		}
+		throw EvaluationError(
+			"Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
 	void Processor::applyMutableAssignment(Token * t, Object * l, Object * r) {
 		switch (t -> type) {
 			case TokenType::plusEqual: {
@@ -649,7 +718,7 @@ namespace Spin {
 				try { applyANDAssignment(t, l, r); }
 				catch (EvaluationError & e) { throw; }
 			} return;
-			case TokenType::daggerEqual: {
+			case TokenType::dollarEqual: {
 				try { applyXORAssignment(t, l, r); }
 				catch (EvaluationError & e) { throw; }
 			} return;
@@ -660,6 +729,36 @@ namespace Spin {
 			l -> getObjectName() + "' and '" +
 			r -> getObjectName() + "'!", * t
 		);
+	}
+
+	Object * Processor::applyInnerProduct(Token * t, Object * l, Object * r) {
+		/* We assume that the Interpreter passed us the right order <Bra|Ket>. */
+		if (l -> type == BasicType::VectorType &&
+			r -> type == BasicType::VectorType) {
+			Vector * a = (Vector *) l -> value;
+			Vector * b = (Vector *) r -> value;
+			if (a -> getDirection() == b -> getDirection()) {
+				throw EvaluationError(
+					"Inner product '<Bra|Ket>' doesn't support Vectors that occupy the same space!", * t
+				);
+			}
+			if (a -> getSize() != b -> getSize()) {
+				throw EvaluationError(
+					"Inner product '<Bra|Ket>' doesn't support Vectors with different dimensions!", * t
+				);
+			}
+			Complex * c = new Complex();
+			for (SizeType i = 0; i < a -> getSize(); i += 1) {
+				(* c) = (* c) + (a -> at(i) * b -> at(i));
+			}
+			return new Object(BasicType::ComplexType, c);
+		}
+		throw EvaluationError(
+			"Could not resolve invalid inner product '<Bra|Ket>'!", * t
+		);
+	}
+	Object * Processor::applyOutherProduct(Token * t, Object * l, Object * r) {
+		return nullptr;
 	}
 
 }

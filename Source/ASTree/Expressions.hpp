@@ -41,14 +41,14 @@ namespace Spin {
 	}
 	Binary::~Binary() { delete r; delete l; delete o; }
 
-	Bra::Bra(String * nm, Token * op) {
-		n = nm; o = op;
+	Bra::Bra(Token * b, String & n) {
+		bra = b; name = n;
 	}
 	Object * Bra::accept(Visitor * visitor) {
 		try { return visitor -> visitBraExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Bra::~Bra() { delete n; delete o; }
+	Bra::~Bra() { delete bra; }
 
 	Call::Call(Expression * c, Token * p, Array<Expression *> * a, Bool i) {
 		parenthesis = p; callee = c; arguments = a; isConstructor = i;
@@ -90,14 +90,23 @@ namespace Spin {
 	}
 	Grouping::~Grouping() { delete expression; }
 
-	Ket::Ket(String * nm, Token * op) {
-		n = nm; o = op;
+	Inner::Inner(Token * i, String & b, String & k) {
+		inner = i; bra = b; ket = k;
+	}
+	Object * Inner::accept(Visitor * visitor) {
+		try { return visitor -> visitInnerExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	Inner::~Inner() { delete inner; }
+
+	Ket::Ket(Token * k, String & n) {
+		ket = k; name = n;
 	}
 	Object * Ket::accept(Visitor * visitor) {
 		try { return visitor -> visitKetExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Ket::~Ket() { delete n; delete o; }
+	Ket::~Ket() { delete ket; }
 
 	List::List(Array<Expression *> * v) { values = v; }
 	Object * List::accept(Visitor * visitor) {
@@ -135,6 +144,15 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	Mutable::~Mutable() { delete name; delete value; delete o; }
+
+	Outher::Outher(Token * o, String & k, String & b) {
+		outher = o; ket = k; bra = b;
+	}
+	Object * Outher::accept(Visitor * visitor) {
+		try { return visitor -> visitOutherExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	Outher::~Outher() { delete outher; }
 		
 	Set::Set(Expression * o, Token * n, Expression * v) {
 		object = o; name = n; value = v;

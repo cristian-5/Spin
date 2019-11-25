@@ -38,6 +38,7 @@ namespace Spin {
 			catch (SyntaxError & s) { delete ex; delete equals; throw; }
 			if (ex -> isInstanceOf<Identifier>()) {
 				Token * name = new Token(* (((Identifier *)(ex)) -> name));
+				delete ex;
 				return new Assignment(name, value, equals);
 			}
 			if (value) delete value;
@@ -151,13 +152,13 @@ namespace Spin {
 	}
 	Expression * Parser::mediumPriorityOperator() {
 		Expression * ex = nullptr;
-		try { ex = highPriorityOperator(); }
+		try { ex = postfixOperator(); }
 		catch (SyntaxError & e) { throw; }
 		while (matchRange(TokenType::starEqual,
 						  TokenType::modulus)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
-			try { rs = highPriorityOperator(); }
+			try { rs = postfixOperator(); }
 			catch (SyntaxError & e) {
 				delete ex;
 				delete op;
@@ -183,14 +184,26 @@ namespace Spin {
 		}
 		return ex;
 	}
-	Expression * Parser::highPriorityOperator() {
+	Expression * Parser::postfixOperator() {
+		Expression * ex = nullptr;
+		try { ex = prefixOperator(); }
+		catch (SyntaxError & s) { throw; }
+		while (true) {
+			if (matchRange(TokenType::conjugate,
+						   TokenType::dagger)) {
+				ex = new Unary(new Token(previous()), ex);
+			} else break;
+		}
+		return ex;
+	}
+	Expression * Parser::prefixOperator() {
 		if (match(TokenType::minus) ||
 			match(TokenType::plus)  ||
 			match(TokenType::tilde) ||
 			match(TokenType::exclamationMark)) {
 			Token * op = new Token(previous());
 			Expression * rs = nullptr;
-			try { rs = highPriorityOperator(); }
+			try { rs = prefixOperator(); }
 			catch (SyntaxError & e) {
 				delete op;
 				throw;
@@ -247,7 +260,14 @@ namespace Spin {
 			if (match(TokenType::openParenthesis)) {
 				try { ex = completeCall(ex, isConstructor); }
 				catch (SyntaxError & s) { throw; }
-			} else if (isConstructor) {
+			} else if (match(TokenType::dot)) {
+				try {
+					Token * name = new Token(
+						consume(TokenType::symbol, "identifier")
+					);
+					ex = new Get(ex, name);
+				} catch (SyntaxError & s) { throw; }
+			 } else if (isConstructor) {
 				Token temp = peek();
 				throw SyntaxError(
 					"Expected constructor call after 'new' keyword but found '" +
@@ -282,14 +302,12 @@ namespace Spin {
 		Token t = peek();
 		if (t.isTypeLiteral()) {
 			advance();
-			Token * literal = new Token(t);
-			return new Literal(literal);
+			return new Literal(new Token(t));
 		} else if (t.type == TokenType::symbol ||
 				   t.type == TokenType::customType ||
 				   t.type == TokenType::basicType) {
 			advance();
-			Token * name = new Token(t);
-			return new Identifier(name);
+			return new Identifier(new Token(t));
 		} else if (t.type == TokenType::openParenthesis) {
 			advance();
 			Expression * ex = nullptr;
@@ -331,6 +349,36 @@ namespace Spin {
 			}
 			values -> shrinkToFit();
 			return new List(values);
+		} else if (t.type == TokenType::ketSymbol) {
+			advance();
+			String ket = t.lexeme.subString(1, t.lexeme.length() - 2);
+			return new Ket(new Token(t), ket);
+		} else if (t.type == TokenType::braSymbol) {
+			advance();
+			String bra = t.lexeme.subString(1, t.lexeme.length() - 2);
+			return new Bra(new Token(t), bra);
+		} else if (t.type == TokenType::braketSymbol) {
+			advance();
+			Regex braket = Regex("<([A-Za-z_][A-Za-z0-9_]*)\\|([A-Za-z_][A-Za-z0-9_]*)>");
+			Array<String> bk = RegexTools::findAllGroups(braket, t.lexeme);
+			if (bk.size() != 2) {
+				throw SyntaxError(
+					"Invalid inner product expression '" + t.lexeme + "'!",
+					Linker::getLine(currentUnit -> contents, t.position)
+				);
+			}
+			return new Inner(new Token(t), bk.at(0), bk.at(1));
+		} else if (t.type == TokenType::ketbraSymbol) {
+			advance();
+			Regex ketbra = Regex("\\|([A-Za-z_][A-Za-z0-9_]*)><([A-Za-z_][A-Za-z0-9_]*)\\|");
+			Array<String> kb = RegexTools::findAllGroups(ketbra, t.lexeme);
+			if (kb.size() != 2) {
+				throw SyntaxError(
+					"Invalid outher product expression '" + t.lexeme + "'!",
+					Linker::getLine(currentUnit -> contents, t.position)
+				);
+			}
+			return new Outher(new Token(t), kb.at(0), kb.at(1));
 		}
 		UInt64 line = 0;
 		if (t.type == TokenType::endFile) {
@@ -373,46 +421,64 @@ namespace Spin {
 		}
 		Token * obj = nullptr;
 		Token * name = nullptr;
-		Expression * initializer = nullptr;
+		Token * equal = nullptr;
+		Expression * initialiser = nullptr;
 		try {
 			if (isClass) obj = new Token(previous());
 			name = new Token(consume(TokenType::symbol, "identifier"));
-			if (match(TokenType::equal)) initializer = expression();
+			if (match(TokenType::equal)) {
+				equal = new Token(previous());
+				initialiser = expression();
+			}
 			consume(TokenType::semicolon, ";");
 		} catch (SyntaxError & s) {
 			if (obj) delete obj;
 			if (name) delete name;
-			if (initializer) delete initializer;
+			if (initialiser) delete initialiser;
 			throw;
 		}
 		BasicType type = isClass ?
 						 BasicType::InstanceType :
 						 Converter::typeFromString(stringType);
-		return new VariableStatement(name, initializer, type, obj);
+		return new VariableStatement(name, initialiser, type, equal, obj);
 	}
 	Statement * Parser::vectorDeclaration() {
-		Token * name = nullptr;
-		Expression * initializer = nullptr;
+		Token * vector = nullptr;
+		Token * equal = nullptr;
+		Expression * initialiser = nullptr;
 		try {
 			if (match(TokenType::braSymbol) ||
 				match(TokenType::ketSymbol)) {
-				name = new Token(previous());
+				vector = new Token(previous());
 			} else {
-				Token t = previous();
-				UInt64 line = Linker::getLine(currentUnit -> contents, t.position);
+				Token t = peek();
 				throw SyntaxError(
 					"Expected <identifier| or |identifier> in bra-ket notation but found '"
-					+ t.lexeme + "'!", line
+					+ t.lexeme + "'!",
+					Linker::getLine(currentUnit -> contents, t.position)
 				);
 			}
-			if (match(TokenType::equal)) initializer = expression();
+			if (match(TokenType::equal)) {
+				equal = new Token(previous());
+				initialiser = expression();
+			}
 			consume(TokenType::semicolon, ";");
 		} catch (SyntaxError & s) {
-			if (name) delete name;
-			if (initializer) delete initializer;
+			if (vector) delete vector;
+			if (initialiser) delete initialiser;
 			throw;
 		}
-		return new VariableStatement(name, initializer, BasicType::VectorType);
+		if (vector -> lexeme.length() <= 2) {
+			if (vector) delete vector;
+			if (initialiser) delete initialiser;
+			throw SyntaxError(
+				"Expected <identifier| or |identifier> in bra-ket notation but found '"
+				+ vector -> lexeme + "'!",
+				Linker::getLine(currentUnit -> contents, vector -> position)
+			);
+		}
+		String name = vector -> lexeme.subString(1, vector -> lexeme.length() - 2);
+		return new VectorStatement(vector, name, initialiser, equal);
 	}
 	Statement * Parser::statement() {
 		Statement * st = nullptr;
@@ -1231,8 +1297,8 @@ namespace Spin {
 		while (!isAtEnd()) {
 			try {
 				Statement * d = declaration();
-				if (d -> isInstanceOf<ClassStatement>()    ||
-					d -> isInstanceOf<FunctionStatement>() ||
+				if (d -> isInstanceOf<ClassStatement>()     ||
+					d -> isInstanceOf<FunctionStatement>()  ||
 					d -> isInstanceOf<ProcedureStatement>()) {
 					statements -> insert(statements -> begin(), d);
 				} else statements -> push(d);
