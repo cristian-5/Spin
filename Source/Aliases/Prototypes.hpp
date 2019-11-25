@@ -1668,34 +1668,38 @@ namespace Spin {
 			},
 			{
 				compose(BasicType::VectorType, BasicType::ComplexType),
-				[] (Object * l, Object * r) {
-					Vector * v = (Vector *) l -> value;
+				[] (Object * l, Object * r) -> Object * {
+					Vector * v = ((Vector *) l -> value) -> copy();
 					Complex c = * ((Complex *) r -> value);
 					v -> multiplyByScalarComplex(c);
+					return new Object(BasicType::VectorType, v);
 				}
 			},
 			{
 				compose(BasicType::VectorType, BasicType::ImaginaryType),
-				[] (Object * l, Object * r) {
-					Vector * v = (Vector *) l -> value;
+				[] (Object * l, Object * r) -> Object * {
+					Vector * v = ((Vector *) l -> value) -> copy();
 					Real i = * ((Real *) r -> value);
 					v -> multiplyByScalarImaginary(i);
+					return new Object(BasicType::VectorType, v);
 				}
 			},
 			{
 				compose(BasicType::VectorType, BasicType::RealType),
-				[] (Object * l, Object * r) {
-					Vector * v = (Vector *) l -> value;
+				[] (Object * l, Object * r) -> Object * {
+					Vector * v = ((Vector *) l -> value) -> copy();
 					Real i = * ((Real *) r -> value);
 					v -> multiplyByScalarReal(i);
+					return new Object(BasicType::VectorType, v);
 				}
 			},
 			{
 				compose(BasicType::VectorType, BasicType::IntegerType),
-				[] (Object * l, Object * r) {
-					Vector * v = (Vector *) l -> value;
+				[] (Object * l, Object * r) -> Object * {
+					Vector * v = ((Vector *) l -> value) -> copy();
 					Int64 i = * ((Int64 *) r -> value);
 					v -> multiplyByScalarInteger(i);
+					return new Object(BasicType::VectorType, v);
 				}
 			}
 		};
