@@ -13,7 +13,7 @@ if (a == 0) {
 }
 
 if (condition) return;
-else a++;
+else a = 8;
 
 ```
 
