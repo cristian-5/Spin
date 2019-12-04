@@ -9,7 +9,7 @@ Syntax is similar to c++, you can omit the curly braces if there's only one stat
 ```swift
 
 if (a == 0) {
-	a += 1;
+    a += 1;
 }
 
 if (condition) return;
@@ -25,30 +25,30 @@ Syntax is similar to c++, you can omit the curly braces if there's only one stat
 ```swift
 
 while (condition) {
-	/* < code > */
+    /* < code > */
 }
 
 do {
-	/* < code > */
+    /* < code > */
 } while (condition);
 
 until (condition) {
-	/* < code > */
+    /* < code > */
 }
 
 repeat {
-	/* < code > */
+    /* < code > */
 } until (condition);
 
 loop {
-	/* < code > */
-	if (condition) break;
+    /* < code > */
+    if (condition) break;
 }
 
 for (Integer i = 0; i < 10; i += 1) {
-	/* < code > */
-	if (condition) continue;
-	/* < code > */
+    /* < code > */
+    if (condition) continue;
+    /* < code > */
 }
 
 ```
