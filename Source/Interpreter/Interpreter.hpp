@@ -66,7 +66,7 @@ namespace Spin {
 	Object * Interpreter::visitBraExpression(Bra * e) {
 		Object * v = nullptr;
 		try {
-			v = memory -> getValue(e -> name) -> copy();
+			v = memory -> getValue(e -> name);
 		} catch (VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
@@ -152,10 +152,25 @@ namespace Spin {
 		try {
 			object = evaluateExpression(e -> object);
 			if (object -> type == BasicType::InstanceType) {
-				// TODO: fix this.
-				//return ((Instance *) object -> value).get(expr.name);
+				try {
+					return ((Instance *) object -> value) -> getValue(
+						e -> name -> lexeme
+					);
+				} catch (UndefinedException & u) {
+					throw EvaluationError(
+						"The resolved object does not contain any property named '" +
+						e -> name -> lexeme + "'!", * e -> name
+					);
+				}
 			}
-		} catch (Exception & exc) { throw; }
+			throw EvaluationError(
+				"The resolved object is not an instance and does not contain properties!",
+				* e -> name
+			);
+		} catch (Exception & exc) {
+			if (object) delete object;
+			throw;
+		}
 		return object;
 	}
 	Object * Interpreter::visitGroupingExpression(Grouping * e) {
@@ -166,7 +181,7 @@ namespace Spin {
 		Object * b = nullptr;
 		Object * k = nullptr;
 		try {
-			b = memory -> getValue(e -> bra) -> copy();
+			b = memory -> getValue(e -> bra);
 		} catch (VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
@@ -174,7 +189,7 @@ namespace Spin {
 			);
 		}
 		try {
-			k = memory -> getValue(e -> ket) -> copy();
+			k = memory -> getValue(e -> ket);
 		} catch (VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
@@ -204,7 +219,7 @@ namespace Spin {
 	Object * Interpreter::visitKetExpression(Ket * e) {
 		Object * v = nullptr;
 		try {
-			v = memory -> getValue(e -> name) -> copy();
+			v = memory -> getValue(e -> name);
 		} catch (VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
@@ -278,10 +293,30 @@ namespace Spin {
 			return obj -> copy();
 		} catch (Exception & exc) { throw; }
 	}
-	Object * Interpreter::visitOutherExpression(Outher * e) {
+	Object * Interpreter::visitOuterExpression(Outer * e) {
 		return nullptr;
 	}
-	Object * Interpreter::visitSetExpression(Set * e) { return nullptr; }
+	Object * Interpreter::visitSetExpression(Set * e) {
+		/* Work in progress */
+		Object * object = nullptr;
+		Object * value = nullptr;
+		try {
+			object = evaluateExpression(e -> object);
+			if (object -> type != BasicType::InstanceType) {
+				throw EvaluationError(
+					"The resolved object is not an instance and does not contain properties!",
+					* e -> name
+				);
+			}
+			value = evaluateExpression(e -> value);
+			// TODO: finish this.
+		} catch (Exception & exc) {
+			if (object) delete object;
+			if (value) delete value;
+			throw;
+		}
+		return nullptr;
+	}
 	Object * Interpreter::visitSubscriptExpression(Subscript * e) {
 		Object * item = nullptr;
 		Object * expression = nullptr;
@@ -323,7 +358,7 @@ namespace Spin {
 	}
 	Object * Interpreter::visitIdentifierExpression(Identifier * e) {
 		try {
-			return memory -> getValue(e -> name -> lexeme) -> copy();
+			return memory -> getValue(e -> name -> lexeme);
 		} catch (VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected identifier '" +

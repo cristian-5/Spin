@@ -35,13 +35,34 @@ namespace Spin {
 		return new Class(name);
 	}
 
-	Instance::Instance(Class * t) { type = t; }
+	Instance::Instance(Class * t) {
+		fields = new Dictionary<String, Object *>();
+		type = t;
+	}
+	Instance::Instance(Class * t, Dictionary<String, Object *> * f) {
+		fields = f;
+		type = t;
+	}
+	Object * Instance::getReference(String & name) {
+		auto search = fields -> find(name);
+		if (search != fields -> end()) {
+			return search -> second;
+		}
+		throw UndefinedException();
+	}
+	Object * Instance::getValue(String & name) {
+		auto search = fields -> find(name);
+		if (search != fields -> end()) {
+			return (search -> second) -> copy();
+		}
+		throw UndefinedException();
+	}
 	String Instance::stringValue() const {
 		if (!type) return "<empty>";
 		return "<instance " + type -> name + ">";
 	}
 	Instance * Instance::copy() const {
-		return new Instance(type);
+		return new Instance(type, fields);
 	}
 
 }

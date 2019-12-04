@@ -316,7 +316,7 @@ namespace Spin {
 	class Literal;
 	class Logical;
 	class Mutable;
-	class Outher;
+	class Outer;
 	class Set;
 	class Subscript;
 	class Super;
@@ -364,7 +364,7 @@ namespace Spin {
 			virtual Object * visitLiteralExpression(Literal * e) = 0;
 			virtual Object * visitLogicalExpression(Logical * e) = 0;
 			virtual Object * visitMutableExpression(Mutable * e) = 0;
-			virtual Object * visitOutherExpression(Outher * e) = 0;
+			virtual Object * visitOuterExpression(Outer * e) = 0;
 			virtual Object * visitSetExpression(Set * e) = 0;
 			virtual Object * visitSubscriptExpression(Subscript * e) = 0;
 			virtual Object * visitSuperExpression(Super * e) = 0;
@@ -524,14 +524,14 @@ namespace Spin {
 		Object * accept(Visitor * visitor) override;
 		~Mutable();
 	};
-	class Outher: public Expression {
+	class Outer: public Expression {
 		public:
 		String ket;
 		String bra;
-		Token * outher = nullptr;
-		Outher(Token * o, String & k, String & b);
+		Token * outer = nullptr;
+		Outer(Token * o, String & k, String & b);
 		Object * accept(Visitor * visitor) override;
-		~Outher();
+		~Outer();
 	};
 	class Set: public Expression {
 		public:
@@ -933,7 +933,7 @@ namespace Spin {
 	};
 
 	/* Class */
-
+	class UndefinedException: public Exception { };
 	class Class: public CallProtocol {
 		public:
 		String name;
@@ -946,8 +946,12 @@ namespace Spin {
 	class Instance {
 		private:
 		Class * type = nullptr;
+		Dictionary<String, Object *> * fields = nullptr;
 		public:
 		Instance(Class * t);
+		Instance(Class * t, Dictionary<String, Object *> * f);
+		Object * getReference(String & name);
+		Object * getValue(String & name);
 		String stringValue() const;
 		Instance * copy() const;
 	};
@@ -2878,7 +2882,7 @@ namespace Spin {
 		void applyMutableAssignment(Token * t, Object * l, Object * r);
 
 		Object * applyInnerProduct(Token * t, Object * l, Object * r);
-		Object * applyOutherProduct(Token * t, Object * l, Object * r);
+		Object * applyOuterProduct(Token * t, Object * l, Object * r);
 	};
 
 	/* Libraries */
@@ -2962,7 +2966,7 @@ namespace Spin {
 		Object * visitLiteralExpression(Literal * e) override;
 		Object * visitLogicalExpression(Logical * e) override;
 		Object * visitMutableExpression(Mutable * e) override;
-		Object * visitOutherExpression(Outher * e) override;
+		Object * visitOuterExpression(Outer * e) override;
 		Object * visitSetExpression(Set * e) override;
 		Object * visitSubscriptExpression(Subscript * e) override;
 		Object * visitSuperExpression(Super * e) override;

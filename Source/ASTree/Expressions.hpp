@@ -145,14 +145,14 @@ namespace Spin {
 	}
 	Mutable::~Mutable() { delete name; delete value; delete o; }
 
-	Outher::Outher(Token * o, String & k, String & b) {
-		outher = o; ket = k; bra = b;
+	Outer::Outer(Token * o, String & k, String & b) {
+		outer = o; ket = k; bra = b;
 	}
-	Object * Outher::accept(Visitor * visitor) {
-		try { return visitor -> visitOutherExpression(this); }
+	Object * Outer::accept(Visitor * visitor) {
+		try { return visitor -> visitOuterExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Outher::~Outher() { delete outher; }
+	Outer::~Outer() { delete outer; }
 		
 	Set::Set(Expression * o, Token * n, Expression * v) {
 		object = o; name = n; value = v;

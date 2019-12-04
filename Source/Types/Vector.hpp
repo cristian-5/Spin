@@ -24,7 +24,7 @@
 namespace Spin {
 
 	// bra * ket = inner product (Complex in result)
-	// ket * bra = outher product (tensor product) (Matrix in result)
+	// ket * bra = outer product (tensor product) (Matrix in result)
 	// bra +- bra (same size) = bra (Vector in result)
 	// ket +- ket (same size) = ket (Vector in result)
 	// bra +- ket = error TODO: Better error handling in processor

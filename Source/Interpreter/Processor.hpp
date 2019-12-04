@@ -274,7 +274,7 @@ namespace Spin {
 				return new Object(BasicType::ComplexType, c);
 			} else {
 				/* Ket * Bra */
-				// TODO: Outher Product.
+				// TODO: Outer Product.
 				return nullptr;
 			}
 		}
@@ -757,7 +757,7 @@ namespace Spin {
 			"Could not resolve invalid inner product '<Bra|Ket>'!", * t
 		);
 	}
-	Object * Processor::applyOutherProduct(Token * t, Object * l, Object * r) {
+	Object * Processor::applyOuterProduct(Token * t, Object * l, Object * r) {
 		return nullptr;
 	}
 

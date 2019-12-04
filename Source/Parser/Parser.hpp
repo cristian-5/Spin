@@ -40,6 +40,9 @@ namespace Spin {
 				Token * name = new Token(* (((Identifier *)(ex)) -> name));
 				delete ex;
 				return new Assignment(name, value, equals);
+			} else if (ex -> isInstanceOf<Get>()) {
+				Get * get = (Get *) ex;
+				return new Set(get -> object, get -> name, value);
 			}
 			if (value) delete value;
 			delete ex;
@@ -374,11 +377,11 @@ namespace Spin {
 			Array<String> kb = RegexTools::findAllGroups(ketbra, t.lexeme);
 			if (kb.size() != 2) {
 				throw SyntaxError(
-					"Invalid outher product expression '" + t.lexeme + "'!",
+					"Invalid outer product expression '" + t.lexeme + "'!",
 					Linker::getLine(currentUnit -> contents, t.position)
 				);
 			}
-			return new Outher(new Token(t), kb.at(0), kb.at(1));
+			return new Outer(new Token(t), kb.at(0), kb.at(1));
 		}
 		UInt64 line = 0;
 		if (t.type == TokenType::endFile) {
