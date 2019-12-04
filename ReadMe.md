@@ -32,6 +32,13 @@ If you want to contribute you must follow these
 [Conventions](Conventions/) in order to keep the
 file structure organised and the code clean.
 
+## Donations
+
+**Donations** are *welcome*! Offer me a *cup of coffee* since
+I drink it *every day* just before working on this project.
+
+[![donations](Badges/PayPal.svg)](https://paypal.me/CristianAntonuccio)
+
 ## Compilation
 
 This code is written in **c++17** so don't try to build
