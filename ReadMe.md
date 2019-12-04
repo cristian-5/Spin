@@ -1,9 +1,9 @@
 
 # Spin Language
 
-[![language](Badges/Language.svg)](ReadMe.md)
 [![license](Badges/License.svg)](License)
 [![version](Badges/Version.svg)](ReadMe.md)
+[![language](Badges/Language.svg)](ReadMe.md)
 [![contributions](Badges/Contributions.svg)](ReadMe.md)
 [![donations](Badges/Donations.svg)](https://paypal.me/CristianAntonuccio)
 
