@@ -27,8 +27,8 @@ namespace Spin {
 		this -> enclosing = enclosing;
 	}
 	Environment::~Environment() {
-		for (Pair<String, Object *> value : values) {
-			delete value.second;
+		for (const Pair<String, Object *> & value : values) {
+			(value.second) -> safeDestroy();
 		}
 	}
 	void Environment::define(String name, Object * value) {
@@ -44,6 +44,7 @@ namespace Spin {
 		if (search == values.end()) {
 			throw VariableNotFoundException();
 		}
+		(search -> second) -> safeDestroy();
 		values.erase(name);
 	}
 	Object * Environment::getReference(String name) {

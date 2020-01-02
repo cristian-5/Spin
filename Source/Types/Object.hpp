@@ -64,6 +64,12 @@ namespace Spin {
 			case BasicType::UnknownType: default: return;
 		}
 	}
+	void Object::safeDestroy() {
+		if (type == BasicType::InstanceType) {
+			((Instance *) value) -> destroy();
+		}
+		delete this;
+	}
 	inline Bool Object::isByte() const { return type == BasicType::ByteType; }
 	inline Bool Object::isInteger() const { return type == BasicType::IntegerType; }
 	inline Bool Object::isReal() const { return type == BasicType::RealType; }

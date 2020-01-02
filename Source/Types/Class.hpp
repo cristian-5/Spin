@@ -64,6 +64,9 @@ namespace Spin {
 	Instance * Instance::copy() const {
 		return new Instance(type, fields);
 	}
+	void Instance::destroy() {
+		delete fields;
+	}
 
 }
 

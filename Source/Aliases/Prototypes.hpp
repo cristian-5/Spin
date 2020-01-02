@@ -791,6 +791,7 @@ namespace Spin {
 		Object(BasicType t);
 		Object(BasicType t, void * v);
 		~Object();
+		void safeDestroy();
 		inline Bool isByte() const;
 		inline Bool isInteger() const;
 		inline Bool isReal() const;
@@ -954,6 +955,7 @@ namespace Spin {
 		Object * getValue(String & name);
 		String stringValue() const;
 		Instance * copy() const;
+		void destroy();
 	};
 
 	/* ArrayList */
