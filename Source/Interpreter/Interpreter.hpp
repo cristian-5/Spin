@@ -123,11 +123,10 @@ namespace Spin {
 				);
 			}
 			Object * result = function -> call(this, arguments, e -> parenthesis);
-			delete callee; return result;
+			return result;
 		} catch (Exception & exc) {
 			if (callee) delete callee;
 			for (Object * o : arguments) delete o;
-			if (function) delete function;
 			throw;
 		}
 	}

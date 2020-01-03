@@ -3120,6 +3120,7 @@ namespace Spin {
 			{ Regex("^(break)\\b"), TokenType::breakKeyword },
 			{ Regex("^(continue)\\b"), TokenType::continueKeyword },
 
+			{ Regex("^(new)\\b"), TokenType::newKeyword },
 			{ Regex("^(delete)\\b"), TokenType::deleteKeyword },
 
 			{ Regex("^(import)\\b"), TokenType::importKeyword },

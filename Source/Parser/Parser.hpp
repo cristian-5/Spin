@@ -261,8 +261,10 @@ namespace Spin {
 		} catch (SyntaxError & s) { throw; }
 		while (true) {
 			if (match(TokenType::openParenthesis)) {
-				try { ex = completeCall(ex, isConstructor); }
-				catch (SyntaxError & s) { throw; }
+				try {
+					ex = completeCall(ex, isConstructor);
+					isConstructor = false;
+				} catch (SyntaxError & s) { throw; }
 			} else if (match(TokenType::dot)) {
 				try {
 					Token * name = new Token(

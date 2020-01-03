@@ -98,8 +98,8 @@ namespace Spin {
 			case BasicType::ArrayType: return "Array";
 			case BasicType::VectorType: return "Vector";
 			case BasicType::FunctionType: return "Function";
-			case BasicType::ClassType: return "Object Definition";
-			case BasicType::InstanceType: return "Object Instance";
+			case BasicType::ClassType: return "Definition";
+			case BasicType::InstanceType: return "Instance";
 			case BasicType::UnknownType: default: return "Unknown";
 		}
 	}
