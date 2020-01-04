@@ -57,6 +57,9 @@ for one statement (`if (true) { i += 1; }` -> `if (true) i += 1;`).
 
 Function identifiers should be camelCased and Objects TitleCased.
 
+Never use ++ or -- since it slows down the execution.
+Use instead += 1 or -= 1.
+
 ## Documentation Conventions
 
 Always write documentation (if needed) for your code
