@@ -537,8 +537,9 @@ namespace Spin {
 		public:
 		Expression * object = nullptr;
 		Token * name = nullptr;
+		Token * equals = nullptr;
 		Expression * value = nullptr;
-		Set(Expression * o, Token * n, Expression * v);
+		Set(Expression * o, Token * n, Expression * v, Token * e);
 		Object * accept(Visitor * visitor) override;
 		~Set();
 	};
@@ -934,7 +935,7 @@ namespace Spin {
 	};
 
 	/* Class */
-	class UndefinedException: public Exception { };
+
 	class Class: public CallProtocol {
 		public:
 		String name;
@@ -946,9 +947,9 @@ namespace Spin {
 	};
 	class Instance {
 		private:
-		Class * type = nullptr;
 		Dictionary<String, Object *> * fields = nullptr;
 		public:
+		Class * type = nullptr;
 		Instance(Class * t);
 		Instance(Class * t, Dictionary<String, Object *> * f);
 		Object * getReference(String & name);
@@ -2626,17 +2627,6 @@ namespace Spin {
 		Object * applyMinor(Token * t, Object * l, Object * r);
 		Object * applyMinorEqual(Token * t, Object * l, Object * r);
 		Dictionary<BasicTypes, AssignmentHandler> pureAssignment = {
-			{
-				// TODO: Maybe they don't have same type of definition...
-				// we should check and make sure they do...
-				compose(BasicType::InstanceType, BasicType::InstanceType),
-				[] (Object * l, Object * r) {
-					Instance * a = (Instance *) l -> value;
-					Instance * b = (Instance *) r -> value;
-					Instance * c = b -> copy();
-					* a = * c; delete c;
-				}
-			},
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) {

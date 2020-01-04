@@ -42,7 +42,7 @@ namespace Spin {
 				return new Assignment(name, value, equals);
 			} else if (ex -> isInstanceOf<Get>()) {
 				Get * get = (Get *) ex;
-				return new Set(get -> object, get -> name, value);
+				return new Set(get -> object, get -> name, value, equals);
 			}
 			if (value) delete value;
 			delete ex;
@@ -507,6 +507,7 @@ namespace Spin {
 				case TokenType::restKeyword: st = restStatement(); break;
 				case TokenType::returnKeyword: st = returnStatement(); break;
 				case TokenType::deleteKeyword: st = deleteStatement(); break;
+				case TokenType::semicolon: advance(); st = new RestStatement(); break;
 				default: st = expressionStatement(); break;
 			}
 		} catch (SyntaxError & s) { throw; }

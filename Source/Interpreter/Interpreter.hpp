@@ -104,12 +104,16 @@ namespace Spin {
 			}
 			function = (CallProtocol *)(callee -> value);
 			if (function -> isInstanceOf<Class>()) {
-				if (!e -> isConstructor)	{
+				if (!e -> isConstructor) {
 					throw EvaluationError(
 						"Invalid constructor call missing 'new' keyword!",
 						* e -> parenthesis
 					);
 				}
+				// Need a reference instead of a copy of the definition:
+				String name = ((Class *) callee -> value) -> name;
+				delete callee; callee = memory -> getReference(name);
+				function = (CallProtocol *)(callee -> value);
 			} else if (e -> isConstructor) {
 				throw EvaluationError(
 					"Function call forbids unnecessary 'new' keyword!",
@@ -152,10 +156,12 @@ namespace Spin {
 			object = evaluateExpression(e -> object);
 			if (object -> type == BasicType::InstanceType) {
 				try {
-					return ((Instance *) object -> value) -> getValue(
+					Object * value = ((Instance *) object -> value) -> getValue(
 						e -> name -> lexeme
 					);
-				} catch (UndefinedException & u) {
+					delete object;
+					return value;
+				} catch (VariableNotFoundException & u) {
 					throw EvaluationError(
 						"The resolved object does not contain any property named '" +
 						e -> name -> lexeme + "'!", * e -> name
@@ -296,7 +302,6 @@ namespace Spin {
 		return nullptr;
 	}
 	Object * Interpreter::visitSetExpression(Set * e) {
-		/* Work in progress */
 		Object * object = nullptr;
 		Object * value = nullptr;
 		try {
@@ -308,7 +313,19 @@ namespace Spin {
 				);
 			}
 			value = evaluateExpression(e -> value);
-			// TODO: finish this.
+			Object * field = nullptr;
+			try {
+				field = ((Instance *) object -> value) -> getReference(
+					e -> name -> lexeme
+				);
+			} catch (VariableNotFoundException & u) {
+				throw EvaluationError(
+					"The resolved object does not contain any property named '" +
+					e -> name -> lexeme + "'!", * e -> name
+				);
+			}
+			CPU -> applyAssignment(e -> equals, field, value);
+			return value;
 		} catch (Exception & exc) {
 			if (object) delete object;
 			if (value) delete value;
@@ -586,30 +603,58 @@ namespace Spin {
 	}
 	void Interpreter::visitVariableStatement(VariableStatement * e) {
 		Object * expression = nullptr;
+		Object * definition = nullptr;
+		Object * instance = nullptr;
+		CallProtocol * constructor = nullptr;
 		try {
-			if (e -> initialiser) {
-				expression = evaluateExpression(e -> initialiser);
-				Object * o = new Object(e -> type);
-				CPU -> applyAssignment(e -> equal, o, expression);
-				delete expression; expression = o;
-			} else if (e -> object) {
-				Object * o = nullptr;
-				try { o = memory -> getValue(e -> object -> lexeme); }
+			if (e -> object) {
+				// This is the class definition:
+				try { definition = memory -> getReference(e -> object -> lexeme); }
 				catch (Exception & oex) {
 					throw EvaluationError(
 						"Object definition not found!", * e -> object
 					);
 				}
-				Instance * i = new Instance((Class *)o -> value);
-				expression = new Object(e -> type, i);
-			} else expression = new Object(e -> type);
+				// Empty instance from class definition:
+				instance = new Object(
+					BasicType::InstanceType,
+					new Instance((Class *)definition -> value)
+				);
+				if (e -> initialiser) {
+					// This returns a new instance with the specified definition.
+					expression = evaluateExpression(e -> initialiser);
+					// This should work if the definitions are compatible.
+					CPU -> applyAssignment(e -> equal, instance, expression);
+					delete expression; expression = instance;
+				} else {
+					// Call the default constructor:
+					constructor = (CallProtocol *)(definition -> value);
+					expression = constructor -> call(this, Array<Object *>(), e -> name);
+					// Manual copy of instance:
+					Instance * a = (Instance *) instance -> value;
+					Instance * b = (Instance *) expression -> value;
+					Instance * c = b -> copy();
+					* a = * c; delete c;
+					delete expression; expression = instance;
+				}
+			} else {
+				// Normal variables:
+				if (e -> initialiser) {
+					expression = evaluateExpression(e -> initialiser);
+					Object * o = new Object(e -> type);
+					CPU -> applyAssignment(e -> equal, o, expression);
+					delete expression; expression = o;
+				} else expression = new Object(e -> type);
+			}
 		} catch (Exception & exc) {
 			if (expression) delete expression;
+			if (instance) delete instance;
 			throw;
 		}
 		try {
 			memory -> define(e -> name -> lexeme, expression);
 		} catch (VariableRedefinitionException & r) {
+			if (expression) delete expression;
 			throw EvaluationError(
 				"Variable redefinition! The identifier '" +
 				e -> name -> lexeme + "' was already declared with type '" +

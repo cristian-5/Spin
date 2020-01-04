@@ -154,14 +154,14 @@ namespace Spin {
 	}
 	Outer::~Outer() { delete outer; }
 		
-	Set::Set(Expression * o, Token * n, Expression * v) {
-		object = o; name = n; value = v;
+	Set::Set(Expression * o, Token * n, Expression * v, Token * e) {
+		object = o; name = n; value = v; equals = e;
 	}
 	Object * Set::accept(Visitor * visitor) {
 		try { return visitor -> visitSetExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Set::~Set() { delete object; delete name; delete value; }
+	Set::~Set() { delete object; delete name; delete value; delete equals; }
 
 	Subscript::Subscript(Expression * i, Token * b, Expression * e) {
 		bracket = b; item = i; expression = e;

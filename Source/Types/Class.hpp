@@ -48,14 +48,14 @@ namespace Spin {
 		if (search != fields -> end()) {
 			return search -> second;
 		}
-		throw UndefinedException();
+		throw VariableNotFoundException();
 	}
 	Object * Instance::getValue(String & name) {
 		auto search = fields -> find(name);
 		if (search != fields -> end()) {
 			return (search -> second) -> copy();
 		}
-		throw UndefinedException();
+		throw VariableNotFoundException();
 	}
 	String Instance::stringValue() const {
 		if (!type) return "<empty>";

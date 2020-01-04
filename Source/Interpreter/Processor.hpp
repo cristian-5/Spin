@@ -653,6 +653,19 @@ namespace Spin {
 	}
 	void Processor::applyAssignment(Token * t, Object * l, Object * r) {
 		if (l -> type == r -> type) {
+			if (l -> type == BasicType::InstanceType) {
+				Instance * a = (Instance *) l -> value;
+				Instance * b = (Instance *) r -> value;
+				if (a -> type != b -> type) {
+					throw EvaluationError(
+						"Assignment operator '" + t -> lexeme + "' doesn't support types '" +
+						a -> stringValue() + "' and '" +
+						b -> stringValue() + "' generated from different class definitions!", * t
+					);
+				}
+				Instance * c = b -> copy();
+				* a = * c; delete c; return;
+			}
 			auto search = pureAssignment.find(compose(l -> type, r -> type));
 			if (search != pureAssignment.end()) {
 				auto handler = search -> second;
