@@ -12,7 +12,6 @@ Spin offers a wide variety of literals:
 |   **Integer** | Integer Number   | `67` `0x5F` `0d16` `0b1010` `0o76`   |
 |    **String** | String           | `"hello world"` `"\t tab"`           |
 | **Character** | Character        | `'a'` `'A'` `'$'` `'\n'` `'\0xB2'`   |
-|    **Colour** | RGBA Colour      | `#fff` `#f03a` `#fada00` `#f00ab2ff` |
 |      **Bool** | Bool Value       | `true` `false`                       |
 |      **Null** | Null Value       | `null`                               |
 |    **Vector** | Quantum Basis    | `<0|` `<1|`                          |

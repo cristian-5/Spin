@@ -137,16 +137,6 @@ namespace Spin {
 			catch (EvaluationError & e) { throw; }
 			delete temp; return;
 		}
-		if (l -> type == BasicType::ColourType &&
-			r -> type == BasicType::ColourType) {
-			Colour * a = (Colour *) l -> value;
-			Colour * b = (Colour *) r -> value;
-			Colour * c = new Colour((* a) % (* b));
-			Object * temp = new Object(BasicType::ColourType, c);
-			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
-			delete temp; return;
-		}
 		throw EvaluationError(
 			"Binary operator '%=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
@@ -316,14 +306,6 @@ namespace Spin {
 			}
 			Int64 * c = new Int64((* a) % (* b));
 			return new Object(BasicType::IntegerType, c);
-		}
-		if (l -> type == BasicType::ColourType &&
-			r -> type == BasicType::ColourType) {
-			Colour * a = (Colour *) l -> value;
-			Colour * b = (Colour *) r -> value;
-			Colour * c = new Colour((* a) % (* b));
-			return new Object(BasicType::ColourType, c);
-			
 		}
 		throw EvaluationError(
 			"Binary operator '%' doesn't support operands of type '" +

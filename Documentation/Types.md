@@ -18,7 +18,6 @@ contain methods and properties.
 |--------------:|----------|:----------------:|
 |      **Bool** |  1 Byte  | Bool Value       |
 | **Character** |  1 Byte  | Character        |
-|    **Colour** |  4 Bytes | RGBA Colour      |
 
 ### Real Number Types
 

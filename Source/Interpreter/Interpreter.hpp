@@ -399,21 +399,45 @@ namespace Spin {
 		broken = true;
 	}
 	void Interpreter::visitClassStatement(ClassStatement * e) {
-		try {
-			memory -> define(
-				e -> name -> lexeme,
-				new Object(
-					BasicType::ClassType,
-					new Class(e -> name -> lexeme)
-				)
-			);
-		} catch (VariableRedefinitionException & r) {
-			throw EvaluationError(
-				"Object redefinition! The object '" +
-				e -> name -> lexeme + "' was already declared with type '" +
-				r.getType() + "'!", * e -> name
-			);
-		} catch (Exception & exc) { throw; }
+		/*try {
+			Dictionary<String, CallProtocol *> methods = Dictionary<String, CallProtocol *>();
+			String name;
+			for (FunctionStatement * f : * e -> functions) {
+				Function * function = new Function(f, memory);
+				name = f -> name -> lexeme;
+				auto search = methods.find(name);
+				if (search != methods.end()) {
+					throw VariableRedefinitionException(
+						(search -> second) -> getObjectName()
+					);
+				} else methods.insert({ name, function });
+			}
+			for (ProcedureStatement * p : * e -> procedures) {
+				Procedure * procedure = new Procedure(p, memory);
+				methods -> push(procedure);
+			}
+			try {
+				memory -> define(
+					e -> name -> lexeme,
+					new Object(
+						BasicType::ClassType,
+						new Class(e -> name -> lexeme, methods)
+					)
+				);
+			} catch (VariableRedefinitionException & r) {
+				for (CallProtocol * c : * methods) delete c;
+				delete methods;
+				throw EvaluationError(
+					"Object redefinition! The object '" +
+					e -> name -> lexeme + "' was already declared with type '" +
+					r.getType() + "'!", * e -> name
+				);
+			}
+		} catch (Exception & exc) {
+			for (CallProtocol * c : * methods) delete c;
+			delete methods;
+			throw;
+		}*/
 	}
 	void Interpreter::visitContinueStatement(ContinueStatement * e) {
 		continued = true;
@@ -493,7 +517,14 @@ namespace Spin {
 	void Interpreter::visitFunctionStatement(FunctionStatement * e) {
 		try {
 			Object * function = new Object(BasicType::FunctionType, new Function(e, memory));
-			memory -> define(e -> name -> lexeme, function);
+			try { memory -> define(e -> name -> lexeme, function); }
+			catch (VariableRedefinitionException & r) {
+				if (function) delete function;
+				throw EvaluationError(
+					"Function redefinition! The object '" +
+					e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+				);
+			}
 		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitIfStatement(IfStatement * e) {
@@ -539,7 +570,14 @@ namespace Spin {
 	void Interpreter::visitProcedureStatement(ProcedureStatement * e) {
 		try {
 			Object * procedure = new Object(BasicType::FunctionType, new Procedure(e, memory));
-			memory -> define(e -> name -> lexeme, procedure);
+			try { memory -> define(e -> name -> lexeme, procedure); }
+			catch (VariableRedefinitionException & r) {
+				if (procedure) delete procedure;
+				throw EvaluationError(
+					"Procedure redefinition! The object '" +
+					e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+				);
+			}
 		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitRepeatUntilStatement(RepeatUntilStatement * e) {
@@ -610,7 +648,7 @@ namespace Spin {
 			if (e -> object) {
 				// This is the class definition:
 				try { definition = memory -> getReference(e -> object -> lexeme); }
-				catch (Exception & oex) {
+				catch (VariableNotFoundException & oex) {
 					throw EvaluationError(
 						"Object definition not found!", * e -> object
 					);

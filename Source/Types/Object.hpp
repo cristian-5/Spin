@@ -30,7 +30,6 @@ namespace Spin {
 			case BasicType::CharacterType: value = new Character(0); return;
 			case BasicType::ByteType: value = new UInt8(0); return;
 			case BasicType::IntegerType: value = new Int64(0); return;
-			case BasicType::ColourType: value = new Colour(); return;
 			case BasicType::RealType: value = new Real(0.0); return;
 			case BasicType::ImaginaryType: value = new Real(0.0); return;
 			case BasicType::ComplexType: value = new Complex(); return;
@@ -51,7 +50,6 @@ namespace Spin {
 			case BasicType::CharacterType: delete (Character *) value; return;
 			case BasicType::ByteType: delete (UInt8 *) value; return;
 			case BasicType::IntegerType: delete (Int64 *) value; return;
-			case BasicType::ColourType: delete (Colour *) value; return;
 			case BasicType::RealType: delete (Real *) value; return;
 			case BasicType::ImaginaryType: delete (Real *) value; return;
 			case BasicType::ComplexType: delete (Complex *) value; return;
@@ -82,7 +80,6 @@ namespace Spin {
 	}
 	inline Bool Object::isBool() const { return type == BasicType::BoolType; }
 	inline Bool Object::isString() const { return type == BasicType::StringType; }
-	inline Bool Object::isColour() const { return type == BasicType::ColourType; }
 	inline Bool Object::isCharacter() const { return type == BasicType::CharacterType; }
 	String Object::getObjectName() const {
 		switch (type) {
@@ -90,7 +87,6 @@ namespace Spin {
 			case BasicType::CharacterType: return "Character";
 			case BasicType::ByteType: return "Byte";
 			case BasicType::IntegerType: return "Integer";
-			case BasicType::ColourType: return "Colour";
 			case BasicType::RealType: return "Real";
 			case BasicType::ImaginaryType: return "Imaginary";
 			case BasicType::ComplexType: return "Complex";
@@ -111,7 +107,6 @@ namespace Spin {
 			case BasicType::CharacterType: copy -> value = new Character(* ((Character *) value)); break;
 			case BasicType::ByteType: copy -> value = new UInt8(* ((UInt8 *) value)); break;
 			case BasicType::IntegerType: copy -> value = new Int64(* ((Int64 *) value)); break;
-			case BasicType::ColourType: copy -> value = new Colour(* ((Colour *) value)); break;
 			case BasicType::RealType: copy -> value = new Real(* ((Real *) value)); break;
 			case BasicType::ImaginaryType: copy -> value = new Real(* ((Real *) value)); break;
 			case BasicType::ComplexType: copy -> value = new Complex(* ((Complex *) value)); break;
@@ -143,10 +138,6 @@ namespace Spin {
 			case BasicType::IntegerType: {
 				Int64 * i = (Int64 *) value;
 				return intToString(* i);
-			}
-			case BasicType::ColourType: {
-				Colour * c = (Colour *) value;
-				return c -> stringValue();
 			}
 			case BasicType::RealType: {
 				Real * i = (Real *) value;

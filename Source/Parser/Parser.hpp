@@ -737,27 +737,31 @@ namespace Spin {
 		Bool oldFunction = isInFunction;
 		isInFunction = false;
 		Token * name = nullptr;
-		Array<CallProtocol *> * methods = nullptr;
+		Array<FunctionStatement *> * f = new Array<FunctionStatement *>();
+		Array<ProcedureStatement *> * p = new Array<ProcedureStatement *>();
 		try {
 			name = new Token(consume(TokenType::customType, "identifier"));
 			consume(TokenType::openBrace, "{");
-			methods = new Array<CallProtocol *>();
 			while (!check(TokenType::closeBrace) && !isAtEnd()) {
-				methods -> push(new Function(nullptr, nullptr));
+				// Try to parse a function or a procedure or a variable
 			}
 			consume(TokenType::closeBrace, "}");
 		} catch (SyntaxError & s) {
 			if (name) delete name;
-			if (methods) {
-				for (CallProtocol * f : * methods) delete f;
-				delete methods;
+			if (f) {
+				for (FunctionStatement * func : * f) delete func;
+				delete f;
+			}
+			if (p) {
+				for (ProcedureStatement * proc : * p) delete proc;
+				delete p;
 			}
 			throw;
 		}
 		isInControlFlow = oldControlFlow;
 		isInProcedure = oldProcedure;
 		isInFunction = oldFunction;
-		return new ClassStatement(name, methods);
+		return new ClassStatement(name, f, p);
 	}
 	Statement * Parser::forStatement() {
 		Bool oldControlFlow = isInControlFlow;

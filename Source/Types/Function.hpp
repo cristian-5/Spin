@@ -117,9 +117,6 @@ namespace Spin {
 		return new Procedure(* this);
 	}
 
-	NativeFunction::NativeFunction(NativeLambda l, Array<Parameter *> * p) {
-		lambda = l; params = p;
-	}
 	NativeFunction::NativeFunction(NativeLambda l, Array<Parameter *> * p, String n) {
 		lambda = l; params = p; name = n;
 	}

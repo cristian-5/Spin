@@ -82,7 +82,6 @@ namespace Spin {
 		stringLiteral,
 		charLiteral,
 		boolLiteral,
-		colourLiteral,
 		emptyLiteral,
 
 		arrow,
@@ -219,8 +218,6 @@ namespace Spin {
 
 		RealType,
 
-		ColourType,
-
 		ImaginaryType,
 		ComplexType,
 
@@ -246,7 +243,6 @@ namespace Spin {
 	/* Converter */
 
 	class Object;
-	class Colour;
 	class CallProtocol;
 
 	class Converter {
@@ -269,7 +265,6 @@ namespace Spin {
 		static Real stringToReal(String & s);
 		static Real stringToImaginary(String & s);
 		static String escapeString(String & s);
-		static Colour stringToColour(String & s);
 		static Character escapeChar(String & s);
 		static BasicType typeFromString(String & s);
 	};
@@ -623,8 +618,11 @@ namespace Spin {
 	class ClassStatement: public Statement {
 		public:
 		Token * name = nullptr;
-		Array<CallProtocol *> * methods = nullptr;
-		ClassStatement(Token * n, Array<CallProtocol *> * m);
+		Array<FunctionStatement *> * functions = nullptr;
+		Array<ProcedureStatement *> * procedures = nullptr;
+		ClassStatement(Token * n,
+					   Array<FunctionStatement *> * f,
+					   Array<ProcedureStatement *> * p);
 		void accept(Visitor * visitor) override;
 		~ClassStatement();
 	};
@@ -800,7 +798,6 @@ namespace Spin {
 		inline Bool isNumericType() const;
 		inline Bool isBool() const;
 		inline Bool isString() const;
-		inline Bool isColour() const;
 		inline Bool isCharacter() const;
 		String getObjectName() const;
 		Object * copy() const;
@@ -811,31 +808,6 @@ namespace Spin {
 		Bool isArray() const;
 		Bool isSubscriptable() const;
 		Bool getBoolValue() const;
-	};
-
-	/* Colour */
-
-	class Colour {
-		private:
-		static String valueToHex(UInt8 value);
-		public:
-		UInt8 r = 0;
-		UInt8 g = 0;
-		UInt8 b = 0;
-		UInt8 a = 255;
-		Colour(UInt8 r, UInt8 g, UInt8 b, UInt8 a = 255);
-		Colour(UInt32 rgba);
-		Colour() = default;
-		UInt32 colorValue();
-		Colour operator ~ () const;
-		Bool operator == (Colour c) const;
-		Bool operator != (Colour c) const;
-		Colour operator + (Colour r) const;
-		Colour operator - (Colour r) const;
-		Colour operator * (Colour r) const;
-		Colour operator / (Colour r) const;
-		Colour operator % (Colour r) const;
-		String stringValue() const;
 	};
 
 	/* Complex */
@@ -923,9 +895,8 @@ namespace Spin {
 		private:
 		Array<Parameter *> * params = nullptr;
 		NativeLambda lambda = nullptr;
-		String name = "<native>";
+		String name;
 		public:
-		NativeFunction(NativeLambda l, Array<Parameter *> * p);
 		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n);
 		~NativeFunction() = default;
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
@@ -1115,14 +1086,6 @@ namespace Spin {
 				}
 			},
 			{
-				BasicType::ColourType,
-				[] (Object * o) -> Object * {
-					Colour * c = (Colour *) o -> value;
-					c = new Colour(~(* c));
-					return new Object(o -> type, c);
-				}
-			},
-			{
 				BasicType::IntegerType,
 				[] (Object * o) -> Object * {
 					Int64 * i = (Int64 *) o -> value;
@@ -1223,15 +1186,6 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::ColourType, BasicType::ColourType),
-				[] (Object * l, Object * r) -> Object * {
-					Colour * a = (Colour *) l -> value;
-					Colour * b = (Colour *) r -> value;
-					Colour * c = new Colour((* a) + (* b));
-					return new Object(BasicType::ColourType, c);
-				}
-			},
-			{
 				compose(BasicType::CharacterType, BasicType::CharacterType),
 				[] (Object * l, Object * r) -> Object * {
 					Character * a = (Character *) l -> value;
@@ -1299,15 +1253,6 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::StringType, BasicType::ColourType),
-				[] (Object * l, Object * r) -> Object * {
-					String * a = (String *) l -> value;
-					Colour * b = (Colour *) r -> value;
-					String * c = new String((* a) + b -> stringValue());
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
 				compose(BasicType::StringType, BasicType::ComplexType),
 				[] (Object * l, Object * r) -> Object * {
 					String * a = (String *) l -> value;
@@ -1351,15 +1296,6 @@ namespace Spin {
 					Int64 * a = (Int64 *) l -> value;
 					String * b = (String *) r -> value;
 					String * c = new String(intToString(* a) + (* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::ColourType, BasicType::StringType),
-				[] (Object * l, Object * r) -> Object * {
-					Colour * a = (Colour *) l -> value;
-					String * b = (String *) r -> value;
-					String * c = new String(a -> stringValue() + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1602,15 +1538,6 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::ColourType, BasicType::ColourType),
-				[] (Object * l, Object * r) -> Object * {
-					Colour * a = (Colour *) l -> value;
-					Colour * b = (Colour *) r -> value;
-					Colour * c = new Colour((* a) * (* b));
-					return new Object(BasicType::ColourType, c);
-				}
-			},
-			{
 				compose(BasicType::ImaginaryType, BasicType::RealType),
 				[] (Object * l, Object * r) -> Object * {
 					Real * a = (Real *) l -> value;
@@ -1809,15 +1736,6 @@ namespace Spin {
 					if ((* b) == 0) return nullptr;
 					Character * c = new Character((* a) / (UInt8)(* b));
 					return new Object(BasicType::CharacterType, c);
-				}
-			},
-			{
-				compose(BasicType::ColourType, BasicType::ColourType),
-				[] (Object * l, Object * r) -> Object * {
-					Colour * a = (Colour *) l -> value;
-					Colour * b = (Colour *) r -> value;
-					Colour * c = new Colour((* a) / (* b));
-					return new Object(BasicType::ColourType, c);
 				}
 			},
 			{
@@ -2025,15 +1943,6 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
-					Bool * c = new Bool((* a) == (* b));
-					return new Object(BasicType::BoolType, c);
-				}
-			},
-			{
-				compose(BasicType::ColourType, BasicType::ColourType),
-				[] (Object * l, Object * r) -> Object * {
-					Colour * a = (Colour *) l -> value;
-					Colour * b = (Colour *) r -> value;
 					Bool * c = new Bool((* a) == (* b));
 					return new Object(BasicType::BoolType, c);
 				}
@@ -2697,15 +2606,7 @@ namespace Spin {
 					delete (Vector *) l -> value;
 					l -> value = ((Vector *) r -> value) -> copy();
 				}
-			},
-			{
-				compose(BasicType::ColourType, BasicType::ColourType),
-				[] (Object * l, Object * r) {
-					Colour * a = (Colour *) l -> value;
-					Colour * b = (Colour *) r -> value;
-					* a = * b;
-				}
-			},
+			}
 		};
 		Dictionary<BasicTypes, AssignmentHandler> mixedAssignment = {
 			{
@@ -2835,14 +2736,6 @@ namespace Spin {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Complex * b = (Complex *) r -> value;
-					* a = b -> stringValue();
-				}
-			},
-			{
-				compose(BasicType::StringType, BasicType::ColourType),
-				[] (Object * l, Object * r) {
-					String * a = (String *) l -> value;
-					Colour * b = (Colour *) r -> value;
 					* a = b -> stringValue();
 				}
 			},
@@ -3036,7 +2929,6 @@ namespace Spin {
 			{ Regex("^((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))"), TokenType::intLiteral },
 			{ Regex("^(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")"), TokenType::stringLiteral },
 			{ Regex("^('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')"), TokenType::charLiteral },
-			{ Regex("^(#[A-Fa-f0-9]{6}(?:[A-Fa-f0-9][A-Fa-f0-9])?|#[A-Fa-f0-9]{3,4})\\b"), TokenType::colourLiteral },
 			{ Regex("^(false|true)\\b"), TokenType::boolLiteral },
 
 			{ Regex("^(<[01]\\|)"), TokenType::basisBraLiteral },
@@ -3129,7 +3021,7 @@ namespace Spin {
 			{ Regex("^(rest)\\b"), TokenType::restKeyword },
 			{ Regex("^(return)\\b"), TokenType::returnKeyword },
 
-			{ Regex("^(Bool|Byte|Character|Colour|Complex|Imaginary|Integer|Measurement|Real|String|Vector)\\b"), TokenType::basicType },
+			{ Regex("^(Bool|Byte|Character|Complex|Imaginary|Integer|Measurement|Real|String|Vector)\\b"), TokenType::basicType },
 
 			{ Regex("^([A-Za-z_][A-Za-z0-9_]*)\\b"), TokenType::symbol },
 
