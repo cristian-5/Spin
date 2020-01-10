@@ -160,15 +160,19 @@ namespace Spin {
 		printKeyword,
 
 		importKeyword,
+
 		funcKeyword,
 		procKeyword,
-		staticKeyword,
+
 		classKeyword,
-		structKeyword,
-		enumKeyword,
-		privateKeyword,
-		publicKeyword,
-		constKeyword,
+
+		publicModifier,
+		hiddenModifier,
+		secureModifier,
+
+		createSpecifier,
+		deleteSpecifier,
+
 		returnKeyword,
 		restKeyword,
 
@@ -3003,17 +3007,22 @@ namespace Spin {
 			{ Regex("^(delete)\\b"), TokenType::deleteKeyword },
 
 			{ Regex("^(import)\\b"), TokenType::importKeyword },
+
 			{ Regex("^(func)\\b"), TokenType::funcKeyword },
 			{ Regex("^(proc)\\b"), TokenType::procKeyword },
-			{ Regex("^(static)\\b"), TokenType::staticKeyword },
+
 			{ Regex("^(class)\\b"), TokenType::classKeyword },
-			{ Regex("^(enumerator)\\b"), TokenType::enumKeyword },
-			{ Regex("^(structure)\\b"), TokenType::structKeyword },
-			{ Regex("^(private)\\b"), TokenType::privateKeyword },
-			{ Regex("^(public)\\b"), TokenType::publicKeyword },
+			
+			{ Regex("^(@(?:public))\\b"), TokenType::publicModifier },
+			{ Regex("^(@(?:hidden))\\b"), TokenType::hiddenModifier },
+			{ Regex("^(@(?:secure))\\b"), TokenType::secureModifier },
+
+			{ Regex("^(@(?:create))\\b"), TokenType::createSpecifier },
+			{ Regex("^(@(?:delete))\\b"), TokenType::deleteSpecifier },
+
 			{ Regex("^(ref)\\b"), TokenType::refKeyword },
 			{ Regex("^(cpy)\\b"), TokenType::cpyKeyword },
-			{ Regex("^(const)\\b"), TokenType::constKeyword },
+
 			{ Regex("^(empty)\\b"), TokenType::emptyLiteral },
 			{ Regex("^(rest)\\b"), TokenType::restKeyword },
 			{ Regex("^(return)\\b"), TokenType::returnKeyword },
