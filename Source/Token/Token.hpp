@@ -38,8 +38,7 @@ namespace Spin {
 		return type == TokenType::basicType;
 	}
 	Bool Token::isTypeType() const {
-		return type >= TokenType::classKeyword &&
-			   type <= TokenType::structKeyword;
+		return type == TokenType::classKeyword;
 	}
 	Bool Token::isTypeBraKet() const {
 		return type >= TokenType::braketSymbol &&
