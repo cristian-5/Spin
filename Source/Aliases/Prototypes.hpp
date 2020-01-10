@@ -70,7 +70,6 @@ namespace Spin {
 
 		braketSymbol,
 		braSymbol,
-		measureSymbol,
 		ketSymbol,
 		ketbraSymbol,
 
@@ -2765,7 +2764,6 @@ namespace Spin {
 		void applyAssignment(Token * t, Object * l, Object * r);
 		void applyVectorAssignment(Token * t, Object * l, Object * r);
 		void applyMutableAssignment(Token * t, Object * l, Object * r);
-
 		Object * applyInnerProduct(Token * t, Object * l, Object * r);
 		Object * applyOuterProduct(Token * t, Object * l, Object * r);
 	};
@@ -2934,7 +2932,6 @@ namespace Spin {
 			{ Regex("^(<[01]\\|)"), TokenType::basisBraLiteral },
 			{ Regex("^(\\|[01]>)"), TokenType::basisKetLiteral },
 
-			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::measureSymbol },
 			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::braketSymbol },
 			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::braSymbol },
 			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*><[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::ketbraSymbol },
@@ -3021,7 +3018,7 @@ namespace Spin {
 			{ Regex("^(rest)\\b"), TokenType::restKeyword },
 			{ Regex("^(return)\\b"), TokenType::returnKeyword },
 
-			{ Regex("^(Bool|Byte|Character|Complex|Imaginary|Integer|Measurement|Real|String|Vector)\\b"), TokenType::basicType },
+			{ Regex("^(Bool|Byte|Character|Complex|Imaginary|Integer|Real|String|Vector)\\b"), TokenType::basicType },
 
 			{ Regex("^([A-Za-z_][A-Za-z0-9_]*)\\b"), TokenType::symbol },
 
