@@ -173,20 +173,13 @@ namespace Spin {
 	Subscript::~Subscript() {
 		delete bracket; delete item; delete expression;
 	}
-		
-	Super::Super(Token * k, Token * m) { keyword = k; method = m; }
-	Object * Super::accept(Visitor * visitor) {
-		try { return visitor -> visitSuperExpression(this); }
+	
+	Self::Self(Token * k) { keyword = k; }
+	Object * Self::accept(Visitor * visitor) {
+		try { return visitor -> visitSelfExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Super::~Super() { delete keyword; delete method; }
-		
-	This::This(Token * k) { keyword = k; }
-	Object * This::accept(Visitor * visitor) {
-		try { return visitor -> visitThisExpression(this); }
-		catch (Exception & e) { throw; }
-	}
-	This::~This() { delete keyword; }
+	Self::~Self() { delete keyword; }
 		
 	Unary::Unary(Token * op, Expression * rs) { o = op; r = rs; }
 	Object * Unary::accept(Visitor * visitor) {
