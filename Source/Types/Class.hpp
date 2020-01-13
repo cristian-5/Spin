@@ -44,8 +44,12 @@ namespace Spin {
 		type = t;
 	}
 	Object * Instance::getReference(String & name) {
+		// TODO: create a function to edit the variable
+		//       from the inside of the class.
 		auto search = fields -> find(name);
 		if (search != fields -> end()) {
+			// TODO: Only if field is
+			//       accessible (@public):
 			return search -> second;
 		}
 		throw VariableNotFoundException();
@@ -53,6 +57,8 @@ namespace Spin {
 	Object * Instance::getValue(String & name) {
 		auto search = fields -> find(name);
 		if (search != fields -> end()) {
+			// TODO: Only if field is
+			//       accessible (not @hidden):
 			return (search -> second) -> copy();
 		}
 		throw VariableNotFoundException();
@@ -65,6 +71,7 @@ namespace Spin {
 		return new Instance(type, fields);
 	}
 	void Instance::destroy() {
+		// TODO: Need to destroy every variable man...
 		delete fields;
 	}
 
