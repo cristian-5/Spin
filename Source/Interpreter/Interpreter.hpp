@@ -90,7 +90,6 @@ namespace Spin {
 		try {
 			callee = evaluateExpression(e -> callee);
 			for (Expression * a : * e -> arguments) {
-				// TODO: push reference if ref keyword
 				Object * evaluation = evaluateExpression(a);
 				arguments.push(evaluation -> copy());
 				delete evaluation;
@@ -357,8 +356,7 @@ namespace Spin {
 			throw;
 		}
 	}
-	Object * Interpreter::visitSuperExpression(Super * e) { return nullptr; }
-	Object * Interpreter::visitThisExpression(This * e) { return nullptr; }
+	Object * Interpreter::visitSelfExpression(Self * e) { return nullptr; }
 	Object * Interpreter::visitUnaryExpression(Unary * e) {
 		Object * expression = nullptr;
 		Object * result = nullptr;

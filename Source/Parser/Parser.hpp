@@ -618,8 +618,6 @@ namespace Spin {
 					Parameter * p = new Parameter();
 					p -> name = new Token(consume(TokenType::symbol, "identifier"));
 					consume(TokenType::colon, ":");
-					if (match(TokenType::refKeyword)) p -> reference = true;
-					else if (match(TokenType::cpyKeyword)) p -> reference = false;
 					stringType = typeString();
 					if (!stringType) {
 						Token er = peek();
@@ -690,8 +688,6 @@ namespace Spin {
 					Parameter * p = new Parameter();
 					p -> name = new Token(consume(TokenType::symbol, "identifier"));
 					consume(TokenType::colon, ":");
-					if (match(TokenType::refKeyword)) p -> reference = true;
-					else if (match(TokenType::cpyKeyword)) p -> reference = false;
 					stringType = typeString();
 					if (!stringType) {
 						Token er = peek();
