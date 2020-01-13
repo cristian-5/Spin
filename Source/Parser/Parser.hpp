@@ -396,7 +396,8 @@ namespace Spin {
 
 	/* Statements */
 
-	String * Parser::typeString() {
+	String * Parser::typeString(Bool current) {
+		if (current) return new String(peek().lexeme);
 		return new String(previous().lexeme);
 	}
 	Statement * Parser::declaration() {
@@ -618,17 +619,10 @@ namespace Spin {
 					Parameter * p = new Parameter();
 					p -> name = new Token(consume(TokenType::symbol, "identifier"));
 					consume(TokenType::colon, ":");
-					stringType = typeString();
-					if (!stringType) {
-						Token er = peek();
-						throw SyntaxError(
-							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getLine(currentUnit -> contents, er.position)
-						);
-					}
+					stringType = typeString(true);
 					p -> type = Converter::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
-					p -> tokenType = new Token(previous());
+					p -> tokenType = new Token(peekAdvance());
 					params -> push(p);
 				} while (match(TokenType::comma));
 			}
@@ -688,17 +682,10 @@ namespace Spin {
 					Parameter * p = new Parameter();
 					p -> name = new Token(consume(TokenType::symbol, "identifier"));
 					consume(TokenType::colon, ":");
-					stringType = typeString();
-					if (!stringType) {
-						Token er = peek();
-						throw SyntaxError(
-							"Expected type but found '" + er.lexeme + "'!",
-							Linker::getLine(currentUnit -> contents, er.position)
-						);
-					}
+					stringType = typeString(true);
 					p -> type = Converter::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
-					p -> tokenType = new Token(previous());
+					p -> tokenType = new Token(peekAdvance());
 					params -> push(p);
 				} while (match(TokenType::comma));
 			}

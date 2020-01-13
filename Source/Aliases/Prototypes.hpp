@@ -3103,7 +3103,7 @@ namespace Spin {
 		Expression * call();
 		Expression * completeCall(Expression * callee, Bool isConstructor);
 		Expression * primary();
-		String * typeString();
+		String * typeString(Bool current = false);
 		Statement * declaration();
 		Statement * variableDeclaration(String stringType, Bool isClass = false);
 		Statement * vectorDeclaration();
