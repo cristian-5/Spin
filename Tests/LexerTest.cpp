@@ -30,7 +30,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 	
 	Array<Token> * tokens = lexer -> tokenise(test);
 
-	Output << "Tokens: " << endLine;
+	Output << "Tokens: " << endLine << endLine;
+
 	UInt32 i = 1;
 	for (Token & token : * tokens) {
 		Output << padding << i << " | Type: ";
