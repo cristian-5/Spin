@@ -28,7 +28,7 @@ namespace Spin {
 	}
 	Bool Token::isTypeLiteral() const {
 		return type >= TokenType::intLiteral &&
-			   type <= TokenType::emptyLiteral;
+			   type <= TokenType::boolLiteral;
 	}
 	Bool Token::isTypeNumeral() const {
 		return type >= TokenType::intLiteral &&

@@ -136,10 +136,6 @@ namespace Spin {
 				o -> type = BasicType::ImaginaryType;
 				o -> value = new Real(stringToImaginary(t -> lexeme));
 			} break;
-			case TokenType::emptyLiteral: {
-				o -> type = BasicType::ClassType;
-				o -> value = nullptr;
-			} break;
 			case TokenType::basisBraLiteral: {
 				o -> type = BasicType::VectorType;
 				Bool state = (t -> lexeme)[1] == '0' ? 0 : 1;

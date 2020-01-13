@@ -81,7 +81,6 @@ namespace Spin {
 		stringLiteral,
 		charLiteral,
 		boolLiteral,
-		emptyLiteral,
 
 		arrow,
 		doublecolon,
@@ -156,6 +155,7 @@ namespace Spin {
 		untilKeyword,
 		breakKeyword,
 		continueKeyword,
+		selfKeyword,
 
 		printKeyword,
 
@@ -175,9 +175,6 @@ namespace Spin {
 
 		returnKeyword,
 		restKeyword,
-
-		refKeyword,
-		cpyKeyword,
 
 		newKeyword,
 		deleteKeyword,
@@ -317,8 +314,7 @@ namespace Spin {
 	class Outer;
 	class Set;
 	class Subscript;
-	class Super;
-	class This;
+	class Self;
 	class Unary;
 	class Identifier;
 
@@ -365,8 +361,7 @@ namespace Spin {
 			virtual Object * visitOuterExpression(Outer * e) = 0;
 			virtual Object * visitSetExpression(Set * e) = 0;
 			virtual Object * visitSubscriptExpression(Subscript * e) = 0;
-			virtual Object * visitSuperExpression(Super * e) = 0;
-			virtual Object * visitThisExpression(This * e) = 0;
+			virtual Object * visitSelfExpression(Self * e) = 0;
 			virtual Object * visitUnaryExpression(Unary * e) = 0;
 			virtual Object * visitIdentifierExpression(Identifier * e) = 0;
 		};
@@ -550,20 +545,12 @@ namespace Spin {
 		Object * accept(Visitor * visitor) override;
 		~Subscript();
 	};
-	class Super: public Expression {
+	class Self: public Expression {
 		public:
 		Token * keyword = nullptr;
-		Token * method = nullptr;
-		Super(Token * k, Token * m);
+		Self(Token * k);
 		Object * accept(Visitor * visitor) override;
-		~Super();
-	};
-	class This: public Expression {
-		public:
-		Token * keyword = nullptr;
-		This(Token * k);
-		Object * accept(Visitor * visitor) override;
-		~This();
+		~Self();
 	};
 	class Unary: public Expression {
 		public:
@@ -583,18 +570,18 @@ namespace Spin {
 
 	class Parameter {
 		public:
-		Bool reference = false;
 		BasicType type = BasicType::UnknownType;
 		Token * tokenType = nullptr;
 		Token * name = nullptr;
 		Parameter() = default;
-		Parameter(BasicType bt, Token * tt, Token * nm, Bool rf = false) {
-			type = bt; tokenType = tt; name = nm; reference = rf;
+		Parameter(BasicType bt, Token * tt, Token * nm) {
+			type = bt; tokenType = tt; name = nm;
 		}
 		Parameter * copy() const {
 			return new Parameter(
-				type, new Token(* tokenType),
-				new Token(* name), reference
+				type,
+				new Token(* tokenType),
+				new Token(* name)
 			);
 		}
 		~Parameter() {
@@ -2856,8 +2843,7 @@ namespace Spin {
 		Object * visitOuterExpression(Outer * e) override;
 		Object * visitSetExpression(Set * e) override;
 		Object * visitSubscriptExpression(Subscript * e) override;
-		Object * visitSuperExpression(Super * e) override;
-		Object * visitThisExpression(This * e) override;
+		Object * visitSelfExpression(Self * e) override;
 		Object * visitUnaryExpression(Unary * e) override;
 		Object * visitIdentifierExpression(Identifier * e) override;
 		Object * evaluateExpression(Expression * e);
@@ -3002,6 +2988,7 @@ namespace Spin {
 			{ Regex("^(until)\\b"), TokenType::untilKeyword },
 			{ Regex("^(break)\\b"), TokenType::breakKeyword },
 			{ Regex("^(continue)\\b"), TokenType::continueKeyword },
+			{ Regex("^(self)\\b"), TokenType::selfKeyword },
 
 			{ Regex("^(new)\\b"), TokenType::newKeyword },
 			{ Regex("^(delete)\\b"), TokenType::deleteKeyword },
@@ -3020,10 +3007,6 @@ namespace Spin {
 			{ Regex("^(@(?:create))\\b"), TokenType::createSpecifier },
 			{ Regex("^(@(?:delete))\\b"), TokenType::deleteSpecifier },
 
-			{ Regex("^(ref)\\b"), TokenType::refKeyword },
-			{ Regex("^(cpy)\\b"), TokenType::cpyKeyword },
-
-			{ Regex("^(empty)\\b"), TokenType::emptyLiteral },
 			{ Regex("^(rest)\\b"), TokenType::restKeyword },
 			{ Regex("^(return)\\b"), TokenType::returnKeyword },
 
