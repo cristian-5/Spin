@@ -26,6 +26,9 @@
 #define      IMAGINARY "^[0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i$"
 #define            HEX "^[A-Fa-f0-9]+$"
 
+// IMPROVE: Benchmark the converter class and find a better way than
+//          regexes for the base check. Ask Andrea to do that for u.
+
 namespace Spin {
 
 	inline Bool Converter::checkBase(Regex base, String & s) {

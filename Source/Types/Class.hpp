@@ -36,30 +36,37 @@ namespace Spin {
 	}
 
 	Instance::Instance(Class * t) {
-		fields = new Dictionary<String, Object *>();
+		fields = new Dictionary<String, Pair<Modifier, Object *>>();
 		type = t;
 	}
-	Instance::Instance(Class * t, Dictionary<String, Object *> * f) {
+	Instance::Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * f) {
 		fields = f;
 		type = t;
 	}
-	Object * Instance::getReference(String & name) {
-		// TODO: create a function to edit the variable
-		//       from the inside of the class.
+	Object * Instance::getInnerReference(String & name) {
 		auto search = fields -> find(name);
 		if (search != fields -> end()) {
-			// TODO: Only if field is
-			//       accessible (@public):
-			return search -> second;
+			return search -> second.second;
+		}
+		throw VariableNotFoundException();
+	}
+	Object * Instance::getReference(String & name) {
+		auto search = fields -> find(name);
+		if (search != fields -> end()) {
+			// Returns only if field is accessible (@public):
+			if (search -> second.first == Modifier::publicAccess) {
+				return search -> second.second;
+			}
 		}
 		throw VariableNotFoundException();
 	}
 	Object * Instance::getValue(String & name) {
 		auto search = fields -> find(name);
 		if (search != fields -> end()) {
-			// TODO: Only if field is
-			//       accessible (not @hidden):
-			return (search -> second) -> copy();
+			// Returns only if field is accessible (not @hidden):
+			if (search -> second.first != Modifier::hiddenAccess) {
+				return (search -> second.second) -> copy();
+			}
 		}
 		throw VariableNotFoundException();
 	}
@@ -67,11 +74,21 @@ namespace Spin {
 		if (!type) return "<empty>";
 		return "<instance " + type -> name + ">";
 	}
+	Instance * Instance::copyByValue() const {
+		Dictionary<String, Pair<Modifier, Object *>> * f = nullptr;
+		f = new Dictionary<String, Pair<Modifier, Object *>>();
+		for (Pair<String, Pair<Modifier, Object *>> p : * fields) {
+			f -> insert({ p.first, p.second });
+		}
+		return new Instance(type, f);
+	}
 	Instance * Instance::copy() const {
 		return new Instance(type, fields);
 	}
 	void Instance::destroy() {
-		// TODO: Need to destroy every variable man...
+		for (Pair<String, Pair<Modifier, Object *>> p : * fields) {
+			delete (p.second.second);
+		}
 		delete fields;
 	}
 

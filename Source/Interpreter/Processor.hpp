@@ -645,8 +645,13 @@ namespace Spin {
 						b -> stringValue() + "' generated from different class definitions!", * t
 					);
 				}
-				Instance * c = b -> copy();
-				* a = * c; delete c; return;
+				b = b -> copyByValue();
+				// We leave b intact because classes
+				// assignations are copies by value.
+				// We delete a because it's been
+				// overwritten by the new copy.
+				a -> destroy(); delete a;
+				l -> value = b; return;
 			}
 			auto search = pureAssignment.find(compose(l -> type, r -> type));
 			if (search != pureAssignment.end()) {

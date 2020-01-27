@@ -30,6 +30,7 @@ namespace Spin {
 		for (const Pair<String, Object *> & value : values) {
 			(value.second) -> safeDestroy();
 		}
+		collect();
 	}
 	void Environment::define(String name, Object * value) {
 		auto search = values.find(name);
@@ -46,6 +47,15 @@ namespace Spin {
 		}
 		(search -> second) -> safeDestroy();
 		values.erase(name);
+	}
+	void Environment::lose(Object * something) {
+		if (!something) return;
+		lostAndFound.push(something);
+	}
+	void Environment::collect() {
+		for (Object * object : lostAndFound) {
+			delete object;
+		}
 	}
 	Object * Environment::getReference(String name) {
 		auto search = values.find(name);

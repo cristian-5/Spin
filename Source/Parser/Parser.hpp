@@ -726,7 +726,13 @@ namespace Spin {
 			name = new Token(consume(TokenType::customType, "identifier"));
 			consume(TokenType::openBrace, "{");
 			while (!check(TokenType::closeBrace) && !isAtEnd()) {
+				// TODO: Parse the class body.
 				// Try to parse a function or a procedure or a variable
+				// Check for modifiers, put them into the definition of func / proc
+				// ***!(IMPORTANT: Like the fields, the methods must be access - pointer pairs)!***
+				// ***!(IMPORTANT: When you set them you'll need to fix any method expression to match the pair)!***
+				// Check for specifiers, must be only one constructor and destructor,
+				// put them into declaration. Fail if more than one detected.
 			}
 			consume(TokenType::closeBrace, "}");
 		} catch (SyntaxError & s) {

@@ -286,12 +286,15 @@ namespace Spin {
 		private:
 		Environment * enclosing = nullptr;
 		Dictionary<String, Object *> values = Dictionary<String, Object *>();
+		Array<Object *> lostAndFound = Array<Object *>();
 		public:
 		Environment() = default;
 		Environment(Environment * enclosing);
 		~Environment();
 		void define(String name, Object * value);
 		void forget(String name);
+		void lose(Object * something);
+		void collect();
 		Object * getReference(String name);
 		Object * getValue(String name);
 	};
@@ -897,6 +900,12 @@ namespace Spin {
 
 	/* Class */
 
+	enum Modifier: UInt8 {
+		publicAccess,
+		hiddenAccess,
+		secureAccess
+	};
+
 	class Class: public CallProtocol {
 		public:
 		String name;
@@ -908,14 +917,16 @@ namespace Spin {
 	};
 	class Instance {
 		private:
-		Dictionary<String, Object *> * fields = nullptr;
+		Dictionary<String, Pair<Modifier, Object *>> * fields = nullptr;
 		public:
 		Class * type = nullptr;
 		Instance(Class * t);
-		Instance(Class * t, Dictionary<String, Object *> * f);
+		Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * f);
+		Object * getInnerReference(String & name);
 		Object * getReference(String & name);
 		Object * getValue(String & name);
 		String stringValue() const;
+		Instance * copyByValue() const;
 		Instance * copy() const;
 		void destroy();
 	};
@@ -2846,7 +2857,7 @@ namespace Spin {
 		Object * visitSelfExpression(Self * e) override;
 		Object * visitUnaryExpression(Unary * e) override;
 		Object * visitIdentifierExpression(Identifier * e) override;
-		Object * evaluateExpression(Expression * e);
+		Object * evaluate(Expression * e);
 		void visitBlockStatement(BlockStatement * e) override;
 		void visitBreakStatement(BreakStatement * e) override;
 		void visitClassStatement(ClassStatement * e) override;
@@ -2870,8 +2881,7 @@ namespace Spin {
 		void visitWhileStatement(WhileStatement * e) override;
 		void executeStatement(Statement * statement);
 		void executeBlock(Array<Statement *> * statements, Environment * environment);
-		Object * evaluate(Expression * expression, String * input = nullptr, String fileName = "Unknown File");
-		Interpreter();
+		Interpreter() = default;
 		~Interpreter() = default;
 		public:
 		Interpreter(const Interpreter &) = delete;

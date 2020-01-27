@@ -28,7 +28,7 @@ namespace Spin {
 	Object * Interpreter::visitAssignmentExpression(Assignment * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> value);
+			expression = evaluate(e -> value);
 			Object * obj = nullptr;
 			try {
 				obj = memory -> getReference(e -> name -> lexeme);
@@ -52,8 +52,8 @@ namespace Spin {
 		Object * r = nullptr;
 		Object * result = nullptr;
 		try {
-			l = evaluateExpression(e -> l);
-			r = evaluateExpression(e -> r);
+			l = evaluate(e -> l);
+			r = evaluate(e -> r);
 			result = CPU -> applyBinaryOperator(e -> o, l, r);
 			delete r; delete l; return result;
 		} catch (Exception & exc) {
@@ -88,9 +88,9 @@ namespace Spin {
 		CallProtocol * function = nullptr;
 		Array<Object *> arguments = Array<Object *>();
 		try {
-			callee = evaluateExpression(e -> callee);
+			callee = evaluate(e -> callee);
 			for (Expression * a : * e -> arguments) {
-				Object * evaluation = evaluateExpression(a);
+				Object * evaluation = evaluate(a);
 				arguments.push(evaluation -> copy());
 				delete evaluation;
 			}
@@ -102,6 +102,7 @@ namespace Spin {
 				);
 			}
 			function = (CallProtocol *)(callee -> value);
+			Bool lost = false;
 			if (function -> isInstanceOf<Class>()) {
 				if (!e -> isConstructor) {
 					throw EvaluationError(
@@ -109,6 +110,7 @@ namespace Spin {
 						* e -> parenthesis
 					);
 				}
+				lost = true;
 				// Need a reference instead of a copy of the definition:
 				String name = ((Class *) callee -> value) -> name;
 				delete callee; callee = memory -> getReference(name);
@@ -126,6 +128,7 @@ namespace Spin {
 				);
 			}
 			Object * result = function -> call(this, arguments, e -> parenthesis);
+			if (lost) memory -> lose(result);
 			return result;
 		} catch (Exception & exc) {
 			if (callee) delete callee;
@@ -138,8 +141,8 @@ namespace Spin {
 		Object * r = nullptr;
 		Object * result = nullptr;
 		try {
-			l = evaluateExpression(e -> l);
-			r = evaluateExpression(e -> r);
+			l = evaluate(e -> l);
+			r = evaluate(e -> r);
 			result = CPU -> applyComparisonOperator(e -> o, l, r);
 			delete r; delete l; return result;
 		} catch (Exception & exc) {
@@ -152,7 +155,7 @@ namespace Spin {
 	Object * Interpreter::visitGetExpression(Get * e) {
 		Object * object = nullptr;
 		try {
-			object = evaluateExpression(e -> object);
+			object = evaluate(e -> object);
 			if (object -> type == BasicType::InstanceType) {
 				try {
 					Object * value = ((Instance *) object -> value) -> getValue(
@@ -178,7 +181,7 @@ namespace Spin {
 		return object;
 	}
 	Object * Interpreter::visitGroupingExpression(Grouping * e) {
-		try { return evaluateExpression(e -> expression); }
+		try { return evaluate(e -> expression); }
 		catch (Exception & exc) { throw; }
 	}
 	Object * Interpreter::visitInnerExpression(Inner * e) {
@@ -244,7 +247,7 @@ namespace Spin {
 		Array<Object *> * elements = new Array<Object *>();
 		try {
 			for (Expression * ex : * e -> values) {
-				elements -> push(evaluateExpression(ex));
+				elements -> push(evaluate(ex));
 			}
 		} catch (Exception & exc) {
 			for (Object * o : * elements) delete o;
@@ -264,7 +267,7 @@ namespace Spin {
 	Object * Interpreter::visitLogicalExpression(Logical * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> l);
+			expression = evaluate(e -> l);
 			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Invalid Bool expression found on left side of circuit operator '||'!",
@@ -274,7 +277,7 @@ namespace Spin {
 			if ((e -> o -> type) == TokenType::OR) {
 				if (expression -> getBoolValue()) return expression;
 			} else if (!(expression -> getBoolValue())) return expression;
-			return evaluateExpression(e -> r);
+			return evaluate(e -> r);
 		} catch (Exception & exc) {
 			if (expression) delete expression;
 			throw;
@@ -283,7 +286,7 @@ namespace Spin {
 	Object * Interpreter::visitMutableExpression(Mutable * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> value);
+			expression = evaluate(e -> value);
 			Object * obj = nullptr;
 			try {
 				obj = memory -> getReference(e -> name -> lexeme);
@@ -304,14 +307,14 @@ namespace Spin {
 		Object * object = nullptr;
 		Object * value = nullptr;
 		try {
-			object = evaluateExpression(e -> object);
+			object = evaluate(e -> object);
 			if (object -> type != BasicType::InstanceType) {
 				throw EvaluationError(
 					"The resolved object is not an instance and does not contain properties!",
 					* e -> name
 				);
 			}
-			value = evaluateExpression(e -> value);
+			value = evaluate(e -> value);
 			Object * field = nullptr;
 			try {
 				field = ((Instance *) object -> value) -> getReference(
@@ -337,7 +340,7 @@ namespace Spin {
 		Object * expression = nullptr;
 		Object * result = nullptr;
 		try {
-			item = evaluateExpression(e -> item);
+			item = evaluate(e -> item);
 			if (!(item -> isSubscriptable()) ||
 				!(item -> value)) {
 				throw EvaluationError(
@@ -345,7 +348,7 @@ namespace Spin {
 					* e -> bracket
 				);
 			}
-			expression = evaluateExpression(e -> expression);
+			expression = evaluate(e -> expression);
 			result = CPU -> applySubscriptOperator(e -> bracket, item, expression);
 			delete item; delete expression;
 			return result;
@@ -361,7 +364,7 @@ namespace Spin {
 		Object * expression = nullptr;
 		Object * result = nullptr;
 		try {
-			expression = evaluateExpression(e -> r);
+			expression = evaluate(e -> r);
 			result = CPU -> applyUnaryOperator(e -> o, expression);
 			delete expression; return result;
 		} catch (Exception & exc) {
@@ -381,7 +384,7 @@ namespace Spin {
 		}
 	}
 
-	Object * Interpreter::evaluateExpression(Expression * e) {
+	Object * Interpreter::evaluate(Expression * e) {
 		try { return e -> accept(this); }
 		catch (Exception & exc) { throw; }
 	}
@@ -397,8 +400,8 @@ namespace Spin {
 		broken = true;
 	}
 	void Interpreter::visitClassStatement(ClassStatement * e) {
-		/*try {
-			Dictionary<String, CallProtocol *> methods = Dictionary<String, CallProtocol *>();
+		try {
+			/*Dictionary<String, CallProtocol *> methods = Dictionary<String, CallProtocol *>();
 			String name;
 			for (FunctionStatement * f : * e -> functions) {
 				Function * function = new Function(f, memory);
@@ -413,18 +416,18 @@ namespace Spin {
 			for (ProcedureStatement * p : * e -> procedures) {
 				Procedure * procedure = new Procedure(p, memory);
 				methods -> push(procedure);
-			}
+			}*/
 			try {
 				memory -> define(
 					e -> name -> lexeme,
 					new Object(
 						BasicType::ClassType,
-						new Class(e -> name -> lexeme, methods)
+						new Class(e -> name -> lexeme)
 					)
 				);
 			} catch (VariableRedefinitionException & r) {
-				for (CallProtocol * c : * methods) delete c;
-				delete methods;
+				/*for (CallProtocol * c : * methods) delete c;
+				delete methods;*/
 				throw EvaluationError(
 					"Object redefinition! The object '" +
 					e -> name -> lexeme + "' was already declared with type '" +
@@ -432,10 +435,10 @@ namespace Spin {
 				);
 			}
 		} catch (Exception & exc) {
-			for (CallProtocol * c : * methods) delete c;
-			delete methods;
+			//for (CallProtocol * c : * methods) delete c;
+			//delete methods;
 			throw;
-		}*/
+		}
 	}
 	void Interpreter::visitContinueStatement(ContinueStatement * e) {
 		continued = true;
@@ -454,7 +457,7 @@ namespace Spin {
 	void Interpreter::visitDoWhileStatement(DoWhileStatement * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> expression);
+			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical condition in iteration statement!",
@@ -468,7 +471,7 @@ namespace Spin {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
 				delete expression; expression = nullptr;
-				expression = evaluateExpression(e -> expression);
+				expression = evaluate(e -> expression);
 				condition = expression -> getBoolValue();
 			}
 			if (expression) delete expression;
@@ -478,7 +481,7 @@ namespace Spin {
 		}
 	}
 	void Interpreter::visitExpressionStatement(ExpressionStatement * e) {
-		try { evaluateExpression(e -> e); }
+		try { evaluate(e -> e); }
 		catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitFileStatement(FileStatement * e) {
@@ -490,7 +493,7 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			executeStatement(e -> declaration);
-			expression = evaluateExpression(e -> expression);
+			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
@@ -502,8 +505,8 @@ namespace Spin {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
 				delete expression; expression = nullptr;
-				evaluateExpression(e -> stepper);
-				expression = evaluateExpression(e -> expression);
+				evaluate(e -> stepper);
+				expression = evaluate(e -> expression);
 				condition = expression -> getBoolValue();
 			}
 			if (expression) delete expression;
@@ -528,7 +531,7 @@ namespace Spin {
 	void Interpreter::visitIfStatement(IfStatement * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> expression);
+			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in conditional statement!",
@@ -557,7 +560,7 @@ namespace Spin {
 	void Interpreter::visitPrintStatement(PrintStatement * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> e);
+			expression = evaluate(e -> e);
 			Output << expression -> getObjectStringValue() << endLine;
 			if (expression) delete expression;
 		} catch (Exception & exc) {
@@ -581,7 +584,7 @@ namespace Spin {
 	void Interpreter::visitRepeatUntilStatement(RepeatUntilStatement * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> expression);
+			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
@@ -595,7 +598,7 @@ namespace Spin {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
 				delete expression; expression = nullptr;
-				expression = evaluateExpression(e -> expression);
+				expression = evaluate(e -> expression);
 				condition = expression -> getBoolValue();
 			}
 			if (expression) delete expression;
@@ -609,14 +612,14 @@ namespace Spin {
 	void Interpreter::visitReturnStatement(ReturnStatement * e) {
 		Object * expression = nullptr;
 		try {
-			if (e -> e) expression = evaluateExpression(e -> e);
+			if (e -> e) expression = evaluate(e -> e);
 			throw InterpreterReturn(expression, new Token(* e -> returnToken));
 		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitUntilStatement(UntilStatement * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> expression);
+			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
@@ -628,7 +631,7 @@ namespace Spin {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
 				delete expression; expression = nullptr;
-				expression = evaluateExpression(e -> expression);
+				expression = evaluate(e -> expression);
 				condition = expression -> getBoolValue();
 			}
 			if (expression) delete expression;
@@ -658,25 +661,21 @@ namespace Spin {
 				);
 				if (e -> initialiser) {
 					// This returns a new instance with the specified definition.
-					expression = evaluateExpression(e -> initialiser);
-					// This should work if the definitions are compatible.
-					CPU -> applyAssignment(e -> equal, instance, expression);
-					delete expression; expression = instance;
+					expression = evaluate(e -> initialiser);
 				} else {
 					// Call the default constructor:
 					constructor = (CallProtocol *)(definition -> value);
 					expression = constructor -> call(this, Array<Object *>(), e -> name);
-					// Manual copy of instance:
-					Instance * a = (Instance *) instance -> value;
-					Instance * b = (Instance *) expression -> value;
-					Instance * c = b -> copy();
-					* a = * c; delete c;
-					delete expression; expression = instance;
 				}
+				// This should work if the definitions are compatible.
+				CPU -> applyAssignment(e -> equal, instance, expression);
+				// There's no need to delete the expression since the original
+				// object has already been sent to lost and found.
+				expression = instance;
 			} else {
 				// Normal variables:
 				if (e -> initialiser) {
-					expression = evaluateExpression(e -> initialiser);
+					expression = evaluate(e -> initialiser);
 					Object * o = new Object(e -> type);
 					CPU -> applyAssignment(e -> equal, o, expression);
 					delete expression; expression = o;
@@ -702,7 +701,7 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			if (e -> initialiser) {
-				expression = evaluateExpression(e -> initialiser);
+				expression = evaluate(e -> initialiser);
 				Object * o = new Object(
 					BasicType::VectorType,
 					/* A ket starts with '|': */
@@ -734,7 +733,7 @@ namespace Spin {
 	void Interpreter::visitWhileStatement(WhileStatement * e) {
 		Object * expression = nullptr;
 		try {
-			expression = evaluateExpression(e -> expression);
+			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
 				throw EvaluationError(
 					"Unsupported evaluation of non logical expression in iteration statement!",
@@ -746,7 +745,7 @@ namespace Spin {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
 				delete expression; expression = nullptr;
-				expression = evaluateExpression(e -> expression);
+				expression = evaluate(e -> expression);
 				condition = expression -> getBoolValue();
 			}
 			if (expression) delete expression;
@@ -784,25 +783,10 @@ namespace Spin {
 		} catch (Exception & exc) { throw; }
 	}
 
-	Object * Interpreter::evaluate(Expression * expression, String * input, String fileName) {
-		try {
-			return expression -> accept(this);
-		} catch (EvaluationError & e) {
-			const UInt32 cursor = e.getToken().position;
-			SizeType line = Linker::getLine(fileContents, cursor);
-			throw InterpreterErrorException(
-				e.getMessage(), line, fileName
-			);
-		}
-	}
-
-	Interpreter::Interpreter() {
-		globals = new Environment();
-		memory = globals;
-	}
-
 	void Interpreter::evaluate(SyntaxTree * syntaxTree) {
 		if (!syntaxTree) return;
+		globals = new Environment();
+		memory = globals;
 		if (syntaxTree -> standardLibrary) Standard::defineLibrary(globals);
 		if (syntaxTree -> mathsLibrary) Maths::defineLibrary(globals);
 		if (syntaxTree -> kronosLibrary) Kronos::defineLibrary(globals);
@@ -818,6 +802,9 @@ namespace Spin {
 				e.getMessage(), line, * fileName
 			);
 		}
+		delete memory;
+		memory = nullptr;
+		globals = nullptr;
 	}
 
 }
