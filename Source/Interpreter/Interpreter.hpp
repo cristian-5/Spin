@@ -165,7 +165,7 @@ namespace Spin {
 					return value;
 				} catch (VariableNotFoundException & u) {
 					throw EvaluationError(
-						"The resolved object does not contain any property named '" +
+						"The resolved object does not contain any attribute, field or method named '" +
 						e -> name -> lexeme + "'!", * e -> name
 					);
 				}
@@ -322,7 +322,7 @@ namespace Spin {
 				);
 			} catch (VariableNotFoundException & u) {
 				throw EvaluationError(
-					"The resolved object does not contain any property named '" +
+					"The resolved object does not contain any attribute, field or method named '" +
 					e -> name -> lexeme + "'!", * e -> name
 				);
 			}
@@ -391,6 +391,12 @@ namespace Spin {
 
 	/* Statements */
 
+	void Interpreter::visitAttributeStatement(AttributeStatement * e) {
+		try {
+			currentModifier = e -> modifier;
+			e -> field -> accept(this);
+		} catch (Exception & exc) { throw; }
+	}
 	void Interpreter::visitBlockStatement(BlockStatement * e) {
 		try {
 			executeBlock(e -> statements, new Environment(memory));
@@ -401,27 +407,11 @@ namespace Spin {
 	}
 	void Interpreter::visitClassStatement(ClassStatement * e) {
 		try {
-			/*Dictionary<String, CallProtocol *> methods = Dictionary<String, CallProtocol *>();
-			String name;
-			for (FunctionStatement * f : * e -> functions) {
-				Function * function = new Function(f, memory);
-				name = f -> name -> lexeme;
-				auto search = methods.find(name);
-				if (search != methods.end()) {
-					throw VariableRedefinitionException(
-						(search -> second) -> getObjectName()
-					);
-				} else methods.insert({ name, function });
-			}
-			for (ProcedureStatement * p : * e -> procedures) {
-				Procedure * procedure = new Procedure(p, memory);
-				methods -> push(procedure);
-			}*/
-			classDefinition = new Class(e -> name -> lexeme, e -> dynamicFields);
+			classDefinition = new Class(e -> name -> lexeme, e -> dynamicAttributes);
 			String name;
 			try {
-				for (FieldStatement * field : * e -> staticFields) {
-					field -> accept(this);
+				for (AttributeStatement * attribute : * e -> staticAttributes) {
+					attribute -> accept(this);
 				}
 			} catch (Exception & exc) { throw; }
 			try {
@@ -431,8 +421,6 @@ namespace Spin {
 				);
 				classDefinition = nullptr;
 			} catch (VariableRedefinitionException & r) {
-				/*for (CallProtocol * c : * methods) delete c;
-				delete methods;*/
 				throw EvaluationError(
 					"Object redefinition! The object '" +
 					e -> name -> lexeme + "' was already declared with type '" +
@@ -440,8 +428,7 @@ namespace Spin {
 				);
 			}
 		} catch (Exception & exc) {
-			//for (CallProtocol * c : * methods) delete c;
-			//delete methods;
+			classDefinition = nullptr;
 			throw;
 		}
 	}
@@ -489,12 +476,6 @@ namespace Spin {
 		try { evaluate(e -> e); }
 		catch (Exception & exc) { throw; }
 	}
-	void Interpreter::visitFieldStatement(FieldStatement * e) {
-		try {
-			currentModifier = e -> modifier;
-			e -> field -> accept(this);
-		} catch (Exception & exc) { throw; }
-	}
 	void Interpreter::visitFileStatement(FileStatement * e) {
 		if (fileName) delete fileName;
 		fileName = new String(* e -> name);
@@ -528,14 +509,51 @@ namespace Spin {
 	}
 	void Interpreter::visitFunctionStatement(FunctionStatement * e) {
 		try {
-			Object * function = new Object(BasicType::FunctionType, new Function(e, memory));
-			try { memory -> define(e -> name -> lexeme, function); }
-			catch (VariableRedefinitionException & r) {
-				if (function) delete function;
-				throw EvaluationError(
-					"Function redefinition! The object '" +
-					e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+			if (instanceDefinition) {
+				Object * function = new Object(
+					BasicType::FunctionType,
+					new Function(e, new Environment())
 				);
+				try {
+					instanceDefinition -> defineDynamic(
+						e -> name -> lexeme, currentModifier, function
+					);
+				} catch (VariableRedefinitionException & r) {
+					if (function) delete function;
+					throw EvaluationError(
+						"Function redefinition! The object '" +
+						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+					);
+				}
+			} else if (classDefinition) {
+				Object * function = new Object(
+					BasicType::FunctionType,
+					new Function(e, new Environment())
+				);
+				try {
+					classDefinition -> defineStatic(
+						e -> name -> lexeme, currentModifier, function
+					);
+				} catch (VariableRedefinitionException & r) {
+					if (function) delete function;
+					throw EvaluationError(
+						"Function redefinition! The object '" +
+						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+					);
+				}
+			} else {
+				Object * function = new Object(
+					BasicType::FunctionType,
+					new Function(e, memory)
+				);
+				try { memory -> define(e -> name -> lexeme, function); }
+				catch (VariableRedefinitionException & r) {
+					if (function) delete function;
+					throw EvaluationError(
+						"Function redefinition! The object '" +
+						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+					);
+				}
 			}
 		} catch (Exception & exc) { throw; }
 	}
@@ -581,14 +599,48 @@ namespace Spin {
 	}
 	void Interpreter::visitProcedureStatement(ProcedureStatement * e) {
 		try {
-			Object * procedure = new Object(BasicType::FunctionType, new Procedure(e, memory));
-			try { memory -> define(e -> name -> lexeme, procedure); }
-			catch (VariableRedefinitionException & r) {
-				if (procedure) delete procedure;
-				throw EvaluationError(
-					"Procedure redefinition! The object '" +
-					e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+			if (instanceDefinition) {
+				Object * procedure = new Object(
+					BasicType::FunctionType,
+					new Procedure(e, new Environment())
 				);
+				try {
+					instanceDefinition -> defineDynamic(
+						e -> name -> lexeme, currentModifier, procedure
+					);
+				} catch (VariableRedefinitionException & r) {
+					if (procedure) delete procedure;
+					throw EvaluationError(
+						"Function redefinition! The object '" +
+						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+					);
+				}
+			} else if (classDefinition) {
+				Object * procedure = new Object(
+					BasicType::FunctionType,
+					new Procedure(e, new Environment())
+				);
+				try {
+					classDefinition -> defineStatic(
+						e -> name -> lexeme, currentModifier, procedure
+					);
+				} catch (VariableRedefinitionException & r) {
+					if (procedure) delete procedure;
+					throw EvaluationError(
+						"Function redefinition! The object '" +
+						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+					);
+				}
+			} else {
+				Object * procedure = new Object(BasicType::FunctionType, new Procedure(e, memory));
+				try { memory -> define(e -> name -> lexeme, procedure); }
+				catch (VariableRedefinitionException & r) {
+					if (procedure) delete procedure;
+					throw EvaluationError(
+						"Procedure redefinition! The object '" +
+						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+					);
+				}
 			}
 		} catch (Exception & exc) { throw; }
 	}
@@ -740,8 +792,11 @@ namespace Spin {
 			throw;
 		}
 		try {
-			// TODO: else if instanceDefiniton for dynamic fields...
-			if (classDefinition) {
+			if (instanceDefinition) {
+				instanceDefinition -> defineDynamic(
+					e -> name, currentModifier, expression
+				);
+			} if (classDefinition) {
 				classDefinition -> defineStatic(
 					e -> name, currentModifier, expression
 				);

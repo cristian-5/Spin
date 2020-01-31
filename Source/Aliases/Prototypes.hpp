@@ -331,6 +331,7 @@ namespace Spin {
 	class Unary;
 	class Identifier;
 
+	class AttributeStatement;
 	class BlockStatement;
 	class BreakStatement;
 	class ClassStatement;
@@ -338,7 +339,6 @@ namespace Spin {
 	class DeleteStatement;
 	class DoWhileStatement;
 	class ExpressionStatement;
-	class FieldStatement;
 	class FileStatement;
 	class ForStatement;
 	class FunctionStatement;
@@ -390,6 +390,7 @@ namespace Spin {
 		virtual ~Statement() = default;
 		class Visitor {
 			public:
+			virtual void visitAttributeStatement(AttributeStatement * e) = 0;
 			virtual void visitBlockStatement(BlockStatement * e) = 0;
 			virtual void visitBreakStatement(BreakStatement * e) = 0;
 			virtual void visitClassStatement(ClassStatement * e) = 0;
@@ -397,7 +398,6 @@ namespace Spin {
 			virtual void visitDeleteStatement(DeleteStatement * e) = 0;
 			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
-			virtual void visitFieldStatement(FieldStatement * e) = 0;
 			virtual void visitFileStatement(FileStatement * e) = 0;
 			virtual void visitForStatement(ForStatement * e) = 0;
 			virtual void visitFunctionStatement(FunctionStatement * e) = 0;
@@ -605,6 +605,14 @@ namespace Spin {
 		}
 	};
 
+	class AttributeStatement: public Statement {
+		public:
+		Statement * field = nullptr;
+		Modifier modifier = Modifier::publicAccess;
+		AttributeStatement(Statement * f, Modifier m);
+		void accept(Visitor * visitor) override;
+		~AttributeStatement();
+	};
 	class BlockStatement: public Statement {
 		public:
 		Array<Statement *> * statements = nullptr;
@@ -623,13 +631,11 @@ namespace Spin {
 	class ClassStatement: public Statement {
 		public:
 		Token * name = nullptr;
-		Array<FunctionStatement *> * functions = nullptr;
-		Array<ProcedureStatement *> * procedures = nullptr;
-		Array<FieldStatement *> * staticFields = nullptr;
-		Array<FieldStatement *> * dynamicFields = nullptr;
+		Array<AttributeStatement *> * staticAttributes = nullptr;
+		Array<AttributeStatement *> * dynamicAttributes = nullptr;
 		ClassStatement(Token * n,
-					   Array<FieldStatement *> * sF,
-					   Array<FieldStatement *> * dF);
+					   Array<AttributeStatement *> * sF,
+					   Array<AttributeStatement *> * dF);
 		void accept(Visitor * visitor) override;
 		~ClassStatement();
 	};
@@ -662,14 +668,6 @@ namespace Spin {
 		ExpressionStatement(Expression * ex);
 		void accept(Visitor * visitor) override;
 		~ExpressionStatement();
-	};
-	class FieldStatement: public Statement {
-		public:
-		Statement * field = nullptr;
-		Modifier modifier = Modifier::publicAccess;
-		FieldStatement(Statement * f, Modifier m);
-		void accept(Visitor * visitor) override;
-		~FieldStatement();
 	};
 	class FileStatement: public Statement {
 		public:
@@ -925,9 +923,9 @@ namespace Spin {
 	class Class: public CallProtocol {
 		public:
 		String name;
-		Dictionary<String, Pair<Modifier, Object *>> * staticFields = nullptr;
-		Array<FieldStatement *> * dynamicFields = nullptr;
-		Class(String n, Array<FieldStatement *> * d,
+		Dictionary<String, Pair<Modifier, Object *>> * staticAttributes = nullptr;
+		Array<AttributeStatement *> * dynamicAttributes = nullptr;
+		Class(String n, Array<AttributeStatement *> * d,
 			  Dictionary<String, Pair<Modifier, Object *>> * s =
 			  new Dictionary<String, Pair<Modifier, Object *>>());
 		void defineStatic(String name, Modifier access, Object * value);
@@ -938,12 +936,12 @@ namespace Spin {
 	};
 	class Instance {
 		private:
-		Dictionary<String, Pair<Modifier, Object *>> * fields = nullptr;
+		Dictionary<String, Pair<Modifier, Object *>> * attributes = nullptr;
 		public:
 		Class * type = nullptr;
 		Instance(Class * t, Interpreter * i);
-		Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * f);
-		void fieldInitialisation(Interpreter * i);
+		Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * a);
+		void attributesInitialisation(Interpreter * i);
 		void defineDynamic(String name, Modifier access, Object * value);
 		Object * getInnerReference(String & name);
 		Object * getReference(String & name);
@@ -2883,6 +2881,7 @@ namespace Spin {
 		Object * visitUnaryExpression(Unary * e) override;
 		Object * visitIdentifierExpression(Identifier * e) override;
 		Object * evaluate(Expression * e);
+		void visitAttributeStatement(AttributeStatement * e) override;
 		void visitBlockStatement(BlockStatement * e) override;
 		void visitBreakStatement(BreakStatement * e) override;
 		void visitClassStatement(ClassStatement * e) override;
@@ -2890,7 +2889,6 @@ namespace Spin {
 		void visitDeleteStatement(DeleteStatement * e) override;
 		void visitDoWhileStatement(DoWhileStatement * e) override;
 		void visitExpressionStatement(ExpressionStatement * e) override;
-		void visitFieldStatement(FieldStatement * e) override;
 		void visitFileStatement(FileStatement * e) override;
 		void visitForStatement(ForStatement * e) override;
 		void visitFunctionStatement(FunctionStatement * e) override;
@@ -3127,6 +3125,7 @@ namespace Spin {
 		Bool isInControlFlow = false;
 		Bool isInFunction = false;
 		Bool isInProcedure = false;
+		Bool isInClass = false;
 		Expression * expression();
 		Expression * assignment();
 		Expression * shortOR();

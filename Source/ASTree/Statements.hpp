@@ -23,6 +23,17 @@
 
 namespace Spin {
 
+	AttributeStatement::AttributeStatement(Statement * f, Modifier m) {
+		field = f; modifier = m;
+	}
+	void AttributeStatement::accept(Visitor * visitor) {
+		try { visitor -> visitAttributeStatement(this); }
+		catch (Exception & e) { throw; }
+	}
+	AttributeStatement::~AttributeStatement() {
+		delete field;
+	}
+
 	BlockStatement::BlockStatement(Array<Statement *> * s) { statements = s; }
 	BlockStatement::BlockStatement(Statement * s) {
 		statements = new Array<Statement *>();
@@ -47,9 +58,11 @@ namespace Spin {
 	BreakStatement::~BreakStatement() { delete breakToken; }
 
 	ClassStatement::ClassStatement(Token * n,
-								   Array<FieldStatement *> * sF,
-								   Array<FieldStatement *> * dF) {
-		name = n; staticFields = sF; dynamicFields = dF;
+								   Array<AttributeStatement *> * sF,
+								   Array<AttributeStatement *> * dF) {
+		name = n;
+		staticAttributes = sF;
+		dynamicAttributes = dF;
 	}
 	void ClassStatement::accept(Visitor * visitor) {
 		try { visitor -> visitClassStatement(this); }
@@ -57,10 +70,9 @@ namespace Spin {
 	}
 	ClassStatement::~ClassStatement() {
 		delete name;
-		// TODO: Unwrap for method implementation.
-		/*for (FunctionStatement * f : * functions) delete f;
-		for (ProcedureStatement * p : * procedures) delete p;
-		delete functions; delete procedures;*/
+		for (AttributeStatement * a : * staticAttributes) delete a;
+		for (AttributeStatement * a : * dynamicAttributes) delete a;
+		delete staticAttributes; delete dynamicAttributes;
 	}
 	
 	ContinueStatement::ContinueStatement(Token * c) { continueToken = c; }
@@ -96,17 +108,6 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	ExpressionStatement::~ExpressionStatement() { delete e; }
-
-	FieldStatement::FieldStatement(Statement * f, Modifier m) {
-		field = f; modifier = m;
-	}
-	void FieldStatement::accept(Visitor * visitor) {
-		try { visitor -> visitFieldStatement(this); }
-		catch (Exception & e) { throw; }
-	}
-	FieldStatement::~FieldStatement() {
-		delete field;
-	}
 
 	FileStatement::FileStatement(String * n, String * f) {
 		file = f; name = n;

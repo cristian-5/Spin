@@ -354,6 +354,15 @@ namespace Spin {
 			}
 			values -> shrinkToFit();
 			return new List(values);
+		} else if (t.type == TokenType::selfKeyword) {
+			advance();
+			if (!isInClass) {
+				throw SyntaxError(
+					"Unexpected use of 'self' reference outside of class declaration! What am I supposed to reference to?",
+					Linker::getLine(currentUnit -> contents, peek().position)
+				);
+			}
+			return new Self(new Token(t));
 		} else if (t.type == TokenType::ketSymbol) {
 			advance();
 			String ket = t.lexeme.subString(1, t.lexeme.length() - 2);
@@ -390,7 +399,7 @@ namespace Spin {
 			line = Linker::getLine(currentUnit -> contents, previous().position);
 		} else line = Linker::getLine(currentUnit -> contents, t.position);
 		throw SyntaxError(
-			"Expected expression after '" + previous().lexeme + "'!", line
+			"Unexpected expression after '" + previous().lexeme + "'!", line
 		);
 	}
 
@@ -720,10 +729,9 @@ namespace Spin {
 		Bool oldFunction = isInFunction;
 		isInFunction = false;
 		Token * name = nullptr;
-		//Array<FunctionStatement *> * f = new Array<FunctionStatement *>();
-		//Array<ProcedureStatement *> * p = new Array<ProcedureStatement *>();
-		Array<FieldStatement *> * staticFields = new Array<FieldStatement *>();
-		Array<FieldStatement *> * dynamicFields = new Array<FieldStatement *>();
+		isInClass = true;
+		Array<AttributeStatement *> * staticAttributes = new Array<AttributeStatement *>();
+		Array<AttributeStatement *> * dynamicAttributes = new Array<AttributeStatement *>();
 		try {
 			name = new Token(consume(TokenType::customType, "identifier"));
 			consume(TokenType::openBrace, "{");
@@ -759,42 +767,43 @@ namespace Spin {
 						Linker::getLine(currentUnit -> contents, er.position)
 					);
 				}
-				if (match(TokenType::funcKeyword)) {
-					// TODO: Method.
-				} else if (match(TokenType::procKeyword)) {
-					// TODO: Method.
+				Token p = peek();
+				if (p.type == TokenType::funcKeyword) {
+					// Method declaration:
+					AttributeStatement * method = new AttributeStatement(
+						functionStatement(), access
+					);
+					if (dynamic) dynamicAttributes -> push(method);
+					else staticAttributes -> push(method);
+				} else if (p.type == TokenType::procKeyword) {
+					// Method declaration:
+					AttributeStatement * method = new AttributeStatement(
+						procedureStatement(), access
+					);
+					if (dynamic) dynamicAttributes -> push(method);
+					else staticAttributes -> push(method);
 				} else {
 					// Field declaration:
-					FieldStatement * field = new FieldStatement(
+					AttributeStatement * field = new AttributeStatement(
 						fieldStatement(), access
 					);
-					if (dynamic) dynamicFields -> push(field);
-					else staticFields -> push(field);
+					if (dynamic) dynamicAttributes -> push(field);
+					else staticAttributes -> push(field);
 				}
-				// Try to parse a function or a procedure or a variable
-				// Check for modifiers, put them into the definition of func / proc
-				// ***!(IMPORTANT: Like the fields, the methods must be access - pointer pairs)!***
-				// ***!(IMPORTANT: When you set them you'll need to fix any method expression to match the pair)!***
-				// Check for specifiers, must be only one constructor and destructor,
-				// put them into declaration. Fail if more than one detected.
 			}
 			consume(TokenType::closeBrace, "}");
 		} catch (SyntaxError & s) {
 			if (name) delete name;
-			/*if (f) {
-				for (FunctionStatement * func : * f) delete func;
-				delete f;
-			}
-			if (p) {
-				for (ProcedureStatement * proc : * p) delete proc;
-				delete p;
-			}*/
+			for (AttributeStatement * a : * staticAttributes) delete a;
+			for (AttributeStatement * a : * dynamicAttributes) delete a;
+			delete staticAttributes; delete dynamicAttributes;
 			throw;
 		}
+		isInClass = false;
 		isInControlFlow = oldControlFlow;
 		isInProcedure = oldProcedure;
 		isInFunction = oldFunction;
-		return new ClassStatement(name, staticFields, dynamicFields);
+		return new ClassStatement(name, staticAttributes, dynamicAttributes);
 	}
 	Statement * Parser::fieldStatement() {
 		Statement * field = nullptr;
