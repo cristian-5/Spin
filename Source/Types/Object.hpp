@@ -36,7 +36,6 @@ namespace Spin {
 			case BasicType::StringType: value = new String(); return;
 			case BasicType::ArrayType: value = new ArrayList(); return;
 			case BasicType::VectorType: value = new Vector(); return;
-			case BasicType::InstanceType: value = new Instance(nullptr);
 			case BasicType::UnknownType: default: return;
 		}
 	}

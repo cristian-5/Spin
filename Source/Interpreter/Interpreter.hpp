@@ -417,14 +417,19 @@ namespace Spin {
 				Procedure * procedure = new Procedure(p, memory);
 				methods -> push(procedure);
 			}*/
+			classDefinition = new Class(e -> name -> lexeme, e -> dynamicFields);
+			String name;
+			try {
+				for (FieldStatement * field : * e -> staticFields) {
+					field -> accept(this);
+				}
+			} catch (Exception & exc) { throw; }
 			try {
 				memory -> define(
 					e -> name -> lexeme,
-					new Object(
-						BasicType::ClassType,
-						new Class(e -> name -> lexeme)
-					)
+					new Object(BasicType::ClassType, classDefinition)
 				);
+				classDefinition = nullptr;
 			} catch (VariableRedefinitionException & r) {
 				/*for (CallProtocol * c : * methods) delete c;
 				delete methods;*/
@@ -483,6 +488,12 @@ namespace Spin {
 	void Interpreter::visitExpressionStatement(ExpressionStatement * e) {
 		try { evaluate(e -> e); }
 		catch (Exception & exc) { throw; }
+	}
+	void Interpreter::visitFieldStatement(FieldStatement * e) {
+		try {
+			currentModifier = e -> modifier;
+			e -> field -> accept(this);
+		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitFileStatement(FileStatement * e) {
 		if (fileName) delete fileName;
@@ -655,22 +666,20 @@ namespace Spin {
 					);
 				}
 				// Empty instance from class definition:
+				Class * definedClass = (Class *) definition -> value;
 				instance = new Object(
 					BasicType::InstanceType,
-					new Instance((Class *)definition -> value)
+					new Instance(definedClass, this)
 				);
+				// Call of eventual custom constructor:
 				if (e -> initialiser) {
 					// This returns a new instance with the specified definition.
 					expression = evaluate(e -> initialiser);
-				} else {
-					// Call the default constructor:
-					constructor = (CallProtocol *)(definition -> value);
-					expression = constructor -> call(this, Array<Object *>(), e -> name);
+					// This should work if the definitions are compatible.
+					CPU -> applyAssignment(e -> equal, instance, expression);
+					// There's no need to delete the expression since the original
+					// object has already been sent to lost and found.
 				}
-				// This should work if the definitions are compatible.
-				CPU -> applyAssignment(e -> equal, instance, expression);
-				// There's no need to delete the expression since the original
-				// object has already been sent to lost and found.
 				expression = instance;
 			} else {
 				// Normal variables:
@@ -687,13 +696,23 @@ namespace Spin {
 			throw;
 		}
 		try {
-			memory -> define(e -> name -> lexeme, expression);
+			if (instanceDefinition) {
+				instanceDefinition -> defineDynamic(
+					e -> name -> lexeme, currentModifier, expression
+				);
+			} else if (classDefinition) {
+				classDefinition -> defineStatic(
+					e -> name -> lexeme, currentModifier, expression
+				);
+			} else {
+				memory -> define(e -> name -> lexeme, expression);
+			}
 		} catch (VariableRedefinitionException & r) {
 			if (expression) delete expression;
 			throw EvaluationError(
 				"Variable redefinition! The identifier '" +
 				e -> name -> lexeme + "' was already declared with type '" +
-				r.getType() + "'!", * e -> name
+				r.getType() + "' in current scope!", * e -> name
 			);
 		}
 	}
@@ -704,7 +723,7 @@ namespace Spin {
 				expression = evaluate(e -> initialiser);
 				Object * o = new Object(
 					BasicType::VectorType,
-					/* A ket starts with '|': */
+					// A ket starts with '|':
 					new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
 				);
 				CPU -> applyVectorAssignment(e -> equal, o, expression);
@@ -712,7 +731,7 @@ namespace Spin {
 			} else {
 				expression = new Object(
 					BasicType::VectorType,
-					/* A ket starts with '|': */
+					// A ket starts with '|':
 					new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
 				);
 			}
@@ -721,7 +740,14 @@ namespace Spin {
 			throw;
 		}
 		try {
-			memory -> define(e -> name, expression);
+			// TODO: else if instanceDefiniton for dynamic fields...
+			if (classDefinition) {
+				classDefinition -> defineStatic(
+					e -> name, currentModifier, expression
+				);
+			} else {
+				memory -> define(e -> name, expression);
+			}
 		} catch (VariableRedefinitionException & r) {
 			throw EvaluationError(
 				"Vector redefinition! The identifier '" +

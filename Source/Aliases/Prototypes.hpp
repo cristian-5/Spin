@@ -169,6 +169,8 @@ namespace Spin {
 		publicModifier,
 		hiddenModifier,
 		secureModifier,
+		staticModifier,
+		sharedModifier,
 
 		createSpecifier,
 		deleteSpecifier,
@@ -181,7 +183,7 @@ namespace Spin {
 
 		invalid,
 
-		endFile
+		endFile,
 
 	};
 	class Token {
@@ -234,11 +236,19 @@ namespace Spin {
 		StructureType,
 		ExceptionType,
 
-		UnknownType
+		UnknownType,
 
 	};
 
 	using BasicTypes = UInt16;
+
+	/* Modifiers */
+
+	enum Modifier: UInt8 {
+		publicAccess,
+		hiddenAccess,
+		secureAccess,
+	};
 
 	/* Converter */
 
@@ -328,6 +338,7 @@ namespace Spin {
 	class DeleteStatement;
 	class DoWhileStatement;
 	class ExpressionStatement;
+	class FieldStatement;
 	class FileStatement;
 	class ForStatement;
 	class FunctionStatement;
@@ -371,7 +382,7 @@ namespace Spin {
 		virtual Object * accept(Visitor *) { return nullptr; }
 		template<typename t>
 		Bool isInstanceOf() {
-			return (dynamic<t *>(this));
+			return (DynamicCast<t *>(this));
 		}
 	};
 	class Statement {
@@ -386,6 +397,7 @@ namespace Spin {
 			virtual void visitDeleteStatement(DeleteStatement * e) = 0;
 			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
 			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
+			virtual void visitFieldStatement(FieldStatement * e) = 0;
 			virtual void visitFileStatement(FileStatement * e) = 0;
 			virtual void visitForStatement(ForStatement * e) = 0;
 			virtual void visitFunctionStatement(FunctionStatement * e) = 0;
@@ -404,7 +416,7 @@ namespace Spin {
 		virtual void accept(Visitor *) { }
 		template<typename t>
 		Bool isInstanceOf() {
-			return (dynamic<t *>(this));
+			return (DynamicCast<t *>(this));
 		}
 	};
 
@@ -613,9 +625,11 @@ namespace Spin {
 		Token * name = nullptr;
 		Array<FunctionStatement *> * functions = nullptr;
 		Array<ProcedureStatement *> * procedures = nullptr;
+		Array<FieldStatement *> * staticFields = nullptr;
+		Array<FieldStatement *> * dynamicFields = nullptr;
 		ClassStatement(Token * n,
-					   Array<FunctionStatement *> * f,
-					   Array<ProcedureStatement *> * p);
+					   Array<FieldStatement *> * sF,
+					   Array<FieldStatement *> * dF);
 		void accept(Visitor * visitor) override;
 		~ClassStatement();
 	};
@@ -648,6 +662,14 @@ namespace Spin {
 		ExpressionStatement(Expression * ex);
 		void accept(Visitor * visitor) override;
 		~ExpressionStatement();
+	};
+	class FieldStatement: public Statement {
+		public:
+		Statement * field = nullptr;
+		Modifier modifier = Modifier::publicAccess;
+		FieldStatement(Statement * f, Modifier m);
+		void accept(Visitor * visitor) override;
+		~FieldStatement();
 	};
 	class FileStatement: public Statement {
 		public:
@@ -854,7 +876,7 @@ namespace Spin {
 		virtual CallProtocol * copy() const = 0;
 		template<typename t>
 		Bool isInstanceOf() {
-			return (dynamic<t *>(this));
+			return (DynamicCast<t *>(this));
 		}
 	};
 	class Function: public CallProtocol {
@@ -900,16 +922,15 @@ namespace Spin {
 
 	/* Class */
 
-	enum Modifier: UInt8 {
-		publicAccess,
-		hiddenAccess,
-		secureAccess
-	};
-
 	class Class: public CallProtocol {
 		public:
 		String name;
-		Class(String n);
+		Dictionary<String, Pair<Modifier, Object *>> * staticFields = nullptr;
+		Array<FieldStatement *> * dynamicFields = nullptr;
+		Class(String n, Array<FieldStatement *> * d,
+			  Dictionary<String, Pair<Modifier, Object *>> * s =
+			  new Dictionary<String, Pair<Modifier, Object *>>());
+		void defineStatic(String name, Modifier access, Object * value);
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
@@ -920,8 +941,10 @@ namespace Spin {
 		Dictionary<String, Pair<Modifier, Object *>> * fields = nullptr;
 		public:
 		Class * type = nullptr;
-		Instance(Class * t);
+		Instance(Class * t, Interpreter * i);
 		Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * f);
+		void fieldInitialisation(Interpreter * i);
+		void defineDynamic(String name, Modifier access, Object * value);
 		Object * getInnerReference(String & name);
 		Object * getReference(String & name);
 		Object * getValue(String & name);
@@ -2838,6 +2861,8 @@ namespace Spin {
 		Environment * memory = nullptr;
 		Bool broken = false;
 		Bool continued = false;
+		Class * classDefinition = nullptr;
+		Modifier currentModifier = Modifier::publicAccess;
 		Object * visitAssignmentExpression(Assignment * e) override;
 		Object * visitBinaryExpression(Binary * e) override;
 		Object * visitBraExpression(Bra * e) override;
@@ -2865,6 +2890,7 @@ namespace Spin {
 		void visitDeleteStatement(DeleteStatement * e) override;
 		void visitDoWhileStatement(DoWhileStatement * e) override;
 		void visitExpressionStatement(ExpressionStatement * e) override;
+		void visitFieldStatement(FieldStatement * e) override;
 		void visitFileStatement(FileStatement * e) override;
 		void visitForStatement(ForStatement * e) override;
 		void visitFunctionStatement(FunctionStatement * e) override;
@@ -2884,6 +2910,7 @@ namespace Spin {
 		Interpreter() = default;
 		~Interpreter() = default;
 		public:
+		Instance * instanceDefinition = nullptr;
 		Interpreter(const Interpreter &) = delete;
 		Interpreter(Interpreter &&) = delete;
 		Interpreter & operator = (const Interpreter &) = delete;
@@ -3013,6 +3040,8 @@ namespace Spin {
 			{ Regex("^(@(?:public))\\b"), TokenType::publicModifier },
 			{ Regex("^(@(?:hidden))\\b"), TokenType::hiddenModifier },
 			{ Regex("^(@(?:secure))\\b"), TokenType::secureModifier },
+			{ Regex("^(@(?:static))\\b"), TokenType::staticModifier },
+			{ Regex("^(@(?:shared))\\b"), TokenType::sharedModifier },
 
 			{ Regex("^(@(?:create))\\b"), TokenType::createSpecifier },
 			{ Regex("^(@(?:delete))\\b"), TokenType::deleteSpecifier },
@@ -3126,6 +3155,7 @@ namespace Spin {
 		Statement * functionStatement();
 		Statement * procedureStatement();
 		Statement * classDeclaration();
+		Statement * fieldStatement();
 		Statement * forStatement();
 		Statement * printStatement();
 		Statement * whileStatement();

@@ -46,8 +46,10 @@ namespace Spin {
 	}
 	BreakStatement::~BreakStatement() { delete breakToken; }
 
-	ClassStatement::ClassStatement(Token * n, Array<FunctionStatement *> * f, Array<ProcedureStatement *> * p) {
-		name = n; functions = f; procedures = p;
+	ClassStatement::ClassStatement(Token * n,
+								   Array<FieldStatement *> * sF,
+								   Array<FieldStatement *> * dF) {
+		name = n; staticFields = sF; dynamicFields = dF;
 	}
 	void ClassStatement::accept(Visitor * visitor) {
 		try { visitor -> visitClassStatement(this); }
@@ -55,9 +57,10 @@ namespace Spin {
 	}
 	ClassStatement::~ClassStatement() {
 		delete name;
-		for (FunctionStatement * f : * functions) delete f;
+		// TODO: Unwrap for method implementation.
+		/*for (FunctionStatement * f : * functions) delete f;
 		for (ProcedureStatement * p : * procedures) delete p;
-		delete functions; delete procedures;
+		delete functions; delete procedures;*/
 	}
 	
 	ContinueStatement::ContinueStatement(Token * c) { continueToken = c; }
@@ -93,6 +96,17 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	ExpressionStatement::~ExpressionStatement() { delete e; }
+
+	FieldStatement::FieldStatement(Statement * f, Modifier m) {
+		field = f; modifier = m;
+	}
+	void FieldStatement::accept(Visitor * visitor) {
+		try { visitor -> visitFieldStatement(this); }
+		catch (Exception & e) { throw; }
+	}
+	FieldStatement::~FieldStatement() {
+		delete field;
+	}
 
 	FileStatement::FileStatement(String * n, String * f) {
 		file = f; name = n;

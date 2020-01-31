@@ -720,13 +720,57 @@ namespace Spin {
 		Bool oldFunction = isInFunction;
 		isInFunction = false;
 		Token * name = nullptr;
-		Array<FunctionStatement *> * f = new Array<FunctionStatement *>();
-		Array<ProcedureStatement *> * p = new Array<ProcedureStatement *>();
+		//Array<FunctionStatement *> * f = new Array<FunctionStatement *>();
+		//Array<ProcedureStatement *> * p = new Array<ProcedureStatement *>();
+		Array<FieldStatement *> * staticFields = new Array<FieldStatement *>();
+		Array<FieldStatement *> * dynamicFields = new Array<FieldStatement *>();
 		try {
 			name = new Token(consume(TokenType::customType, "identifier"));
 			consume(TokenType::openBrace, "{");
 			while (!check(TokenType::closeBrace) && !isAtEnd()) {
 				// TODO: Parse the class body.
+				Modifier access;
+				Bool dynamic = true;
+				if (match(TokenType::publicModifier)) access = Modifier::publicAccess;
+				else if (match(TokenType::hiddenModifier)) access = Modifier::hiddenAccess;
+				else if (match(TokenType::sharedModifier)) {
+					access = Modifier::publicAccess; dynamic = false;
+				} else if (match(TokenType::staticModifier)) {
+					access = Modifier::hiddenAccess; dynamic = false;
+				} else if (match(TokenType::secureModifier)) {
+					access = Modifier::secureAccess;
+					if (check(TokenType::funcKeyword) || check(TokenType::procKeyword)) {
+						Token er = peek();
+						throw SyntaxError(
+							"Expected field declaration after @secure modifier but found '" + er.lexeme + "' instead!",
+							Linker::getLine(currentUnit -> contents, er.position)
+						);
+					}
+				} else if (match(TokenType::createSpecifier)) {
+					// TODO: Constructor.
+				} else if (match(TokenType::deleteSpecifier)) {
+					// TODO: Destructor.
+				} else {
+					// If I'm not a field, a method or
+					// a class specifier, what am I?
+					Token er = peek();
+					throw SyntaxError(
+						"Expected access modifier or specifier but found '" + er.lexeme + "' instead!",
+						Linker::getLine(currentUnit -> contents, er.position)
+					);
+				}
+				if (match(TokenType::funcKeyword)) {
+					// TODO: Method.
+				} else if (match(TokenType::procKeyword)) {
+					// TODO: Method.
+				} else {
+					// Field declaration:
+					FieldStatement * field = new FieldStatement(
+						fieldStatement(), access
+					);
+					if (dynamic) dynamicFields -> push(field);
+					else staticFields -> push(field);
+				}
 				// Try to parse a function or a procedure or a variable
 				// Check for modifiers, put them into the definition of func / proc
 				// ***!(IMPORTANT: Like the fields, the methods must be access - pointer pairs)!***
@@ -737,20 +781,42 @@ namespace Spin {
 			consume(TokenType::closeBrace, "}");
 		} catch (SyntaxError & s) {
 			if (name) delete name;
-			if (f) {
+			/*if (f) {
 				for (FunctionStatement * func : * f) delete func;
 				delete f;
 			}
 			if (p) {
 				for (ProcedureStatement * proc : * p) delete proc;
 				delete p;
-			}
+			}*/
 			throw;
 		}
 		isInControlFlow = oldControlFlow;
 		isInProcedure = oldProcedure;
 		isInFunction = oldFunction;
-		return new ClassStatement(name, f, p);
+		return new ClassStatement(name, staticFields, dynamicFields);
+	}
+	Statement * Parser::fieldStatement() {
+		Statement * field = nullptr;
+		try {
+			String * type = nullptr;
+			if (match(TokenType::customType)) {
+				type = typeString();
+				field = variableDeclaration(* type, true);
+				delete type;
+			} else if (match(TokenType::basicType)) {
+				type = typeString();
+				field = variableDeclaration(* type);
+				delete type;
+			} else {
+				Token t = peek();
+				throw SyntaxError(
+					"Expected field declaration but found '" + t.lexeme + "'!",
+					Linker::getLine(currentUnit -> contents, t.position)
+				);
+			}
+		} catch (SyntaxError & s) { throw; }
+		return field;
 	}
 	Statement * Parser::forStatement() {
 		Bool oldControlFlow = isInControlFlow;
