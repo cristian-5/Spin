@@ -17,6 +17,10 @@ a stable release our team will eventually
 turn the interpreter into a *virtual machine*.
 We aim to create a powerful language.
 
+## A taste of spin:
+
+![Features](Badges/Features.png)
+
 The documentation contains the language syntax specification.
 
 - [**Syntax Specification**](Documentation/)
@@ -27,7 +31,7 @@ The documentation contains the language syntax specification.
 we only completed 65% of the total tasks.
 
 **New Contributors are WELCOME**, so if you're a skilled dev
-feel free to contact me for joining our team. We are Desperate...
+feel free to contact me for joining our team.
 
 If you want to contribute you must follow these 
 [Conventions](Conventions/) in order to keep the

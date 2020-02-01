@@ -28,8 +28,8 @@ Parameters are separated with a comma and are defined
 with an identifier followed by colon and the type.
 
 ```swift
-func test(val: Integer) -> Integer {
-    return val + 1;
+proc test(val: Integer) {
+    print val + 1;
 }
 ```
 
@@ -40,13 +40,12 @@ the identifier followed by eventual parameters
 enclosed in round brackets.
 
 ```swift
-Integer x = test(5);
-x = test(x); /* x === 7 */
+// This prints 6:
+test(5);
 ```
 
 ## Reference and Copy
 
-Classes are always passed by reference in functions
-and procedures.
-Basic Types are always passed by copy in functions
-and procedures.
+Classes are always passed and returned by reference in functions
+and procedures. You can use the assignment operator to make copies.
+Basic Types are always passed by copy in functions and procedures.
