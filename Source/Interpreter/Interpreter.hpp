@@ -644,17 +644,6 @@ namespace Spin {
 			}
 		} catch (Exception & exc) { throw; }
 	}
-	void Interpreter::visitPrintStatement(PrintStatement * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> e);
-			Output << expression -> getObjectStringValue() << endLine;
-			if (expression) delete expression;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			throw;
-		}
-	}
 	void Interpreter::visitProcedureStatement(ProcedureStatement * e) {
 		try {
 			if (instanceDefinition) {

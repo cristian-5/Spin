@@ -157,8 +157,6 @@ namespace Spin {
 		continueKeyword,
 		selfKeyword,
 
-		printKeyword,
-
 		importKeyword,
 
 		funcKeyword,
@@ -345,8 +343,7 @@ namespace Spin {
 	class ForStatement;
 	class FunctionStatement;
 	class IfStatement;
-	class LoopStatement;	
-	class PrintStatement;
+	class LoopStatement;
 	class ProcedureStatement;
 	class RepeatUntilStatement;
 	class RestStatement;
@@ -407,7 +404,6 @@ namespace Spin {
 			virtual void visitFunctionStatement(FunctionStatement * e) = 0;
 			virtual void visitIfStatement(IfStatement * e) = 0;
 			virtual void visitLoopStatement(LoopStatement * e) = 0;
-			virtual void visitPrintStatement(PrintStatement * e) = 0;
 			virtual void visitProcedureStatement(ProcedureStatement * e) = 0;
 			virtual void visitRepeatUntilStatement(RepeatUntilStatement * e) = 0;
 			virtual void visitRestStatement(RestStatement * e) = 0;
@@ -736,13 +732,6 @@ namespace Spin {
 		LoopStatement(Statement * b, Token * l);
 		void accept(Visitor * visitor) override;
 		~LoopStatement();
-	};
-	class PrintStatement: public Statement {
-		public:
-		Expression * e = nullptr;
-		PrintStatement(Expression * ex);
-		void accept(Visitor * visitor) override;
-		~PrintStatement();
 	};
 	class ProcedureStatement: public Statement {
 		public:
@@ -2939,7 +2928,6 @@ namespace Spin {
 		void visitFunctionStatement(FunctionStatement * e) override;
 		void visitIfStatement(IfStatement * e) override;
 		void visitLoopStatement(LoopStatement * e) override;
-		void visitPrintStatement(PrintStatement * e) override;
 		void visitProcedureStatement(ProcedureStatement * e) override;
 		void visitRepeatUntilStatement(RepeatUntilStatement * e) override;
 		void visitRestStatement(RestStatement * e) override;
@@ -3053,8 +3041,6 @@ namespace Spin {
 			{ Regex("^(\\])"), TokenType::closeBracket },
 			{ Regex("^(\\{)"), TokenType::openBrace },
 			{ Regex("^(\\})"), TokenType::closeBrace },
-
-			{ Regex("^(print)\\b"), TokenType::printKeyword },
 
 			{ Regex("^(if)\\b"), TokenType::ifKeyword },
 			{ Regex("^(else)\\b"), TokenType::elseKeyword },
@@ -3202,7 +3188,6 @@ namespace Spin {
 		Statement * classDeclaration();
 		Statement * fieldStatement();
 		Statement * forStatement();
-		Statement * printStatement();
 		Statement * whileStatement();
 		Statement * doWhileStatement();
 		Statement * untilStatement();

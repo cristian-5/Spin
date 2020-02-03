@@ -518,7 +518,6 @@ namespace Spin {
 				case TokenType::funcKeyword: st = functionStatement(); break;
 				case TokenType::procKeyword: st = procedureStatement(); break;
 				case TokenType::ifKeyword: st = ifStatement(); break;
-				case TokenType::printKeyword: st = printStatement(); break;
 				case TokenType::whileKeyword: st = whileStatement(); break;
 				case TokenType::doKeyword: st = doWhileStatement(); break;
 				case TokenType::untilKeyword: st = untilStatement(); break;
@@ -876,18 +875,6 @@ namespace Spin {
 			new ForStatement(declaration, condition,
 								stepper, body, forToken)
 		);
-	}
-	Statement * Parser::printStatement() {
-		advance();
-		Expression * ex = nullptr;
-		try {
-			ex = expression();
-			consume(TokenType::semicolon, ";");
-		} catch (SyntaxError & s) {
-			if (ex) delete ex;
-			throw;
-		}
-		return new PrintStatement(ex);
 	}
 	Statement * Parser::whileStatement() {
 		Bool oldControlFlow = isInControlFlow;

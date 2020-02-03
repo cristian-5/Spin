@@ -173,13 +173,6 @@ namespace Spin {
 		delete loopToken;
 		delete body;
 	}
-	
-	PrintStatement::PrintStatement(Expression * ex) { e = ex; }
-	void PrintStatement::accept(Visitor * visitor) {
-		try { visitor -> visitPrintStatement(this); }
-		catch (Exception & e) { throw; }
-	}
-	PrintStatement::~PrintStatement() { delete e; }
 
 	ProcedureStatement::ProcedureStatement(Token * n, Array<Parameter *> * p, BlockStatement * b) {
 		name = n, params = p; body = b;
