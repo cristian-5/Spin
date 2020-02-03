@@ -64,6 +64,8 @@ namespace Spin {
 	void Object::safeDestroy() {
 		if (type == BasicType::InstanceType) {
 			((Instance *) value) -> destroy();
+		} else if (type == BasicType::ClassType) {
+			((Class *) value) -> destroy();
 		}
 		delete this;
 	}

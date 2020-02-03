@@ -43,12 +43,12 @@ namespace Spin {
 
 	void Maths::defineLibrary(Environment * global) {
 		if (!global) return;
-
 	}
 
-	void Standard::defineLibrary(Environment * global) {
+	void Foundation::defineLibrary(Environment * global) {
 		if (!global) return;
-		/* String Cast */
+
+		/* String Cast 
 		global -> define(
 			"String", new Object(BasicType::FunctionType,
 				new NativeFunction(
@@ -62,13 +62,60 @@ namespace Spin {
 						);
 					}, new Array<Parameter *>({ nullptr }),
 					"<dynamic ^ String ^ cast>"
-					/* The nullptr literal specifies one argument
+					 The nullptr literal specifies one argument
 					   of any type that is going to be handled
-					   later inside the lambda with a typecheck. */
+					   later inside the lambda with a typecheck.
 				)
 			)
+		);*/
+
+		Class * dec = new Class(
+			"Console",
+			new Array<AttributeStatement *>(),
+			new Dictionary<String, Pair<Modifier, Object *>>()
 		);
-		// Define console
+		dec -> defineStatic("write", Modifier::publicAccess, Console::write());
+		dec -> defineStatic("writeLine", Modifier::publicAccess, Console::writeLine());
+
+		global -> define("Console", new Object(BasicType::ClassType, dec));
+
+	}
+
+	Object * Foundation::Console::write() {
+		return new Object(BasicType::FunctionType, 
+			new NativeProcedure(
+				[] (Interpreter * i, Array<Object *> a, Token * t) {
+					if (!a[0]) return nullptr;
+					Output << a[0] -> getObjectStringValue();
+					return nullptr;
+				}, new Array<Parameter *>({ nullptr }),
+				/* The nullptr literal specifies one argument
+				of any type that is going to be handled
+				later inside the lambda with a typecheck. */
+				"<proc Console::write>"
+			)
+		);
+	}
+	Object * Foundation::Console::writeLine() {
+		return new Object(BasicType::FunctionType, 
+			new NativeProcedure(
+				[] (Interpreter * i, Array<Object *> a, Token * t) {
+					if (!a[0]) return nullptr;
+					Output << a[0] -> getObjectStringValue() << endLine;
+					return nullptr;
+				}, new Array<Parameter *>({ nullptr }),
+				/* The nullptr literal specifies one argument
+				of any type that is going to be handled
+				later inside the lambda with a typecheck. */
+				"<proc Console::writeLine>"
+			)
+		);
+	}
+	Object * Foundation::Console::read() {
+		return nullptr;
+	}
+	Object * Foundation::Console::readLine() {
+		return nullptr;
 	}
 
 }

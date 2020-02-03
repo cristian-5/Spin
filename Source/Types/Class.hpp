@@ -38,12 +38,48 @@ namespace Spin {
 	Object * Class::call(Interpreter * i, Array<Object *> a, Token * c) {
 		return new Object(BasicType::InstanceType, new Instance(this, i));
 	}
+	Object * Class::getInnerReference(String & name) {
+		auto search = staticAttributes -> find(name);
+		if (search != staticAttributes -> end()) {
+			return search -> second.second;
+		}
+		throw VariableNotFoundException();
+	}
+	Object * Class::getReference(String & name) {
+		auto search = staticAttributes -> find(name);
+		if (search != staticAttributes -> end()) {
+			// Returns only if attribute is accessible (@public):
+			if (search -> second.first == Modifier::publicAccess) {
+				return search -> second.second;
+			}
+		}
+		throw VariableNotFoundException();
+	}
+	Object * Class::getValue(String & name) {
+		auto search = staticAttributes -> find(name);
+		if (search != staticAttributes -> end()) {
+			// Returns only if attribute is accessible (not @hidden):
+			if (search -> second.first != Modifier::hiddenAccess) {
+				return (search -> second.second) -> copy();
+			}
+		}
+		throw VariableNotFoundException();
+	}
 	String Class::stringValue() const {
 		return "<class " + name + ">";
 	}
 	UInt32 Class::arity() const { return 0; }
 	CallProtocol * Class::copy() const {
 		return new Class(name, dynamicAttributes, staticAttributes);
+	}
+	void Class::destroy() {
+		for (Pair<String, Pair<Modifier, Object *>> p : * staticAttributes) {
+			p.second.second -> safeDestroy();
+		}
+		delete staticAttributes;
+		// No need to delete dynamicAttributes
+		// because they are still in the syntax
+		// tree and will be automatically removed.
 	}
 
 	Instance::Instance(Class * t, Interpreter * i) {

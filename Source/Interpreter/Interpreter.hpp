@@ -152,7 +152,7 @@ namespace Spin {
 			throw;
 		}
 	}
-	Object * Interpreter::visitGetExpression(Get * e) {
+	Object * Interpreter::visitDynamicGetExpression(DynamicGet * e) {
 		Object * object = nullptr;
 		try {
 			object = evaluate(e -> object);
@@ -180,9 +180,50 @@ namespace Spin {
 		}
 		return object;
 	}
+	Object * Interpreter::visitDynamicSetExpression(DynamicSet * e) {
+		Object * object = nullptr;
+		Object * value = nullptr;
+		try {
+			object = evaluate(e -> object);
+			if (object -> type != BasicType::InstanceType) {
+				throw EvaluationError(
+					"The resolved object is not an instance and does not contain properties!",
+					* e -> name
+				);
+			}
+			value = evaluate(e -> value);
+			Object * field = nullptr;
+			try {
+				field = ((Instance *) object -> value) -> getReference(
+					e -> name -> lexeme
+				);
+			} catch (VariableNotFoundException & u) {
+				throw EvaluationError(
+					"The resolved object does not contain any attribute, field or method named '" +
+					e -> name -> lexeme + "'!", * e -> name
+				);
+			}
+			CPU -> applyAssignment(e -> equals, field, value);
+		} catch (Exception & exc) {
+			if (object) delete object;
+			if (value) delete value;
+			throw;
+		}
+		return value;
+	}
 	Object * Interpreter::visitGroupingExpression(Grouping * e) {
 		try { return evaluate(e -> expression); }
 		catch (Exception & exc) { throw; }
+	}
+	Object * Interpreter::visitIdentifierExpression(Identifier * e) {
+		try {
+			return memory -> getValue(e -> name -> lexeme);
+		} catch (VariableNotFoundException & exc) {
+			throw EvaluationError(
+				"Unexpected identifier '" +
+				e -> name -> lexeme + "'!", * e -> name
+			);
+		}
 	}
 	Object * Interpreter::visitInnerExpression(Inner * e) {
 		Object * b = nullptr;
@@ -303,21 +344,50 @@ namespace Spin {
 	Object * Interpreter::visitOuterExpression(Outer * e) {
 		return nullptr;
 	}
-	Object * Interpreter::visitSetExpression(Set * e) {
+	Object * Interpreter::visitSelfExpression(Self * e) { return nullptr; }
+	Object * Interpreter::visitStaticGetExpression(StaticGet * e) {
+		Object * object = nullptr;
+		try {
+			object = evaluate(e -> object);
+			if (object -> type == BasicType::ClassType) {
+				try {
+					Object * value = ((Class *) object -> value) -> getValue(
+						e -> name -> lexeme
+					);
+					delete object;
+					return value;
+				} catch (VariableNotFoundException & u) {
+					throw EvaluationError(
+						"The resolved object does not contain any static attribute, field or method named '" +
+						e -> name -> lexeme + "'!", * e -> name
+					);
+				}
+			}
+			throw EvaluationError(
+				"The resolved object is not a definition that provides a static context!",
+				* e -> name
+			);
+		} catch (Exception & exc) {
+			if (object) delete object;
+			throw;
+		}
+		return object;
+	}
+	Object * Interpreter::visitStaticSetExpression(StaticSet * e) {
 		Object * object = nullptr;
 		Object * value = nullptr;
 		try {
 			object = evaluate(e -> object);
-			if (object -> type != BasicType::InstanceType) {
+			if (object -> type != BasicType::ClassType) {
 				throw EvaluationError(
-					"The resolved object is not an instance and does not contain properties!",
+					"The resolved object is not a definition that provides a static context!",
 					* e -> name
 				);
 			}
 			value = evaluate(e -> value);
 			Object * field = nullptr;
 			try {
-				field = ((Instance *) object -> value) -> getReference(
+				field = ((Class *) object -> value) -> getReference(
 					e -> name -> lexeme
 				);
 			} catch (VariableNotFoundException & u) {
@@ -327,13 +397,12 @@ namespace Spin {
 				);
 			}
 			CPU -> applyAssignment(e -> equals, field, value);
-			return value;
 		} catch (Exception & exc) {
 			if (object) delete object;
 			if (value) delete value;
 			throw;
 		}
-		return nullptr;
+		return value;
 	}
 	Object * Interpreter::visitSubscriptExpression(Subscript * e) {
 		Object * item = nullptr;
@@ -359,7 +428,6 @@ namespace Spin {
 			throw;
 		}
 	}
-	Object * Interpreter::visitSelfExpression(Self * e) { return nullptr; }
 	Object * Interpreter::visitUnaryExpression(Unary * e) {
 		Object * expression = nullptr;
 		Object * result = nullptr;
@@ -371,16 +439,6 @@ namespace Spin {
 			if (expression) delete expression;
 			if (result) delete result;
 			throw;
-		}
-	}
-	Object * Interpreter::visitIdentifierExpression(Identifier * e) {
-		try {
-			return memory -> getValue(e -> name -> lexeme);
-		} catch (VariableNotFoundException & exc) {
-			throw EvaluationError(
-				"Unexpected identifier '" +
-				e -> name -> lexeme + "'!", * e -> name
-			);
 		}
 	}
 
@@ -868,7 +926,7 @@ namespace Spin {
 		if (!syntaxTree) return;
 		globals = new Environment();
 		memory = globals;
-		if (syntaxTree -> standardLibrary) Standard::defineLibrary(globals);
+		if (syntaxTree -> foundationLibrary) Foundation::defineLibrary(globals);
 		if (syntaxTree -> mathsLibrary) Maths::defineLibrary(globals);
 		if (syntaxTree -> kronosLibrary) Kronos::defineLibrary(globals);
 		try {

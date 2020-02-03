@@ -316,8 +316,10 @@ namespace Spin {
 	class Bra;
 	class Call;
 	class Comparison;
-	class Get;
+	class DynamicGet;
+	class DynamicSet;
 	class Grouping;
+	class Identifier;
 	class Inner;
 	class Ket;
 	class List;
@@ -325,11 +327,11 @@ namespace Spin {
 	class Logical;
 	class Mutable;
 	class Outer;
-	class Set;
-	class Subscript;
 	class Self;
+	class StaticGet;
+	class StaticSet;
+	class Subscript;
 	class Unary;
-	class Identifier;
 
 	class AttributeStatement;
 	class BlockStatement;
@@ -364,8 +366,10 @@ namespace Spin {
 			virtual Object * visitBraExpression(Bra * e) = 0;
 			virtual Object * visitCallExpression(Call * e) = 0;
 			virtual Object * visitComparisonExpression(Comparison * e) = 0;
-			virtual Object * visitGetExpression(Get * e) = 0;
+			virtual Object * visitDynamicGetExpression(DynamicGet * e) = 0;
+			virtual Object * visitDynamicSetExpression(DynamicSet * e) = 0;
 			virtual Object * visitGroupingExpression(Grouping * e) = 0;
+			virtual Object * visitIdentifierExpression(Identifier * e) = 0;
 			virtual Object * visitInnerExpression(Inner * e) = 0;
 			virtual Object * visitKetExpression(Ket * e) = 0;
 			virtual Object * visitListExpression(List * e) = 0;
@@ -373,11 +377,11 @@ namespace Spin {
 			virtual Object * visitLogicalExpression(Logical * e) = 0;
 			virtual Object * visitMutableExpression(Mutable * e) = 0;
 			virtual Object * visitOuterExpression(Outer * e) = 0;
-			virtual Object * visitSetExpression(Set * e) = 0;
-			virtual Object * visitSubscriptExpression(Subscript * e) = 0;
 			virtual Object * visitSelfExpression(Self * e) = 0;
+			virtual Object * visitStaticGetExpression(StaticGet * e) = 0;
+			virtual Object * visitStaticSetExpression(StaticSet * e) = 0;
+			virtual Object * visitSubscriptExpression(Subscript * e) = 0;
 			virtual Object * visitUnaryExpression(Unary * e) = 0;
-			virtual Object * visitIdentifierExpression(Identifier * e) = 0;
 		};
 		virtual Object * accept(Visitor *) { return nullptr; }
 		template<typename t>
@@ -467,13 +471,23 @@ namespace Spin {
 		Object * accept(Visitor * visitor) override;
 		~Comparison();
 	};
-	class Get: public Expression {
+	class DynamicGet: public Expression {
 		public:
 		Expression * object = nullptr;
 		Token * name = nullptr;
-		Get(Expression * o, Token * n);
+		DynamicGet(Expression * o, Token * n);
 		Object * accept(Visitor * visitor) override;
-		~Get();
+		~DynamicGet();
+	};
+	class DynamicSet: public Expression {
+		public:
+		Expression * object = nullptr;
+		Token * name = nullptr;
+		Token * equals = nullptr;
+		Expression * value = nullptr;
+		DynamicSet(Expression * o, Token * n, Expression * v, Token * e);
+		Object * accept(Visitor * visitor) override;
+		~DynamicSet();
 	};
 	class Grouping: public Expression {
 		public:
@@ -481,6 +495,13 @@ namespace Spin {
 		Grouping(Expression * e);
 		Object * accept(Visitor * visitor) override;
 		~Grouping();
+	};
+	class Identifier: public Expression {
+		public:
+		Token * name = nullptr;
+		Identifier(Token * n);
+		Object * accept(Visitor * visitor) override;
+		~Identifier();
 	};
 	class Inner: public Expression {
 		public:
@@ -541,15 +562,30 @@ namespace Spin {
 		Object * accept(Visitor * visitor) override;
 		~Outer();
 	};
-	class Set: public Expression {
+	class Self: public Expression {
+		public:
+		Token * keyword = nullptr;
+		Self(Token * k);
+		Object * accept(Visitor * visitor) override;
+		~Self();
+	};
+	class StaticGet: public Expression {
+		public:
+		Expression * object = nullptr;
+		Token * name = nullptr;
+		StaticGet(Expression * o, Token * n);
+		Object * accept(Visitor * visitor) override;
+		~StaticGet();
+	};
+	class StaticSet: public Expression {
 		public:
 		Expression * object = nullptr;
 		Token * name = nullptr;
 		Token * equals = nullptr;
 		Expression * value = nullptr;
-		Set(Expression * o, Token * n, Expression * v, Token * e);
+		StaticSet(Expression * o, Token * n, Expression * v, Token * e);
 		Object * accept(Visitor * visitor) override;
-		~Set();
+		~StaticSet();
 	};
 	class Subscript: public Expression {
 		public:
@@ -560,13 +596,6 @@ namespace Spin {
 		Object * accept(Visitor * visitor) override;
 		~Subscript();
 	};
-	class Self: public Expression {
-		public:
-		Token * keyword = nullptr;
-		Self(Token * k);
-		Object * accept(Visitor * visitor) override;
-		~Self();
-	};
 	class Unary: public Expression {
 		public:
 		Expression * r = nullptr;
@@ -574,13 +603,6 @@ namespace Spin {
 		Unary(Token * op, Expression * rs);
 		Object * accept(Visitor * visitor) override;
 		~Unary();
-	};
-	class Identifier: public Expression {
-		public:
-		Token * name = nullptr;
-		Identifier(Token * n);
-		Object * accept(Visitor * visitor) override;
-		~Identifier();
 	};
 
 	class Parameter {
@@ -917,6 +939,19 @@ namespace Spin {
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
 	};
+	class NativeProcedure: public CallProtocol {
+		private:
+		Array<Parameter *> * params = nullptr;
+		NativeLambda lambda = nullptr;
+		String name;
+		public:
+		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n);
+		~NativeProcedure() = default;
+		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		String stringValue() const override;
+		UInt32 arity() const override;
+		CallProtocol * copy() const override;
+	};
 
 	/* Class */
 
@@ -925,14 +960,19 @@ namespace Spin {
 		String name;
 		Dictionary<String, Pair<Modifier, Object *>> * staticAttributes = nullptr;
 		Array<AttributeStatement *> * dynamicAttributes = nullptr;
-		Class(String n, Array<AttributeStatement *> * d,
+		Class(String n, Array<AttributeStatement *> * d =
+			  new Array<AttributeStatement *>(),
 			  Dictionary<String, Pair<Modifier, Object *>> * s =
 			  new Dictionary<String, Pair<Modifier, Object *>>());
 		void defineStatic(String name, Modifier access, Object * value);
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		Object * getInnerReference(String & name);
+		Object * getReference(String & name);
+		Object * getValue(String & name);
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
+		void destroy();
 	};
 	class Instance {
 		private:
@@ -2793,30 +2833,33 @@ namespace Spin {
 
 	/* Libraries */
 
+	class Foundation {
+		private: Foundation() = default;
+
+		class Console {
+			public:
+			static Object * write();
+			static Object * writeLine();
+			static Object * read();
+			static Object * readLine();
+		};
+
+		public: static void defineLibrary(Environment * global);
+	};
 	class Kronos {
-		private:
-		Kronos() = default;
-		public:
-		static void defineLibrary(Environment * global);
+		private: Kronos() = default;
+		public: static void defineLibrary(Environment * global);
 	};
 	class Maths {
-		private:
-		Maths() = default;
-		public:
-		static void defineLibrary(Environment * global);
-	};
-	class Standard {
-		private:
-		Standard() = default;
-		public:
-		static void defineLibrary(Environment * global);
+		private: Maths() = default;
+		public: static void defineLibrary(Environment * global);
 	};
 
 	/* Interpreter */
 
 	class SyntaxTree {
 		public:
-		Bool standardLibrary = false;
+		Bool foundationLibrary = false;
 		Bool mathsLibrary = false;
 		Bool kronosLibrary = false;
 		Array<Statement *> * statements = nullptr;
@@ -2866,8 +2909,10 @@ namespace Spin {
 		Object * visitBraExpression(Bra * e) override;
 		Object * visitCallExpression(Call * e) override;
 		Object * visitComparisonExpression(Comparison * e) override;
-		Object * visitGetExpression(Get * e) override;
+		Object * visitDynamicGetExpression(DynamicGet * e) override;
+		Object * visitDynamicSetExpression(DynamicSet * e) override;
 		Object * visitGroupingExpression(Grouping * e) override;
+		Object * visitIdentifierExpression(Identifier * e) override;
 		Object * visitInnerExpression(Inner * e) override;
 		Object * visitKetExpression(Ket * e) override;
 		Object * visitListExpression(List * e) override;
@@ -2875,11 +2920,11 @@ namespace Spin {
 		Object * visitLogicalExpression(Logical * e) override;
 		Object * visitMutableExpression(Mutable * e) override;
 		Object * visitOuterExpression(Outer * e) override;
-		Object * visitSetExpression(Set * e) override;
-		Object * visitSubscriptExpression(Subscript * e) override;
 		Object * visitSelfExpression(Self * e) override;
+		Object * visitStaticGetExpression(StaticGet * e) override;
+		Object * visitStaticSetExpression(StaticSet * e) override;
+		Object * visitSubscriptExpression(Subscript * e) override;
 		Object * visitUnaryExpression(Unary * e) override;
-		Object * visitIdentifierExpression(Identifier * e) override;
 		Object * evaluate(Expression * e);
 		void visitAttributeStatement(AttributeStatement * e) override;
 		void visitBlockStatement(BlockStatement * e) override;
@@ -2963,6 +3008,7 @@ namespace Spin {
 			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::ketSymbol },
 
 			{ Regex("^(\\->)"), TokenType::arrow },
+			{ Regex("^(\\::)"), TokenType::doublecolon },
 			{ Regex("^(\\:)"), TokenType::colon },
 			{ Regex("^(\\;)"), TokenType::semicolon },
 			{ Regex("^(\\,)"), TokenType::comma },
@@ -2997,7 +3043,7 @@ namespace Spin {
 			{ Regex("^(\\%)"), TokenType::modulus },
 			{ Regex("^(\\$=)"), TokenType::dollarEqual },
 			{ Regex("^(\\$)"), TokenType::dollar },
-			{ Regex("^(°)"), TokenType::conjugate },
+			{ Regex("^(\\°)"), TokenType::conjugate },
 			{ Regex("^(\\^)"), TokenType::transpose },
 			{ Regex("^(\\')"), TokenType::dagger },
 
@@ -3182,6 +3228,7 @@ namespace Spin {
 		inline Token peekAdvance();
 		inline Token previous();
 		inline Token advance();
+		inline Token recede();
 		inline Token consume(TokenType type, String lexeme = String());
 		inline void resetState();
 		void synchronise();

@@ -149,6 +149,39 @@ namespace Spin {
 		return new NativeFunction(* this);
 	}
 
+	NativeProcedure::NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n) {
+		lambda = l; params = p; name = n;
+	}
+	Object * NativeProcedure::call(Interpreter * i, Array<Object *> a, Token * c) {
+		SizeType j = 0;
+		for (Parameter * param : * params) {
+			if (!param) { j += 1; continue; }
+			if ((param -> type) != (a[j] -> type)) {
+				throw EvaluationError(
+					"Call of " + stringValue() + " doesn't match the predefined parameters!",
+					* (param -> tokenType)
+				);
+			} else if (param -> type == BasicType::ClassType) {
+				if ((param -> tokenType -> lexeme) !=
+					(a[j] -> getObjectName())) {
+					throw EvaluationError(
+						"Call of " + stringValue() + " doesn't match the predefined parameters!",
+						* (param -> tokenType)
+					);
+				}
+			}
+			j += 1;                                        
+		}
+		try { lambda(i, a, c); }
+		catch (Exception & e) { throw; }
+		return nullptr;
+	}
+	String NativeProcedure::stringValue() const { return name; }
+	UInt32 NativeProcedure::arity() const { return params -> size(); }
+	CallProtocol * NativeProcedure::copy() const {
+		return new NativeProcedure(* this);
+	}
+
 }
 
 #endif

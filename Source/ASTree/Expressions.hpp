@@ -74,14 +74,23 @@ namespace Spin {
 	}
 	Comparison::~Comparison() { delete r; delete l; delete o; }
 
-	Get::Get(Expression * o, Token * n) {
+	DynamicGet::DynamicGet(Expression * o, Token * n) {
 		object = o; name = n;
 	}
-	Object * Get::accept(Visitor * visitor) {
-		try { return visitor -> visitGetExpression(this); }
+	Object * DynamicGet::accept(Visitor * visitor) {
+		try { return visitor -> visitDynamicGetExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Get::~Get() { delete object; delete name; }
+	DynamicGet::~DynamicGet() { delete object; delete name; }
+
+	DynamicSet::DynamicSet(Expression * o, Token * n, Expression * v, Token * e) {
+		object = o; name = n; value = v; equals = e;
+	}
+	Object * DynamicSet::accept(Visitor * visitor) {
+		try { return visitor -> visitDynamicSetExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	DynamicSet::~DynamicSet() { delete object; delete name; delete value; delete equals; }
 
 	Grouping::Grouping(Expression * e) { expression = e; }
 	Object * Grouping::accept(Visitor * visitor) {
@@ -89,6 +98,13 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	Grouping::~Grouping() { delete expression; }
+
+	Identifier::Identifier(Token * n) { name = n; }
+	Object * Identifier::accept(Visitor * visitor) {
+		try { return visitor -> visitIdentifierExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	Identifier::~Identifier() { delete name; }
 
 	Inner::Inner(Token * i, String & b, String & k) {
 		inner = i; bra = b; ket = k;
@@ -153,15 +169,31 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	Outer::~Outer() { delete outer; }
-		
-	Set::Set(Expression * o, Token * n, Expression * v, Token * e) {
-		object = o; name = n; value = v; equals = e;
-	}
-	Object * Set::accept(Visitor * visitor) {
-		try { return visitor -> visitSetExpression(this); }
+
+	Self::Self(Token * k) { keyword = k; }
+	Object * Self::accept(Visitor * visitor) {
+		try { return visitor -> visitSelfExpression(this); }
 		catch (Exception & e) { throw; }
 	}
-	Set::~Set() { delete object; delete name; delete value; delete equals; }
+	Self::~Self() { delete keyword; }
+
+	StaticGet::StaticGet(Expression * o, Token * n) {
+		object = o; name = n;
+	}
+	Object * StaticGet::accept(Visitor * visitor) {
+		try { return visitor -> visitStaticGetExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	StaticGet::~StaticGet() { delete object; delete name; }
+
+	StaticSet::StaticSet(Expression * o, Token * n, Expression * v, Token * e) {
+		object = o; name = n; value = v; equals = e;
+	}
+	Object * StaticSet::accept(Visitor * visitor) {
+		try { return visitor -> visitStaticSetExpression(this); }
+		catch (Exception & e) { throw; }
+	}
+	StaticSet::~StaticSet() { delete object; delete name; delete value; delete equals; }
 
 	Subscript::Subscript(Expression * i, Token * b, Expression * e) {
 		bracket = b; item = i; expression = e;
@@ -173,13 +205,6 @@ namespace Spin {
 	Subscript::~Subscript() {
 		delete bracket; delete item; delete expression;
 	}
-	
-	Self::Self(Token * k) { keyword = k; }
-	Object * Self::accept(Visitor * visitor) {
-		try { return visitor -> visitSelfExpression(this); }
-		catch (Exception & e) { throw; }
-	}
-	Self::~Self() { delete keyword; }
 		
 	Unary::Unary(Token * op, Expression * rs) { o = op; r = rs; }
 	Object * Unary::accept(Visitor * visitor) {
@@ -187,13 +212,6 @@ namespace Spin {
 		catch (Exception & e) { throw; }
 	}
 	Unary::~Unary() { delete r; delete o; }
-		
-	Identifier::Identifier(Token * n) { name = n; }
-	Object * Identifier::accept(Visitor * visitor) {
-		try { return visitor -> visitIdentifierExpression(this); }
-		catch (Exception & e) { throw; }
-	}
-	Identifier::~Identifier() { delete name; }
 
 }
 

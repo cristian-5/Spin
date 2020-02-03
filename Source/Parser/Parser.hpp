@@ -40,9 +40,12 @@ namespace Spin {
 				Token * name = new Token(* (((Identifier *)(ex)) -> name));
 				delete ex;
 				return new Assignment(name, value, equals);
-			} else if (ex -> isInstanceOf<Get>()) {
-				Get * get = (Get *) ex;
-				return new Set(get -> object, get -> name, value, equals);
+			} else if (ex -> isInstanceOf<DynamicGet>()) {
+				DynamicGet * get = (DynamicGet *) ex;
+				return new DynamicSet(get -> object, get -> name, value, equals);
+			} else if (ex -> isInstanceOf<StaticGet>()) {
+				StaticGet * get = (StaticGet *) ex;
+				return new StaticSet(get -> object, get -> name, value, equals);
 			}
 			if (value) delete value;
 			delete ex;
@@ -270,7 +273,14 @@ namespace Spin {
 					Token * name = new Token(
 						consume(TokenType::symbol, "identifier")
 					);
-					ex = new Get(ex, name);
+					ex = new DynamicGet(ex, name);
+				} catch (SyntaxError & s) { throw; }
+			 } else if (match(TokenType::doublecolon)) {
+				try {
+					Token * name = new Token(
+						consume(TokenType::symbol, "identifier")
+					);
+					ex = new StaticGet(ex, name);
 				} catch (SyntaxError & s) { throw; }
 			 } else if (isConstructor) {
 				Token temp = peek();
@@ -414,9 +424,13 @@ namespace Spin {
 		String * type = nullptr;
 		try {
 			if (match(TokenType::customType)) {
-				type = typeString();
-				st = variableDeclaration(* type, true);
-				delete type; type = nullptr;
+				if (peek().type == TokenType::doublecolon) {
+					recede(); st = statement();
+				} else {
+					type = typeString();
+					st = variableDeclaration(* type, true);
+					delete type; type = nullptr;
+				}
 			} else if (match(TokenType::basicType)) {
 				type = typeString();
 				st = variableDeclaration(* type);
@@ -621,12 +635,12 @@ namespace Spin {
 		Parameter * returnType = new Parameter();
 		BlockStatement * body = nullptr;
 		try {
-			name = new Token(consume(TokenType::symbol, "identifier"));
+			name = new Token(consume(TokenType::symbol, "function identifier"));
 			consume(TokenType::openParenthesis, "(");
 			if (!check(TokenType::closeParenthesis)) {
 				do {
 					Parameter * p = new Parameter();
-					p -> name = new Token(consume(TokenType::symbol, "identifier"));
+					p -> name = new Token(consume(TokenType::symbol, "parameter identifier"));
 					consume(TokenType::colon, ":");
 					stringType = typeString(true);
 					p -> type = Converter::typeFromString(* stringType);
@@ -684,12 +698,12 @@ namespace Spin {
 		Array<Parameter *> * params = new Array<Parameter *>();
 		BlockStatement * body = nullptr;
 		try {
-			name = new Token(consume(TokenType::symbol, "identifier"));
+			name = new Token(consume(TokenType::symbol, "procedure identifier"));
 			consume(TokenType::openParenthesis, "(");
 			if (!check(TokenType::closeParenthesis)) {
 				do {
 					Parameter * p = new Parameter();
-					p -> name = new Token(consume(TokenType::symbol, "identifier"));
+					p -> name = new Token(consume(TokenType::symbol, "parameter identifier"));
 					consume(TokenType::colon, ":");
 					stringType = typeString(true);
 					p -> type = Converter::typeFromString(* stringType);
@@ -1021,7 +1035,7 @@ namespace Spin {
 	Statement * Parser::deleteStatement() {
 		advance();
 		try {
-			Token name = consume(TokenType::symbol, "identifier");
+			Token name = consume(TokenType::symbol, "variable identifier");
 			consume(TokenType::semicolon, ";");
 			return new DeleteStatement(new Token(name));
 		} catch (SyntaxError & s) { throw; }
@@ -1075,9 +1089,9 @@ namespace Spin {
 						tokens -> at(i).type = TokenType::empty;
 						return import;
 					}
-					case TokenType::dot: {
+					case TokenType::doublecolon: {
 						tokens -> at(i).type = TokenType::empty;
-						import += ".";
+						import += "::";
 						i += 1;
 						break;
 					}
@@ -1104,7 +1118,7 @@ namespace Spin {
 				try {
 					SizeType store = i;
 					String s = parseImport(i);
-					if (s == "Standard") syntaxTree -> standardLibrary = true;
+					if (s == "Foundation") syntaxTree -> foundationLibrary = true;
 					else if (s == "Maths") syntaxTree -> mathsLibrary = true;
 					else if (s == "Kronos") syntaxTree -> kronosLibrary = true;
 					else throw SyntaxError(
@@ -1210,6 +1224,10 @@ namespace Spin {
 	inline Token Parser::advance() {
 		if (!isAtEnd()) index += 1;
 		return previous();
+	}
+	inline Token Parser::recede() {
+		if (index > 0) index -= 1;
+		return peek();
 	}
 	inline Token Parser::consume(TokenType type, String lexeme) {
 		Token t = peek();
