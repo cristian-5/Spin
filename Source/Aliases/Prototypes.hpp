@@ -924,6 +924,7 @@ namespace Spin {
 		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n);
 		~NativeFunction() = default;
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		void deallocate(Array<Object *> & parameters);
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
@@ -937,6 +938,7 @@ namespace Spin {
 		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n);
 		~NativeProcedure() = default;
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		void deallocate(Array<Object *> & parameters);
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;

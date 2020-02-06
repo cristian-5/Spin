@@ -141,13 +141,14 @@ namespace Spin {
 		for (Parameter * param : * params) {
 			if (!param) { j += 1; continue; }
 			if ((param -> type) != (a[j] -> type)) {
+				deallocate(a);
 				throw EvaluationError(
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
 					* (param -> tokenType)
 				);
 			} else if (param -> type == BasicType::ClassType) {
-				if ((param -> tokenType -> lexeme) !=
-					(a[j] -> getObjectName())) {
+				if ((param -> tokenType -> lexeme) != (a[j] -> getObjectName())) {
+					deallocate(a);
 					throw EvaluationError(
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
 						* (param -> tokenType)
@@ -156,8 +157,18 @@ namespace Spin {
 			}
 			j += 1;                                        
 		}
-		try { return lambda(i, a, c); }
-		catch (Exception & e) { throw; }
+		Object * result = nullptr;
+		try {
+			result = lambda(i, a, c);
+		} catch (Exception & e) {
+			deallocate(a);
+			throw;
+		}
+		deallocate(a);
+		return result;
+	}
+	void NativeFunction::deallocate(Array<Object *> & parameters) {
+		for (Object * parameter : parameters) delete parameter;
 	}
 	String NativeFunction::stringValue() const { return name; }
 	UInt32 NativeFunction::arity() const { return params -> size(); }
@@ -173,13 +184,14 @@ namespace Spin {
 		for (Parameter * param : * params) {
 			if (!param) { j += 1; continue; }
 			if ((param -> type) != (a[j] -> type)) {
+				deallocate(a);
 				throw EvaluationError(
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
 					* (param -> tokenType)
 				);
 			} else if (param -> type == BasicType::ClassType) {
-				if ((param -> tokenType -> lexeme) !=
-					(a[j] -> getObjectName())) {
+				if ((param -> tokenType -> lexeme) != (a[j] -> getObjectName())) {
+					deallocate(a);
 					throw EvaluationError(
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
 						* (param -> tokenType)
@@ -188,9 +200,17 @@ namespace Spin {
 			}
 			j += 1;                                        
 		}
-		try { lambda(i, a, c); }
-		catch (Exception & e) { throw; }
+		try {
+			lambda(i, a, c);
+		} catch (Exception & e) {
+			deallocate(a);
+			throw;
+		}
+		deallocate(a);
 		return nullptr;
+	}
+	void NativeProcedure::deallocate(Array<Object *> & parameters) {
+		for (Object * parameter : parameters) delete parameter;
 	}
 	String NativeProcedure::stringValue() const { return name; }
 	UInt32 NativeProcedure::arity() const { return params -> size(); }
