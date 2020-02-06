@@ -28,10 +28,11 @@ namespace Spin {
 		closure = c;
 	}
 	Object * Function::call(Interpreter * i, Array<Object *> a, Token * c) {
-		Environment * environment = new Environment(closure);
+		Environment * parameters = new Environment(closure);
 		SizeType j = 0;
 		for (Parameter * param : * declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {
+				delete parameters;
 				throw EvaluationError(
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
 					* (param -> tokenType)
@@ -39,26 +40,33 @@ namespace Spin {
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) !=
 					(a[j] -> getObjectName())) {
+					delete parameters;
 					throw EvaluationError(
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
 						* (param -> tokenType)
 					);
 				}
 			}
-			environment -> define(param -> name -> lexeme, a[j]);
-			j += 1;                                        
+			parameters -> define(param -> name -> lexeme, a[j]);
+			j += 1;
 		}
+		Environment * environment = new Environment(parameters);
 		try {
 			i -> executeFunction(declaration -> body, environment);
 		} catch (InterpreterReturn & ret) {
 			Object * value = ret.getReturnValue();
 			String type = declaration -> returnType -> tokenType -> lexeme;
+			// Safely delete function parameters:
+			delete parameters;
+			parameters = nullptr;
 			if (value && type == value -> getObjectName()) return value;
 			throw EvaluationError(
 				"Function " + stringValue() + " reached bottom of body without returning a valid '" +
 				(declaration -> returnType -> tokenType -> lexeme) + "' value!", * ret.getReturnToken()
 			);
 		}
+		// Safely delete function parameters:
+		if (parameters) delete parameters;
 		throw EvaluationError(
 			"Function " + stringValue() + " reached bottom of body without returning a valid '" +
 			(declaration -> returnType -> tokenType -> lexeme) + "' value!", * c
@@ -77,10 +85,11 @@ namespace Spin {
 		closure = c;
 	}
 	Object * Procedure::call(Interpreter * i, Array<Object *> a, Token * c) {
-		Environment * environment = new Environment(closure);
+		Environment * parameters = new Environment(closure);
 		SizeType j = 0;
 		for (Parameter * param : * declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {
+				delete parameters;
 				throw EvaluationError(
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
 					* (param -> tokenType)
@@ -88,25 +97,32 @@ namespace Spin {
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) !=
 					(a[j] -> getObjectName())) {
+					delete parameters;
 					throw EvaluationError(
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
 						* (param -> tokenType)
 					);
 				}
 			}
-			environment -> define(param -> name -> lexeme, a[j]);
+			parameters -> define(param -> name -> lexeme, a[j]);
 			j += 1;                                        
 		}
+		Environment * environment = new Environment(parameters);
 		try {
 			i -> executeFunction(declaration -> body, environment);
 		} catch (InterpreterReturn & ret) {
 			if (ret.getReturnValue() -> value) {
+				// Safely delete function parameters:
+				delete parameters;
+				parameters = nullptr;
 				throw EvaluationError(
 					"Procedure " + stringValue() + " reached invalid return statement with value of type '" +
 					ret.getReturnValue() -> getObjectName() + "' value!", * ret.getReturnToken()
 				);
 			}
 		}
+		// Safely delete function parameters:
+		if (parameters) delete parameters;
 		return nullptr;
 	}
 	String Procedure::stringValue() const {

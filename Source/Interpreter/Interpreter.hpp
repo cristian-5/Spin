@@ -131,8 +131,9 @@ namespace Spin {
 			if (lost) memory -> lose(result);
 			return result;
 		} catch (Exception & exc) {
+			// There's no need to delete the arguments since
+			// they always get deleted in the function call.
 			if (callee) delete callee;
-			for (Object * o : arguments) delete o;
 			throw;
 		}
 	}
