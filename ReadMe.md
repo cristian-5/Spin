@@ -9,8 +9,8 @@
 
 **Spin Programming Language**
 
-High level programming language for *research* and
-**Quantum Computing** based on c++, Swift and C#.
+High level programming language for *research* in
+**Quantum Computing** built in *c++*.
 
 This language is currently *interpreted* but after
 a stable release our team will eventually
@@ -41,6 +41,16 @@ String hello = "number " + 10 + '!';
 Character exclam = hello[10];
 ```
 
+### Console Class
+
+``` swift
+import Foundation;
+
+Console::writeLine("hello there!");
+Console::write("writing on the ");
+Console::write("same line!!!");
+```
+
 The documentation contains the language syntax specification.
 
 - [**Syntax Specification**](Documentation/)
@@ -48,7 +58,8 @@ The documentation contains the language syntax specification.
 ## Code Contribution
 
 **Attention!** This project is currently under development and
-we only completed 65% of the total tasks.
+we only completed 70% of the total tasks. We are working on
+*class declarations* and *quantum objects*.
 
 **New Contributors are WELCOME**, so if you're a skilled dev
 feel free to contact me for joining our team.
