@@ -45,6 +45,13 @@ namespace Spin {
 		}
 		throw VariableNotFoundException();
 	}
+	Object * Class::getInnerValue(String & name) {
+		auto search = staticAttributes -> find(name);
+		if (search != staticAttributes -> end()) {
+			return (search -> second.second) -> copy();
+		}
+		throw VariableNotFoundException();
+	}
 	Object * Class::getReference(String & name) {
 		auto search = staticAttributes -> find(name);
 		if (search != staticAttributes -> end()) {
@@ -113,6 +120,13 @@ namespace Spin {
 		auto search = attributes -> find(name);
 		if (search != attributes -> end()) {
 			return search -> second.second;
+		}
+		throw VariableNotFoundException();
+	}
+	Object * Instance::getInnerValue(String & name) {
+		auto search = attributes -> find(name);
+		if (search != attributes -> end()) {
+			return (search -> second.second) -> copy();
 		}
 		throw VariableNotFoundException();
 	}

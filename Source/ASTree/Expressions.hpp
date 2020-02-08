@@ -74,8 +74,8 @@ namespace Spin {
 	}
 	Comparison::~Comparison() { delete r; delete l; delete o; }
 
-	DynamicGet::DynamicGet(Expression * o, Token * n) {
-		object = o; name = n;
+	DynamicGet::DynamicGet(Expression * o, Token * n, Bool s) {
+		object = o; name = n; selfReference = s;
 	}
 	Object * DynamicGet::accept(Visitor * visitor) {
 		try { return visitor -> visitDynamicGetExpression(this); }
@@ -83,8 +83,8 @@ namespace Spin {
 	}
 	DynamicGet::~DynamicGet() { delete object; delete name; }
 
-	DynamicSet::DynamicSet(Expression * o, Token * n, Expression * v, Token * e) {
-		object = o; name = n; value = v; equals = e;
+	DynamicSet::DynamicSet(Expression * o, Token * n, Expression * v, Token * e, Bool s) {
+		object = o; name = n; value = v; equals = e; selfReference = s;
 	}
 	Object * DynamicSet::accept(Visitor * visitor) {
 		try { return visitor -> visitDynamicSetExpression(this); }
@@ -177,8 +177,8 @@ namespace Spin {
 	}
 	Self::~Self() { delete keyword; }
 
-	StaticGet::StaticGet(Expression * o, Token * n) {
-		object = o; name = n;
+	StaticGet::StaticGet(Expression * o, Token * n, Bool s) {
+		object = o; name = n; selfReference = s;
 	}
 	Object * StaticGet::accept(Visitor * visitor) {
 		try { return visitor -> visitStaticGetExpression(this); }
@@ -186,8 +186,8 @@ namespace Spin {
 	}
 	StaticGet::~StaticGet() { delete object; delete name; }
 
-	StaticSet::StaticSet(Expression * o, Token * n, Expression * v, Token * e) {
-		object = o; name = n; value = v; equals = e;
+	StaticSet::StaticSet(Expression * o, Token * n, Expression * v, Token * e, Bool s) {
+		object = o; name = n; value = v; equals = e; selfReference = s;
 	}
 	Object * StaticSet::accept(Visitor * visitor) {
 		try { return visitor -> visitStaticSetExpression(this); }

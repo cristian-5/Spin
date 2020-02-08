@@ -50,20 +50,32 @@ namespace Spin {
 			parameters -> define(param -> name -> lexeme, a[j]);
 			j += 1;
 		}
+		// Binding self:
+		if (self) parameters -> define("self", self);
 		Environment * environment = new Environment(parameters);
 		try {
 			i -> executeFunction(declaration -> body, environment);
 		} catch (InterpreterReturn & ret) {
 			Object * value = ret.getReturnValue();
 			String type = declaration -> returnType -> tokenType -> lexeme;
+			// Safely unbinding self:
+			if (self) {
+				parameters -> unbind("self");
+				self = nullptr;
+			}
 			// Safely delete function parameters:
 			delete parameters;
 			parameters = nullptr;
 			if (value && type == value -> getObjectName()) return value;
 			throw EvaluationError(
-				"Function " + stringValue() + " reached bottom of body without returning a valid '" +
+				"Function " + stringValue() + " did not return a valid '" +
 				(declaration -> returnType -> tokenType -> lexeme) + "' value!", * ret.getReturnToken()
 			);
+		}
+		// Safely unbinding self:
+		if (self) {
+			parameters -> unbind("self");
+			self = nullptr;
 		}
 		// Safely delete function parameters:
 		if (parameters) delete parameters;
@@ -107,11 +119,18 @@ namespace Spin {
 			parameters -> define(param -> name -> lexeme, a[j]);
 			j += 1;                                        
 		}
+		// Binding self:
+		if (self) parameters -> define("self", self);
 		Environment * environment = new Environment(parameters);
 		try {
 			i -> executeFunction(declaration -> body, environment);
 		} catch (InterpreterReturn & ret) {
 			if (ret.getReturnValue() -> value) {
+				// Safely unbinding self:
+				if (self) {
+					parameters -> unbind("self");
+					self = nullptr;
+				}
 				// Safely delete function parameters:
 				delete parameters;
 				parameters = nullptr;
@@ -120,6 +139,11 @@ namespace Spin {
 					ret.getReturnValue() -> getObjectName() + "' value!", * ret.getReturnToken()
 				);
 			}
+		}
+		// Safely unbinding self:
+		if (self) {
+			parameters -> unbind("self");
+			self = nullptr;
 		}
 		// Safely delete function parameters:
 		if (parameters) delete parameters;

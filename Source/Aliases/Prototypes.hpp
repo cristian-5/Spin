@@ -303,6 +303,7 @@ namespace Spin {
 		void forget(String name);
 		void lose(Object * something);
 		void collect();
+		void unbind(String name);
 		Object * getReference(String name);
 		Object * getValue(String name);
 	};
@@ -471,7 +472,8 @@ namespace Spin {
 		public:
 		Expression * object = nullptr;
 		Token * name = nullptr;
-		DynamicGet(Expression * o, Token * n);
+		Bool selfReference = false;
+		DynamicGet(Expression * o, Token * n, Bool s = false);
 		Object * accept(Visitor * visitor) override;
 		~DynamicGet();
 	};
@@ -481,7 +483,9 @@ namespace Spin {
 		Token * name = nullptr;
 		Token * equals = nullptr;
 		Expression * value = nullptr;
-		DynamicSet(Expression * o, Token * n, Expression * v, Token * e);
+		Bool selfReference = false;
+		DynamicSet(Expression * o, Token * n,
+				   Expression * v, Token * e, Bool s = false);
 		Object * accept(Visitor * visitor) override;
 		~DynamicSet();
 	};
@@ -569,7 +573,8 @@ namespace Spin {
 		public:
 		Expression * object = nullptr;
 		Token * name = nullptr;
-		StaticGet(Expression * o, Token * n);
+		Bool selfReference = false;
+		StaticGet(Expression * o, Token * n, Bool s = false);
 		Object * accept(Visitor * visitor) override;
 		~StaticGet();
 	};
@@ -579,7 +584,9 @@ namespace Spin {
 		Token * name = nullptr;
 		Token * equals = nullptr;
 		Expression * value = nullptr;
-		StaticSet(Expression * o, Token * n, Expression * v, Token * e);
+		Bool selfReference = false;
+		StaticSet(Expression * o, Token * n,
+				  Expression * v, Token * e, Bool s = false);
 		Object * accept(Visitor * visitor) override;
 		~StaticSet();
 	};
@@ -878,6 +885,7 @@ namespace Spin {
 
 	class CallProtocol {
 		public:
+		Object * self = nullptr;
 		virtual ~CallProtocol() = default;
 		virtual Object * call(Interpreter * i, Array<Object *> a, Token * c) = 0;
 		virtual String stringValue() const = 0;
@@ -958,6 +966,7 @@ namespace Spin {
 		void defineStatic(String name, Modifier access, Object * value);
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		Object * getInnerReference(String & name);
+		Object * getInnerValue(String & name);
 		Object * getReference(String & name);
 		Object * getValue(String & name);
 		String stringValue() const override;
@@ -975,6 +984,7 @@ namespace Spin {
 		void attributesInitialisation(Interpreter * i);
 		void defineDynamic(String name, Modifier access, Object * value);
 		Object * getInnerReference(String & name);
+		Object * getInnerValue(String & name);
 		Object * getReference(String & name);
 		Object * getValue(String & name);
 		String stringValue() const;

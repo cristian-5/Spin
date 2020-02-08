@@ -57,6 +57,13 @@ namespace Spin {
 			delete object;
 		}
 	}
+	void Environment::unbind(String name) {
+		auto search = values.find(name);
+		if (search != values.end()) {
+			delete (search -> second);
+			values.erase(name);
+		}
+	}
 	Object * Environment::getReference(String name) {
 		auto search = values.find(name);
 		if (search != values.end()) {

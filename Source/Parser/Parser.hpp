@@ -42,10 +42,16 @@ namespace Spin {
 				return new Assignment(name, value, equals);
 			} else if (ex -> isInstanceOf<DynamicGet>()) {
 				DynamicGet * get = (DynamicGet *) ex;
-				return new DynamicSet(get -> object, get -> name, value, equals);
+				return new DynamicSet(
+					get -> object, get -> name,
+					value, equals, get -> selfReference
+				);
 			} else if (ex -> isInstanceOf<StaticGet>()) {
 				StaticGet * get = (StaticGet *) ex;
-				return new StaticSet(get -> object, get -> name, value, equals);
+				return new StaticSet(
+					get -> object, get -> name,
+					value, equals, get -> selfReference
+				);
 			}
 			if (value) delete value;
 			delete ex;
@@ -270,17 +276,29 @@ namespace Spin {
 				} catch (SyntaxError & s) { throw; }
 			} else if (match(TokenType::dot)) {
 				try {
+					Bool selfReference = false;
+					if (index > 2 &&
+						tokens -> at(index - 2).type ==
+						TokenType::selfKeyword) {
+						selfReference = true;
+					}
 					Token * name = new Token(
 						consume(TokenType::symbol, "identifier")
 					);
-					ex = new DynamicGet(ex, name);
+					ex = new DynamicGet(ex, name, selfReference);
 				} catch (SyntaxError & s) { throw; }
 			 } else if (match(TokenType::doublecolon)) {
 				try {
+					Bool selfReference = false;
+					if (index > 2 &&
+						tokens -> at(index - 2).type ==
+						TokenType::selfKeyword) {
+						selfReference = true;
+					}
 					Token * name = new Token(
 						consume(TokenType::symbol, "identifier")
 					);
-					ex = new StaticGet(ex, name);
+					ex = new StaticGet(ex, name, selfReference);
 				} catch (SyntaxError & s) { throw; }
 			 } else if (isConstructor) {
 				Token temp = peek();

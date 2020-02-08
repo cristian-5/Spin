@@ -157,24 +157,35 @@ namespace Spin {
 		Object * object = nullptr;
 		try {
 			object = evaluate(e -> object);
-			if (object -> type == BasicType::InstanceType) {
-				try {
-					Object * value = ((Instance *) object -> value) -> getValue(
+			if (object -> type != BasicType::InstanceType) {
+				throw EvaluationError(
+					"The resolved object is not an instance and does not contain properties!",
+					* e -> name
+				);
+			}
+			try {
+				Object * value = nullptr;
+				// Check if we are inside a method:
+				if (e -> selfReference) {
+					value = ((Instance *) object -> value) -> getInnerValue(
 						e -> name -> lexeme
 					);
-					delete object;
-					return value;
-				} catch (VariableNotFoundException & u) {
-					throw EvaluationError(
-						"The resolved object does not contain any attribute, field or method named '" +
-						e -> name -> lexeme + "'!", * e -> name
+				} else {
+					value = ((Instance *) object -> value) -> getValue(
+						e -> name -> lexeme
 					);
 				}
+				if (value -> type == BasicType::FunctionType) {
+					// Bind self to the function:
+					((CallProtocol *) value -> value) -> self = object;
+				} else delete object;
+				return value;
+			} catch (VariableNotFoundException & u) {
+				throw EvaluationError(
+					"The resolved object does not contain any attribute, field or method named '" +
+					e -> name -> lexeme + "'!", * e -> name
+				);
 			}
-			throw EvaluationError(
-				"The resolved object is not an instance and does not contain properties!",
-				* e -> name
-			);
 		} catch (Exception & exc) {
 			if (object) delete object;
 			throw;
@@ -195,9 +206,16 @@ namespace Spin {
 			value = evaluate(e -> value);
 			Object * field = nullptr;
 			try {
-				field = ((Instance *) object -> value) -> getReference(
-					e -> name -> lexeme
-				);
+				// Check if we are inside a method:
+				if (e -> selfReference) {
+					field = ((Instance *) object -> value) -> getInnerReference(
+						e -> name -> lexeme
+					);
+				} else {
+					field = ((Instance *) object -> value) -> getReference(
+						e -> name -> lexeme
+					);
+				}
 			} catch (VariableNotFoundException & u) {
 				throw EvaluationError(
 					"The resolved object does not contain any attribute, field or method named '" +
@@ -345,29 +363,54 @@ namespace Spin {
 	Object * Interpreter::visitOuterExpression(Outer * e) {
 		return nullptr;
 	}
-	Object * Interpreter::visitSelfExpression(Self * e) { return nullptr; }
+	Object * Interpreter::visitSelfExpression(Self * e) {
+		try {
+			return memory -> getValue("self");
+		} catch (VariableNotFoundException & exc) {
+			throw EvaluationError(
+				"Unexpected use of 'self' outside of allowed context!",
+				* e -> keyword
+			);
+		}
+	}
 	Object * Interpreter::visitStaticGetExpression(StaticGet * e) {
 		Object * object = nullptr;
 		try {
 			object = evaluate(e -> object);
-			if (object -> type == BasicType::ClassType) {
-				try {
-					Object * value = ((Class *) object -> value) -> getValue(
+			Class * definition = nullptr;
+			if (object -> type == BasicType::InstanceType) {
+				definition = ((Instance *) object -> value) -> type;
+			} else if (object -> type == BasicType::ClassType) {
+				definition = (Class *)object -> value;
+			} else {
+				throw EvaluationError(
+					"The resolved object is not a definition that provides a static context!",
+					* e -> name
+				);
+			}
+			try {
+				Object * value = nullptr;
+				// Check if we are inside a method:
+				if (e -> selfReference) {
+					value = definition -> getInnerValue(
 						e -> name -> lexeme
 					);
-					delete object;
-					return value;
-				} catch (VariableNotFoundException & u) {
-					throw EvaluationError(
-						"The resolved object does not contain any static attribute, field or method named '" +
-						e -> name -> lexeme + "'!", * e -> name
+				} else {
+					value = definition -> getValue(
+						e -> name -> lexeme
 					);
 				}
+				if (value -> type == BasicType::FunctionType) {
+					// Bind self to the function:
+					((CallProtocol *) value -> value) -> self = object;
+				} else delete object;
+				return value;
+			} catch (VariableNotFoundException & u) {
+				throw EvaluationError(
+					"The resolved object does not contain any static attribute, field or method named '" +
+					e -> name -> lexeme + "'!", * e -> name
+				);
 			}
-			throw EvaluationError(
-				"The resolved object is not a definition that provides a static context!",
-				* e -> name
-			);
 		} catch (Exception & exc) {
 			if (object) delete object;
 			throw;
@@ -379,7 +422,12 @@ namespace Spin {
 		Object * value = nullptr;
 		try {
 			object = evaluate(e -> object);
-			if (object -> type != BasicType::ClassType) {
+			Class * definition = nullptr;
+			if (object -> type == BasicType::InstanceType) {
+				definition = ((Instance *) object -> value) -> type;
+			} else if (object -> type == BasicType::ClassType) {
+				definition = (Class *) object -> value;
+			} else {
 				throw EvaluationError(
 					"The resolved object is not a definition that provides a static context!",
 					* e -> name
@@ -388,9 +436,16 @@ namespace Spin {
 			value = evaluate(e -> value);
 			Object * field = nullptr;
 			try {
-				field = ((Class *) object -> value) -> getReference(
-					e -> name -> lexeme
-				);
+				// Check if we are inside a method:
+				if (e -> selfReference) {
+					field = definition -> getInnerReference(
+						e -> name -> lexeme
+					);
+				} else {
+					field = definition -> getReference(
+						e -> name -> lexeme
+					);
+				}
 			} catch (VariableNotFoundException & u) {
 				throw EvaluationError(
 					"The resolved object does not contain any attribute, field or method named '" +
