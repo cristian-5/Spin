@@ -105,7 +105,10 @@ namespace Spin {
 
 	static String getInput() {
 		String input;
-		getline(std::cin, input);
+		Character c = 0x00;
+		while((c = Input.get()) != EOF && c != '\n') {
+			input.push(c);
+		}
 		return input;
 	}
 
