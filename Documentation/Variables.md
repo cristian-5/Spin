@@ -18,7 +18,7 @@ The sections that follow describe each of these categories.
 
 In the example
 
-```swift
+``` swift
 class A {
 
     @shared Integer x = 6;

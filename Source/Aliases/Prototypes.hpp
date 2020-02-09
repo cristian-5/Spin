@@ -2834,18 +2834,18 @@ namespace Spin {
 
 	/* Libraries */
 
-	class Foundation {
-		private: Foundation() = default;
-
-		class Console {
-			public:
-			static Object * write();
-			static Object * writeLine();
-			static Object * read();
-			static Object * readLine();
-		};
-
-		public: static void defineLibrary(Environment * global);
+	class Console {
+		private: Console() = default;
+		public:
+		static Object * write();
+		static Object * writeLine();
+		static Object * read();
+		static Object * readLine();
+		static Object * setBackground();
+		static Object * setForeground();
+		static Object * reset();
+		static Object * clean();
+		static void defineLibrary(Environment * global);
 	};
 	class Kronos {
 		private: Kronos() = default;
@@ -2860,7 +2860,7 @@ namespace Spin {
 
 	class SyntaxTree {
 		public:
-		Bool foundationLibrary = false;
+		Bool consoleLibrary = false;
 		Bool mathsLibrary = false;
 		Bool kronosLibrary = false;
 		Array<Statement *> * statements = nullptr;

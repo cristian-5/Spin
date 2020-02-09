@@ -10,3 +10,9 @@ hopefully satisfy your hunger for knowledge.
 - [Literals](Literals.md)
 - [ControlFlow](ControlFlow.md)
 - [Functions](Functions.md)
+
+# Libraries
+
+Built in, ready to use libraries.
+
+- [Console](Libraries/Console.md)

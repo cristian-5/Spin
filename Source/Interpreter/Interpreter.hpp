@@ -971,7 +971,7 @@ namespace Spin {
 		if (!syntaxTree) return;
 		globals = new Environment();
 		memory = globals;
-		if (syntaxTree -> foundationLibrary) Foundation::defineLibrary(globals);
+		if (syntaxTree -> consoleLibrary) Console::defineLibrary(globals);
 		if (syntaxTree -> mathsLibrary) Maths::defineLibrary(globals);
 		if (syntaxTree -> kronosLibrary) Kronos::defineLibrary(globals);
 		try {

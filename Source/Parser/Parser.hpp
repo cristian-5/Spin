@@ -1123,7 +1123,7 @@ namespace Spin {
 				try {
 					SizeType store = i;
 					String s = parseImport(i);
-					if (s == "Foundation") syntaxTree -> foundationLibrary = true;
+					if (s == "Console") syntaxTree -> consoleLibrary = true;
 					else if (s == "Maths") syntaxTree -> mathsLibrary = true;
 					else if (s == "Kronos") syntaxTree -> kronosLibrary = true;
 					else throw SyntaxError(

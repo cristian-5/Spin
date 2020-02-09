@@ -41,14 +41,14 @@ String hello = "number " + 10 + '!';
 Character exclam = hello[10];
 ```
 
-### Console Class
+### Console Library
+
+Check out the full [**Console Documentation**](Documentation/Libraries/Console.md)
 
 ``` swift
-import Foundation;
+import Console;
 
-Console::writeLine("hello there!");
-Console::write("writing on the ");
-Console::write("same line!!!");
+Console::writeLine("Hello world!");
 ```
 
 The documentation contains the language syntax specification.

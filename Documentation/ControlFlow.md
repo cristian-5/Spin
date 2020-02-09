@@ -6,7 +6,7 @@
 The condition needs to be a **Bool** value, otherwise you'll get a *runtime error*.
 Syntax is similar to c++, you can omit the curly braces if there's only one statement to evaluate.
 
-```swift
+``` swift
 
 if (a == 0) {
     a += 1;
@@ -22,7 +22,7 @@ else a = 8;
 The condition needs to be a **Bool** value, otherwise you'll get a *runtime error*.
 Syntax is similar to c++, you can omit the curly braces if there's only one statement to evaluate.
 
-```swift
+``` swift
 
 while (condition) {
     /* < code > */
