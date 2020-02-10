@@ -275,6 +275,7 @@ namespace Spin {
 		static String escapeString(String & s);
 		static Character escapeChar(String & s);
 		static BasicType typeFromString(String & s);
+		static String toString(Int64 & i);
 	};
 
 	/* Environment */
@@ -1311,7 +1312,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					String * a = (String *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					String * c = new String((* a) + intToString(* b));
+					String * c = new String((* a) + Converter::toString(* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1358,7 +1359,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					Int64 * a = (Int64 *) l -> value;
 					String * b = (String *) r -> value;
-					String * c = new String(intToString(* a) + (* b));
+					String * c = new String(Converter::toString(* a) + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -2775,7 +2776,7 @@ namespace Spin {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					* a = String(intToString(* b));
+					* a = String(Converter::toString(* b));
 				}
 			},
 			{

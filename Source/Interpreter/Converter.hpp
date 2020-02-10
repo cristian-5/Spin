@@ -102,6 +102,7 @@ namespace Spin {
 		}
 		return result;
 	}
+
 	Object * Converter::literalToObject(Token * t) {
 		Object * o = new Object();
 		if (!t) return o;
@@ -277,6 +278,37 @@ namespace Spin {
 		if (s == "Character") return BasicType::CharacterType;
 		if (s == "Byte") return BasicType::ByteType;
 		return BasicType::UnknownType;
+	}
+	String Converter::toString(Int64 & i) {
+		// For negative numbers, print out the
+		// absolute value with a leading '-'.
+		// Use an array large enough for a binary number.
+		Character * buffer = new Character[65];
+		SizeType size = 65;
+		Bool negative = false;
+		if (i < 0) {
+			negative = true;
+			i = - i;
+			// When the value is Integer::minimum,
+			// it overflows when made positive:
+			if (i < 0) {
+				size -= 1;
+				buffer[size] = '0' + (-(i + 10) % 10);
+				i = - (i / 10);
+			}
+		}
+		do {
+			size -= 1;
+			buffer[size] = '0' + i % 10;
+			i /= 10;
+		} while (i > 0);
+
+		if (negative) {
+			size -= 1;
+			buffer[size] = '-';
+		}
+		// Package constructor avoids an array copy:
+		return String(buffer + size, 65 - size);
 	}
 
 }

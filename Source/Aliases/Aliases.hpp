@@ -40,14 +40,14 @@ using OFStream = std::ofstream;
 
 using StringStream = std::stringstream;
 
-using UInt8 = std::uint8_t;
-using Int8 = std::int8_t;
-using UInt16 = std::uint16_t;
-using Int16 = std::int16_t;
-using UInt32 = std::uint32_t;
-using Int32 = std::int32_t;
-using UInt64 = std::uint64_t;
-using Int64 = std::int64_t;
+using UInt8 = std::uint_fast8_t;
+using Int8 = std::int_fast8_t;
+using UInt16 = std::uint_fast16_t;
+using Int16 = std::int_fast16_t;
+using UInt32 = std::uint_fast32_t;
+using Int32 = std::int_fast32_t;
+using UInt64 = std::uint_fast64_t;
+using Int64 = std::int_fast64_t;
 
 using SizeType = std::size_t;
 
@@ -71,7 +71,6 @@ using RegexError = std::regex_error;
 #define reallocation std::realloc
 #define allocation std::malloc
 
-#define toString std::to_string
 #define stringToLongDouble std::stold
 
 #define subString substr
@@ -140,11 +139,6 @@ namespace Spin {
 		if (i < 10) result << '.' << i << '0';
 		else result << '.' << i;
 		result << 'i'; return result.str();
-	}
-
-	static String intToString(Int64 a) {
-		if (a >= 0) return toString(a);
-		else return "-" + toString(-a);
 	}
 
 	static Real abs(Real x) {

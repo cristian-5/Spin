@@ -134,11 +134,12 @@ namespace Spin {
 			}
 			case BasicType::ByteType: {
 				UInt8 * i = (UInt8 *) value;
-				return toString((UInt64)(* i));
+				Int64 tmp = * i;
+				return Converter::toString(tmp);
 			}
 			case BasicType::IntegerType: {
 				Int64 * i = (Int64 *) value;
-				return intToString(* i);
+				return Converter::toString(* i);
 			}
 			case BasicType::RealType: {
 				Real * i = (Real *) value;
