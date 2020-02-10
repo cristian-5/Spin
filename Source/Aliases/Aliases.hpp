@@ -96,21 +96,18 @@ using RegexError = std::regex_error;
 
 #define DynamicCast dynamic_cast
 
+inline String getInput() {
+	String input;
+	getline(Input, input);
+	return input;
+}
+
 inline void waitKeyPress() { std::cin.get(); }
 
 const Int32 exitSuccess = 0;
 const Int32 exitFailure = 1;
 
 namespace Spin {
-
-	static String getInput() {
-		String input;
-		Character c = 0x00;
-		while((c = Input.get()) != EOF && c != '\n') {
-			input.push(c);
-		}
-		return input;
-	}
 
 	static String realToGroupedString(Real a) {
 		StringStream result;
