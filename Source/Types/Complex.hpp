@@ -96,10 +96,6 @@ namespace Spin {
 			   imaginaryToGroupedString(b);
 	}
 
-	Complex operator "" _i(Real i) {
-		return Complex(0, (Real)i);
-	}
-
 }
 
 #endif

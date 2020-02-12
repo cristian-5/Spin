@@ -82,9 +82,7 @@ using RegexError = std::regex_error;
 #define toUppercase toupper
 
 #define Character char
-#define Double double
-#define Float float
-#define Real long double
+#define Real double
 #define Bool bool
 
 #define hexConversion std::hex
