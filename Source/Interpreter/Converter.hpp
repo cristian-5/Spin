@@ -282,9 +282,10 @@ namespace Spin {
 	String Converter::toString(Int64 & i) {
 		// For negative numbers, print out the
 		// absolute value with a leading '-'.
-		// Use an array large enough for a binary number.
-		Character * buffer = new Character[65];
-		SizeType size = 65;
+		// Use an array large enough for the
+		// maximum number of digits + 1.
+		static Character buffer[20];
+		SizeType size = 20;
 		Bool negative = false;
 		if (i < 0) {
 			negative = true;
@@ -302,14 +303,14 @@ namespace Spin {
 			buffer[size] = '0' + i % 10;
 			i /= 10;
 		} while (i > 0);
-
 		if (negative) {
 			size -= 1;
 			buffer[size] = '-';
 		}
 		// Package constructor avoids an array copy:
-		return String(buffer + size, 65 - size);
+		return String(buffer + size, 20 - size);
 	}
+	
 
 }
 
