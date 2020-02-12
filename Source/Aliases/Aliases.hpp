@@ -68,9 +68,6 @@ using RegexError = std::regex_error;
 #define regexSearch std::regex_search
 #define regexReplace std::regex_replace
 
-#define reallocation std::realloc
-#define allocation std::malloc
-
 #define stringToLongDouble std::stold
 
 #define subString substr
