@@ -13,7 +13,6 @@ Spin offers a wide variety of literals:
 |    **String** | String           | `"hello world"` `"\t tab"`           |
 | **Character** | Character        | `'a'` `'A'` `'$'` `'\n'` `'\0xB2'`   |
 |      **Bool** | Bool Value       | `true` `false`                       |
-|      **Null** | Null Value       | `null`                               |
 |    **Vector** | Quantum Basis    | `<0|` `<1|`                          |
 |    **Vector** | Quantum Basis    | `|0>` `|1>`                          |
 

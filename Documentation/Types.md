@@ -23,8 +23,8 @@ contain methods and properties.
 
 |          Type | Size     | Description      |
 |--------------:|----------|:----------------:|
-|      **Real** | 12 Bytes | Real Number      |
-| **Imaginary** | 12 Bytes | Imaginary Number |
+|      **Real** |  8 Bytes | Real Number      |
+| **Imaginary** |  8 Bytes | Imaginary Number |
 
 ### Complex Type
 
@@ -33,7 +33,7 @@ an Imaginary one.
 
 |          Type | Size     | Description      |
 |--------------:|----------|:----------------:|
-|   **Complex** | 24 Bytes | Complex Number   |
+|   **Complex** | 16 Bytes | Complex Number   |
 
 ### String Type
 
@@ -51,5 +51,5 @@ Quantum types include Vectors, Matrices and QBits.
 
 |          Type | Size     | Description      |
 |--------------:|----------|:----------------:|
-|    **Vector** | **12N**  | Complex Vector   |
-|    **Matrix** | **12NN** | Complex Matrix   |
+|    **Vector** | **16N**  | Complex Vector   |
+|    **Matrix** | **16NN** | Complex Matrix   |

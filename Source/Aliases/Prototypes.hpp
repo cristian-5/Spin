@@ -884,13 +884,17 @@ namespace Spin {
 
 	class Interpreter;
 
+	class ParameterException: public Exception {
+		public: ParameterException(): Exception() { }
+	};
+
 	class CallProtocol {
 		public:
 		Object * self = nullptr;
 		virtual ~CallProtocol() = default;
 		virtual Object * call(Interpreter * i, Array<Object *> a, Token * c) = 0;
 		virtual String stringValue() const = 0;
-		virtual UInt32 arity() const = 0;
+		virtual inline UInt32 arity() const = 0;
 		virtual CallProtocol * copy() const = 0;
 		template<typename t>
 		Bool isInstanceOf() {
@@ -929,8 +933,9 @@ namespace Spin {
 		Array<Parameter *> * params = nullptr;
 		NativeLambda lambda = nullptr;
 		String name;
+		Bool mutableParameters = false;
 		public:
-		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n);
+		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
 		~NativeFunction() = default;
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		void deallocate(Array<Object *> & parameters);
@@ -943,8 +948,9 @@ namespace Spin {
 		Array<Parameter *> * params = nullptr;
 		NativeLambda lambda = nullptr;
 		String name;
+		Bool mutableParameters = false;
 		public:
-		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n);
+		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
 		~NativeProcedure() = default;
 		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
 		void deallocate(Array<Object *> & parameters);

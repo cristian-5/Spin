@@ -111,19 +111,14 @@ namespace Spin {
 					);
 				}
 				lost = true;
-				// Need a reference instead of a copy of the definition:
-				String name = ((Class *) callee -> value) -> name;
-				delete callee; callee = memory -> getReference(name);
+				// Needs a reference instead of a copy of the definition:
+				delete callee; callee = memory -> getReference(
+					((Class *) callee -> value) -> name
+				);
 				function = (CallProtocol *)(callee -> value);
 			} else if (e -> isConstructor) {
 				throw EvaluationError(
 					"Function call forbids unnecessary 'new' keyword!",
-					* e -> parenthesis
-				);
-			}
-			if (arguments.size() != function -> arity()) {
-				throw EvaluationError(
-					"Call of " + function -> stringValue() + " doesn't match the predefined parameters!",
 					* e -> parenthesis
 				);
 			}

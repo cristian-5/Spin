@@ -4,7 +4,7 @@
 ## If Statements:
 
 The condition needs to be a **Bool** value, otherwise you'll get a *runtime error*.
-Syntax is similar to c++, you can omit the curly braces if there's only one statement to evaluate.
+Syntax is similar to *c++*, you can omit the curly braces if there's only one statement to evaluate.
 
 ``` swift
 
