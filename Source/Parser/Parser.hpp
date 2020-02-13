@@ -486,7 +486,7 @@ namespace Spin {
 		}
 		BasicType type = isClass ?
 						 BasicType::InstanceType :
-						 Converter::typeFromString(stringType);
+						 Object::typeFromString(stringType);
 		return new VariableStatement(name, initialiser, type, equal, obj);
 	}
 	Statement * Parser::vectorDeclaration() {
@@ -660,7 +660,7 @@ namespace Spin {
 					p -> name = new Token(consume(TokenType::symbol, "parameter identifier"));
 					consume(TokenType::colon, ":");
 					stringType = typeString(true);
-					p -> type = Converter::typeFromString(* stringType);
+					p -> type = Object::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
 					p -> tokenType = new Token(peekAdvance());
 					params -> push(p);
@@ -678,7 +678,7 @@ namespace Spin {
 					Linker::getLine(currentUnit -> contents, er.position)
 				);
 			}
-			returnType -> type = Converter::typeFromString(* stringType);
+			returnType -> type = Object::typeFromString(* stringType);
 			delete stringType; stringType = nullptr;
 			returnType -> tokenType = new Token(previous());
 			if (!check(TokenType::openBrace)) {
@@ -723,7 +723,7 @@ namespace Spin {
 					p -> name = new Token(consume(TokenType::symbol, "parameter identifier"));
 					consume(TokenType::colon, ":");
 					stringType = typeString(true);
-					p -> type = Converter::typeFromString(* stringType);
+					p -> type = Object::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
 					p -> tokenType = new Token(peekAdvance());
 					params -> push(p);

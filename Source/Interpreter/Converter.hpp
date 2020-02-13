@@ -103,57 +103,6 @@ namespace Spin {
 		return result;
 	}
 
-	Object * Converter::literalToObject(Token * t) {
-		Object * o = new Object();
-		if (!t) return o;
-		if (!t -> isTypeLiteral()) return o;
-		switch (t -> type) {
-			case TokenType::intLiteral: {
-				o -> type = BasicType::IntegerType;
-				o -> value = new Int64(stringToInt64(t -> lexeme));
-			} break;
-			case TokenType::stringLiteral: {
-				o -> type = BasicType::StringType;
-				String * v = new String;
-				t -> lexeme = t -> lexeme.subString(1,
-								t -> lexeme.length() - 2);
-				* v = escapeString(t -> lexeme);
-				o -> value = v;
-			} break;
-			case TokenType::boolLiteral: {
-				o -> type = BasicType::BoolType;
-				o -> value = new Bool(stringToBool(t -> lexeme));
-			} break;
-			case TokenType::charLiteral: {
-				o -> type = BasicType::CharacterType;
-				Character * v = new Character;
-				t -> lexeme = t -> lexeme.subString(1,
-								t -> lexeme.length() - 2);
-				* v = escapeChar(t -> lexeme);
-				o -> value = v;
-			} break;
-			case TokenType::realLiteral: {
-				o -> type = BasicType::RealType;
-				o -> value = new Real(stringToReal(t -> lexeme));
-			} break;
-			case TokenType::imaginaryLiteral: {
-				o -> type = BasicType::ImaginaryType;
-				o -> value = new Real(stringToImaginary(t -> lexeme));
-			} break;
-			case TokenType::basisBraLiteral: {
-				o -> type = BasicType::VectorType;
-				Bool state = (t -> lexeme)[1] == '0' ? 0 : 1;
-				o -> value = Vector::basis(Vector::braDirection, state);
-			} break;
-			case TokenType::basisKetLiteral: {
-				o -> type = BasicType::VectorType;
-				Bool state = (t -> lexeme)[1] == '0' ? 0 : 1;
-				o -> value = Vector::basis(Vector::ketDirection, state);
-			} break;
-			default: return o;
-		}
-		return o;
-	}
 	Bool Converter::stringToBool(String & s) {
 		return s == "true";
 	}
@@ -267,17 +216,6 @@ namespace Spin {
 			return 0x00;
 		}
 		return s[0];
-	}
-	BasicType Converter::typeFromString(String & s) {
-		if (s == "Integer") return BasicType::IntegerType;
-		if (s == "Real") return BasicType::RealType;
-		if (s == "String") return BasicType::StringType;
-		if (s == "Imaginary") return BasicType::ImaginaryType;
-		if (s == "Complex") return BasicType::ComplexType;
-		if (s == "Bool") return BasicType::BoolType;
-		if (s == "Character") return BasicType::CharacterType;
-		if (s == "Byte") return BasicType::ByteType;
-		return BasicType::UnknownType;
 	}
 	String Converter::integerToString(Int64 & i) {
 		// For negative numbers, print out the

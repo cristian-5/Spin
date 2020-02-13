@@ -319,7 +319,7 @@ namespace Spin {
 	Object * Interpreter::visitLiteralExpression(Literal * e) {
 		try {
 			if (!(e -> object)) {
-				e -> object = Converter::literalToObject(e -> token);
+				e -> object = Object::fromLiteral(e -> token);
 			}
 			return e -> object -> copy();
 		} catch (Exception & exc) { throw; }

@@ -267,14 +267,12 @@ namespace Spin {
 		static Int64 octToInt64(String & s);
 		static Int64 binToInt64(String & s);
 		public:
-		static Object * literalToObject(Token * t);
 		static Bool stringToBool(String & s);
 		static Int64 stringToInt64(String & s);
 		static Real stringToReal(String & s);
 		static Real stringToImaginary(String & s);
 		static String escapeString(String & s);
 		static Character escapeChar(String & s);
-		static BasicType typeFromString(String & s);
 		static String integerToString(Int64 & i);
 	};
 
@@ -840,6 +838,8 @@ namespace Spin {
 		Bool isArray() const;
 		Bool isSubscriptable() const;
 		Bool getBoolValue() const;
+		static BasicType typeFromString(String & s);
+		static Object * fromLiteral(Token * t);
 	};
 
 	/* Complex */
