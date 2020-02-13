@@ -279,7 +279,7 @@ namespace Spin {
 		if (s == "Byte") return BasicType::ByteType;
 		return BasicType::UnknownType;
 	}
-	String Converter::toString(Int64 & i) {
+	String Converter::integerToString(Int64 & i) {
 		// For negative numbers, print out the
 		// absolute value with a leading '-'.
 		// Use an array large enough for the

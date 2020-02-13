@@ -275,7 +275,7 @@ namespace Spin {
 		static String escapeString(String & s);
 		static Character escapeChar(String & s);
 		static BasicType typeFromString(String & s);
-		static String toString(Int64 & i);
+		static String integerToString(Int64 & i);
 	};
 
 	/* Environment */
@@ -1283,9 +1283,8 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					String * a = (String *) l -> value;
 					Character * b = (Character *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << (* b);
-					String * c = new String(s.str());
+					String * c = new String(* a);
+					c -> push(* b);
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1312,7 +1311,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					String * a = (String *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					String * c = new String((* a) + Converter::toString(* b));
+					String * c = new String((* a) + Converter::integerToString(* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1330,9 +1329,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					Character * a = (Character *) l -> value;
 					String * b = (String *) r -> value;
-					StringStream s = StringStream();
-					s << (* a) << (* b);
-					String * c = new String(s.str());
+					String * c = new String((* a) + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1359,7 +1356,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					Int64 * a = (Int64 *) l -> value;
 					String * b = (String *) r -> value;
-					String * c = new String(Converter::toString(* a) + (* b));
+					String * c = new String(Converter::integerToString(* a) + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -2766,9 +2763,7 @@ namespace Spin {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Character * b = (Character *) r -> value;
-					StringStream s = StringStream();
-					s << (* b);
-					* a = String(s.str());
+					* a = String(b, 1);
 				}
 			},
 			{
@@ -2776,7 +2771,7 @@ namespace Spin {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
-					* a = String(Converter::toString(* b));
+					* a = String(Converter::integerToString(* b));
 				}
 			},
 			{
