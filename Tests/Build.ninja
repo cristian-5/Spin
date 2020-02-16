@@ -8,7 +8,7 @@ rule build
     command = clang++ -c $cppFlags -o $out $in $cppVersion
 
 rule link
-    command = clang++ -o $out $in
+    command = clang++ $cppFlags -o $out $in $cppVersion
 
 # Dependencies:
 
