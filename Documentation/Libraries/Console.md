@@ -16,10 +16,10 @@ operations, as well as colour and exit codes management.
 
 class Console {
 
-	@shared proc write(object: Any);
-	@shared proc writeLine(object: Any);
-	@shared func read(object: Any) -> String;
-	@shared func readLine(object: Any) -> String;
+	@shared proc write(object: Any...);
+	@shared proc writeLine(object: Any...);
+	@shared func read(object: Any...) -> String;
+	@shared func readLine(object: Any...) -> String;
 
 	@shared proc setBackground(r: Byte, g: Byte, b: Byte);
 	@shared proc setForeground(r: Byte, g: Byte, b: Byte);
@@ -39,7 +39,7 @@ class Console {
 import Console;
 ```
 
-### @shared proc write(object: Any);
+### @shared proc write(object: Any...);
 
 Writes object to the output buffer, without
 ending the current line.
@@ -47,11 +47,10 @@ ending the current line.
 **object**: Can be any type of object.
 
 ``` swift
-Console::write("Hello ");
-Console::write("world!");
+Console::write("Hello ", "world!");
 ```
 
-### @shared proc writeLine(object: Any);
+### @shared proc writeLine(object: Any...);
 
 Writes object to the output buffer,
 ending the current line.
@@ -62,7 +61,7 @@ ending the current line.
 Console::writeLine("Hello world!");
 ```
 
-### @shared func read(object: Any) -> String;
+### @shared func read(object: Any...) -> String;
 
 Writes object to the output buffer, without
 ending the current line, waits for user input,
@@ -74,7 +73,7 @@ returns the corresponding string.
 String name = Console::read("Insert your name: ");
 ```
 
-### @shared func readLine(object: Any) -> String;
+### @shared func readLine(object: Any...) -> String;
 
 Writes object to the output buffer,
 ending the current line, waits for user input,

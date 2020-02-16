@@ -50,14 +50,16 @@ namespace Spin {
 		return new Object(BasicType::FunctionType, 
 			new NativeProcedure(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
-					if (!a[0]) return nullptr;
-					OStream << a[0] -> getObjectStringValue();
+					for (Object * o : a) {
+						OStream << o -> getObjectStringValue();
+					}
 					return nullptr;
-				}, new Array<Parameter *>({ nullptr }),
-				/* The nullptr literal specifies one argument
-				of any type that is going to be handled
+				}, new Array<Parameter *>(),
+				"<proc Console::write>",
+				/* The true literal specifies n arguments
+				of any type that are going to be handled
 				later inside the lambda with a typecheck. */
-				"<proc Console::write>"
+				true
 			)
 		);
 	}
@@ -65,14 +67,16 @@ namespace Spin {
 		return new Object(BasicType::FunctionType, 
 			new NativeProcedure(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
-					if (!a[0]) return nullptr;
-					OStream << a[0] -> getObjectStringValue() << endLine;
+					for (Object * o : a) {
+						OStream << o -> getObjectStringValue() << endLine;
+					}
 					return nullptr;
-				}, new Array<Parameter *>({ nullptr }),
-				/* The nullptr literal specifies one argument
-				of any type that is going to be handled
+				}, new Array<Parameter *>(),
+				"<proc Console::writeLine>",
+				/* The true literal specifies n arguments
+				of any type that are going to be handled
 				later inside the lambda with a typecheck. */
-				"<proc Console::writeLine>"
+				true
 			)
 		);
 	}
@@ -80,14 +84,16 @@ namespace Spin {
 		return new Object(BasicType::FunctionType, 
 			new NativeFunction(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
-					if (!a[0]) return new Object(BasicType::StringType, new String());
-					OStream << a[0] -> getObjectStringValue();
+					for (Object * o : a) {
+						OStream << o -> getObjectStringValue();
+					}
 					return new Object(BasicType::StringType, new String(getInput()));
-				}, new Array<Parameter *>({ nullptr }),
-				/* The nullptr literal specifies one argument
-				of any type that is going to be handled
+				}, new Array<Parameter *>(),
+				"<func Console::read>",
+				/* The true literal specifies n arguments
+				of any type that are going to be handled
 				later inside the lambda with a typecheck. */
-				"<func Console::read>"
+				true
 			)
 		);
 	}
@@ -95,14 +101,16 @@ namespace Spin {
 		return new Object(BasicType::FunctionType, 
 			new NativeFunction(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
-					if (!a[0]) return new Object(BasicType::StringType, new String());
-					OStream << a[0] -> getObjectStringValue() << endLine;
+					for (Object * o : a) {
+						OStream << o -> getObjectStringValue() << endLine;
+					}
 					return new Object(BasicType::StringType, new String(getInput()));
-				}, new Array<Parameter *>({ nullptr }),
-				/* The nullptr literal specifies one argument
-				of any type that is going to be handled
+				}, new Array<Parameter *>(),
+				"<func Console::readLine>",
+				/* The true literal specifies n arguments
+				of any type that are going to be handled
 				later inside the lambda with a typecheck. */
-				"<func Console::readLine>"
+				true
 			)
 		);
 	}
@@ -121,7 +129,7 @@ namespace Spin {
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
 					OStream << "\ec\e[3J";
 					return nullptr;
-				}, new Array<Parameter *>({ }),
+				}, new Array<Parameter *>(),
 				"<func Console::clean>"
 			)
 		);
