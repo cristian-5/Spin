@@ -135,6 +135,7 @@ namespace Spin {
 			{ Regex("^(@(?:public))\\b"), TokenType::publicModifier },
 			{ Regex("^(@(?:hidden))\\b"), TokenType::hiddenModifier },
 			{ Regex("^(@(?:secure))\\b"), TokenType::secureModifier },
+			{ Regex("^(@(?:immune))\\b"), TokenType::immuneModifier },
 			{ Regex("^(@(?:static))\\b"), TokenType::staticModifier },
 			{ Regex("^(@(?:shared))\\b"), TokenType::sharedModifier },
 

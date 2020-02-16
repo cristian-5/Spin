@@ -44,7 +44,8 @@ namespace Spin {
 	enum Modifier: UInt8 {
 		publicAccess,
 		hiddenAccess,
-		secureAccess
+		secureAccess,
+		immuneAccess
 	};
 
 	class Object {

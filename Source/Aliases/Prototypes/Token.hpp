@@ -121,6 +121,7 @@ namespace Spin {
 		publicModifier,
 		hiddenModifier,
 		secureModifier,
+		immuneModifier,
 		staticModifier,
 		sharedModifier,
 

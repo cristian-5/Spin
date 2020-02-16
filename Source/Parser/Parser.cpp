@@ -821,6 +821,15 @@ namespace Spin {
 							Manager::getLine(currentUnit -> contents, er.position)
 						);
 					}
+				} else if (match(TokenType::immuneModifier)) {
+					access = Modifier::immuneAccess; dynamic = false;
+					if (check(TokenType::funcKeyword) || check(TokenType::procKeyword)) {
+						Token er = peek();
+						throw SyntaxError(
+							"Expected field declaration after @immune modifier but found '" + er.lexeme + "' instead!",
+							Manager::getLine(currentUnit -> contents, er.position)
+						);
+					}
 				} else if (match(TokenType::createSpecifier)) {
 					// TODO: Constructor.
 				} else if (match(TokenType::deleteSpecifier)) {
