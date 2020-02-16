@@ -43,6 +43,9 @@ namespace Spin {
 		dec -> defineStatic("writeLine", Modifier::publicAccess, Console::writeLine());
 		dec -> defineStatic("read", Modifier::publicAccess, Console::read());
 		dec -> defineStatic("readLine", Modifier::publicAccess, Console::readLine());
+		dec -> defineStatic("setBackground", Modifier::publicAccess, Console::setBackground());
+		dec -> defineStatic("setForeground", Modifier::publicAccess, Console::setForeground());
+		dec -> defineStatic("reset", Modifier::publicAccess, Console::reset());
 		dec -> defineStatic("clean", Modifier::publicAccess, Console::clean());
 		global -> define("Console", new Object(BasicType::ClassType, dec));
 	}
@@ -55,11 +58,7 @@ namespace Spin {
 					}
 					return nullptr;
 				}, new Array<Parameter *>(),
-				"<proc Console::write>",
-				/* The true literal specifies n arguments
-				of any type that are going to be handled
-				later inside the lambda with a typecheck. */
-				true
+				"<proc Console::write>", true
 			)
 		);
 	}
@@ -72,11 +71,7 @@ namespace Spin {
 					}
 					return nullptr;
 				}, new Array<Parameter *>(),
-				"<proc Console::writeLine>",
-				/* The true literal specifies n arguments
-				of any type that are going to be handled
-				later inside the lambda with a typecheck. */
-				true
+				"<proc Console::writeLine>", true
 			)
 		);
 	}
@@ -89,11 +84,7 @@ namespace Spin {
 					}
 					return new Object(BasicType::StringType, new String(getInput()));
 				}, new Array<Parameter *>(),
-				"<func Console::read>",
-				/* The true literal specifies n arguments
-				of any type that are going to be handled
-				later inside the lambda with a typecheck. */
-				true
+				"<func Console::read>", true
 			)
 		);
 	}
@@ -106,22 +97,70 @@ namespace Spin {
 					}
 					return new Object(BasicType::StringType, new String(getInput()));
 				}, new Array<Parameter *>(),
-				"<func Console::readLine>",
-				/* The true literal specifies n arguments
-				of any type that are going to be handled
-				later inside the lambda with a typecheck. */
-				true
+				"<func Console::readLine>", true
 			)
 		);
 	}
 	Object * Console::setBackground() {
-		return nullptr;
+		return new Object(BasicType::FunctionType, 
+			new NativeProcedure(
+				[] (Interpreter * i, Array<Object *> a, Token * t) {
+					if (a.size() == 1) {
+						if (a[0] -> isInteger() || a[0] -> isByte()) {
+							OStream << "\e[48;5;" << a[0] -> getObjectStringValue() << 'm';
+						} else throw ParameterException();
+					} else if (a.size() == 3) {
+						for (Object * o : a) {
+							if (!(o -> isInteger()) && !(o -> isByte())) {
+								throw ParameterException();
+							}
+						}
+						OStream << "\e[48;2;"
+								<< a[0] -> getObjectStringValue() << ';'
+								<< a[1] -> getObjectStringValue() << ';'
+								<< a[2] -> getObjectStringValue() << 'm';
+					} else throw ParameterException();
+					return nullptr;
+				}, new Array<Parameter *>(),
+				"<proc Console::setBackground>", true
+			)
+		);
 	}
 	Object * Console::setForeground() {
-		return nullptr; // \x1b[38;2;0;0;0m <--- black
+		return new Object(BasicType::FunctionType, 
+			new NativeProcedure(
+				[] (Interpreter * i, Array<Object *> a, Token * t) {
+					if (a.size() == 1) {
+						if (a[0] -> isInteger() || a[0] -> isByte()) {
+							OStream << "\e[38;5;" << a[0] -> getObjectStringValue() << 'm';
+						} else throw ParameterException();
+					} else if (a.size() == 3) {
+						for (Object * o : a) {
+							if (!(o -> isInteger()) && !(o -> isByte())) {
+								throw ParameterException();
+							}
+						}
+						OStream << "\e[38;2;"
+								<< a[0] -> getObjectStringValue() << ';'
+								<< a[1] -> getObjectStringValue() << ';'
+								<< a[2] -> getObjectStringValue() << 'm';
+					} else throw ParameterException();
+					return nullptr;
+				}, new Array<Parameter *>(),
+				"<proc Console::setForeground>", true
+			)
+		);
 	}
 	Object * Console::reset() {
-		return nullptr; //\x1b[0m
+		return new Object(BasicType::FunctionType, 
+			new NativeProcedure(
+				[] (Interpreter * i, Array<Object *> a, Token * t) {
+					OStream << "\e[0m";
+					return nullptr;
+				}, new Array<Parameter *>(),
+				"<proc Console::reset>"
+			)
+		);
 	}
 	Object * Console::clean() {
 		return new Object(BasicType::FunctionType, 
@@ -130,7 +169,7 @@ namespace Spin {
 					OStream << "\ec\e[3J";
 					return nullptr;
 				}, new Array<Parameter *>(),
-				"<func Console::clean>"
+				"<proc Console::clean>"
 			)
 		);
 	}

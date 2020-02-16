@@ -18,6 +18,9 @@ namespace Spin {
 		static Object * readLine();
 		static Object * setBackground();
 		static Object * setForeground();
+		static Object * setBlink();
+		static Object * setBold();
+		static Object * setInverse();
 		static Object * reset();
 		static Object * clean();
 		static void defineLibrary(Environment * global);

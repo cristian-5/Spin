@@ -8,8 +8,6 @@ operations, as well as colour and exit codes management.
 
 **Warning**: Colours are only supported on ANSI compatible terminals.
 
-**Warning**: The Console implementation is not 100% ready yet.
-
 ## Definition
 
 ``` swift
@@ -22,12 +20,12 @@ class Console {
 	@shared func readLine(object: Any...) -> String;
 
 	@shared proc setBackground(r: Byte, g: Byte, b: Byte);
+	@shared proc setBackground(c: Byte);
 	@shared proc setForeground(r: Byte, g: Byte, b: Byte);
+	@shared proc setForeground(c: Byte);
 
 	@shared proc reset();
 	@shared proc clean();
-
-	@shared proc exit(code: Integer);
 
 }
 
@@ -88,7 +86,6 @@ String name = Console::readLine("Insert your name on the next line.");
 ### @shared proc setBackground(r: Byte, g: Byte, b: Byte);
 
 Changes the output background colour.
-Only working with ANSI compatible terminals.
 
 **r**, **g**, **b**: The selected colour in RGB format.
 
@@ -96,16 +93,35 @@ Only working with ANSI compatible terminals.
 Console::setBackground(0x00, 0x00, 0x00); // Black.
 ```
 
+### @shared proc setBackground(c: Byte);
+
+Changes the output background colour.
+
+**c**: The selected colour.
+
+``` swift
+Console::setBackground(83); // Greenish.
+```
+
 ### @shared proc setForeground(r: Byte, g: Byte, b: Byte);
 
 Changes the output foreground colour.
-Only working with ANSI compatible terminals.
 
 **r**, **g**, **b**: The selected colour in RGB format.
 
 ``` swift
 Console::setForeground(0xFF, 0xFF, 0xFF); // White.
 Console::setForeground(255, 0, 0);        // Red.
+```
+
+### @shared proc setForeground(c: Byte);
+
+Changes the output foreground colour.
+
+**c**: The selected colour.
+
+``` swift
+Console::setForeground(83); // Greenish.
 ```
 
 ### @shared proc reset();
@@ -122,15 +138,4 @@ Resets the colours and cleans the whole buffer.
 
 ``` swift
 Console::clean();
-```
-
-### @shared proc exit(code: Integer);
-
-Stops the current console application returning
-an exit code to the terminal.
-
-**code**: Can be any Integer number.
-
-``` swift
-Console::exit(0);
 ```
