@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Array.hpp                              |
+ *    |  Array.cpp                              |
  *    |                                         |
  *    |               Array Type                |
  *    |                                         |
@@ -14,20 +14,26 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Array.hpp"
 
-#ifndef SPINARRAYLIST
-#define SPINARRAYLIST
+#ifndef SPIN_ARRAY
+#define SPIN_ARRAY
+
+#include "../Aliases/Prototypes/Object.hpp"
 
 namespace Spin {
 
-	ArrayList::ArrayList() { elements = new Array<Object *>(); }
-	ArrayList::ArrayList(Array<Object *> * e) { elements = e; }
+	ArrayList::ArrayList() {
+		elements = new Array<Object *>();
+	}
+	ArrayList::ArrayList(Array<Object *> * e) {
+		elements = e;
+	}
 	ArrayList::ArrayList(Object * o) {
 		elements = new Array<Object *>();
-		elements -> push(o);
+		elements -> push_back(o);
 	}
 	ArrayList::~ArrayList() {
 		if (!elements) return;
@@ -45,7 +51,7 @@ namespace Spin {
 	ArrayList * ArrayList::copy() const {
 		Array<Object *> * newElements = new Array<Object *>();
 		for (Object * element : * elements) {
-			newElements -> push(element -> copy());
+			newElements -> push_back(element -> copy());
 		}
 		return new ArrayList(newElements);
 	}

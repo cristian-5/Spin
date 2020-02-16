@@ -80,50 +80,34 @@ I drink it *every day* just before working on this project.
 This code is written in **c++17** so don't try to build
 it using an *older version*.
 
-The Interpreter must be compiled using *clang++* or *Visual Studio*.
+The Interpreter must be compiled using *clang++*.
 We don't cover support for *gcc* / *g++* and we don't ensure
 that our source will be successfully compiled with them.
 
-We recommend using *clang++* on **macOS** and **Linux**
-and *Visual Studio Developer Command Prompt CL* on **Windows**.
+We recommend using *clang++* on **macOS** and **Linux**.
 
 The recommended version of *clang++* (**LLVM**) is 9.0.0.
-The recommended version of *Visual Studio* is VS2019.
 
-### macOS and Linux Compilation
+### Ninja macOS Compilation
+
+If you don't have the small *ninja* build system installed:
+
+``` bash
+brew install ninja
+```
 
 From the *Terminal* change the current directory to
-the Spin project directory.
+the Spin Tests directory.
 Execute the following to compile using **clang++** (9.0.0):
 
 ``` bash
-cd Source
-clang++ -O2 -o spin Spin.cpp -std=c++17
+cd Tests
+ninja
 ```
 
-This creates a `spin` file in the same folder;
-drop it in the console and add arguments to execute it.
+This creates a `ProgTest` file in the same folder;
+drop run the following command to execute it.
 
-### Windows Compilation
-
-Open up *Visual Studio Developer Command Prompt* and change
-the working directory to the Spin project directory.
-Execute the following to compile with **cl** (VS 2017):
-
-``` bat
-cd Source
-cl /EHsc /std:c++17 Spin.cpp
+``` bash
+./ProgTest
 ```
-
-This creates a `spin.obj` and a `spin.exe` file in the
-same folder; drop it in the console and add arguments to execute it.
-
-In addition you can build the project with **clang++**:
-
-``` bat
-cd Source
-clang++ -O2 -o spin.exe Spin.cpp -std=c++17 -Xclang -flto-visibility-public-std
-```
-
-Just make sure you have *clang++ LLVM* 9.0.0 (at least) installed and
-added to the environment path.

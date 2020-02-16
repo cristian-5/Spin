@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Complex.hpp                            |
+ *    |  Complex.cpp                            |
  *    |                                         |
  *    |               Complex Type              |
  *    |                                         |
@@ -14,31 +14,55 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Complex.hpp"
 
-#ifndef SPINCOMPLEX
-#define SPINCOMPLEX
+#ifndef SPIN_COMPLEX
+#define SPIN_COMPLEX
+
+#include "../Aliases/Prototypes/Converter.hpp"
 
 namespace Spin {
 
 	Complex::Complex(Real n, Real i) {
-		a = n; b = i;
+		a = n;
+		b = i;
 	}
 	Complex Complex::fromPolar(Real m, Real a) {
 		return Complex(m * cos(a), m * sin(a));
 	}
-	void Complex::setRealPart(Real val) { a = val; }
-	void Complex::setImaginaryPart(Real val) { b = val; }
-	Complex Complex::getConjugate() const { return Complex(a, -b); }
-	void Complex::conjugate() { b = -b; }
-	Real Complex::getNormalized() const { return a * a + b * b; }
-	Real Complex::getMagnitude() const { return sqrt(a * a + b * b); }
-	inline Real Complex::getModulus() const { return getMagnitude(); }
-	Real Complex::getPhase() const { return atan2(b, a); }
-	inline Real Complex::getAngle() const { return getPhase(); }
-	void Complex::operator = (Real r) { a = r; b = 0; }
+	void Complex::setRealPart(Real val) {
+		a = val;
+	}
+	void Complex::setImaginaryPart(Real val) {
+		b = val;
+	}
+	Complex Complex::getConjugate() const {
+		return Complex(a, -b);
+	}
+	void Complex::conjugate() {
+		b = -b;
+	}
+	Real Complex::getNormalized() const {
+		return a * a + b * b;
+	}
+	Real Complex::getMagnitude() const {
+		return sqrt(a * a + b * b);
+	}
+	inline Real Complex::getModulus() const {
+		return getMagnitude();
+	}
+	Real Complex::getPhase() const {
+		return atan2(b, a);
+	}
+	inline Real Complex::getAngle() const {
+		return getPhase();
+	}
+	void Complex::operator = (Real r) {
+		a = r;
+		b = 0;
+	}
 	Bool Complex::operator == (Complex r) const {
 		if (a != r.a) return false;
 		if (b != r.b) return false;
@@ -92,8 +116,8 @@ namespace Spin {
 		b = (r.a * b - a * r.b) / (r.a * r.a + r.b * r.b);
 	}
 	String Complex::stringValue() const {
-		return realToGroupedString(a) + " " +
-			   imaginaryToGroupedString(b);
+		return Converter::realToGroupedString(a) + " " +
+			   Converter::imaginaryToGroupedString(b);
 	}
 
 }

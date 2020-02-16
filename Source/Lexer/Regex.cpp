@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Regex.hpp                              |
+ *    |  Regex.cpp                              |
  *    |                                         |
  *    |               Regex Tools               |
  *    |                                         |
@@ -14,29 +14,29 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Regex.hpp"
 
-#ifndef REGEXTOOLS
-#define REGEXTOOLS
+#ifndef SPIN_REGEX
+#define SPIN_REGEX
 
 namespace Spin {
 
 	Bool RegexTools::test(Regex & regex, const String & input) {
 		try {
 			SMatch match;
-			regexSearch(input, match, regex);
+			std::regex_search(input, match, regex);
 			if (match.size() > 0) return true;
 			else return false;
-		} catch (RegexError & e) { }
-		return false;
+		} catch (RegexError & e) {
+			return false;
+		}
 	}
-
 	String RegexTools::match(Regex & regex, const String & input) {
 		try {
 			SMatch match;
-			regexSearch(input, match, regex);
+			std::regex_search(input, match, regex);
 			if (match.size() > 0) {
 				return match.str(0);
 			} else return String();
@@ -44,12 +44,11 @@ namespace Spin {
 			return String();
 		}
 	}
-
 	String RegexTools::findFirstGroup(Regex & regex, const String & input) {
 		String result;
 		try {
 			SMatch match;
-			regexSearch(input, match, regex);
+			std::regex_search(input, match, regex);
 			if (match.size() > 1) {
 				result = match.str(1);
 			} else return String();
@@ -58,15 +57,14 @@ namespace Spin {
 		}
 		return result;
 	}
-
 	Array<String> RegexTools::findAllGroups(Regex & regex, const String & input) {
 		Array<String> result = Array<String>();
 		try {
 			SMatch match;
-			regexSearch(input, match, regex);
+			std::regex_search(input, match, regex);
 			if (match.size() > 1) {
 				for (SizeType i = 1; i < match.size(); i += 1) {
-					result.push(match.str(i));
+					result.push_back(match.str(i));
 				}
 			} else return Array<String>();
 		} catch (RegexError & e) {
@@ -74,7 +72,6 @@ namespace Spin {
 		}
 		return result;
 	}
-
 	void RegexTools::replaceMatches(const String & mtc, String & input, const String & rpl) {
 		if (mtc.empty() || input.empty()) return;
 		SizeType position = input.find(mtc);

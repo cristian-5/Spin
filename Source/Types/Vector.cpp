@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Vector.hpp                             |
+ *    |  Vector.cpp                             |
  *    |                                         |
  *    |               Vector Type               |
  *    |                                         |
@@ -14,12 +14,14 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Vector.hpp"
 
-#ifndef SPINVECTOR
-#define SPINVECTOR
+#ifndef SPIN_VECTOR
+#define SPIN_VECTOR
+
+#include "../Aliases/Prototypes/Complex.hpp"
 
 namespace Spin {
 

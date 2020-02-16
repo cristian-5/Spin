@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  AST-Statements.hpp                     |
+ *    |  AST-Statements.cpp                     |
  *    |                                         |
  *    |     Abstract Syntax Tree Statements     |
  *    |                                         |
@@ -14,17 +14,18 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/SyntaxTree.hpp"
 
-#ifndef SPINSTATEMENTS
-#define SPINSTATEMENTS
+#ifndef SPIN_STATEMENTS
+#define SPIN_STATEMENTS
 
 namespace Spin {
 
 	AttributeStatement::AttributeStatement(Statement * f, Modifier m) {
-		field = f; modifier = m;
+		field = f;
+		modifier = m;
 	}
 	void AttributeStatement::accept(Visitor * visitor) {
 		try { visitor -> visitAttributeStatement(this); }
@@ -34,10 +35,12 @@ namespace Spin {
 		delete field;
 	}
 
-	BlockStatement::BlockStatement(Array<Statement *> * s) { statements = s; }
+	BlockStatement::BlockStatement(Array<Statement *> * s) {
+		statements = s;
+	}
 	BlockStatement::BlockStatement(Statement * s) {
 		statements = new Array<Statement *>();
-		statements -> push(s);
+		statements -> push_back(s);
 	}
 	void BlockStatement::accept(Visitor * visitor) {
 		try { visitor -> visitBlockStatement(this); }
@@ -50,16 +53,18 @@ namespace Spin {
 		delete statements;
 	}
 
-	BreakStatement::BreakStatement(Token * b) { breakToken = b; }
+	BreakStatement::BreakStatement(Token * b) {
+		breakToken = b;
+	}
 	void BreakStatement::accept(Visitor * visitor) {
 		try { visitor -> visitBreakStatement(this); }
 		catch (Exception & e) { throw; }
 	}
-	BreakStatement::~BreakStatement() { delete breakToken; }
+	BreakStatement::~BreakStatement() {
+		delete breakToken;
+	}
 
-	ClassStatement::ClassStatement(Token * n,
-								   Array<AttributeStatement *> * sF,
-								   Array<AttributeStatement *> * dF) {
+	ClassStatement::ClassStatement(Token * n, Array<AttributeStatement *> * sF, Array<AttributeStatement *> * dF) {
 		name = n;
 		staticAttributes = sF;
 		dynamicAttributes = dF;
@@ -72,25 +77,36 @@ namespace Spin {
 		delete name;
 		for (AttributeStatement * a : * staticAttributes) delete a;
 		for (AttributeStatement * a : * dynamicAttributes) delete a;
-		delete staticAttributes; delete dynamicAttributes;
+		delete staticAttributes;
+		delete dynamicAttributes;
 	}
 	
-	ContinueStatement::ContinueStatement(Token * c) { continueToken = c; }
+	ContinueStatement::ContinueStatement(Token * c) {
+		continueToken = c;
+	}
 	void ContinueStatement::accept(Visitor * visitor) {
 		try { visitor -> visitContinueStatement(this); }
 		catch (Exception & e) { throw; }
 	}
-	ContinueStatement::~ContinueStatement() { delete continueToken; }
+	ContinueStatement::~ContinueStatement() {
+		delete continueToken;
+	}
 
-	DeleteStatement::DeleteStatement(Token * n) { name = n; }
+	DeleteStatement::DeleteStatement(Token * n) {
+		name = n;
+	}
 	void DeleteStatement::accept(Visitor * visitor) {
 		try { visitor -> visitDeleteStatement(this); }
 		catch (Exception & e) { throw; }
 	}
-	DeleteStatement::~DeleteStatement() { if (name) delete name; }
+	DeleteStatement::~DeleteStatement() {
+		if (name) delete name;
+	}
 	
 	DoWhileStatement::DoWhileStatement(Statement * b, Expression * e, Token * w) {
-		expression = e; body = b; whileToken = w;
+		expression = e;
+		body = b;
+		whileToken = w;
 	}
 	void DoWhileStatement::accept(Visitor * visitor) {
 		try { visitor -> visitDoWhileStatement(this); }
@@ -102,25 +118,32 @@ namespace Spin {
 		delete body;
 	}
 	
-	ExpressionStatement::ExpressionStatement(Expression * ex) { e = ex; }
+	ExpressionStatement::ExpressionStatement(Expression * ex) {
+		e = ex;
+	}
 	void ExpressionStatement::accept(Visitor * visitor) {
 		try { visitor -> visitExpressionStatement(this); }
 		catch (Exception & e) { throw; }
 	}
-	ExpressionStatement::~ExpressionStatement() { delete e; }
+	ExpressionStatement::~ExpressionStatement() {
+		delete e;
+	}
 
 	FileStatement::FileStatement(String * n, String * f) {
-		file = f; name = n;
+		file = f;
+		name = n;
 	}
 	void FileStatement::accept(Visitor * visitor) {
 		try { visitor -> visitFileStatement(this); }
 		catch (Exception & e) { throw; }
 	}
 	
-	ForStatement::ForStatement(Statement * d, Expression * e,
-					Expression * s, Statement * b, Token * f) {
-		declaration = d; expression = e;
-		stepper = s; body = b; forToken = f;
+	ForStatement::ForStatement(Statement * d, Expression * e, Expression * s, Statement * b, Token * f) {
+		declaration = d;
+		expression = e;
+		stepper = s;
+		body = b;
+		forToken = f;
 	}
 	void ForStatement::accept(Visitor * visitor) {
 		try { visitor -> visitForStatement(this); }
@@ -135,22 +158,28 @@ namespace Spin {
 	}
 	
 	FunctionStatement::FunctionStatement(Token * n, Array<Parameter *> * p, BlockStatement * b, Parameter * r) {
-		name = n, params = p; body = b; returnType = r;
+		name = n;
+		params = p;
+		body = b;
+		returnType = r;
 	}
 	void FunctionStatement::accept(Visitor * visitor) {
 		try { visitor -> visitFunctionStatement(this); }
 		catch (Exception & e) { throw; }
 	}
 	FunctionStatement::~FunctionStatement() {
-		delete name; delete returnType; delete body;
+		delete name;
+		delete returnType;
+		delete body;
 		for (Parameter * param : * params) delete param;
 		delete params;
 	}
 	
-	IfStatement::IfStatement(Expression * x, Statement * t,
-				Statement * e, Token * i) {
-		expression = x; thenBranch = t;
-		elseBranch = e; ifToken = i;
+	IfStatement::IfStatement(Expression * x, Statement * t, Statement * e, Token * i) {
+		expression = x;
+		thenBranch = t;
+		elseBranch = e;
+		ifToken = i;
 	}
 	void IfStatement::accept(Visitor * visitor) {
 		try { visitor -> visitIfStatement(this); }
@@ -163,7 +192,8 @@ namespace Spin {
 	}
 	
 	LoopStatement::LoopStatement(Statement * b, Token * l) {
-		body = b; loopToken = l;
+		body = b;
+		loopToken = l;
 	}
 	void LoopStatement::accept(Visitor * visitor) {
 		try { visitor -> visitLoopStatement(this); }
@@ -175,20 +205,24 @@ namespace Spin {
 	}
 
 	ProcedureStatement::ProcedureStatement(Token * n, Array<Parameter *> * p, BlockStatement * b) {
-		name = n, params = p; body = b;
+		name = n; params = p;
+		body = b;
 	}
 	void ProcedureStatement::accept(Visitor * visitor) {
 		try { visitor -> visitProcedureStatement(this); }
 		catch (Exception & e) { throw; }
 	}
 	ProcedureStatement::~ProcedureStatement() {
-		delete name; delete body;
+		delete name;
+		delete body;
 		for (Parameter * param : * params) delete param;
 		delete params;
 	}
 	
 	RepeatUntilStatement::RepeatUntilStatement(Statement * b, Expression * e, Token * u) {
-		expression = e; body = b; untilToken = u;
+		expression = e;
+		body = b;
+		untilToken = u;
 	}
 	void RepeatUntilStatement::accept(Visitor * visitor) {
 		try { visitor -> visitRepeatUntilStatement(this); }
@@ -206,7 +240,8 @@ namespace Spin {
 	}
 
 	ReturnStatement::ReturnStatement(Expression * ex, Token * rt) {
-		e = ex; returnToken = rt;
+		e = ex;
+		returnToken = rt;
 	}
 	void ReturnStatement::accept(Visitor * visitor) {
 		try { visitor -> visitReturnStatement(this); }
@@ -218,7 +253,9 @@ namespace Spin {
 	}
 		
 	UntilStatement::UntilStatement(Expression * e, Statement * b, Token * u) {
-		expression = e; body = b; untilToken = u;
+		expression = e;
+		body = b;
+		untilToken = u;
 	}
 	void UntilStatement::accept(Visitor * visitor) {
 		try { visitor -> visitUntilStatement(this); }
@@ -231,7 +268,11 @@ namespace Spin {
 	}
 		
 	VariableStatement::VariableStatement(Token * n, Expression * i, BasicType t, Token * e, Token * o) {
-		name = n; initialiser = i; type = t; equal = e; object = o;
+		name = n;
+		initialiser = i;
+		type = t;
+		equal = e;
+		object = o;
 	}
 	void VariableStatement::accept(Visitor * visitor) {
 		try { visitor -> visitVariableStatement(this); }
@@ -245,7 +286,10 @@ namespace Spin {
 	}
 
 	VectorStatement::VectorStatement(Token * v, String & n, Expression * i, Token * e) {
-		vector = v; name = n; initialiser = i; equal = e;
+		vector = v;
+		name = n;
+		initialiser = i;
+		equal = e;
 	}
 	void VectorStatement::accept(Visitor * visitor) {
 		try { visitor -> visitVectorStatement(this); }
@@ -258,7 +302,9 @@ namespace Spin {
 	}
 	
 	WhileStatement::WhileStatement(Expression * e, Statement * b, Token * w) {
-		expression = e; body = b; whileToken = w;
+		expression = e;
+		body = b;
+		whileToken = w;
 	}
 	void WhileStatement::accept(Visitor * visitor) {
 		try { visitor -> visitWhileStatement(this); }

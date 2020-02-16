@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Environment.hpp                        |
+ *    |  Environment.cpp                        |
  *    |                                         |
  *    |            Memory Environment           |
  *    |                                         |
@@ -14,14 +14,21 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Environment.hpp"
 
-#ifndef SPINENVIRONMENT
-#define SPINENVIRONMENT
+#ifndef SPIN_ENVIRONMENT
+#define SPIN_ENVIRONMENT
+
+#include "../Aliases/Prototypes/Object.hpp"
 
 namespace Spin {
+
+	Environment::VariableRedefinitionException::VariableRedefinitionException(String type): type(type) { }
+	const String & Environment::VariableRedefinitionException::getType() const {
+		return type;
+	}
 
 	Environment::Environment(Environment * enclosing) {
 		this -> enclosing = enclosing;
@@ -50,7 +57,7 @@ namespace Spin {
 	}
 	void Environment::lose(Object * something) {
 		if (!something) return;
-		lostAndFound.push(something);
+		lostAndFound.push_back(something);
 	}
 	void Environment::collect() {
 		for (Object * object : lostAndFound) {

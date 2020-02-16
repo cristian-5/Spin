@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Object.hpp                             |
+ *    |  Object.cpp                             |
  *    |                                         |
  *    |               Object Type               |
  *    |                                         |
@@ -14,12 +14,20 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Object.hpp"
 
-#ifndef SPINOBJECT
-#define SPINOBJECT
+#ifndef SPIN_OBJECT
+#define SPIN_OBJECT
+
+#include "../Aliases/Prototypes/Token.hpp"
+#include "../Aliases/Prototypes/Complex.hpp"
+#include "../Aliases/Prototypes/Vector.hpp"
+#include "../Aliases/Prototypes/Array.hpp"
+#include "../Aliases/Prototypes/Routines.hpp"
+#include "../Aliases/Prototypes/Class.hpp"
+#include "../Aliases/Prototypes/Converter.hpp"
 
 namespace Spin {
 	
@@ -40,7 +48,8 @@ namespace Spin {
 		}
 	}
 	Object::Object(BasicType t, void * v) {
-		type = t; value = v;
+		type = t;
+		value = v;
 	}
 	Object::~Object() {
 		if (!value) return;
@@ -69,19 +78,31 @@ namespace Spin {
 		}
 		delete this;
 	}
-	inline Bool Object::isByte() const { return type == BasicType::ByteType; }
-	inline Bool Object::isInteger() const { return type == BasicType::IntegerType; }
-	inline Bool Object::isReal() const { return type == BasicType::RealType; }
-	inline Bool Object::isComplexType() const {
+	Bool Object::isByte() const {
+		return type == BasicType::ByteType;
+	}
+	Bool Object::isInteger() const {
+		return type == BasicType::IntegerType;
+	}
+	Bool Object::isReal() const {
+		return type == BasicType::RealType;
+	}
+	Bool Object::isComplexType() const {
 		return type == BasicType::ComplexType ||
 			   type == BasicType::ImaginaryType;
 	}			
-	inline Bool Object::isNumericType() const {
+	Bool Object::isNumericType() const {
 		return isInteger() || isReal() || isComplexType();
 	}
-	inline Bool Object::isBool() const { return type == BasicType::BoolType; }
-	inline Bool Object::isString() const { return type == BasicType::StringType; }
-	inline Bool Object::isCharacter() const { return type == BasicType::CharacterType; }
+	Bool Object::isBool() const {
+		return type == BasicType::BoolType;
+	}
+	Bool Object::isString() const {
+		return type == BasicType::StringType;
+	}
+	Bool Object::isCharacter() const {
+		return type == BasicType::CharacterType;
+	}
 	String Object::getObjectName() const {
 		switch (type) {
 			case BasicType::BoolType: return "Bool";
@@ -143,11 +164,11 @@ namespace Spin {
 			}
 			case BasicType::RealType: {
 				Real * i = (Real *) value;
-				return realToString(* i);
+				return Converter::realToString(* i);
 			}
 			case BasicType::ImaginaryType: {
 				Real * i = (Real *) value;
-				return realToString(* i) + "i";
+				return Converter::realToString(* i) + "i";
 			}
 			case BasicType::ComplexType: {
 				Complex * c = (Complex *) value;
@@ -181,13 +202,19 @@ namespace Spin {
 			}
 		}
 	}
-	Bool Object::isUnknown() const { return type == BasicType::UnknownType; }
-	Bool Object::isFunction() const { return type == BasicType::FunctionType; }
+	Bool Object::isUnknown() const {
+		return type == BasicType::UnknownType;
+	}
+	Bool Object::isFunction() const {
+		return type == BasicType::FunctionType;
+	}
 	Bool Object::isCallable() const {
 		return type == BasicType::FunctionType ||
 			   type == BasicType::ClassType;
 	}
-	Bool Object::isArray() const { return type == BasicType::ArrayType; }
+	Bool Object::isArray() const {
+		return type == BasicType::ArrayType;
+	}
 	Bool Object::isSubscriptable() const {
 		return type == BasicType::StringType ||
 			   type == BasicType::ArrayType;
@@ -196,7 +223,6 @@ namespace Spin {
 		if (isBool()) return *((Bool *)value);
 		else return false;
 	}
-
 	BasicType Object::typeFromString(String & s) {
 		if (s == "Integer") return BasicType::IntegerType;
 		if (s == "Real") return BasicType::RealType;
@@ -222,7 +248,7 @@ namespace Spin {
 			case TokenType::stringLiteral: {
 				o -> type = BasicType::StringType;
 				String * v = new String;
-				t -> lexeme = t -> lexeme.subString(1,
+				t -> lexeme = t -> lexeme.substr(1,
 								t -> lexeme.length() - 2);
 				* v = Converter::escapeString(t -> lexeme);
 				o -> value = v;
@@ -236,7 +262,7 @@ namespace Spin {
 			case TokenType::charLiteral: {
 				o -> type = BasicType::CharacterType;
 				Character * v = new Character;
-				t -> lexeme = t -> lexeme.subString(1,
+				t -> lexeme = t -> lexeme.substr(1,
 								t -> lexeme.length() - 2);
 				* v = Converter::escapeChar(t -> lexeme);
 				o -> value = v;

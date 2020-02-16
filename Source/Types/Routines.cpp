@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Function.hpp                           |
+ *    |  Routines.cpp                           |
  *    |                                         |
- *    |              Function Type              |
+ *    |              Routines Type              |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -14,12 +14,18 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Routines.hpp"
 
-#ifndef SPINFUNCTION
-#define SPINFUNCTION
+#ifndef SPIN_ROUTINES
+#define SPIN_ROUTINES
+
+#include "../Aliases/Prototypes/Interpreter.hpp"
+#include "../Aliases/Prototypes/Environment.hpp"
+#include "../Aliases/Prototypes/SyntaxTree.hpp"
+#include "../Aliases/Prototypes/Object.hpp"
+#include "../Aliases/Prototypes/Token.hpp"
 
 namespace Spin {
 
@@ -93,7 +99,9 @@ namespace Spin {
 	String Function::stringValue() const {
 		return "<func " + (declaration -> name -> lexeme) + ">";
 	}
-	UInt32 Function::arity() const { return declaration -> params -> size(); }
+	UInt32 Function::arity() const {
+		return declaration -> params -> size();
+	}
 	CallProtocol * Function::copy() const {
 		return new Function(* this);
 	}
@@ -164,7 +172,9 @@ namespace Spin {
 	String Procedure::stringValue() const {
 		return "<proc " + (declaration -> name -> lexeme) + ">";
 	}
-	UInt32 Procedure::arity() const { return declaration -> params -> size(); }
+	UInt32 Procedure::arity() const {
+		return declaration -> params -> size();
+	}
 	CallProtocol * Procedure::copy() const {
 		return new Procedure(* this);
 	}
@@ -218,8 +228,12 @@ namespace Spin {
 	void NativeFunction::deallocate(Array<Object *> & parameters) {
 		for (Object * parameter : parameters) delete parameter;
 	}
-	String NativeFunction::stringValue() const { return name; }
-	UInt32 NativeFunction::arity() const { return params -> size(); }
+	String NativeFunction::stringValue() const {
+		return name;
+	}
+	UInt32 NativeFunction::arity() const {
+		return params -> size();
+	}
 	CallProtocol * NativeFunction::copy() const {
 		return new NativeFunction(* this);
 	}
@@ -272,8 +286,12 @@ namespace Spin {
 	void NativeProcedure::deallocate(Array<Object *> & parameters) {
 		for (Object * parameter : parameters) delete parameter;
 	}
-	String NativeProcedure::stringValue() const { return name; }
-	UInt32 NativeProcedure::arity() const { return params -> size(); }
+	String NativeProcedure::stringValue() const {
+		return name;
+	}
+	UInt32 NativeProcedure::arity() const {
+		return params -> size();
+	}
 	CallProtocol * NativeProcedure::copy() const {
 		return new NativeProcedure(* this);
 	}

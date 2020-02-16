@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Converter.hpp                          |
+ *    |  Converter.cpp                          |
  *    |                                         |
  *    |             Object Converter            |
  *    |                                         |
@@ -14,12 +14,14 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Converter.hpp"
 
-#ifndef SPINCONVERTER
-#define SPINCONVERTER
+#ifndef SPIN_CONVERTER
+#define SPIN_CONVERTER
+
+#include "../Aliases/Prototypes/Regex.hpp"
 
 #define ESCAPESEQUENCE "^'(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])'$"
 #define           REAL "^[0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?$"
@@ -61,7 +63,7 @@ namespace Spin {
 		return result;
 	}
 	UInt8 Converter::charToHex(Character & c) {
-		c = toUppercase(c);
+		c = toupper(c);
 		if (c >= '0' && c <= '9') return c - '0';
 		if (c >= 'A' && c <= 'F') return c - 'A' + 0xA;
 		return 0x00;
@@ -112,19 +114,19 @@ namespace Spin {
 			if (s[0] == '0') {
 				switch (s[1]) {
 					case 'x': {
-						String hex = s.subString(2);
+						String hex = s.substr(2);
 						return hexToInt64(hex);
 					} break;
 					case 'o': {
-						String oct = s.subString(2);
+						String oct = s.substr(2);
 						return octToInt64(oct);
 					} break;
 					case 'b': {
-						String bin = s.subString(2);
+						String bin = s.substr(2);
 						return binToInt64(bin);
 					} break;
 					case 'd': {
-						String dec = s.subString(2);
+						String dec = s.substr(2);
 						return decToInt64(dec);
 					} break;
 					default: return decToInt64(s);
@@ -135,18 +137,20 @@ namespace Spin {
 	}
 	Real Converter::stringToReal(String & s) {
 		if (!test(Regex(REAL), s)) return 0.0;
-		return stringToLongDouble(s);
+		// IMPROVE: Create your own string to double:
+		return std::stold(s);
 	}
 	Real Converter::stringToImaginary(String & s) {
 		if (!test(Regex(IMAGINARY), s)) return 0.0;
-		if (s.length() > 1) s.pop();
+		if (s.length() > 1) s.pop_back();
 		else return 0.0;
-		return stringToLongDouble(s);
+		// IMPROVE: Create your own string to double:
+		return std::stold(s);
 	}
 	String Converter::escapeString(String & s) {
 		// OPTIMISE:
 		if (s.find("\\") == String::npos) return s;
-		StringStream result = StringStream();
+		StringStream result;
 		const SizeType length = s.length();
 		SizeType i = 0;
 		while (i < length) {
@@ -247,6 +251,37 @@ namespace Spin {
 		}
 		// Package constructor avoids an array copy:
 		return String(buffer + size, 20 - size);
+	}
+
+	String Converter::realToGroupedString(Real a) {
+		StringStream result;
+		result << (a >= 0 ? "+ " : "- ");
+		Int64 i = (Int64) a;
+		if (i < 0) { i = -i; a = -a; }
+		result << i;
+		a -= (Real)i;
+		a *= 100;
+		i = (Int64) a;
+		if (i == 0) result << ".0";
+		else result << '.' << i;
+		if (i < 10) result << '0';
+		return result.str();
+	}
+	String Converter::imaginaryToGroupedString(Real a) {
+		StringStream result;
+		result << (a >= 0 ? "+ " : "- ");
+		Int64 i = (Int64) a;
+		if (i < 0) { i = -i; a = -a; }
+		result << i;
+		a -= (Real)i;
+		a *= 100;
+		i = (Int64) a;
+		if (i < 10) result << '.' << i << '0';
+		else result << '.' << i;
+		result << 'i'; return result.str();
+	}
+	String Converter::realToString(Real a) {
+		return realToGroupedString(a);
 	}
 	
 

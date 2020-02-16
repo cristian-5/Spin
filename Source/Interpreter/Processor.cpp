@@ -2,9 +2,9 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Prototypes.hpp                         |
+ *    |  Processor.cpp                          |
  *    |                                         |
- *    |                Prototypes               |
+ *    |             Object Processor            |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |
@@ -14,1101 +14,30 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "Aliases.hpp"
+#include "../Aliases/Prototypes/Processor.hpp"
 
-#ifndef PROTOTYPES
-#define PROTOTYPES
+#ifndef SPIN_PROCESSOR
+#define SPIN_PROCESSOR
+
+#include "../Aliases/Prototypes/Class.hpp"
+#include "../Aliases/Prototypes/Complex.hpp"
+#include "../Aliases/Prototypes/Vector.hpp"
+#include "../Aliases/Prototypes/Converter.hpp"
 
 namespace Spin {
 
-	/* Exception */
-
-	class Exception { };
-
-	/* Linker */
-
-	class BadFileException: public Exception {
-		private:
-		const String path;
-		public:
-		const String & getPath() const { return path; }
-		BadFileException(const String & p):
-		Exception(), path(p) { }
-	};
-	class BadAccessException: public Exception {
-		private:
-		const String path;
-		public:
-		const String & getPath() const { return path; }
-		BadAccessException(const String & p):
-		Exception(), path(p) { }
-	};
-	class Linker {
-		private:
-		Linker() = default;
-		public:
-		static UInt64 getLine(String * input, SizeType cursor);
-		static String * stringFromFile(String path);
-		static void createNewFile(String path, String content = String());
-	};
-
-	/* Token */
-
-    enum TokenType {
-
-		beginFile,
-
-		empty,
-		comment,
-
-		basicType,
-		customType,
-		symbol,
-		identifier,
-
-		braketSymbol,
-		braSymbol,
-		ketSymbol,
-		ketbraSymbol,
-
-		intLiteral,
-		imaginaryLiteral,
-		basisBraLiteral,
-		basisKetLiteral,
-		realLiteral,
-		stringLiteral,
-		charLiteral,
-		boolLiteral,
-
-		arrow,
-		doublecolon,
-		semicolon,
-		colon,
-		comma,
-		dot,
-
-		virtualOperator,
-
-		/* Low Priority */
-
-		plusEqual,
-		minusEqual,
-		pipeEqual,
-		plus,
-		minus,
-		pipe,
-
-		/* Medium Priority */
-
-		starEqual,
-		slashEqual,
-		ampersandEqual,
-		dollarEqual,
-		modulusEqual,
-		star,
-		slash,
-		ampersand,
-		dollar,
-		modulus,
-
-		minor,
-		minorEqual,
-		major,
-		majorEqual,
-		equal,
-		equality,
-		inequality,
-		questionMark,
-		exclamationMark,
-
-		AND,
-		OR,
-
-		conjugate,
-		transpose,
-		dagger,
-
-		tilde,
-		backslash,
-
-		openParenthesis,
-		closeParenthesis,
-
-		openBracket,
-		closeBracket,
-
-		openBrace,
-		closeBrace,
-
-		ifKeyword,
-		elseKeyword,
-		switchKeyword,
-		caseKeyword,
-		defaultKeyword,
-		whileKeyword,
-		doKeyword,
-		loopKeyword,
-		forKeyword,
-		repeatKeyword,
-		untilKeyword,
-		breakKeyword,
-		continueKeyword,
-		selfKeyword,
-
-		importKeyword,
-
-		funcKeyword,
-		procKeyword,
-
-		classKeyword,
-
-		publicModifier,
-		hiddenModifier,
-		secureModifier,
-		staticModifier,
-		sharedModifier,
-
-		createSpecifier,
-		deleteSpecifier,
-
-		returnKeyword,
-		restKeyword,
-
-		newKeyword,
-		deleteKeyword,
-
-		invalid,
-
-		endFile,
-
-	};
-	class Token {
-		public:
-		TokenType type = TokenType::empty;
-		String lexeme;
-		SizeType position = 0;
-		Token() = default;
-		Token(String l, TokenType t, SizeType p = 0);
-		Bool isTypeLiteral() const;
-		Bool isTypeNumeral() const;
-		Bool isTypeBasicType() const;
-		Bool isTypeType() const;
-		Bool isTypeBraKet() const;
-	};
-	class TokenRule {
-		public:
-		TokenType type = TokenType::empty;
-		Regex pattern;
-		TokenRule() = default;
-		TokenRule(Regex p, TokenType t);
-	};
-
-	/* Basic Types */
-
-	enum BasicType: UInt8 {
-
-		BoolType,
-		CharacterType,
-
-		ByteType,
-		
-		IntegerType,
-
-		RealType,
-
-		ImaginaryType,
-		ComplexType,
-
-		StringType,
-
-		ArrayType,
-
-		VectorType,
-
-		FunctionType,
-
-		ClassType,
-		InstanceType,
-		StructureType,
-		ExceptionType,
-
-		UnknownType,
-
-	};
-
-	using BasicTypes = UInt16;
-
-	/* Modifiers */
-
-	enum Modifier: UInt8 {
-		publicAccess,
-		hiddenAccess,
-		secureAccess,
-	};
-
-	/* Converter */
-
-	class Object;
-	class CallProtocol;
-
-	class Converter {
-		private:
-		Converter() = default;
-		static inline Bool checkBase(Regex base, String & s);
-		static inline Bool test(Regex r, String & s);
-		static Bool isHexChar(Character & c);
-		static Character hexToChar(String & s);
-		static Int64 decToInt64(String & s);
-		static UInt8 charToHex(Character & c);
-		static Int64 hexToInt64(String & s);
-		static UInt32 hexToUInt32(String & s);
-		static Int64 octToInt64(String & s);
-		static Int64 binToInt64(String & s);
-		public:
-		static Bool stringToBool(String & s);
-		static Int64 stringToInt64(String & s);
-		static Real stringToReal(String & s);
-		static Real stringToImaginary(String & s);
-		static String escapeString(String & s);
-		static Character escapeChar(String & s);
-		static String integerToString(Int64 & i);
-	};
-
-	/* Environment */
-
-	class VariableRedefinitionException: public Exception {
-		private:
-		const String _type;
-		public:
-		const String & getType() const { return _type; }
-		VariableRedefinitionException(String type):
-		Exception(), _type(type) { }
-	};
-	class VariableNotFoundException: public Exception {
-		public: VariableNotFoundException(): Exception() { }
-	};
-	class Environment {
-		private:
-		Environment * enclosing = nullptr;
-		Dictionary<String, Object *> values = Dictionary<String, Object *>();
-		Array<Object *> lostAndFound = Array<Object *>();
-		public:
-		Environment() = default;
-		Environment(Environment * enclosing);
-		~Environment();
-		void define(String name, Object * value);
-		void forget(String name);
-		void lose(Object * something);
-		void collect();
-		void unbind(String name);
-		Object * getReference(String name);
-		Object * getValue(String name);
-	};
-
-	/* Base Classes */
-
-	class Assignment;
-	class Binary;
-	class Bra;
-	class Call;
-	class Comparison;
-	class DynamicGet;
-	class DynamicSet;
-	class Grouping;
-	class Identifier;
-	class Inner;
-	class Ket;
-	class List;
-	class Literal;
-	class Logical;
-	class Mutable;
-	class Outer;
-	class Self;
-	class StaticGet;
-	class StaticSet;
-	class Subscript;
-	class Unary;
-
-	class AttributeStatement;
-	class BlockStatement;
-	class BreakStatement;
-	class ClassStatement;
-	class ContinueStatement;
-	class DeleteStatement;
-	class DoWhileStatement;
-	class ExpressionStatement;
-	class FileStatement;
-	class ForStatement;
-	class FunctionStatement;
-	class IfStatement;
-	class LoopStatement;
-	class ProcedureStatement;
-	class RepeatUntilStatement;
-	class RestStatement;
-	class ReturnStatement;
-	class UntilStatement;
-	class VariableStatement;
-	class VectorStatement;
-	class WhileStatement;
-
-	class Expression {
-		public:
-		virtual ~Expression() = default;
-		class Visitor {
-			public:
-			virtual Object * visitAssignmentExpression(Assignment * e) = 0;
-			virtual Object * visitBinaryExpression(Binary * e) = 0;
-			virtual Object * visitBraExpression(Bra * e) = 0;
-			virtual Object * visitCallExpression(Call * e) = 0;
-			virtual Object * visitComparisonExpression(Comparison * e) = 0;
-			virtual Object * visitDynamicGetExpression(DynamicGet * e) = 0;
-			virtual Object * visitDynamicSetExpression(DynamicSet * e) = 0;
-			virtual Object * visitGroupingExpression(Grouping * e) = 0;
-			virtual Object * visitIdentifierExpression(Identifier * e) = 0;
-			virtual Object * visitInnerExpression(Inner * e) = 0;
-			virtual Object * visitKetExpression(Ket * e) = 0;
-			virtual Object * visitListExpression(List * e) = 0;
-			virtual Object * visitLiteralExpression(Literal * e) = 0;
-			virtual Object * visitLogicalExpression(Logical * e) = 0;
-			virtual Object * visitMutableExpression(Mutable * e) = 0;
-			virtual Object * visitOuterExpression(Outer * e) = 0;
-			virtual Object * visitSelfExpression(Self * e) = 0;
-			virtual Object * visitStaticGetExpression(StaticGet * e) = 0;
-			virtual Object * visitStaticSetExpression(StaticSet * e) = 0;
-			virtual Object * visitSubscriptExpression(Subscript * e) = 0;
-			virtual Object * visitUnaryExpression(Unary * e) = 0;
-		};
-		virtual Object * accept(Visitor *) { return nullptr; }
-		template<typename t>
-		Bool isInstanceOf() {
-			return (DynamicCast<t *>(this));
-		}
-	};
-	class Statement {
-		public:
-		virtual ~Statement() = default;
-		class Visitor {
-			public:
-			virtual void visitAttributeStatement(AttributeStatement * e) = 0;
-			virtual void visitBlockStatement(BlockStatement * e) = 0;
-			virtual void visitBreakStatement(BreakStatement * e) = 0;
-			virtual void visitClassStatement(ClassStatement * e) = 0;
-			virtual void visitContinueStatement(ContinueStatement * e) = 0;
-			virtual void visitDeleteStatement(DeleteStatement * e) = 0;
-			virtual void visitDoWhileStatement(DoWhileStatement * e) = 0;
-			virtual void visitExpressionStatement(ExpressionStatement * e) = 0;
-			virtual void visitFileStatement(FileStatement * e) = 0;
-			virtual void visitForStatement(ForStatement * e) = 0;
-			virtual void visitFunctionStatement(FunctionStatement * e) = 0;
-			virtual void visitIfStatement(IfStatement * e) = 0;
-			virtual void visitLoopStatement(LoopStatement * e) = 0;
-			virtual void visitProcedureStatement(ProcedureStatement * e) = 0;
-			virtual void visitRepeatUntilStatement(RepeatUntilStatement * e) = 0;
-			virtual void visitRestStatement(RestStatement * e) = 0;
-			virtual void visitReturnStatement(ReturnStatement * e) = 0;
-			virtual void visitUntilStatement(UntilStatement * e) = 0;
-			virtual void visitVariableStatement(VariableStatement * e) = 0;
-			virtual void visitVectorStatement(VectorStatement * e) = 0;
-			virtual void visitWhileStatement(WhileStatement * e) = 0;
-		};
-		virtual void accept(Visitor *) { }
-		template<typename t>
-		Bool isInstanceOf() {
-			return (DynamicCast<t *>(this));
-		}
-	};
-
-	/* ASTree */
-
-	class Assignment: public Expression {
-		public:
-		Token * name = nullptr;
-		Expression * value = nullptr;
-		Token * o = nullptr;
-		Assignment(Token * name, Expression * value, Token * o);
-		Object * accept(Visitor * visitor) override;
-		~Assignment();
-	};
-	class Binary: public Expression {
-		public:
-		Expression * r = nullptr;
-		Expression * l = nullptr;
-		Token * o = nullptr;
-		Binary(Expression * ls, Token * op, Expression * rs);
-		Object * accept(Visitor * visitor) override;
-		~Binary();
-	};
-	class Bra: public Expression {
-		public:
-		String name;
-		Token * bra = nullptr;
-		Bra(Token * b, String & n);
-		Object * accept(Visitor * visitor) override;
-		~Bra();
-	};
-	class Call: public Expression {
-		public:
-		Token * parenthesis = nullptr;
-		Expression * callee = nullptr;
-		Array<Expression *> * arguments = nullptr;
-		Bool isConstructor = false;
-		Call(Expression * c, Token * p, Array<Expression *> * a, Bool i);
-		Object * accept(Visitor * visitor) override;
-		~Call();
-	};
-	class Comparison: public Expression {
-		public:
-		Expression * r = nullptr;
-		Expression * l = nullptr;
-		Token * o = nullptr;
-		Comparison(Expression * ls, Token * op, Expression * rs);
-		Object * accept(Visitor * visitor) override;
-		~Comparison();
-	};
-	class DynamicGet: public Expression {
-		public:
-		Expression * object = nullptr;
-		Token * name = nullptr;
-		Bool selfReference = false;
-		DynamicGet(Expression * o, Token * n, Bool s = false);
-		Object * accept(Visitor * visitor) override;
-		~DynamicGet();
-	};
-	class DynamicSet: public Expression {
-		public:
-		Expression * object = nullptr;
-		Token * name = nullptr;
-		Token * equals = nullptr;
-		Expression * value = nullptr;
-		Bool selfReference = false;
-		DynamicSet(Expression * o, Token * n,
-				   Expression * v, Token * e, Bool s = false);
-		Object * accept(Visitor * visitor) override;
-		~DynamicSet();
-	};
-	class Grouping: public Expression {
-		public:
-		Expression * expression = nullptr;
-		Grouping(Expression * e);
-		Object * accept(Visitor * visitor) override;
-		~Grouping();
-	};
-	class Identifier: public Expression {
-		public:
-		Token * name = nullptr;
-		Identifier(Token * n);
-		Object * accept(Visitor * visitor) override;
-		~Identifier();
-	};
-	class Inner: public Expression {
-		public:
-		String bra;
-		String ket;
-		Token * inner = nullptr;
-		Inner(Token * i, String & b, String & k);
-		Object * accept(Visitor * visitor) override;
-		~Inner();
-	};
-	class Ket: public Expression {
-		public:
-		String name;
-		Token * ket = nullptr;
-		Ket(Token * k, String & n);
-		Object * accept(Visitor * visitor) override;
-		~Ket();
-	};
-	class List: public Expression {
-		public:
-		Array<Expression *> * values = nullptr;
-		List(Array<Expression *> * v);
-		Object * accept(Visitor * visitor) override;
-		~List();
-	};
-	class Literal: public Expression {
-		public:
-		Token * token = nullptr;
-		Object * object = nullptr;
-		Literal(Token * t);
-		Object * accept(Visitor * visitor) override;
-		~Literal();
-	};
-	class Logical: public Expression {
-		public:
-		Expression * r = nullptr;
-		Expression * l = nullptr;
-		Token * o = nullptr;
-		Logical(Expression * ls, Token * op, Expression * rs);
-		Object * accept(Visitor * visitor) override;
-		~Logical();
-	};
-	class Mutable: public Expression {
-		public:
-		Token * name = nullptr;
-		Expression * value = nullptr;
-		Token * o = nullptr;
-		Mutable(Token * name, Expression * value, Token * o);
-		Object * accept(Visitor * visitor) override;
-		~Mutable();
-	};
-	class Outer: public Expression {
-		public:
-		String ket;
-		String bra;
-		Token * outer = nullptr;
-		Outer(Token * o, String & k, String & b);
-		Object * accept(Visitor * visitor) override;
-		~Outer();
-	};
-	class Self: public Expression {
-		public:
-		Token * keyword = nullptr;
-		Self(Token * k);
-		Object * accept(Visitor * visitor) override;
-		~Self();
-	};
-	class StaticGet: public Expression {
-		public:
-		Expression * object = nullptr;
-		Token * name = nullptr;
-		Bool selfReference = false;
-		StaticGet(Expression * o, Token * n, Bool s = false);
-		Object * accept(Visitor * visitor) override;
-		~StaticGet();
-	};
-	class StaticSet: public Expression {
-		public:
-		Expression * object = nullptr;
-		Token * name = nullptr;
-		Token * equals = nullptr;
-		Expression * value = nullptr;
-		Bool selfReference = false;
-		StaticSet(Expression * o, Token * n,
-				  Expression * v, Token * e, Bool s = false);
-		Object * accept(Visitor * visitor) override;
-		~StaticSet();
-	};
-	class Subscript: public Expression {
-		public:
-		Token * bracket = nullptr;
-		Expression * item = nullptr;
-		Expression * expression = nullptr;
-		Subscript(Expression * i, Token * b, Expression * e);
-		Object * accept(Visitor * visitor) override;
-		~Subscript();
-	};
-	class Unary: public Expression {
-		public:
-		Expression * r = nullptr;
-		Token * o = nullptr;
-		Unary(Token * op, Expression * rs);
-		Object * accept(Visitor * visitor) override;
-		~Unary();
-	};
-
-	class Parameter {
-		public:
-		BasicType type = BasicType::UnknownType;
-		Token * tokenType = nullptr;
-		Token * name = nullptr;
-		Parameter() = default;
-		Parameter(BasicType bt, Token * tt, Token * nm) {
-			type = bt; tokenType = tt; name = nm;
-		}
-		Parameter * copy() const {
-			return new Parameter(
-				type,
-				new Token(* tokenType),
-				new Token(* name)
-			);
-		}
-		~Parameter() {
-			if (tokenType) delete tokenType;
-			if (name) delete name;
-		}
-	};
-
-	class AttributeStatement: public Statement {
-		public:
-		Statement * field = nullptr;
-		Modifier modifier = Modifier::publicAccess;
-		AttributeStatement(Statement * f, Modifier m);
-		void accept(Visitor * visitor) override;
-		~AttributeStatement();
-	};
-	class BlockStatement: public Statement {
-		public:
-		Array<Statement *> * statements = nullptr;
-		BlockStatement(Array<Statement *> * s);
-		BlockStatement(Statement * s);
-		void accept(Visitor * visitor) override;
-		~BlockStatement();
-	};
-	class BreakStatement: public Statement {
-		public:
-		Token * breakToken = nullptr;
-		BreakStatement(Token * b);
-		void accept(Visitor * visitor) override;
-		~BreakStatement();
-	};
-	class ClassStatement: public Statement {
-		public:
-		Token * name = nullptr;
-		Array<AttributeStatement *> * staticAttributes = nullptr;
-		Array<AttributeStatement *> * dynamicAttributes = nullptr;
-		ClassStatement(Token * n,
-					   Array<AttributeStatement *> * sF,
-					   Array<AttributeStatement *> * dF);
-		void accept(Visitor * visitor) override;
-		~ClassStatement();
-	};
-	class ContinueStatement: public Statement {
-		public:
-		Token * continueToken = nullptr;
-		ContinueStatement(Token * c);
-		void accept(Visitor * visitor) override;
-		~ContinueStatement();
-	};
-	class DeleteStatement: public Statement {
-		public:
-		Token * name = nullptr;
-		DeleteStatement(Token * n);
-		void accept(Visitor * visitor) override;
-		~DeleteStatement();
-	};
-	class DoWhileStatement: public Statement {
-		public:
-		Token * whileToken = nullptr;
-		Expression * expression = nullptr;
-		Statement * body = nullptr;
-		DoWhileStatement(Statement * b, Expression * e, Token * w);
-		void accept(Visitor * visitor) override;
-		~DoWhileStatement();
-	};
-	class ExpressionStatement: public Statement {
-		public:
-		Expression * e = nullptr;
-		ExpressionStatement(Expression * ex);
-		void accept(Visitor * visitor) override;
-		~ExpressionStatement();
-	};
-	class FileStatement: public Statement {
-		public:
-		String * file = nullptr;
-		String * name = nullptr;
-		FileStatement(String * n, String * f);
-		void accept(Visitor * visitor) override;
-	};
-	class ForStatement: public Statement {
-		public:
-		Token * forToken = nullptr;
-		Statement * declaration = nullptr;
-		Expression * expression = nullptr;
-		Expression * stepper = nullptr;
-		Statement * body = nullptr;
-		ForStatement(Statement * d, Expression * e, Expression * s, Statement * b, Token * f);
-		void accept(Visitor * visitor) override;
-		~ForStatement();
-	};
-	class FunctionStatement: public Statement {
-		public:
-		Token * name = nullptr;
-		Array<Parameter *> * params = nullptr;
-		BlockStatement * body = nullptr;
-		Parameter * returnType = nullptr;
-		FunctionStatement(Token * n, Array<Parameter *> * p, BlockStatement * b, Parameter * r);
-		void accept(Visitor * visitor) override;
-		~FunctionStatement();
-	};
-	class IfStatement: public Statement {
-		public:
-		Token * ifToken = nullptr;
-		Expression * expression = nullptr;
-		Statement * thenBranch = nullptr;
-		Statement * elseBranch = nullptr;
-		IfStatement(Expression * x, Statement * t, Statement * e, Token * i);
-		void accept(Visitor * visitor) override;
-		~IfStatement();
-	};
-	class LoopStatement: public Statement {
-		public:
-		Token * loopToken = nullptr;
-		Statement * body = nullptr;
-		LoopStatement(Statement * b, Token * l);
-		void accept(Visitor * visitor) override;
-		~LoopStatement();
-	};
-	class ProcedureStatement: public Statement {
-		public:
-		Token * name = nullptr;
-		Array<Parameter *> * params = nullptr;
-		BlockStatement * body = nullptr;
-		ProcedureStatement(Token * n, Array<Parameter *> * p, BlockStatement * b);
-		void accept(Visitor * visitor) override;
-		~ProcedureStatement();
-	};
-	class RepeatUntilStatement: public Statement {
-		public:
-		Token * untilToken = nullptr;
-		Statement * body = nullptr;
-		Expression * expression = nullptr;
-		RepeatUntilStatement(Statement * b, Expression * e, Token * u);
-		void accept(Visitor * visitor) override;
-		~RepeatUntilStatement();
-	};
-	class RestStatement: public Statement {
-		public:
-		RestStatement() = default;
-		void accept(Visitor * visitor) override;
-	};
-	class ReturnStatement: public Statement {
-		public:
-		Token * returnToken = nullptr;
-		Expression * e = nullptr;
-		ReturnStatement(Expression * ex, Token * rt);
-		void accept(Visitor * visitor) override;
-		~ReturnStatement();
-	};
-	class UntilStatement: public Statement {
-		public:
-		Token * untilToken = nullptr;
-		Expression * expression = nullptr;
-		Statement * body = nullptr;
-		UntilStatement(Expression * e, Statement * b, Token * u);
-		void accept(Visitor * visitor) override;
-		~UntilStatement();
-	};
-	class VariableStatement: public Statement {
-		public:
-		Token * name = nullptr;
-		BasicType type = BasicType::UnknownType;
-		Expression * initialiser = nullptr;
-		Token * object = nullptr;
-		Token * equal = nullptr;
-		VariableStatement(Token * n, Expression * i, BasicType t, Token * e, Token * o = nullptr);
-		void accept(Visitor * visitor) override;
-		~VariableStatement();
-	};
-	class VectorStatement: public Statement {
-		public:
-		String name;
-		Token * vector = nullptr;
-		Expression * initialiser = nullptr;
-		Token * equal = nullptr;
-		VectorStatement(Token * v, String & n, Expression * i, Token * e);
-		void accept(Visitor * visitor) override;
-		~VectorStatement();
-	};
-	class WhileStatement: public Statement {
-		public:
-		Token * whileToken = nullptr;
-		Expression * expression = nullptr;
-		Statement * body = nullptr;
-		WhileStatement(Expression * e, Statement * b, Token * w);
-		void accept(Visitor * visitor) override;
-		~WhileStatement();
-	};
-
-	/* Object */
-
-	class Object {
-		public:
-		void * value = nullptr;
-		BasicType type = BasicType::UnknownType;
-		Object() = default;
-		Object(BasicType t);
-		Object(BasicType t, void * v);
-		~Object();
-		void safeDestroy();
-		inline Bool isByte() const;
-		inline Bool isInteger() const;
-		inline Bool isReal() const;
-		inline Bool isComplexType() const;
-		inline Bool isNumericType() const;
-		inline Bool isBool() const;
-		inline Bool isString() const;
-		inline Bool isCharacter() const;
-		String getObjectName() const;
-		Object * copy() const;
-		String getObjectStringValue() const;
-		Bool isUnknown() const;
-		Bool isFunction() const;
-		Bool isCallable() const;
-		Bool isArray() const;
-		Bool isSubscriptable() const;
-		Bool getBoolValue() const;
-		static BasicType typeFromString(String & s);
-		static Object * fromLiteral(Token * t);
-	};
-
-	/* Complex */
-
-	class ComplexDBZException: public Exception {
-		public: ComplexDBZException(): Exception() { }
-	};
-	class Complex {
-		public:
-		Real a = 0.0;
-		Real b = 0.0;
-		Complex(Real n, Real i);
-		Complex() = default;
-		static Complex fromPolar(Real m, Real a);
-		void setRealPart(Real val);
-		void setImaginaryPart(Real val);
-		Complex getConjugate() const;
-		void conjugate();
-		Real getNormalized() const;
-		Real getMagnitude() const;
-		inline Real getModulus() const;
-		Real getPhase() const;
-		inline Real getAngle() const;
-		void operator = (Real r);
-		Bool operator == (Complex r) const;
-		Bool operator == (Real r) const;
-		Bool operator != (Complex r) const;
-		Bool operator != (Real r) const;
-		Complex operator - () const;
-		Complex operator + (Complex r) const;
-		void operator += (Complex r);
-		Complex operator - (Complex r) const;
-		void operator -= (Complex r);
-		Complex operator * (Complex r) const;
-		void operator *= (Complex r);
-		Complex operator / (Complex r) const;
-		void operator /= (Complex r);
-		String stringValue() const;
-	};
-
-	/* Function */
-
-	class Interpreter;
-
-	class ParameterException: public Exception {
-		public: ParameterException(): Exception() { }
-	};
-
-	class CallProtocol {
-		public:
-		Object * self = nullptr;
-		virtual ~CallProtocol() = default;
-		virtual Object * call(Interpreter * i, Array<Object *> a, Token * c) = 0;
-		virtual String stringValue() const = 0;
-		virtual inline UInt32 arity() const = 0;
-		virtual CallProtocol * copy() const = 0;
-		template<typename t>
-		Bool isInstanceOf() {
-			return (DynamicCast<t *>(this));
-		}
-	};
-	class Function: public CallProtocol {
-		private:
-		FunctionStatement * declaration = nullptr;
-		Environment * closure = nullptr;
-		public:
-		Function() = default;
-		Function(FunctionStatement * d, Environment * c);
-		~Function() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
-		String stringValue() const override;
-		UInt32 arity() const override;
-		CallProtocol * copy() const override;
-    };
-	class Procedure: public CallProtocol {
-		private:
-		ProcedureStatement * declaration = nullptr;
-		Environment * closure = nullptr;
-		public:
-		Procedure() = default;
-		Procedure(ProcedureStatement * d, Environment * c);
-		~Procedure() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
-		String stringValue() const override;
-		UInt32 arity() const override;
-		CallProtocol * copy() const override;
-    };
-	typedef Lambda<Object * (Interpreter * i, Array<Object *> a, Token * t)> NativeLambda;
-	class NativeFunction: public CallProtocol {
-		private:
-		Array<Parameter *> * params = nullptr;
-		NativeLambda lambda = nullptr;
-		String name;
-		Bool mutableParameters = false;
-		public:
-		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
-		~NativeFunction() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
-		void deallocate(Array<Object *> & parameters);
-		String stringValue() const override;
-		UInt32 arity() const override;
-		CallProtocol * copy() const override;
-	};
-	class NativeProcedure: public CallProtocol {
-		private:
-		Array<Parameter *> * params = nullptr;
-		NativeLambda lambda = nullptr;
-		String name;
-		Bool mutableParameters = false;
-		public:
-		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
-		~NativeProcedure() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
-		void deallocate(Array<Object *> & parameters);
-		String stringValue() const override;
-		UInt32 arity() const override;
-		CallProtocol * copy() const override;
-	};
-
-	/* Class */
-
-	class Class: public CallProtocol {
-		public:
-		String name;
-		Dictionary<String, Pair<Modifier, Object *>> * staticAttributes = nullptr;
-		Array<AttributeStatement *> * dynamicAttributes = nullptr;
-		Class(String n, Array<AttributeStatement *> * d =
-			  new Array<AttributeStatement *>(),
-			  Dictionary<String, Pair<Modifier, Object *>> * s =
-			  new Dictionary<String, Pair<Modifier, Object *>>());
-		void defineStatic(String name, Modifier access, Object * value);
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
-		Object * getInnerReference(String & name);
-		Object * getInnerValue(String & name);
-		Object * getReference(String & name);
-		Object * getValue(String & name);
-		String stringValue() const override;
-		UInt32 arity() const override;
-		CallProtocol * copy() const override;
-		void destroy();
-	};
-	class Instance {
-		private:
-		Dictionary<String, Pair<Modifier, Object *>> * attributes = nullptr;
-		public:
-		Class * type = nullptr;
-		Instance(Class * t, Interpreter * i);
-		Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * a);
-		void attributesInitialisation(Interpreter * i);
-		void defineDynamic(String name, Modifier access, Object * value);
-		Object * getInnerReference(String & name);
-		Object * getInnerValue(String & name);
-		Object * getReference(String & name);
-		Object * getValue(String & name);
-		String stringValue() const;
-		Instance * copyByValue() const;
-		Instance * copy() const;
-		void destroy();
-	};
-
-	/* ArrayList */
-
-	class ArrayList {
-		public:
-		Array<Object *> * elements = nullptr;
-		ArrayList(Array<Object *> * e);
-		ArrayList(Object * o);
-		ArrayList();
-		~ArrayList();
-		Object * copyAt(SizeType i) const;
-		Object * referenceAt(SizeType i) const;
-		ArrayList * copy() const;
-		String stringValue() const;
-	};
-
-	/* Vector */
-
-	class InvalidIndexException: public Exception {
-		public: InvalidIndexException(): Exception() { }
-	};
-	class InvalidOperationException: public Exception {
-		public: InvalidOperationException(): Exception() { }
-	};
-	class Vector {
-		private:
-		Complex * space = nullptr;
-		SizeType size = 0;
-		Bool direction = ketDirection;
-		public:
-
-		static const Bool braDirection = true;
-		static const Bool ketDirection = false;
-
-		Vector(SizeType s, Bool d);
-		Vector(Bool d);
-		Vector() = default;
-		~Vector();
-
-		Bool getDirection() const;
-		SizeType getSize() const;
-		Bool isEmpty() const;
-
-		Bool isBra() const;
-		Bool isKet() const;
-		void setDirection(Bool d);
-
-		inline void negate();
-		void invert();
-		inline Vector * getInverse() const;
-		Vector * getAdditiveInverse() const;
-
-		void conjugate();
-		Vector * getConjugate() const;
-
-		void transpose();
-		Vector * getTransposed() const;
-
-		inline void dagger();
-		inline void adjoint();
-		void conjugateTranspose();
-		inline Vector * getDagger() const;
-		inline Vector * getAdjoint() const;
-		Vector * getConjugateTranspose() const;
-
-		void inBraForm();
-		void inKetForm();
-
-		Complex & operator [] (SizeType i);
-		Complex & at(SizeType i);
-
-		Bool operator == (Vector r) const;
-		Bool operator != (Vector r) const;
-		Vector operator + (Vector r) const;
-		Vector operator - () const;
-		Vector operator - (Vector r) const;
-		Vector operator * (Complex z) const;
-
-		void multiplyByScalarComplex(Complex & z);
-		void multiplyByScalarImaginary(Real & i);
-		void multiplyByScalarReal(Real & r);
-		void multiplyByScalarInteger(Int64 & i);
-
-		static Vector * basis(Bool d, Bool s);
-		Complex * copyAt(SizeType i) const;
-		Complex * referenceAt(SizeType i) const;
-		Vector * copy() const;
-		String stringValue() const;
-	};
-
-	/* Processor */
-
-	class EvaluationError: public Exception {
-		private:
-		const String message;
-		const Token token;
-		public:
-		const String & getMessage() const { return message; }
-		const Token & getToken() const { return token; }
-		EvaluationError(String m, Token t):
-		Exception(), message(m), token(t) { }
-	};
-	class Processor {
-		private:
-		Processor() = default;
-		~Processor() = default;
-		typedef Lambda<Object * (Object *)> UnaryHandler;
-		typedef Lambda<Object * (Object *, Object *)> BinaryHandler;
-		typedef Lambda<void (Object *, Object *)> AssignmentHandler;
-		Dictionary<BasicType, UnaryHandler> unaryNegation = {
+	EvaluationError::EvaluationError(String m, Token t): message(m), token(t) { }
+	const String & EvaluationError::getMessage() const {
+		return message;
+	}
+	const Token & EvaluationError::getToken() const {
+		return token;
+	}
+
+	Processor::Processor() {
+		unaryNegation = Dictionary<BasicType, UnaryHandler>({
 			{
 				BasicType::IntegerType,
 				[] (Object * o) -> Object * {
@@ -1145,8 +74,8 @@ namespace Spin {
 					return new Object(o -> type, v);
 				}
 			}
-		};
-		Dictionary<BasicType, UnaryHandler> unaryInversion = {
+		});
+		unaryInversion = Dictionary<BasicType, UnaryHandler>({
 			{
 				BasicType::ByteType,
 				[] (Object * o) -> Object * {
@@ -1163,8 +92,8 @@ namespace Spin {
 					return new Object(o -> type, i);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryAddition = {
+		});
+		binaryAddition = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1273,8 +202,8 @@ namespace Spin {
 					return new Object(BasicType::ByteType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> stringAddition = {
+		});
+		stringAddition = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::StringType, BasicType::StringType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1290,7 +219,7 @@ namespace Spin {
 					String * a = (String *) l -> value;
 					Character * b = (Character *) r -> value;
 					String * c = new String(* a);
-					c -> push(* b);
+					c -> push_back(* b);
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1299,7 +228,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
-					String * c = new String((* a) + realToString(* b));
+					String * c = new String((* a) + Converter::realToString(* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1308,7 +237,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
-					String * c = new String((* a) + realToString(* b) + "i");
+					String * c = new String((* a) + Converter::realToString(* b) + "i");
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1344,7 +273,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					Real * a = (Real *) l -> value;
 					String * b = (String *) r -> value;
-					String * c = new String(realToString(* a) + (* b));
+					String * c = new String(Converter::realToString(* a) + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1353,7 +282,7 @@ namespace Spin {
 				[] (Object * l, Object * r) -> Object * {
 					Real * a = (Real *) l -> value;
 					String * b = (String *) r -> value;
-					String * c = new String(realToString(* a) + "i" + (* b));
+					String * c = new String(Converter::realToString(* a) + "i" + (* b));
 					return new Object(BasicType::StringType, c);
 				}
 			},
@@ -1375,8 +304,8 @@ namespace Spin {
 					return new Object(BasicType::StringType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binarySubtraction = {
+		});
+		binarySubtraction = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1539,8 +468,8 @@ namespace Spin {
 					return new Object(BasicType::CharacterType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMultiplication = {
+		});
+		binaryMultiplication = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1703,8 +632,8 @@ namespace Spin {
 					return new Object(BasicType::VectorType, v);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryDivision = {
+		});
+		binaryDivision = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1846,8 +775,8 @@ namespace Spin {
 					return new Object(BasicType::ComplexType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryAND = {
+		});
+		binaryAND = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1884,8 +813,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryXOR = {
+		});
+		binaryXOR = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1922,8 +851,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryOR = {
+		});
+		binaryOR = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -1960,24 +889,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		void applyAdditionAssignment(Token * t, Object * l, Object * r);
-		void applySubtractionAssignment(Token * t, Object * l, Object * r);
-		void applyMultiplicationAssignment(Token * t, Object * l, Object * r);
-		void applyDivisionAssignment(Token * t, Object * l, Object * r);
-		void applyModulusAssignment(Token * t, Object * l, Object * r);
-		void applyORAssignment(Token * t, Object * l, Object * r);
-		void applyANDAssignment(Token * t, Object * l, Object * r);
-		void applyXORAssignment(Token * t, Object * l, Object * r);
-		Object * applyAddition(Token * t, Object * l, Object * r);
-		Object * applySubtraction(Token * t, Object * l, Object * r);
-		Object * applyMultiplication(Token * t, Object * l, Object * r);
-		Object * applyDivision(Token * t, Object * l, Object * r);
-		Object * applyModulus(Token * t, Object * l, Object * r);
-		Object * applyAND(Token * t, Object * l, Object * r);
-		Object * applyXOR(Token * t, Object * l, Object * r);
-		Object * applyOR(Token * t, Object * l, Object * r);
-		Dictionary<BasicTypes, BinaryHandler> binaryStrictEquality = {
+		});
+		binaryStrictEquality = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -2050,8 +963,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMixedEquality = {
+		});
+		binaryMixedEquality = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::RealType),
 				[] (Object * l, Object * r) -> Object * {
@@ -2119,8 +1032,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMajor = {
+		});
+		binaryMajor = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -2238,8 +1151,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMajorEqual = {
+		});
+		binaryMajorEqual = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -2357,8 +1270,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMinor = {
+		});
+		binaryMinor = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -2476,8 +1389,8 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Dictionary<BasicTypes, BinaryHandler> binaryMinorEqual = {
+		});
+		binaryMinorEqual = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
 				[] (Object * l, Object * r) -> Object * {
@@ -2595,16 +1508,10 @@ namespace Spin {
 					return new Object(BasicType::BoolType, c);
 				}
 			}
-		};
-		Object * applyEquality(Token * t, Object * l, Object * r);
-		Object * applyInequality(Token * t, Object * l, Object * r);
-		Object * applyMajor(Token * t, Object * l, Object * r);
-		Object * applyMajorEqual(Token * t, Object * l, Object * r);
-		Object * applyMinor(Token * t, Object * l, Object * r);
-		Object * applyMinorEqual(Token * t, Object * l, Object * r);
-		Dictionary<BasicTypes, AssignmentHandler> pureAssignment = {
+		});
+		pureAssignment = Dictionary<BasicType, AssignmentHandler>({
 			{
-				compose(BasicType::IntegerType, BasicType::IntegerType),
+				BasicType::IntegerType,
 				[] (Object * l, Object * r) {
 					Int64 * a = (Int64 *) l -> value;
 					Int64 * b = (Int64 *) r -> value;
@@ -2612,7 +1519,7 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::BoolType, BasicType::BoolType),
+				BasicType::BoolType,
 				[] (Object * l, Object * r) {
 					Bool * a = (Bool *) l -> value;
 					Bool * b = (Bool *) r -> value;
@@ -2620,7 +1527,7 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::ByteType, BasicType::ByteType),
+				BasicType::ByteType,
 				[] (Object * l, Object * r) {
 					UInt8 * a = (UInt8 *) l -> value;
 					UInt8 * b = (UInt8 *) r -> value;
@@ -2628,7 +1535,7 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::StringType, BasicType::StringType),
+				BasicType::StringType,
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					String * b = (String *) r -> value;
@@ -2636,7 +1543,7 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::RealType, BasicType::RealType),
+				BasicType::RealType,
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2644,7 +1551,7 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::CharacterType, BasicType::CharacterType),
+				BasicType::CharacterType,
 				[] (Object * l, Object * r) {
 					Character * a = (Character *) l -> value;
 					Character * b = (Character *) r -> value;
@@ -2652,7 +1559,7 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::ImaginaryType, BasicType::ImaginaryType),
+				BasicType::ImaginaryType,
 				[] (Object * l, Object * r) {
 					Real * a = (Real *) l -> value;
 					Real * b = (Real *) r -> value;
@@ -2660,7 +1567,7 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::ComplexType, BasicType::ComplexType),
+				BasicType::ComplexType,
 				[] (Object * l, Object * r) {
 					Complex * a = (Complex *) l -> value;
 					Complex * b = (Complex *) r -> value;
@@ -2668,14 +1575,14 @@ namespace Spin {
 				}
 			},
 			{
-				compose(BasicType::VectorType, BasicType::VectorType),
+				BasicType::VectorType,
 				[] (Object * l, Object * r) {
 					delete (Vector *) l -> value;
 					l -> value = ((Vector *) r -> value) -> copy();
 				}
 			}
-		};
-		Dictionary<BasicTypes, AssignmentHandler> mixedAssignment = {
+		});
+		mixedAssignment = Dictionary<BasicTypes, AssignmentHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::RealType),
 				[] (Object * l, Object * r) {
@@ -2785,7 +1692,7 @@ namespace Spin {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
-					* a = String(realToString(* b));
+					* a = String(Converter::realToString(* b));
 				}
 			},
 			{
@@ -2793,7 +1700,7 @@ namespace Spin {
 				[] (Object * l, Object * r) {
 					String * a = (String *) l -> value;
 					Real * b = (Real *) r -> value;
-					* a = String(realToString(* b));
+					* a = String(Converter::realToString(* b));
 				}
 			},
 			{
@@ -2812,439 +1719,746 @@ namespace Spin {
 					* a = (* b) ? "true" : "false";
 				}
 			}
-		};
-		inline BasicTypes compose(BasicType a, BasicType b);
-		public:
-		Processor(const Processor &) = delete;
-		Processor(Processor &&) = delete;
-		Processor & operator = (const Processor &) = delete;
-		Processor & operator = (Processor &&) = delete;
-		static Processor * self() {
-			static Processor instance;
-			return & instance;
+		});
+	}
+
+	void Processor::applyAdditionAssignment(Token * t, Object * l, Object * r) {
+		if (l -> isString() || r -> isString()) {
+			auto search = stringAddition.find(compose(l -> type, r -> type));
+			if (search != stringAddition.end()) {
+				auto handler = search -> second;
+				Object * temp = handler(l, r);
+				try { applyAssignment(t, l, temp); }
+				catch (EvaluationError & e) { throw; }
+				delete temp; return;
+			}
+			throw EvaluationError(
+				"Binary operator '+=' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
 		}
-		Object * applyComparisonOperator(Token * t, Object * l, Object * r);
-		Object * applyBinaryOperator(Token * t, Object * l, Object * r);
-		Object * applySubscriptOperator(Token * t, Object * l, Object * r);
-		Object * applyUnaryOperator(Token * t, Object * o);
-		void applyAssignment(Token * t, Object * l, Object * r);
-		void applyVectorAssignment(Token * t, Object * l, Object * r);
-		void applyMutableAssignment(Token * t, Object * l, Object * r);
-		Object * applyInnerProduct(Token * t, Object * l, Object * r);
-		Object * applyOuterProduct(Token * t, Object * l, Object * r);
-	};
-
-	/* Libraries */
-
-	class Console {
-		private: Console() = default;
-		public:
-		static Object * write();
-		static Object * writeLine();
-		static Object * read();
-		static Object * readLine();
-		static Object * setBackground();
-		static Object * setForeground();
-		static Object * reset();
-		static Object * clean();
-		static void defineLibrary(Environment * global);
-	};
-	class Kronos {
-		private: Kronos() = default;
-		public: static void defineLibrary(Environment * global);
-	};
-	class Maths {
-		private: Maths() = default;
-		public: static void defineLibrary(Environment * global);
-	};
-
-	/* Interpreter */
-
-	class SyntaxTree {
-		public:
-		Bool consoleLibrary = false;
-		Bool mathsLibrary = false;
-		Bool kronosLibrary = false;
-		Array<Statement *> * statements = nullptr;
-		SyntaxTree() = default;
-		SyntaxTree(Array<Statement *> * s);
-		~SyntaxTree() {
-			if (!statements) return;
-			for (Statement * s : * statements) delete s;
-			delete statements;
+		auto search = binaryAddition.find(compose(l -> type, r -> type));
+		if (search != binaryAddition.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
 		}
-	};
-	class InterpreterErrorException: public Exception {
-		private:
-		const String message;
-		const UInt64 line;
-		const String fileName;
-		public:
-		const String & getMessage() const { return message; }
-		const UInt64 & getLine() const { return line; }
-		const String & getFileName() const { return fileName; }
-		InterpreterErrorException(String m, UInt64 l, String n):
-		Exception(),  message(m), line(l), fileName(n) { }
-	};
-	class InterpreterReturn: public Exception {
-		private:
-		Object * value = nullptr;
-		Token * returnToken = nullptr;
-		public:
-		Object * getReturnValue() const { return value; }
-		Token * getReturnToken() const { return returnToken; }
-		InterpreterReturn(Object * v, Token * t): 
-		value(v), returnToken(t), Exception() { }
-		~InterpreterReturn() { if (returnToken) delete returnToken; }
-	};
-	class Interpreter: public Expression::Visitor, public Statement::Visitor {
-		private:
-		String * fileName = nullptr;
-		String * fileContents = nullptr;
-		Processor * CPU = Processor::self();
-		Environment * memory = nullptr;
-		Bool broken = false;
-		Bool continued = false;
-		Class * classDefinition = nullptr;
-		Modifier currentModifier = Modifier::publicAccess;
-		Object * visitAssignmentExpression(Assignment * e) override;
-		Object * visitBinaryExpression(Binary * e) override;
-		Object * visitBraExpression(Bra * e) override;
-		Object * visitCallExpression(Call * e) override;
-		Object * visitComparisonExpression(Comparison * e) override;
-		Object * visitDynamicGetExpression(DynamicGet * e) override;
-		Object * visitDynamicSetExpression(DynamicSet * e) override;
-		Object * visitGroupingExpression(Grouping * e) override;
-		Object * visitIdentifierExpression(Identifier * e) override;
-		Object * visitInnerExpression(Inner * e) override;
-		Object * visitKetExpression(Ket * e) override;
-		Object * visitListExpression(List * e) override;
-		Object * visitLiteralExpression(Literal * e) override;
-		Object * visitLogicalExpression(Logical * e) override;
-		Object * visitMutableExpression(Mutable * e) override;
-		Object * visitOuterExpression(Outer * e) override;
-		Object * visitSelfExpression(Self * e) override;
-		Object * visitStaticGetExpression(StaticGet * e) override;
-		Object * visitStaticSetExpression(StaticSet * e) override;
-		Object * visitSubscriptExpression(Subscript * e) override;
-		Object * visitUnaryExpression(Unary * e) override;
-		Object * evaluate(Expression * e);
-		void visitAttributeStatement(AttributeStatement * e) override;
-		void visitBlockStatement(BlockStatement * e) override;
-		void visitBreakStatement(BreakStatement * e) override;
-		void visitClassStatement(ClassStatement * e) override;
-		void visitContinueStatement(ContinueStatement * e) override;
-		void visitDeleteStatement(DeleteStatement * e) override;
-		void visitDoWhileStatement(DoWhileStatement * e) override;
-		void visitExpressionStatement(ExpressionStatement * e) override;
-		void visitFileStatement(FileStatement * e) override;
-		void visitForStatement(ForStatement * e) override;
-		void visitFunctionStatement(FunctionStatement * e) override;
-		void visitIfStatement(IfStatement * e) override;
-		void visitLoopStatement(LoopStatement * e) override;
-		void visitProcedureStatement(ProcedureStatement * e) override;
-		void visitRepeatUntilStatement(RepeatUntilStatement * e) override;
-		void visitRestStatement(RestStatement * e) override;
-		void visitReturnStatement(ReturnStatement * e) override;
-		void visitUntilStatement(UntilStatement * e) override;
-		void visitVariableStatement(VariableStatement * e) override;
-		void visitVectorStatement(VectorStatement * e) override;
-		void visitWhileStatement(WhileStatement * e) override;
-		void executeStatement(Statement * statement);
-		void executeBlock(Array<Statement *> * statements, Environment * environment);
-		Interpreter() = default;
-		~Interpreter() = default;
-		public:
-		Instance * instanceDefinition = nullptr;
-		Interpreter(const Interpreter &) = delete;
-		Interpreter(Interpreter &&) = delete;
-		Interpreter & operator = (const Interpreter &) = delete;
-		Interpreter & operator = (Interpreter &&) = delete;
-		static Interpreter * self() {
-			static Interpreter instance;
-			return & instance;
+		search = binaryAddition.find(compose(r -> type, l -> type));
+		if (search != binaryAddition.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(r, l);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
 		}
-		Environment * globals = nullptr;
-		void executeFunction(BlockStatement * block, Environment * environment);
-		void evaluate(SyntaxTree * syntaxTree);
-	};
-
-	/* Lexer */
-
-	class CodeUnit {
-		public:
-		Array<Token> * tokens = nullptr;
-		String * name = nullptr;
-		String * contents = nullptr;
-		CodeUnit() = default;
-		CodeUnit(Array<Token> * t, String * n, String * c) {
-			tokens = t; name = n; contents = c;
+		throw EvaluationError(
+			"Binary operator '+=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applySubtractionAssignment(Token * t, Object * l, Object * r) {
+		auto search = binarySubtraction.find(compose(l -> type, r -> type));
+		if (search != binarySubtraction.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
 		}
-		~CodeUnit() {
-			if (tokens) delete tokens;
-			if (name) delete name;
-			if (contents) delete contents;
+		throw EvaluationError(
+			"Binary operator '-=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyMultiplicationAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryMultiplication.find(compose(l -> type, r -> type));
+		if (search != binaryMultiplication.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
 		}
-	};
-	class Lexer {
-		private:
-		Array<TokenRule> grammar = {
-
-			{ Regex("^([ \\t\\n]+)"), TokenType::empty },
-
-			{ Regex("^(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)"), TokenType::comment },
-
-			{ Regex("^([0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i)"), TokenType::imaginaryLiteral },
-			{ Regex("^([0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?)"), TokenType::realLiteral },
-			{ Regex("^((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))"), TokenType::intLiteral },
-			{ Regex("^(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")"), TokenType::stringLiteral },
-			{ Regex("^('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')"), TokenType::charLiteral },
-			{ Regex("^(false|true)\\b"), TokenType::boolLiteral },
-
-			{ Regex("^(<[01]\\|)"), TokenType::basisBraLiteral },
-			{ Regex("^(\\|[01]>)"), TokenType::basisKetLiteral },
-
-			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::braketSymbol },
-			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::braSymbol },
-			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*><[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::ketbraSymbol },
-			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::ketSymbol },
-
-			{ Regex("^(\\->)"), TokenType::arrow },
-			{ Regex("^(\\::)"), TokenType::doublecolon },
-			{ Regex("^(\\:)"), TokenType::colon },
-			{ Regex("^(\\;)"), TokenType::semicolon },
-			{ Regex("^(\\,)"), TokenType::comma },
-			{ Regex("^(\\.)"), TokenType::dot },
-			{ Regex("^(<=)"), TokenType::minorEqual },
-			{ Regex("^(<)"), TokenType::minor },
-			{ Regex("^(>=)"), TokenType::majorEqual },
-			{ Regex("^(>)"), TokenType::major },
-			{ Regex("^(==)"), TokenType::equality },
-			{ Regex("^(=)"), TokenType::equal },
-			{ Regex("^(\\?)"), TokenType::questionMark },
-			{ Regex("^(\\!=)"), TokenType::inequality },
-			{ Regex("^(\\!)"), TokenType::exclamationMark },
-
-			{ Regex("^(\\+=)"), TokenType::plusEqual },
-			{ Regex("^(\\+)"), TokenType::plus },
-			{ Regex("^(\\-=)"), TokenType::minusEqual },
-			{ Regex("^(\\-)"), TokenType::minus },
-			{ Regex("^(\\~)"), TokenType::tilde },
-			{ Regex("^(\\*=)"), TokenType::starEqual },
-			{ Regex("^(\\*)"), TokenType::star },
-			{ Regex("^(\\\\)"), TokenType::backslash },
-			{ Regex("^(\\/=)"), TokenType::slashEqual },
-			{ Regex("^(\\/)"), TokenType::slash },
-			{ Regex("^(\\|=)"), TokenType::pipeEqual },
-			{ Regex("^(\\|\\|)"), TokenType::OR },
-			{ Regex("^(\\|)"), TokenType::pipe },
-			{ Regex("^(\\&=)"), TokenType::ampersandEqual },
-			{ Regex("^(\\&\\&)"), TokenType::AND },
-			{ Regex("^(\\&)"), TokenType::ampersand },
-			{ Regex("^(\\%=)"), TokenType::modulusEqual },
-			{ Regex("^(\\%)"), TokenType::modulus },
-			{ Regex("^(\\$=)"), TokenType::dollarEqual },
-			{ Regex("^(\\$)"), TokenType::dollar },
-			{ Regex("^(\\°)"), TokenType::conjugate },
-			{ Regex("^(\\^)"), TokenType::transpose },
-			{ Regex("^(\\')"), TokenType::dagger },
-
-			{ Regex("^(\\()"), TokenType::openParenthesis },
-			{ Regex("^(\\))"), TokenType::closeParenthesis },
-			{ Regex("^(\\[)"), TokenType::openBracket },
-			{ Regex("^(\\])"), TokenType::closeBracket },
-			{ Regex("^(\\{)"), TokenType::openBrace },
-			{ Regex("^(\\})"), TokenType::closeBrace },
-
-			{ Regex("^(if)\\b"), TokenType::ifKeyword },
-			{ Regex("^(else)\\b"), TokenType::elseKeyword },
-			{ Regex("^(switch)\\b"), TokenType::switchKeyword },
-			{ Regex("^(case)\\b"), TokenType::caseKeyword },
-			{ Regex("^(default)\\b"), TokenType::defaultKeyword },
-			{ Regex("^(while)\\b"), TokenType::whileKeyword },
-			{ Regex("^(do)\\b"), TokenType::doKeyword },
-			{ Regex("^(loop)\\b"), TokenType::loopKeyword },
-			{ Regex("^(for)\\b"), TokenType::forKeyword },
-			{ Regex("^(repeat)\\b"), TokenType::repeatKeyword },
-			{ Regex("^(until)\\b"), TokenType::untilKeyword },
-			{ Regex("^(break)\\b"), TokenType::breakKeyword },
-			{ Regex("^(continue)\\b"), TokenType::continueKeyword },
-			{ Regex("^(self)\\b"), TokenType::selfKeyword },
-
-			{ Regex("^(new)\\b"), TokenType::newKeyword },
-			{ Regex("^(delete)\\b"), TokenType::deleteKeyword },
-
-			{ Regex("^(import)\\b"), TokenType::importKeyword },
-
-			{ Regex("^(func)\\b"), TokenType::funcKeyword },
-			{ Regex("^(proc)\\b"), TokenType::procKeyword },
-
-			{ Regex("^(class)\\b"), TokenType::classKeyword },
-			
-			{ Regex("^(@(?:public))\\b"), TokenType::publicModifier },
-			{ Regex("^(@(?:hidden))\\b"), TokenType::hiddenModifier },
-			{ Regex("^(@(?:secure))\\b"), TokenType::secureModifier },
-			{ Regex("^(@(?:static))\\b"), TokenType::staticModifier },
-			{ Regex("^(@(?:shared))\\b"), TokenType::sharedModifier },
-
-			{ Regex("^(@(?:create))\\b"), TokenType::createSpecifier },
-			{ Regex("^(@(?:delete))\\b"), TokenType::deleteSpecifier },
-
-			{ Regex("^(rest)\\b"), TokenType::restKeyword },
-			{ Regex("^(return)\\b"), TokenType::returnKeyword },
-
-			{ Regex("^(Bool|Byte|Character|Complex|Imaginary|Integer|Real|String|Vector)\\b"), TokenType::basicType },
-
-			{ Regex("^([A-Za-z_][A-Za-z0-9_]*)\\b"), TokenType::symbol },
-
-		};
-		static void removeComments(String & input);
-		Lexer() = default;
-		~Lexer() = default;
-		public:
-		Lexer(const Lexer &) = delete;
-		Lexer(Lexer &&) = delete;
-		Lexer & operator = (const Lexer &) = delete;
-		Lexer & operator = (Lexer &&) = delete;
-		static Lexer * self() {
-			static Lexer instance;
-			return & instance;
+		search = binaryMultiplication.find(compose(r -> type, l -> type));
+		if (search != binaryMultiplication.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(r, l);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
 		}
-		Array<Token> * tokenise(String * input) const;
-	};
-
-	/* Regex Tools */
-
-	class RegexTools {
-		private:
-		RegexTools() = default;
-		public:
-		static Bool test(Regex & regex, const String & input);
-		static String match(Regex & regex, const String & input);
-		static String findFirstGroup(Regex & regex, const String & input);
-		static Array<String> findAllGroups(Regex & regex, const String & input);
-		static void replaceMatches(const String & mtc, String & input, const String & rpl);
-	};
-
-	/* Parser */
-
-	class SyntaxError: public Exception {
-		private:
-		const String message;
-		const UInt64 line;
-		public:
-		const UInt64 & getLine() const { return line; }
-		const String & getMessage() const { return message; }
-		SyntaxError(String m, UInt64 l):
-		Exception(), message(m), line(l) { }
-	};
-	class UnitError {
-		private:
-		const Array<SyntaxError> * const errors;
-		const String name;
-		public:
-		const Array<SyntaxError> * const getErrors() const { return errors; }
-		const String & getName() const { return name; }
-		UnitError(Array<SyntaxError> * e, String n): errors(e), name(n) { }
-		~UnitError() { delete errors; }
-	};
-	class ParserErrorException: public Exception {
-		private:
-		const Array<UnitError *> * const units;
-		public:
-		const Array<UnitError *> * const getUnitErrors() const { return units; }
-		ParserErrorException(Array<UnitError *> * u): Exception(), units(u) { }
-		ParserErrorException(UnitError * u):
-		Exception(), units(new Array<UnitError *>({ u })) { }
-		~ParserErrorException() {
-			if (!units) return;
-			for (UnitError * u : * units) delete u;
-			delete units;
+		throw EvaluationError(
+			"Binary operator '*=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyDivisionAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryDivision.find(compose(l -> type, r -> type));
+		if (search != binaryDivision.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			if (!temp) {
+				// Check if in try catch block.
+				throw EvaluationError(
+					"Binary operator '/=' threw division by 0 exception!", * t
+				);
+			}
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
 		}
-	};
-	class Parser {
-		private:
-		CodeUnit * currentUnit = nullptr;
-		Array<Token> * tokens = nullptr;
-		Array<SyntaxError> * errors = new Array<SyntaxError>();
-		SizeType index = 0;
-		Bool isInControlFlow = false;
-		Bool isInFunction = false;
-		Bool isInProcedure = false;
-		Bool isInClass = false;
-		Expression * expression();
-		Expression * assignment();
-		Expression * shortOR();
-		Expression * shortAND();
-		Expression * equality();
-		Expression * comparison();
-		Expression * lowPriorityOperator();
-		Expression * mediumPriorityOperator();
-		Expression * postfixOperator();
-		Expression * prefixOperator();
-		Expression * subscription();
-		Expression * completeSubscript(Expression * item);
-		Expression * call();
-		Expression * completeCall(Expression * callee, Bool isConstructor);
-		Expression * primary();
-		String * typeString(Bool current = false);
-		Statement * declaration();
-		Statement * variableDeclaration(String stringType, Bool isClass = false);
-		Statement * vectorDeclaration();
-		Statement * statement();
-		Statement * ifStatement();
-		Statement * blockStatement();
-		Statement * breakStatement();
-		Statement * continueStatement();
-		Statement * expressionStatement();
-		Statement * functionStatement();
-		Statement * procedureStatement();
-		Statement * classDeclaration();
-		Statement * fieldStatement();
-		Statement * forStatement();
-		Statement * whileStatement();
-		Statement * doWhileStatement();
-		Statement * untilStatement();
-		Statement * repeatUntilStatement();
-		Statement * loopStatement();
-		Statement * restStatement();
-		Statement * returnStatement();
-		Statement * deleteStatement();
-		Statement * fileStatement();
-		void replace(TokenType type, String lexeme, TokenType newType);
-		void runTypeClassification();
-		String parseImport(SizeType & i);
-		SyntaxTree * runImportClassification(SyntaxTree * syntaxTree);
-		void runCastClassification();
-		void runVectorClassification();
-		void cleanEmptyTokens();
-		inline Bool match(TokenType type);
-		inline Bool matchRange(TokenType from, TokenType to);
-		inline Bool check(TokenType type);
-		inline Bool isOutOfRange();
-		inline Bool isAtEnd();
-		inline Token peek();
-		inline Token peekAdvance();
-		inline Token previous();
-		inline Token advance();
-		inline Token recede();
-		inline Token consume(TokenType type, String lexeme = String());
-		inline void resetState();
-		void synchronise();
-		Parser() = default;
-		~Parser() = default;
-		public:
-		Parser(const Parser &) = delete;
-		Parser(Parser &&) = delete;
-		Parser & operator = (const Parser &) = delete;
-		Parser & operator = (Parser &&) = delete;
-		static Parser * self() {
-			static Parser instance;
-			return & instance;
+		throw EvaluationError(
+			"Binary operator '/=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyModulusAssignment(Token * t, Object * l, Object * r) {
+		if (l -> type == BasicType::IntegerType &&
+			r -> type == BasicType::IntegerType) {
+			Int64 * a = (Int64 *) l -> value;
+			Int64 * b = (Int64 *) r -> value;
+			if ((* b) == 0) {
+				// Check if in try catch block.
+				throw EvaluationError(
+					"Binary operator '%=' threw division by 0 exception!", * t
+				);
+			}
+			Int64 * c = new Int64((* a) % (* b));
+			Object * temp = new Object(BasicType::IntegerType, c);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
 		}
-		SyntaxTree * parse(Array<CodeUnit *> * units);
-		SyntaxTree * parse(CodeUnit * unit);
-	};
+		throw EvaluationError(
+			"Binary operator '%=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyORAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryOR.find(compose(l -> type, r -> type));
+		if (search != binaryOR.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '|=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyANDAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryAND.find(compose(l -> type, r -> type));
+		if (search != binaryAND.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '&=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyXORAssignment(Token * t, Object * l, Object * r) {
+		auto search = binaryXOR.find(compose(l -> type, r -> type));
+		if (search != binaryXOR.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			try { applyAssignment(t, l, temp); }
+			catch (EvaluationError & e) { throw; }
+			delete temp; return;
+		}
+		throw EvaluationError(
+			"Binary operator '^=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+
+	Object * Processor::applyAddition(Token * t, Object * l, Object * r) {
+		if (l -> isString() || r -> isString()) {
+			auto search = stringAddition.find(compose(l -> type, r -> type));
+			if (search != stringAddition.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Binary operator '+' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
+		}
+		auto search = binaryAddition.find(compose(l -> type, r -> type));
+		if (search != binaryAddition.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		search = binaryAddition.find(compose(r -> type, l -> type));
+		if (search != binaryAddition.end()) {
+			auto handler = search -> second;
+			return handler(r, l);
+		}
+		throw EvaluationError(
+			"Binary operator '+' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applySubtraction(Token * t, Object * l, Object * r) {
+		auto search = binarySubtraction.find(compose(l -> type, r -> type));
+		if (search != binarySubtraction.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Binary operator '-' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyMultiplication(Token * t, Object * l, Object * r) {
+		auto search = binaryMultiplication.find(compose(l -> type, r -> type));
+		if (search != binaryMultiplication.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		search = binaryMultiplication.find(compose(r -> type, l -> type));
+		if (search != binaryMultiplication.end()) {
+			auto handler = search -> second;
+			return handler(r, l);
+		}
+		if (l -> type == BasicType::VectorType &&
+			r -> type == BasicType::VectorType) {
+			Vector * a = (Vector *) l -> value;
+			Vector * b = (Vector *) r -> value;
+			if (a -> getDirection() == b -> getDirection()) {
+				throw EvaluationError(
+					"Binary operator '*' doesn't support Vectors that occupy the same space!", * t
+				);
+			}
+			if (a -> getSize() != b -> getSize()) {
+				throw EvaluationError(
+					"Binary operator '*' doesn't support Vectors with different dimensions!", * t
+				);
+			}
+			if (a -> getDirection()) {
+				/* Bra * Ket */
+				Complex * c = new Complex();
+				for (SizeType i = 0; i < a -> getSize(); i += 1) {
+					(* c) = (* c) + (a -> at(i) * b -> at(i));
+				}
+				return new Object(BasicType::ComplexType, c);
+			} else {
+				/* Ket * Bra */
+				// TODO: Outer Product.
+				return nullptr;
+			}
+		}
+		throw EvaluationError(
+			"Binary operator '*' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyDivision(Token * t, Object * l, Object * r) {
+		auto search = binaryDivision.find(compose(l -> type, r -> type));
+		if (search != binaryDivision.end()) {
+			auto handler = search -> second;
+			Object * temp = handler(l, r);
+			if (!temp) {
+				// Check if in try catch block.
+				throw EvaluationError(
+					"Binary operator '/' threw division by 0 exception!", * t
+				);
+			}
+			return temp;
+		}
+		throw EvaluationError(
+			"Binary operator '/' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyModulus(Token * t, Object * l, Object * r) {
+		if (l -> type == BasicType::IntegerType &&
+			r -> type == BasicType::IntegerType) {
+			Int64 * a = (Int64 *) l -> value;
+			Int64 * b = (Int64 *) r -> value;
+			if ((* b) == 0) {
+				// Check if in try catch block.
+				throw EvaluationError(
+					"Binary operator '%' threw division by 0 exception!", * t
+				);
+			}
+			Int64 * c = new Int64((* a) % (* b));
+			return new Object(BasicType::IntegerType, c);
+		}
+		throw EvaluationError(
+			"Binary operator '%' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyAND(Token * t, Object * l, Object * r) {
+		auto search = binaryAND.find(compose(l -> type, r -> type));
+		if (search != binaryAND.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Binary operator '&' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyXOR(Token * t, Object * l, Object * r) {
+		auto search = binaryXOR.find(compose(l -> type, r -> type));
+		if (search != binaryXOR.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Binary operator '^' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyOR(Token * t, Object * l, Object * r) {
+		auto search = binaryOR.find(compose(l -> type, r -> type));
+		if (search != binaryOR.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Binary operator '|' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyEquality(Token * t, Object * l, Object * r) {
+		if (l -> type == r -> type) {
+			auto search = binaryStrictEquality.find(compose(l -> type, r -> type));
+			if (search != binaryStrictEquality.end()) {
+				auto handler = search -> second;
+				return handler(l, r);
+			}
+			throw EvaluationError(
+				"Logical operator '==' doesn't support operands of type '" +
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!", * t
+			);
+		}
+		auto search = binaryMixedEquality.find(compose(l -> type, r -> type));
+		if (search != binaryMixedEquality.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		search = binaryMixedEquality.find(compose(r -> type, l -> type));
+		if (search != binaryMixedEquality.end()) {
+			auto handler = search -> second;
+			return handler(r, l);
+		}
+		throw EvaluationError(
+			"Logical operator '==' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyInequality(Token * t, Object * l, Object * r) {
+		Object * a = applyEquality(t, l, r);
+		Bool * b = (Bool *) a -> value;
+		* b = !(* b); return a;
+	}
+	Object * Processor::applyMajor(Token * t, Object * l, Object * r) {
+		auto search = binaryMajor.find(compose(l -> type, r -> type));
+		if (search != binaryMajor.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Logical operator '>' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyMajorEqual(Token * t, Object * l, Object * r) {
+		auto search = binaryMajorEqual.find(compose(l -> type, r -> type));
+		if (search != binaryMajorEqual.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Logical operator '>=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyMinor(Token * t, Object * l, Object * r) {
+		auto search = binaryMinor.find(compose(l -> type, r -> type));
+		if (search != binaryMinor.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Logical operator '<' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyMinorEqual(Token * t, Object * l, Object * r) {
+		auto search = binaryMinorEqual.find(compose(l -> type, r -> type));
+		if (search != binaryMinorEqual.end()) {
+			auto handler = search -> second;
+			return handler(l, r);
+		}
+		throw EvaluationError(
+			"Logical operator '<=' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+
+	BasicTypes Processor::compose(BasicType a, BasicType b) {
+		return (BasicTypes)(((BasicTypes)a << 8) | b);
+	}
+
+	Object * Processor::applyComparisonOperator(Token * t, Object * l, Object * r) {
+		switch (t -> type) {
+			case TokenType::equality: {
+				try { return applyEquality(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::inequality: {
+				try { return applyInequality(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::major: {
+				try { return applyMajor(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::majorEqual: {
+				try { return applyMajorEqual(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::minor: {
+				try { return applyMinor(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::minorEqual: {
+				try { return applyMinorEqual(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			default: break;
+		}
+		throw EvaluationError(
+			"Comparison operator '" + t -> lexeme + "' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyBinaryOperator(Token * t, Object * l, Object * r) {
+		switch (t -> type) {
+			case TokenType::plus: {
+				try { return applyAddition(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::minus: {
+				try { return applySubtraction(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::star: {
+				try { return applyMultiplication(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::slash: {
+				try { return applyDivision(t, l, r);}
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::ampersand: {
+				try { return applyAND(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::dollar: {
+				try { return applyXOR(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::pipe: {
+				try { return applyOR(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			case TokenType::modulus: {
+				try { return applyModulus(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} break;
+			default: break;
+		}
+		throw EvaluationError(
+			"Binary operator '" + t -> lexeme + "' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applySubscriptOperator(Token * t, Object * l, Object * r) {
+		if (l -> type == BasicType::StringType) {
+			if (r -> type == BasicType::IntegerType) {
+				Int64 * i = (Int64 *) r -> value;
+				String * s = (String *) l -> value;
+				if (((* i) >= 0) && (s -> length() > (* i))) {
+					Character * c = new Character(s -> at(* i));
+					return new Object(BasicType::CharacterType, c);
+				}
+				throw EvaluationError(
+					"Subscript operator '[ ]' threw index out of range exception!", * t
+				);
+			}
+			throw EvaluationError(
+				"Subscript operator '[ ]' doesn't support operand of type '" +
+				r -> getObjectName() + "' on inner expression of type '" +
+				l -> getObjectName() + "'!", * t
+			);
+		} else if (l -> type == BasicType::ArrayType) {
+			/* TODO: Ask the array... */
+		}
+		throw EvaluationError(
+			"Subscript operator '[ ]' doesn't support operand of type '" +
+			r -> getObjectName() + "' on inner expression of type '" +
+			l -> getObjectName() + "'!", * t
+		);
+	}
+	Object * Processor::applyUnaryOperator(Token * t, Object * o) {
+		switch (t -> type) {
+			case TokenType::minus: {
+				auto search = unaryNegation.find(o -> type);
+				if (search != unaryNegation.end()) {
+					auto handler = search -> second;
+					return handler(o);
+				}
+				throw EvaluationError(
+					"Unary operator '-' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::plus: {
+				switch (o -> type) {
+					case BasicType::CharacterType:
+					case BasicType::ByteType:
+					case BasicType::IntegerType:
+					case BasicType::RealType:
+					case BasicType::ImaginaryType:
+					case BasicType::ComplexType:
+					case BasicType::VectorType: return o -> copy();
+					default: {
+						throw EvaluationError(
+							"Unary operator '+' doesn't support any operand of type '" +
+							o -> getObjectName() + "'!", * t
+						);
+					} break;
+				}
+			} break;
+			case TokenType::exclamationMark: {
+				if (o -> type == BasicType::BoolType) {
+					Bool * b = (Bool *) o -> value;
+					b = new Bool(!(* b));
+					return new Object(o -> type, b);
+				}
+				throw EvaluationError(
+					"Unary operator '!' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::conjugate: {
+				if (o -> type == BasicType::ComplexType) {
+					Complex * c = (Complex *) o -> value;
+					c = new Complex(* c); c -> conjugate();
+					return new Object(o -> type, c);
+				} else if (o -> type == BasicType::VectorType) {
+					Vector * v = ((Vector *) o -> value) -> getConjugate();
+					return new Object(o -> type, v);
+				}
+				throw EvaluationError(
+					"Unary operator '°' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::transpose: {
+				if (o -> type == BasicType::VectorType) {
+					Vector * v = ((Vector *) o -> value) -> getTransposed();
+					return new Object(o -> type, v);
+				}
+				throw EvaluationError(
+					"Unary operator '^' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::dagger: {
+				if (o -> type == BasicType::VectorType) {
+					Vector * v = ((Vector *) o -> value) -> getConjugateTranspose();
+					return new Object(o -> type, v);
+				}
+				throw EvaluationError(
+					"Unary operator ''' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			case TokenType::tilde: {
+				auto search = unaryInversion.find(o -> type);
+				if (search != unaryInversion.end()) {
+					auto handler = search -> second;
+					return handler(o);
+				}
+				throw EvaluationError(
+					"Unary operator '~' doesn't support any operand of type '" +
+					o -> getObjectName() + "'!", * t
+				);
+			} break;
+			default: break;
+		}
+		throw EvaluationError(
+			"Unary operator '" + t -> lexeme +
+			"' doesn't support any operand of type '" +
+			o -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyAssignment(Token * t, Object * l, Object * r) {
+		if (l -> type == r -> type) {
+			if (l -> type == BasicType::InstanceType) {
+				Instance * a = (Instance *) l -> value;
+				Instance * b = (Instance *) r -> value;
+				if (a -> type != b -> type) {
+					throw EvaluationError(
+						"Assignment operator '" + t -> lexeme + "' doesn't support types '" +
+						a -> stringValue() + "' and '" +
+						b -> stringValue() + "' generated from different class definitions!", * t
+					);
+				}
+				b = b -> copyByValue();
+				// We leave b intact because classes
+				// assignations are copies by value.
+				// We delete a because it's been
+				// overwritten by the new copy.
+				a -> destroy(); delete a;
+				l -> value = b; return;
+			}
+			auto search = pureAssignment.find(l -> type);
+			if (search != pureAssignment.end()) {
+				auto handler = search -> second;
+				handler(l, r); return;
+			}
+		}
+		auto search = mixedAssignment.find(compose(l -> type, r -> type));
+		if (search != mixedAssignment.end()) {
+			auto handler = search -> second;
+			handler(l, r); return;
+		}
+		throw EvaluationError(
+			"Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyVectorAssignment(Token * t, Object * l, Object * r) {
+		/* This void takes in consideration eventual conjugate transpose. */
+		if (l -> type == BasicType::VectorType &&
+			r -> type == BasicType::VectorType) {
+			Vector * a = (Vector *) l -> value;
+			Vector * b = (Vector *) r -> value;
+			if (a -> getDirection()) {
+				b -> inBraForm();
+			} else b -> inKetForm();
+			delete a; l -> value = b -> copy();
+			return;
+		}
+		throw EvaluationError(
+			"Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+	void Processor::applyMutableAssignment(Token * t, Object * l, Object * r) {
+		switch (t -> type) {
+			case TokenType::plusEqual: {
+				try { applyAdditionAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::minusEqual: {
+				try { applySubtractionAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::starEqual: {
+				try { applyMultiplicationAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::slashEqual: {
+				try { applyDivisionAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::modulusEqual: {
+				try { applyModulusAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::pipeEqual: {
+				try { applyORAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::ampersandEqual: {
+				try { applyANDAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			case TokenType::dollarEqual: {
+				try { applyXORAssignment(t, l, r); }
+				catch (EvaluationError & e) { throw; }
+			} return;
+			default: break;
+		}
+		throw EvaluationError(
+			"Mutable Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
+			l -> getObjectName() + "' and '" +
+			r -> getObjectName() + "'!", * t
+		);
+	}
+
+	Object * Processor::applyInnerProduct(Token * t, Object * l, Object * r) {
+		/* We assume that the Interpreter passed us the right order <Bra|Ket>. */
+		if (l -> type == BasicType::VectorType &&
+			r -> type == BasicType::VectorType) {
+			Vector * a = (Vector *) l -> value;
+			Vector * b = (Vector *) r -> value;
+			if (a -> getDirection() == b -> getDirection()) {
+				throw EvaluationError(
+					"Inner product '<Bra|Ket>' doesn't support Vectors that occupy the same space!", * t
+				);
+			}
+			if (a -> getSize() != b -> getSize()) {
+				throw EvaluationError(
+					"Inner product '<Bra|Ket>' doesn't support Vectors with different dimensions!", * t
+				);
+			}
+			Complex * c = new Complex();
+			for (SizeType i = 0; i < a -> getSize(); i += 1) {
+				(* c) = (* c) + (a -> at(i) * b -> at(i));
+			}
+			return new Object(BasicType::ComplexType, c);
+		}
+		throw EvaluationError(
+			"Could not resolve invalid inner product '<Bra|Ket>'!", * t
+		);
+	}
+	Object * Processor::applyOuterProduct(Token * t, Object * l, Object * r) {
+		return nullptr;
+	}
 
 }
 

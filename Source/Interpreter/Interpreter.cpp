@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Interpreter.hpp                        |
+ *    |  Interpreter.cpp                        |
  *    |                                         |
  *    |           Language Interpreter          |
  *    |                                         |
@@ -14,14 +14,46 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Interpreter.hpp"
 
-#ifndef SPININTERPRETER
-#define SPININTERPRETER
+#ifndef SPIN_INTERPRETER
+#define SPIN_INTERPRETER
+
+#include "../Aliases/Prototypes/Manager.hpp"
+#include "../Aliases/Prototypes/Libraries.hpp"
+#include "../Aliases/Prototypes/Environment.hpp"
+#include "../Aliases/Prototypes/Routines.hpp"
+#include "../Aliases/Prototypes/Array.hpp"
+#include "../Aliases/Prototypes/Class.hpp"
+#include "../Aliases/Prototypes/Vector.hpp"
 
 namespace Spin {
+
+	/* Exceptions */
+
+	InterpreterErrorException::InterpreterErrorException(String m, UInt64 l, String n): message(m), line(l), fileName(n) { }
+	const String & InterpreterErrorException::getMessage() const {
+		return message;
+	}
+	const UInt64 & InterpreterErrorException::getLine() const {
+		return line;
+	}
+	const String & InterpreterErrorException::getFileName() const {
+		return fileName;
+	}
+
+	InterpreterReturn::InterpreterReturn(Object * v, Token * t): value(v), returnToken(t) { }
+	InterpreterReturn::~InterpreterReturn() {
+		if (returnToken) delete returnToken;
+	}
+	Object * InterpreterReturn::getReturnValue() const {
+		return value;
+	}
+	Token * InterpreterReturn::getReturnToken() const {
+		return returnToken;
+	}
 
 	/* Expressions */
 
@@ -32,7 +64,7 @@ namespace Spin {
 			Object * obj = nullptr;
 			try {
 				obj = memory -> getReference(e -> name -> lexeme);
-			} catch (VariableNotFoundException & r) {
+			} catch (Environment::VariableNotFoundException & r) {
 				if (expression) delete expression;
 				expression = nullptr;
 				throw EvaluationError(
@@ -67,7 +99,7 @@ namespace Spin {
 		Object * v = nullptr;
 		try {
 			v = memory -> getValue(e -> name);
-		} catch (VariableNotFoundException & exc) {
+		} catch (Environment::VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
 				e -> name + "'!", * e -> bra
@@ -91,7 +123,7 @@ namespace Spin {
 			callee = evaluate(e -> callee);
 			for (Expression * a : * e -> arguments) {
 				Object * evaluation = evaluate(a);
-				arguments.push(evaluation -> copy());
+				arguments.push_back(evaluation -> copy());
 				delete evaluation;
 			}
 			if (!(callee -> isCallable()) ||
@@ -175,7 +207,7 @@ namespace Spin {
 					((CallProtocol *) value -> value) -> self = object;
 				} else delete object;
 				return value;
-			} catch (VariableNotFoundException & u) {
+			} catch (Environment::VariableNotFoundException & u) {
 				throw EvaluationError(
 					"The resolved object does not contain any attribute, field or method named '" +
 					e -> name -> lexeme + "'!", * e -> name
@@ -211,7 +243,7 @@ namespace Spin {
 						e -> name -> lexeme
 					);
 				}
-			} catch (VariableNotFoundException & u) {
+			} catch (Environment::VariableNotFoundException & u) {
 				throw EvaluationError(
 					"The resolved object does not contain any attribute, field or method named '" +
 					e -> name -> lexeme + "'!", * e -> name
@@ -232,7 +264,7 @@ namespace Spin {
 	Object * Interpreter::visitIdentifierExpression(Identifier * e) {
 		try {
 			return memory -> getValue(e -> name -> lexeme);
-		} catch (VariableNotFoundException & exc) {
+		} catch (Environment::VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected identifier '" +
 				e -> name -> lexeme + "'!", * e -> name
@@ -244,7 +276,7 @@ namespace Spin {
 		Object * k = nullptr;
 		try {
 			b = memory -> getValue(e -> bra);
-		} catch (VariableNotFoundException & exc) {
+		} catch (Environment::VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
 				e -> bra + "'!", * e -> inner
@@ -252,7 +284,7 @@ namespace Spin {
 		}
 		try {
 			k = memory -> getValue(e -> ket);
-		} catch (VariableNotFoundException & exc) {
+		} catch (Environment::VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
 				e -> ket + "'!", * e -> inner
@@ -282,7 +314,7 @@ namespace Spin {
 		Object * v = nullptr;
 		try {
 			v = memory -> getValue(e -> name);
-		} catch (VariableNotFoundException & exc) {
+		} catch (Environment::VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected Vector identifier '" +
 				e -> name + "'!", * e -> ket
@@ -302,7 +334,7 @@ namespace Spin {
 		Array<Object *> * elements = new Array<Object *>();
 		try {
 			for (Expression * ex : * e -> values) {
-				elements -> push(evaluate(ex));
+				elements -> push_back(evaluate(ex));
 			}
 		} catch (Exception & exc) {
 			for (Object * o : * elements) delete o;
@@ -345,7 +377,7 @@ namespace Spin {
 			Object * obj = nullptr;
 			try {
 				obj = memory -> getReference(e -> name -> lexeme);
-			} catch (VariableNotFoundException & r) {
+			} catch (Environment::VariableNotFoundException & r) {
 				throw EvaluationError(
 					"Unexpected identifier '" +
 					e -> name -> lexeme + "'!", * e -> name
@@ -361,7 +393,7 @@ namespace Spin {
 	Object * Interpreter::visitSelfExpression(Self * e) {
 		try {
 			return memory -> getValue("self");
-		} catch (VariableNotFoundException & exc) {
+		} catch (Environment::VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected use of 'self' outside of allowed context!",
 				* e -> keyword
@@ -400,7 +432,7 @@ namespace Spin {
 					((CallProtocol *) value -> value) -> self = object;
 				} else delete object;
 				return value;
-			} catch (VariableNotFoundException & u) {
+			} catch (Environment::VariableNotFoundException & u) {
 				throw EvaluationError(
 					"The resolved object does not contain any static attribute, field or method named '" +
 					e -> name -> lexeme + "'!", * e -> name
@@ -441,7 +473,7 @@ namespace Spin {
 						e -> name -> lexeme
 					);
 				}
-			} catch (VariableNotFoundException & u) {
+			} catch (Environment::VariableNotFoundException & u) {
 				throw EvaluationError(
 					"The resolved object does not contain any attribute, field or method named '" +
 					e -> name -> lexeme + "'!", * e -> name
@@ -529,7 +561,7 @@ namespace Spin {
 					new Object(BasicType::ClassType, classDefinition)
 				);
 				classDefinition = nullptr;
-			} catch (VariableRedefinitionException & r) {
+			} catch (Environment::VariableRedefinitionException & r) {
 				throw EvaluationError(
 					"Object redefinition! The object '" +
 					e -> name -> lexeme + "' was already declared with type '" +
@@ -547,7 +579,7 @@ namespace Spin {
 	void Interpreter::visitDeleteStatement(DeleteStatement * e) {
 		try {
 			memory -> forget(e -> name -> lexeme);
-		} catch (VariableNotFoundException & exc) {
+		} catch (Environment::VariableNotFoundException & exc) {
 			throw EvaluationError(
 				"Unexpected identifier '" + e -> name -> lexeme +
 				"'! You can only delete variables defined in the innermost scope.",
@@ -627,7 +659,7 @@ namespace Spin {
 					instanceDefinition -> defineDynamic(
 						e -> name -> lexeme, currentModifier, function
 					);
-				} catch (VariableRedefinitionException & r) {
+				} catch (Environment::VariableRedefinitionException & r) {
 					if (function) delete function;
 					throw EvaluationError(
 						"Function redefinition! The object '" +
@@ -643,7 +675,7 @@ namespace Spin {
 					classDefinition -> defineStatic(
 						e -> name -> lexeme, currentModifier, function
 					);
-				} catch (VariableRedefinitionException & r) {
+				} catch (Environment::VariableRedefinitionException & r) {
 					if (function) delete function;
 					throw EvaluationError(
 						"Function redefinition! The object '" +
@@ -656,7 +688,7 @@ namespace Spin {
 					new Function(e, memory)
 				);
 				try { memory -> define(e -> name -> lexeme, function); }
-				catch (VariableRedefinitionException & r) {
+				catch (Environment::VariableRedefinitionException & r) {
 					if (function) delete function;
 					throw EvaluationError(
 						"Function redefinition! The object '" +
@@ -706,7 +738,7 @@ namespace Spin {
 					instanceDefinition -> defineDynamic(
 						e -> name -> lexeme, currentModifier, procedure
 					);
-				} catch (VariableRedefinitionException & r) {
+				} catch (Environment::VariableRedefinitionException & r) {
 					if (procedure) delete procedure;
 					throw EvaluationError(
 						"Function redefinition! The object '" +
@@ -722,7 +754,7 @@ namespace Spin {
 					classDefinition -> defineStatic(
 						e -> name -> lexeme, currentModifier, procedure
 					);
-				} catch (VariableRedefinitionException & r) {
+				} catch (Environment::VariableRedefinitionException & r) {
 					if (procedure) delete procedure;
 					throw EvaluationError(
 						"Function redefinition! The object '" +
@@ -732,7 +764,7 @@ namespace Spin {
 			} else {
 				Object * procedure = new Object(BasicType::FunctionType, new Procedure(e, memory));
 				try { memory -> define(e -> name -> lexeme, procedure); }
-				catch (VariableRedefinitionException & r) {
+				catch (Environment::VariableRedefinitionException & r) {
 					if (procedure) delete procedure;
 					throw EvaluationError(
 						"Procedure redefinition! The object '" +
@@ -810,7 +842,7 @@ namespace Spin {
 			if (e -> object) {
 				// This is the class definition:
 				try { definition = memory -> getReference(e -> object -> lexeme); }
-				catch (VariableNotFoundException & oex) {
+				catch (Environment::VariableNotFoundException & oex) {
 					throw EvaluationError(
 						"Object definition not found!", * e -> object
 					);
@@ -857,7 +889,7 @@ namespace Spin {
 			} else {
 				memory -> define(e -> name -> lexeme, expression);
 			}
-		} catch (VariableRedefinitionException & r) {
+		} catch (Environment::VariableRedefinitionException & r) {
 			if (expression) delete expression;
 			throw EvaluationError(
 				"Variable redefinition! The identifier '" +
@@ -901,7 +933,7 @@ namespace Spin {
 			} else {
 				memory -> define(e -> name, expression);
 			}
-		} catch (VariableRedefinitionException & r) {
+		} catch (Environment::VariableRedefinitionException & r) {
 			throw EvaluationError(
 				"Vector redefinition! The identifier '" +
 				e -> name + "' was already declared with type '" +
@@ -975,7 +1007,7 @@ namespace Spin {
 			}
 		} catch (EvaluationError & e) {
 			const SizeType cursor = e.getToken().position;
-			SizeType line = Linker::getLine(fileContents, cursor);
+			SizeType line = Manager::getLine(fileContents, cursor);
 			if (!fileName) fileName = new String("Unknown File");
 			throw InterpreterErrorException(
 				e.getMessage(), line, * fileName

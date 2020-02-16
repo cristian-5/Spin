@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Token.hpp                              |
+ *    |  Token.cpp                              |
  *    |                                         |
  *    |                  Token                  |
  *    |                                         |
@@ -14,17 +14,19 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#ifndef SPINTOKEN
-#define SPINTOKEN
+#include "../Aliases/Prototypes/Token.hpp"
 
-#include "../Aliases/Prototypes.hpp"
+#ifndef SPIN_TOKEN
+#define SPIN_TOKEN
 
 namespace Spin {
 
-	Token::Token(String l, TokenType t, SizeType p) {
-		lexeme = l; type = t; position = p;
+	Token::Token(String lexeme, TokenType type, SizeType position) {
+		this -> lexeme = lexeme;
+		this -> type = type;
+		this -> position = position;
 	}
 	Bool Token::isTypeLiteral() const {
 		return type >= TokenType::intLiteral &&
@@ -43,10 +45,6 @@ namespace Spin {
 	Bool Token::isTypeBraKet() const {
 		return type >= TokenType::braketSymbol &&
 			   type <= TokenType::ketbraSymbol;
-	}
-
-	TokenRule::TokenRule(Regex p, TokenType t) {
-		pattern = p; type = t;
 	}
 
 }

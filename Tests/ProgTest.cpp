@@ -14,17 +14,21 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Source/Aliases/Includes.hpp"
+#include "../Source/Aliases/Input.hpp"
+
+#include "../Source/Aliases/Prototypes/Lexer.hpp"
+#include "../Source/Aliases/Prototypes/Parser.hpp"
+#include "../Source/Aliases/Prototypes/Interpreter.hpp"
 
 using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	Output << "Insert test string: ";
+	OStream << "Insert test string: ";
 	String * test = new String(getInput());
-	Output << endLine;
+	OStream << endLine;
 
 	Lexer * lexer = Lexer::self();
 
@@ -46,26 +50,26 @@ Int32 main(Int32 argc, Character * argv[]) {
 		auto units = p.getUnitErrors();
 		for (UnitError * unit : * units) {
 			auto errors = unit -> getErrors();
-			Output << "Found " << errors -> size()
+			OStream << "Found " << errors -> size()
 				   << " errors in '" << unit -> getName()
 				   << "':" << endLine;
 			for (SyntaxError error : * errors) {
 				UInt64 line = error.getLine();
-				Output << "[line " << line << "]: "
+				OStream << "[line " << line << "]: "
 					   << error.getMessage() << endLine;
 			}
-			Output << endLine;
+			OStream << endLine;
 		}
-		Output << "Press enter to exit. ";
+		OStream << "Press enter to exit. ";
 		waitKeyPress();
-		return exitFailure;
+		return ExitCodes::failure;
 	}
 
 	if (!syntaxTree) {
-		Output << "File Scope Failure!" << endLine;
-		Output << "Press enter to exit. ";
+		OStream << "File Scope Failure!" << endLine;
+		OStream << "Press enter to exit. ";
 		waitKeyPress();
-		return exitFailure;
+		return ExitCodes::failure;
 	}
 
 	Interpreter * interpreter = Interpreter::self();
@@ -73,21 +77,21 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		interpreter -> evaluate(syntaxTree);
 	} catch (InterpreterErrorException & e) {
-		Output << "Found evaluation error in file '"
+		OStream << "Found evaluation error in file '"
 			   << e.getFileName() << "' [line "
 			   << e.getLine() << "]:" << endLine
 			   << e.getMessage() << endLine;
-		Output << endLine << "Press enter to exit. ";
+		OStream << endLine << "Press enter to exit. ";
 		waitKeyPress();
 		delete syntaxTree;
-		return exitFailure;
+		return ExitCodes::failure;
 	}
 
 	delete unit;
 	delete syntaxTree;
 
-	Output << endLine << "Press enter to exit. ";
+	OStream << endLine << "Press enter to exit. ";
 	waitKeyPress();
 	
-	return exitSuccess;
+	return ExitCodes::success;
 }

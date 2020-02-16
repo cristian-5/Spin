@@ -14,41 +14,46 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "Aliases/Includes.hpp"
+#include "Aliases/Input.hpp"
+
+#include "Aliases/Prototypes/Manager.hpp"
+#include "Aliases/Prototypes/Lexer.hpp"
+#include "Aliases/Prototypes/Parser.hpp"
+#include "Aliases/Prototypes/Interpreter.hpp"
 
 using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
 	if (argc == 2 && String(argv[1]) == "-v") {
-		Output << endLine << "Spin Language Version: 3.0 beta." << endLine;
-		return exitSuccess;
+		OStream << endLine << "Spin Language Version: 3.0 beta." << endLine;
+		return ExitCodes::success;
 	}
 
 	Array<CodeUnit *> * units = new Array<CodeUnit *>();
 	for (UInt64 i = 1; i < argc; i += 1) {
 		String * file = nullptr;
 		try {
-			file = Linker::stringFromFile(argv[i]);
+			file = Manager::stringFromFile(argv[i]);
 			if (!file || (file -> length() == 0)) continue;
-			units -> push(
+			units -> push_back(
 				new CodeUnit(
 					nullptr,
 					new String(argv[i]),
 					file
 				)
 			);
-		} catch (BadFileException & exc) {
+		} catch (Manager::BadFileException & exc) {
 			for (CodeUnit * u : * units) delete u; delete units;
-			Output << "Bad Access! Invalid input file at path '"
+			OStream << "Bad Access! Invalid input file at path '"
 				   << exc.getPath() << "'!" << endLine;
-			return exitFailure;
+			return ExitCodes::failure;
 		}
 	}
 
-	if (units -> size() == 0) return exitSuccess;
+	if (units -> size() == 0) return ExitCodes::success;
 
 	Lexer * lexer = Lexer::self();
 
@@ -68,22 +73,22 @@ Int32 main(Int32 argc, Character * argv[]) {
 		auto units = p.getUnitErrors();
 		for (UnitError * unit : * units) {
 			auto errors = unit -> getErrors();
-			Output << "Found " << errors -> size()
+			OStream << "Found " << errors -> size()
 				   << " errors in '" << unit -> getName()
 				   << "':" << endLine;
 			for (SyntaxError error : * errors) {
 				UInt64 line = error.getLine();
-				Output << " [line " << line << "]: "
+				OStream << " [line " << line << "]: "
 					   << error.getMessage() << endLine;
 			}
-			Output << endLine;
+			OStream << endLine;
 		}
-		return exitFailure;
+		return ExitCodes::failure;
 	}
 
 	if (!syntaxTree) {
-		Output << "File Scope Failure!" << endLine;
-		return exitFailure;
+		OStream << "File Scope Failure!" << endLine;
+		return ExitCodes::failure;
 	}
 
 	Interpreter * interpreter = Interpreter::self();
@@ -91,17 +96,17 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		interpreter -> evaluate(syntaxTree);
 	} catch (InterpreterErrorException & e) {
-		Output << "Found evaluation error in file '"
+		OStream << "Found evaluation error in file '"
 			   << e.getFileName() << "' [line "
 			   << e.getLine() << "]:" << endLine
 			   << e.getMessage() << endLine;
 		delete syntaxTree;
-		return exitFailure;
+		return ExitCodes::failure;
 	}
 
 	for (CodeUnit * unit : * units) delete unit;
 
 	delete syntaxTree;
 
-	return exitSuccess;
+	return ExitCodes::success;
 }

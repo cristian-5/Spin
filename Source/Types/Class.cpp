@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Class.hpp                              |
+ *    |  Class.cpp                              |
  *    |                                         |
  *    |               Class Type                |
  *    |                                         |
@@ -14,23 +14,28 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Class.hpp"
 
-#ifndef SPINCLASS
-#define SPINCLASS
+#ifndef SPIN_CLASS
+#define SPIN_CLASS
+
+#include "../Aliases/Prototypes/SyntaxTree.hpp"
+#include "../Aliases/Prototypes/Environment.hpp"
+#include "../Aliases/Prototypes/Interpreter.hpp"
 
 namespace Spin {
 
-	Class::Class(String n, Array<AttributeStatement *> * d,
-				 Dictionary<String, Pair<Modifier, Object *>> * s) {
-		name = n; dynamicAttributes = d; staticAttributes = s;
+	Class::Class(String n, Array<AttributeStatement *> * d, Dictionary<String, Pair<Modifier, Object *>> * s) {
+		name = n;
+		dynamicAttributes = d;
+		staticAttributes = s;
 	}
 	void Class::defineStatic(String name, Modifier access, Object * value) {
 		auto search = staticAttributes -> find(name);
 		if (search != staticAttributes -> end()) {
-			throw VariableRedefinitionException(
+			throw Environment::VariableRedefinitionException(
 				(search -> second.second) -> getObjectName()
 			);
 		} else staticAttributes -> insert({ name, { access, value } });
@@ -43,14 +48,14 @@ namespace Spin {
 		if (search != staticAttributes -> end()) {
 			return search -> second.second;
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	Object * Class::getInnerValue(String & name) {
 		auto search = staticAttributes -> find(name);
 		if (search != staticAttributes -> end()) {
 			return (search -> second.second) -> copy();
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	Object * Class::getReference(String & name) {
 		auto search = staticAttributes -> find(name);
@@ -60,7 +65,7 @@ namespace Spin {
 				return search -> second.second;
 			}
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	Object * Class::getValue(String & name) {
 		auto search = staticAttributes -> find(name);
@@ -70,7 +75,7 @@ namespace Spin {
 				return (search -> second.second) -> copy();
 			}
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	String Class::stringValue() const {
 		return "<class " + name + ">";
@@ -111,7 +116,7 @@ namespace Spin {
 	void Instance::defineDynamic(String name, Modifier access, Object * value) {
 		auto search = attributes -> find(name);
 		if (search != attributes -> end()) {
-			throw VariableRedefinitionException(
+			throw Environment::VariableRedefinitionException(
 				(search -> second.second) -> getObjectName()
 			);
 		} else attributes -> insert({ name, { access, value } });
@@ -121,14 +126,14 @@ namespace Spin {
 		if (search != attributes -> end()) {
 			return search -> second.second;
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	Object * Instance::getInnerValue(String & name) {
 		auto search = attributes -> find(name);
 		if (search != attributes -> end()) {
 			return (search -> second.second) -> copy();
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	Object * Instance::getReference(String & name) {
 		auto search = attributes -> find(name);
@@ -138,7 +143,7 @@ namespace Spin {
 				return search -> second.second;
 			}
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	Object * Instance::getValue(String & name) {
 		auto search = attributes -> find(name);
@@ -148,7 +153,7 @@ namespace Spin {
 				return (search -> second.second) -> copy();
 			}
 		}
-		throw VariableNotFoundException();
+		throw Environment::VariableNotFoundException();
 	}
 	String Instance::stringValue() const {
 		return "<instance " + type -> name + ">";

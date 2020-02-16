@@ -1,0 +1,47 @@
+
+# Commands:
+
+cppFlags = -O3
+cppVersion = -std=c++17
+
+rule build
+    command = clang++ -c $cppFlags -o $out $in $cppVersion
+
+rule link
+    command = clang++ -o $out $in
+
+# Dependencies:
+
+build Expressions.o: build ../Source/ASTree/Expressions.cpp
+build  Statements.o: build ../Source/ASTree/Statements.cpp
+
+build   Converter.o: build ../Source/Interpreter/Converter.cpp
+build Environment.o: build ../Source/Interpreter/Environment.cpp
+build Interpreter.o: build ../Source/Interpreter/Interpreter.cpp
+build   Libraries.o: build ../Source/Interpreter/Libraries.cpp
+build   Processor.o: build ../Source/Interpreter/Processor.cpp
+
+build       Regex.o: build ../Source/Lexer/Regex.cpp
+build       Lexer.o: build ../Source/Lexer/Lexer.cpp
+build     Manager.o: build ../Source/Manager/Manager.cpp
+
+build      Parser.o: build ../Source/Parser/Parser.cpp
+
+build       Token.o: build ../Source/Token/Token.cpp
+
+build       Array.o: build ../Source/Types/Array.cpp
+build       Class.o: build ../Source/Types/Class.cpp
+build     Complex.o: build ../Source/Types/Complex.cpp
+build      Object.o: build ../Source/Types/Object.cpp
+build    Routines.o: build ../Source/Types/Routines.cpp
+build      Vector.o: build ../Source/Types/Vector.cpp
+
+# Main:
+
+build LexerTest.o: build LexerTest.cpp
+build  ProgTest.o: build ProgTest.cpp
+
+# Link:
+
+build LexerTest: link LexerTest.o Regex.o Lexer.o Manager.o Token.o
+build  ProgTest: link ProgTest.o Expressions.o Statements.o Converter.o Environment.o Interpreter.o Libraries.o Processor.o Regex.o Lexer.o Manager.o Parser.o Token.o Array.o Class.o Complex.o Object.o Routines.o Vector.o

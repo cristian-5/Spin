@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Libraries.hpp                          |
+ *    |  Libraries.cpp                          |
  *    |                                         |
  *    |             Native Libraries            |
  *    |                                         |
@@ -14,12 +14,21 @@
  *          the (MIT) Massachusetts Institute
  *          of Technology License.
  *
- */
+!*/
 
-#include "../Aliases/Prototypes.hpp"
+#include "../Aliases/Prototypes/Libraries.hpp"
 
-#ifndef SPINLIBRARIES
-#define SPINLIBRARIES
+#ifndef SPIN_LIBRARIES
+#define SPIN_LIBRARIES
+
+#include "../Aliases/Prototypes/Environment.hpp"
+#include "../Aliases/Prototypes/Object.hpp"
+#include "../Aliases/Prototypes/Class.hpp"
+#include "../Aliases/Prototypes/SyntaxTree.hpp"
+#include "../Aliases/Prototypes/Interpreter.hpp"
+#include "../Aliases/Prototypes/Routines.hpp"
+
+#include "../Aliases/Input.hpp"
 
 namespace Spin {
 
@@ -42,7 +51,7 @@ namespace Spin {
 			new NativeProcedure(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
 					if (!a[0]) return nullptr;
-					Output << a[0] -> getObjectStringValue();
+					OStream << a[0] -> getObjectStringValue();
 					return nullptr;
 				}, new Array<Parameter *>({ nullptr }),
 				/* The nullptr literal specifies one argument
@@ -57,7 +66,7 @@ namespace Spin {
 			new NativeProcedure(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
 					if (!a[0]) return nullptr;
-					Output << a[0] -> getObjectStringValue() << endLine;
+					OStream << a[0] -> getObjectStringValue() << endLine;
 					return nullptr;
 				}, new Array<Parameter *>({ nullptr }),
 				/* The nullptr literal specifies one argument
@@ -72,7 +81,7 @@ namespace Spin {
 			new NativeFunction(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
 					if (!a[0]) return new Object(BasicType::StringType, new String());
-					Output << a[0] -> getObjectStringValue();
+					OStream << a[0] -> getObjectStringValue();
 					return new Object(BasicType::StringType, new String(getInput()));
 				}, new Array<Parameter *>({ nullptr }),
 				/* The nullptr literal specifies one argument
@@ -87,7 +96,7 @@ namespace Spin {
 			new NativeFunction(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
 					if (!a[0]) return new Object(BasicType::StringType, new String());
-					Output << a[0] -> getObjectStringValue() << endLine;
+					OStream << a[0] -> getObjectStringValue() << endLine;
 					return new Object(BasicType::StringType, new String(getInput()));
 				}, new Array<Parameter *>({ nullptr }),
 				/* The nullptr literal specifies one argument
@@ -110,7 +119,7 @@ namespace Spin {
 		return new Object(BasicType::FunctionType, 
 			new NativeProcedure(
 				[] (Interpreter * i, Array<Object *> a, Token * t) {
-					Output << "\ec\e[3J";
+					OStream << "\ec\e[3J";
 					return nullptr;
 				}, new Array<Parameter *>({ }),
 				"<func Console::clean>"
