@@ -255,30 +255,13 @@ namespace Spin {
 
 	String Converter::realToGroupedString(Real a) {
 		StringStream result;
-		result << (a >= 0 ? "+ " : "- ");
-		Int64 i = (Int64) a;
-		if (i < 0) { i = -i; a = -a; }
-		result << i;
-		a -= (Real)i;
-		a *= 100;
-		i = (Int64) a;
-		if (i == 0) result << ".0";
-		else result << '.' << i;
-		if (i < 10) result << '0';
+		result << a;
 		return result.str();
 	}
 	String Converter::imaginaryToGroupedString(Real a) {
 		StringStream result;
-		result << (a >= 0 ? "+ " : "- ");
-		Int64 i = (Int64) a;
-		if (i < 0) { i = -i; a = -a; }
-		result << i;
-		a -= (Real)i;
-		a *= 100;
-		i = (Int64) a;
-		if (i < 10) result << '.' << i << '0';
-		else result << '.' << i;
-		result << 'i'; return result.str();
+		result << a << 'i';
+		return result.str();
 	}
 	String Converter::realToString(Real a) {
 		return realToGroupedString(a);
