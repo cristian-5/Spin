@@ -45,11 +45,11 @@ namespace Spin {
 
 			{ Regex("^(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)"), TokenType::comment },
 
-			{ Regex("^([0-9]+(?:\\.[0-9]+(?:[eE][-]?[0-9]+)?)?i)"), TokenType::imaginaryLiteral },
-			{ Regex("^([0-9]+\\.[0-9]+(?:[eE][-]?[0-9]+)?)"), TokenType::realLiteral },
-			{ Regex("^((?:0[x][0-9A-Fa-f]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))"), TokenType::intLiteral },
-			{ Regex("^(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-Fa-f]{2})*\")"), TokenType::stringLiteral },
-			{ Regex("^('(?:[^\\\\]|\\\\0x[0-9A-Fa-f]{2}|\\\\['\\\\0abfnrtv])')"), TokenType::charLiteral },
+			{ Regex("^([0-9]+(?:\\.[0-9]+(?:[e][-]?[0-9]+)?)?i)"), TokenType::imaginaryLiteral },
+			{ Regex("^([0-9]+\\.[0-9]+(?:[e][-]?[0-9]+)?)"), TokenType::realLiteral },
+			{ Regex("^((?:0[x][0-9A-F]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))"), TokenType::intLiteral },
+			{ Regex("^(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-F]{2})*\")"), TokenType::stringLiteral },
+			{ Regex("^('(?:[^\\\\]|\\\\0x[0-9A-F]{2}|\\\\['\\\\0abfnrtv])')"), TokenType::charLiteral },
 			{ Regex("^(false|true)\\b"), TokenType::boolLiteral },
 
 			{ Regex("^(<[01]\\|)"), TokenType::basisBraLiteral },
