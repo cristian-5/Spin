@@ -5,6 +5,8 @@
 
 .vscode
 
+*.dSYM
+
 *.o
 .ninja_deps
 .ninja_log
