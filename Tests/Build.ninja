@@ -5,10 +5,12 @@ cppFlags = -O3
 cppVersion = -std=c++17
 
 rule build
-    command = clang++ -c $cppFlags -o $out $in $cppVersion
+    command = clang++ -g -c -o $out $in $cppVersion
+#   command = clang++ -c $cppFlags -o $out $in $cppVersion
 
 rule link
-    command = clang++ $cppFlags -o $out $in $cppVersion
+    command = clang++ -g -o $out $in $cppVersion
+#   command = clang++ $cppFlags -o $out $in $cppVersion
 
 # Dependencies:
 
@@ -38,10 +40,8 @@ build      Vector.o: build ../Source/Types/Vector.cpp
 
 # Main:
 
-build LexerTest.o: build LexerTest.cpp
-build  ProgTest.o: build ProgTest.cpp
+build  Test.o: build Test.cpp
 
 # Link:
 
-build LexerTest: link LexerTest.o Regex.o Lexer.o Manager.o Token.o
-build  ProgTest: link ProgTest.o Expressions.o Statements.o Converter.o Environment.o Interpreter.o Libraries.o Processor.o Regex.o Lexer.o Manager.o Parser.o Token.o Array.o Class.o Complex.o Object.o Routines.o Vector.o
+build  Test: link Test.o Expressions.o Statements.o Converter.o Environment.o Interpreter.o Libraries.o Processor.o Regex.o Lexer.o Manager.o Parser.o Token.o Array.o Class.o Complex.o Object.o Routines.o Vector.o

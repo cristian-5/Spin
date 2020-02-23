@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  ProgTest.cpp                           |
+ *    |  Test.cpp                               |
  *    |                                         |
  *    |                  Main                   |
  *    |                                         |
@@ -60,15 +60,11 @@ Int32 main(Int32 argc, Character * argv[]) {
 			}
 			OStream << endLine;
 		}
-		OStream << "Press enter to exit. ";
-		waitKeyPress();
 		return ExitCodes::failure;
 	}
 
 	if (!syntaxTree) {
-		OStream << "File Scope Failure!" << endLine;
-		OStream << "Press enter to exit. ";
-		waitKeyPress();
+		OStream << "File Scope Failure!" << endLine << endLine;
 		return ExitCodes::failure;
 	}
 
@@ -80,18 +76,15 @@ Int32 main(Int32 argc, Character * argv[]) {
 		OStream << "Found evaluation error in file '"
 			   << e.getFileName() << "' [line "
 			   << e.getLine() << "]:" << endLine
-			   << e.getMessage() << endLine;
-		OStream << endLine << "Press enter to exit. ";
-		waitKeyPress();
+			   << e.getMessage() << endLine << endLine;
 		delete syntaxTree;
 		return ExitCodes::failure;
 	}
 
+	OStream << endLine;
+
 	delete unit;
 	delete syntaxTree;
-
-	OStream << endLine << "Press enter to exit. ";
-	waitKeyPress();
 	
 	return ExitCodes::success;
 }
