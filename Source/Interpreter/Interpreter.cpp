@@ -551,6 +551,11 @@ namespace Spin {
 	void Interpreter::visitClassStatement(ClassStatement * e) {
 		try {
 			classDefinition = new Class(e -> name -> lexeme, e -> dynamicAttributes);
+			if (e -> atCreate) {
+				classDefinition -> atCreate = new Procedure(
+					e -> atCreate, new Environment()
+				);
+			}
 			String name;
 			try {
 				for (AttributeStatement * attribute : * e -> staticAttributes) {

@@ -64,10 +64,11 @@ namespace Spin {
 		delete breakToken;
 	}
 
-	ClassStatement::ClassStatement(Token * n, Array<AttributeStatement *> * sF, Array<AttributeStatement *> * dF) {
+	ClassStatement::ClassStatement(Token * n, Array<AttributeStatement *> * sF, Array<AttributeStatement *> * dF, ProcedureStatement * atCreate) {
 		name = n;
 		staticAttributes = sF;
 		dynamicAttributes = dF;
+		this -> atCreate = atCreate;
 	}
 	void ClassStatement::accept(Visitor * visitor) {
 		try { visitor -> visitClassStatement(this); }

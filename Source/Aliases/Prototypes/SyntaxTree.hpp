@@ -362,7 +362,8 @@ namespace Spin {
 		Token * name;
 		Array<AttributeStatement *> * staticAttributes;
 		Array<AttributeStatement *> * dynamicAttributes;
-		ClassStatement(Token * n, Array<AttributeStatement *> * sF, Array<AttributeStatement *> * dF);
+		ProcedureStatement * atCreate;
+		ClassStatement(Token * n, Array<AttributeStatement *> * sF, Array<AttributeStatement *> * dF, ProcedureStatement * atCreate);
 		void accept(Visitor * visitor) override;
 		~ClassStatement();
 	};

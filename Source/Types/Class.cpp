@@ -33,10 +33,6 @@ namespace Spin {
 		staticAttributes = s;
 	}
 	void Class::defineStatic(String name, Modifier access, Object * value) {
-		if (name == this -> name) {
-			atCreate = (Procedure *)(value -> value);
-			return;
-		}
 		auto search = staticAttributes -> find(name);
 		if (search != staticAttributes -> end()) {
 			throw Environment::VariableRedefinitionException(

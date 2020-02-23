@@ -858,11 +858,6 @@ namespace Spin {
 							Manager::getLine(currentUnit -> contents, atCreate -> name -> position)
 						);
 					}
-					staticAttributes -> push_back(
-						new AttributeStatement(
-							atCreate, Modifier::hiddenAccess
-						)
-					);
 					continue;
 				} else if (match(TokenType::deleteSpecifier)) {
 					if (atDelete) {
@@ -893,11 +888,6 @@ namespace Spin {
 							Manager::getLine(currentUnit -> contents, atDelete -> name -> position)
 						);
 					}
-					staticAttributes -> push_back(
-						new AttributeStatement(
-							atDelete, Modifier::hiddenAccess
-						)
-					);
 					continue;
 				} else {
 					// If I'm not a field, a method or
@@ -946,7 +936,7 @@ namespace Spin {
 		isInControlFlow = oldControlFlow;
 		isInProcedure = oldProcedure;
 		isInFunction = oldFunction;
-		return new ClassStatement(name, staticAttributes, dynamicAttributes);
+		return new ClassStatement(name, staticAttributes, dynamicAttributes, atCreate);
 	}
 	Statement * Parser::fieldStatement() {
 		Statement * field = nullptr;
