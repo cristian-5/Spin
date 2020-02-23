@@ -33,13 +33,16 @@ namespace Spin {
 		staticAttributes = s;
 	}
 	void Class::defineStatic(String name, Modifier access, Object * value) {
+		if (name == this -> name) {
+			atCreate = (Procedure *)(value -> value);
+			return;
+		}
 		auto search = staticAttributes -> find(name);
 		if (search != staticAttributes -> end()) {
 			throw Environment::VariableRedefinitionException(
 				(search -> second.second) -> getObjectName()
 			);
 		} else staticAttributes -> insert({ name, { access, value } });
-		if (name == this -> name) atCreate = (Procedure *)(value -> value);
 	}
 	Object * Class::call(Array<Object *> a, Token * c) {
 		Object * instance = new Object(BasicType::InstanceType, new Instance(this));
