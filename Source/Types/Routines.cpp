@@ -33,7 +33,8 @@ namespace Spin {
 		declaration = d;
 		closure = c;
 	}
-	Object * Function::call(Interpreter * i, Array<Object *> a, Token * c) {
+	Object * Function::call(Array<Object *> a, Token * c) {
+		Interpreter * i = Interpreter::self();
 		if (a.size() != arity()) {
 			throw EvaluationError(
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
@@ -110,7 +111,8 @@ namespace Spin {
 		declaration = d;
 		closure = c;
 	}
-	Object * Procedure::call(Interpreter * i, Array<Object *> a, Token * c) {
+	Object * Procedure::call(Array<Object *> a, Token * c) {
+		Interpreter * i = Interpreter::self();
 		if (a.size() != arity()) {
 			throw EvaluationError(
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
@@ -160,6 +162,7 @@ namespace Spin {
 				);
 			}
 		}
+		Instance * s = (Instance *)self->value;
 		// Safely unbinding self:
 		if (self) {
 			parameters -> unbind("self");
@@ -182,7 +185,8 @@ namespace Spin {
 	NativeFunction::NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Bool m) {
 		lambda = l; params = p; name = n; mutableParameters = m;
 	}
-	Object * NativeFunction::call(Interpreter * i, Array<Object *> a, Token * c) {
+	Object * NativeFunction::call(Array<Object *> a, Token * c) {
+		Interpreter * i = Interpreter::self();
 		if (a.size() != arity() && !mutableParameters) {
 			throw EvaluationError(
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
@@ -207,11 +211,11 @@ namespace Spin {
 					);
 				}
 			}
-			j += 1;                                        
+			j += 1;
 		}
 		Object * result = nullptr;
 		try {
-			result = lambda(i, a, c);
+			result = lambda(a, c);
 		} catch (ParameterException & p) {
 			deallocate(a);
 			throw EvaluationError(
@@ -241,7 +245,8 @@ namespace Spin {
 	NativeProcedure::NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Bool m) {
 		lambda = l; params = p; name = n; mutableParameters = m;
 	}
-	Object * NativeProcedure::call(Interpreter * i, Array<Object *> a, Token * c) {
+	Object * NativeProcedure::call(Array<Object *> a, Token * c) {
+		Interpreter * i = Interpreter::self();
 		if (a.size() != arity() && !mutableParameters) {
 			throw EvaluationError(
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
@@ -266,10 +271,10 @@ namespace Spin {
 					);
 				}
 			}
-			j += 1;                                        
+			j += 1;
 		}
 		try {
-			lambda(i, a, c);
+			lambda(a, c);
 		} catch (ParameterException & p) {
 			deallocate(a);
 			throw EvaluationError(

@@ -67,7 +67,6 @@ namespace Spin {
 	void Environment::unbind(String name) {
 		auto search = values.find(name);
 		if (search != values.end()) {
-			delete (search -> second);
 			values.erase(name);
 		}
 	}

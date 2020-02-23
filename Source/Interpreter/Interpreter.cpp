@@ -138,23 +138,25 @@ namespace Spin {
 			if (function -> isInstanceOf<Class>()) {
 				if (!e -> isConstructor) {
 					throw EvaluationError(
-						"Invalid constructor call missing 'new' keyword!",
+						"Constructor call is missing 'new' operator!",
 						* e -> parenthesis
 					);
 				}
 				lost = true;
 				// Needs a reference instead of a copy of the definition:
-				delete callee; callee = memory -> getReference(
+				Object * backUpCallee = callee;
+				callee = memory -> getReference(
 					((Class *) callee -> value) -> name
 				);
+				delete backUpCallee;
 				function = (CallProtocol *)(callee -> value);
 			} else if (e -> isConstructor) {
 				throw EvaluationError(
-					"Function call forbids unnecessary 'new' keyword!",
+					"Operator 'new' doesn't support operands of type 'Routine'!",
 					* e -> parenthesis
 				);
 			}
-			Object * result = function -> call(this, arguments, e -> parenthesis);
+			Object * result = function -> call(arguments, e -> parenthesis);
 			if (lost) memory -> lose(result);
 			return result;
 		} catch (Exception & exc) {
@@ -202,7 +204,7 @@ namespace Spin {
 						e -> name -> lexeme
 					);
 				}
-				if (value -> type == BasicType::FunctionType) {
+				if (value -> type == BasicType::RoutineType) {
 					// Bind self to the function:
 					((CallProtocol *) value -> value) -> self = object;
 				} else delete object;
@@ -427,7 +429,7 @@ namespace Spin {
 						e -> name -> lexeme
 					);
 				}
-				if (value -> type == BasicType::FunctionType) {
+				if (value -> type == BasicType::RoutineType) {
 					// Bind self to the function:
 					((CallProtocol *) value -> value) -> self = object;
 				} else delete object;
@@ -652,7 +654,7 @@ namespace Spin {
 		try {
 			if (instanceDefinition) {
 				Object * function = new Object(
-					BasicType::FunctionType,
+					BasicType::RoutineType,
 					new Function(e, new Environment())
 				);
 				try {
@@ -668,7 +670,7 @@ namespace Spin {
 				}
 			} else if (classDefinition) {
 				Object * function = new Object(
-					BasicType::FunctionType,
+					BasicType::RoutineType,
 					new Function(e, new Environment())
 				);
 				try {
@@ -684,7 +686,7 @@ namespace Spin {
 				}
 			} else {
 				Object * function = new Object(
-					BasicType::FunctionType,
+					BasicType::RoutineType,
 					new Function(e, memory)
 				);
 				try { memory -> define(e -> name -> lexeme, function); }
@@ -731,7 +733,7 @@ namespace Spin {
 		try {
 			if (instanceDefinition) {
 				Object * procedure = new Object(
-					BasicType::FunctionType,
+					BasicType::RoutineType,
 					new Procedure(e, new Environment())
 				);
 				try {
@@ -747,7 +749,7 @@ namespace Spin {
 				}
 			} else if (classDefinition) {
 				Object * procedure = new Object(
-					BasicType::FunctionType,
+					BasicType::RoutineType,
 					new Procedure(e, new Environment())
 				);
 				try {
@@ -762,7 +764,7 @@ namespace Spin {
 					);
 				}
 			} else {
-				Object * procedure = new Object(BasicType::FunctionType, new Procedure(e, memory));
+				Object * procedure = new Object(BasicType::RoutineType, new Procedure(e, memory));
 				try { memory -> define(e -> name -> lexeme, procedure); }
 				catch (Environment::VariableRedefinitionException & r) {
 					if (procedure) delete procedure;
@@ -851,7 +853,7 @@ namespace Spin {
 				Class * definedClass = (Class *) definition -> value;
 				instance = new Object(
 					BasicType::InstanceType,
-					new Instance(definedClass, this)
+					new Instance(definedClass)
 				);
 				// Call of eventual custom constructor:
 				if (e -> initialiser) {
@@ -861,6 +863,11 @@ namespace Spin {
 					CPU -> applyAssignment(e -> equal, instance, expression);
 					// There's no need to delete the expression since the original
 					// object has already been sent to lost and found.
+				} else if (definedClass -> arity() > 0) {
+					throw EvaluationError(
+						"Object instantiation requires constructor call when it's defined!",
+						* e -> name
+					);
 				}
 				expression = instance;
 			} else {

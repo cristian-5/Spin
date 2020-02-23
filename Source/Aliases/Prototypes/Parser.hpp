@@ -84,7 +84,7 @@ namespace Spin {
 		Statement * continueStatement();
 		Statement * expressionStatement();
 		Statement * functionStatement();
-		Statement * procedureStatement();
+		Statement * procedureStatement(Bool allowType = false);
 		Statement * classDeclaration();
 		Statement * fieldStatement();
 		Statement * forStatement();

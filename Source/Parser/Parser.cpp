@@ -738,7 +738,7 @@ namespace Spin {
 		isInFunction = oldFunction;
 		return new FunctionStatement(name, params, body, returnType);
 	}
-	Statement * Parser::procedureStatement() {
+	Statement * Parser::procedureStatement(Bool allowType) {
 		advance();
 		Bool oldControlFlow = isInControlFlow;
 		isInControlFlow = false;
@@ -751,6 +751,9 @@ namespace Spin {
 		Array<Parameter *> * params = new Array<Parameter *>();
 		BlockStatement * body = nullptr;
 		try {
+			if (allowType && !isAtEnd() && peek().type == TokenType::customType) {
+				tokens -> at(index).type = TokenType::symbol;
+			}
 			name = new Token(consume(TokenType::symbol, "procedure identifier"));
 			consume(TokenType::openParenthesis, "(");
 			if (!check(TokenType::closeParenthesis)) {
@@ -799,6 +802,8 @@ namespace Spin {
 		isInClass = true;
 		Array<AttributeStatement *> * staticAttributes = new Array<AttributeStatement *>();
 		Array<AttributeStatement *> * dynamicAttributes = new Array<AttributeStatement *>();
+		ProcedureStatement * atCreate = nullptr;
+		ProcedureStatement * atDelete = nullptr;
 		try {
 			name = new Token(consume(TokenType::customType, "identifier"));
 			consume(TokenType::openBrace, "{");
@@ -831,9 +836,69 @@ namespace Spin {
 						);
 					}
 				} else if (match(TokenType::createSpecifier)) {
-					// TODO: Constructor.
+					if (atCreate) {
+						Token er = previous();
+						throw SyntaxError(
+							"Redefinition of constructor with '" + er.lexeme + "' specifier!",
+							Manager::getLine(currentUnit -> contents, er.position)
+						);
+					}
+					if (!check(TokenType::procKeyword)) {
+						Token er = peek();
+						throw SyntaxError(
+							"Expected 'proc' keyword after constructor specifier but found '" + er.lexeme + "' instead!",
+							Manager::getLine(currentUnit -> contents, er.position)
+						);
+					}
+					// Creation method:
+					atCreate = (ProcedureStatement *) procedureStatement(true);
+					if (atCreate -> name -> lexeme != name -> lexeme) {
+						throw SyntaxError(
+							"Constructor must be named with its class identifier '" + name -> lexeme + "'!",
+							Manager::getLine(currentUnit -> contents, atCreate -> name -> position)
+						);
+					}
+					staticAttributes -> push_back(
+						new AttributeStatement(
+							atCreate, Modifier::hiddenAccess
+						)
+					);
+					continue;
 				} else if (match(TokenType::deleteSpecifier)) {
-					// TODO: Destructor.
+					if (atDelete) {
+						Token er = previous();
+						throw SyntaxError(
+							"Redefinition of constructor with '" + er.lexeme + "' specifier!",
+							Manager::getLine(currentUnit -> contents, er.position)
+						);
+					}
+					if (!check(TokenType::procKeyword)) {
+						Token er = peek();
+						throw SyntaxError(
+							"Expected 'proc' keyword after destructor specifier but found '" + er.lexeme + "' instead!",
+							Manager::getLine(currentUnit -> contents, er.position)
+						);
+					}
+					// Deletion method:
+					atDelete = (ProcedureStatement *) procedureStatement(true);
+					if (atDelete -> name -> lexeme != name -> lexeme) {
+						throw SyntaxError(
+							"Destructor must be named with its class identifier '" + name -> lexeme + "'!",
+							Manager::getLine(currentUnit -> contents, atDelete -> name -> position)
+						);
+					}
+					if (!(atDelete -> params -> empty())) {
+						throw SyntaxError(
+							"The use of parameters in destructors is always forbidden due to automatic calls performed by the language when collecting the lost objects!",
+							Manager::getLine(currentUnit -> contents, atDelete -> name -> position)
+						);
+					}
+					staticAttributes -> push_back(
+						new AttributeStatement(
+							atDelete, Modifier::hiddenAccess
+						)
+					);
+					continue;
 				} else {
 					// If I'm not a field, a method or
 					// a class specifier, what am I?
@@ -870,6 +935,8 @@ namespace Spin {
 			consume(TokenType::closeBrace, "}");
 		} catch (SyntaxError & s) {
 			if (name) delete name;
+			if (atCreate) delete atCreate;
+			if (atDelete) delete atDelete;
 			for (AttributeStatement * a : * staticAttributes) delete a;
 			for (AttributeStatement * a : * dynamicAttributes) delete a;
 			delete staticAttributes; delete dynamicAttributes;

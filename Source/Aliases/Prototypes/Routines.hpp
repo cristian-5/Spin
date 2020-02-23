@@ -16,10 +16,9 @@ namespace Spin {
 	class Parameter;
 	class Object;
 	class Token;
-	class Interpreter;
 	class Environment;
 
-	typedef Lambda<Object * (Interpreter * i, Array<Object *> a, Token * t)> NativeLambda;
+	typedef Lambda<Object * (Array<Object *> a, Token * t)> NativeLambda;
 
 	class ParameterException: public Exception {
 		public: ParameterException() = default;
@@ -29,7 +28,7 @@ namespace Spin {
 		public:
 		Object * self = nullptr;
 		virtual ~CallProtocol() = default;
-		virtual Object * call(Interpreter * i, Array<Object *> a, Token * c) = 0;
+		virtual Object * call(Array<Object *> a, Token * c) = 0;
 		virtual String stringValue() const = 0;
 		virtual inline UInt32 arity() const = 0;
 		virtual CallProtocol * copy() const = 0;
@@ -42,12 +41,12 @@ namespace Spin {
 	class Function: public CallProtocol {
 		private:
 		FunctionStatement * declaration = nullptr;
-		Environment * closure = nullptr;
 		public:
+		Environment * closure = nullptr;
 		Function() = default;
 		Function(FunctionStatement * d, Environment * c);
 		~Function() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		Object * call(Array<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
@@ -56,12 +55,12 @@ namespace Spin {
 	class Procedure: public CallProtocol {
 		private:
 		ProcedureStatement * declaration = nullptr;
-		Environment * closure = nullptr;
 		public:
+		Environment * closure = nullptr;
 		Procedure() = default;
 		Procedure(ProcedureStatement * d, Environment * c);
 		~Procedure() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		Object * call(Array<Object *> a, Token * c) override;
 		String stringValue() const override;
 		UInt32 arity() const override;
 		CallProtocol * copy() const override;
@@ -76,7 +75,7 @@ namespace Spin {
 		public:
 		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
 		~NativeFunction() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		Object * call(Array<Object *> a, Token * c) override;
 		void deallocate(Array<Object *> & parameters);
 		String stringValue() const override;
 		UInt32 arity() const override;
@@ -92,7 +91,7 @@ namespace Spin {
 		public:
 		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
 		~NativeProcedure() = default;
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		Object * call(Array<Object *> a, Token * c) override;
 		void deallocate(Array<Object *> & parameters);
 		String stringValue() const override;
 		UInt32 arity() const override;

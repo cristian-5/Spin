@@ -39,9 +39,16 @@ namespace Spin {
 				(search -> second.second) -> getObjectName()
 			);
 		} else staticAttributes -> insert({ name, { access, value } });
+		if (name == this -> name) atCreate = (Procedure *)(value -> value);
 	}
-	Object * Class::call(Interpreter * i, Array<Object *> a, Token * c) {
-		return new Object(BasicType::InstanceType, new Instance(this, i));
+	Object * Class::call(Array<Object *> a, Token * c) {
+		Object * instance = new Object(BasicType::InstanceType, new Instance(this));
+		if (atCreate) {
+			atCreate -> self = instance;
+			Instance * i = (Instance *) instance->value;
+			atCreate -> call(a, c);
+		}
+		return instance;
 	}
 	Object * Class::getInnerReference(String & name) {
 		auto search = staticAttributes -> find(name);
@@ -80,7 +87,10 @@ namespace Spin {
 	String Class::stringValue() const {
 		return "<class " + name + ">";
 	}
-	UInt32 Class::arity() const { return 0; }
+	UInt32 Class::arity() const {
+		if (!atCreate) return 0;
+		return atCreate -> arity();
+	}
 	CallProtocol * Class::copy() const {
 		return new Class(name, dynamicAttributes, staticAttributes);
 	}
@@ -94,16 +104,19 @@ namespace Spin {
 		// tree and will be automatically removed.
 	}
 
-	Instance::Instance(Class * t, Interpreter * i) {
+	Instance::Instance(Class * t) {
 		type = t;
 		attributes = new Dictionary<String, Pair<Modifier, Object *>>();
-		attributesInitialisation(i);
+		try {
+			attributesInitialisation();
+		} catch(Exception & e) { throw; }
 	}
 	Instance::Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * a) {
 		type = t;
 		attributes = a;
 	}
-	void Instance::attributesInitialisation(Interpreter * i) {
+	void Instance::attributesInitialisation() {
+		Interpreter * i = Interpreter::self();
 		Instance * backUp = i -> instanceDefinition;
 		i -> instanceDefinition = this;
 		try {

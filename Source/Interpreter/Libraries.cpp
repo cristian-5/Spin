@@ -50,9 +50,9 @@ namespace Spin {
 		global -> define("Console", new Object(BasicType::ClassType, dec));
 	}
 	Object * Console::write() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeProcedure(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					for (Object * o : a) {
 						OStream << o -> getObjectStringValue();
 					}
@@ -63,9 +63,9 @@ namespace Spin {
 		);
 	}
 	Object * Console::writeLine() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeProcedure(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					for (Object * o : a) {
 						OStream << o -> getObjectStringValue() << endLine;
 					}
@@ -76,9 +76,9 @@ namespace Spin {
 		);
 	}
 	Object * Console::read() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeFunction(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					for (Object * o : a) {
 						OStream << o -> getObjectStringValue();
 					}
@@ -89,9 +89,9 @@ namespace Spin {
 		);
 	}
 	Object * Console::readLine() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeFunction(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					for (Object * o : a) {
 						OStream << o -> getObjectStringValue() << endLine;
 					}
@@ -102,9 +102,9 @@ namespace Spin {
 		);
 	}
 	Object * Console::setBackground() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeProcedure(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					if (a.size() == 1) {
 						if (a[0] -> isInteger() || a[0] -> isByte()) {
 							OStream << "\e[48;5;" << a[0] -> getObjectStringValue() << 'm';
@@ -127,9 +127,9 @@ namespace Spin {
 		);
 	}
 	Object * Console::setForeground() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeProcedure(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					if (a.size() == 1) {
 						if (a[0] -> isInteger() || a[0] -> isByte()) {
 							OStream << "\e[38;5;" << a[0] -> getObjectStringValue() << 'm';
@@ -152,9 +152,9 @@ namespace Spin {
 		);
 	}
 	Object * Console::reset() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeProcedure(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					OStream << "\e[0m";
 					return nullptr;
 				}, new Array<Parameter *>(),
@@ -163,9 +163,9 @@ namespace Spin {
 		);
 	}
 	Object * Console::clean() {
-		return new Object(BasicType::FunctionType, 
+		return new Object(BasicType::RoutineType, 
 			new NativeProcedure(
-				[] (Interpreter * i, Array<Object *> a, Token * t) {
+				[] (Array<Object *> a, Token * t) {
 					OStream << "\ec\e[3J";
 					return nullptr;
 				}, new Array<Parameter *>(),
@@ -177,9 +177,9 @@ namespace Spin {
 	void Kronos::defineLibrary(Environment * global) {
 		if (!global) return;
 		global -> define(
-			"clock", new Object(BasicType::FunctionType,
+			"clock", new Object(BasicType::RoutineType,
 				new NativeFunction(
-					[] (Interpreter * i, Array<Object *> a, Token * t) {
+					[] (Array<Object *> a, Token * t) {
 						Int64 * time = new Int64(std::chrono::duration_cast
 												<std::chrono::milliseconds>
 												(std::chrono::system_clock::now()

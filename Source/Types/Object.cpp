@@ -64,7 +64,7 @@ namespace Spin {
 			case BasicType::StringType: delete (String *) value; return;
 			case BasicType::ArrayType: delete (ArrayList *) value; return;
 			case BasicType::VectorType: delete (Vector *) value; return;
-			case BasicType::FunctionType: delete (CallProtocol *) value; return;
+			case BasicType::RoutineType: delete (CallProtocol *) value; return;
 			case BasicType::ClassType: delete (Class *) value; return;
 			case BasicType::InstanceType: delete (Instance *) value; return;
 			case BasicType::UnknownType: default: return;
@@ -115,7 +115,7 @@ namespace Spin {
 			case BasicType::StringType: return "String";
 			case BasicType::ArrayType: return "Array";
 			case BasicType::VectorType: return "Vector";
-			case BasicType::FunctionType: return "Function";
+			case BasicType::RoutineType: return "Routine";
 			case BasicType::ClassType: return "Definition";
 			case BasicType::InstanceType: return "Instance";
 			case BasicType::UnknownType: default: return "Unknown";
@@ -135,7 +135,7 @@ namespace Spin {
 			case BasicType::StringType: copy -> value = new String(* ((String *) value)); break;
 			case BasicType::ArrayType: copy -> value = ((ArrayList *) value) -> copy(); break;
 			case BasicType::VectorType: copy -> value = ((Vector *) value) -> copy(); break;
-			case BasicType::FunctionType: copy -> value = ((CallProtocol *) value) -> copy(); break;
+			case BasicType::RoutineType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::ClassType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::InstanceType: copy -> value = ((Instance *) value) -> copy(); break;
 			case BasicType::UnknownType: default: copy -> value = value; break;
@@ -185,7 +185,7 @@ namespace Spin {
 				Vector * v = (Vector *) value;
 				return v -> stringValue();
 			}
-			case BasicType::FunctionType: {
+			case BasicType::RoutineType: {
 				if (!value) return "<void>";
 				return ((CallProtocol *) value) -> stringValue();
 			}
@@ -206,10 +206,10 @@ namespace Spin {
 		return type == BasicType::UnknownType;
 	}
 	Bool Object::isFunction() const {
-		return type == BasicType::FunctionType;
+		return type == BasicType::RoutineType;
 	}
 	Bool Object::isCallable() const {
-		return type == BasicType::FunctionType ||
+		return type == BasicType::RoutineType ||
 			   type == BasicType::ClassType;
 	}
 	Bool Object::isArray() const {

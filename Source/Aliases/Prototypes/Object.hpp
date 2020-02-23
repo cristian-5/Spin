@@ -28,7 +28,7 @@ namespace Spin {
 
 		VectorType,
 
-		FunctionType,
+		RoutineType,
 
 		ClassType,
 		InstanceType,

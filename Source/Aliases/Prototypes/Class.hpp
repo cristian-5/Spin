@@ -14,19 +14,21 @@
 namespace Spin {
 
 	class AttributeStatement;
-	class Interpreter;
+	class Procedure;
 
 	class Class: public CallProtocol {
 		public:
 		String name;
+		Procedure * atCreate = nullptr;
 		Dictionary<String, Pair<Modifier, Object *>> * staticAttributes = nullptr;
 		Array<AttributeStatement *> * dynamicAttributes = nullptr;
-		Class(String n, Array<AttributeStatement *> * d =
+		Class(String n,
+			  Array<AttributeStatement *> * d =
 			  new Array<AttributeStatement *>(),
 			  Dictionary<String, Pair<Modifier, Object *>> * s =
 			  new Dictionary<String, Pair<Modifier, Object *>>());
 		void defineStatic(String name, Modifier access, Object * value);
-		Object * call(Interpreter * i, Array<Object *> a, Token * c) override;
+		Object * call(Array<Object *> a, Token * c) override;
 		Object * getInnerReference(String & name);
 		Object * getInnerValue(String & name);
 		Object * getReference(String & name);
@@ -42,9 +44,9 @@ namespace Spin {
 		Dictionary<String, Pair<Modifier, Object *>> * attributes = nullptr;
 		public:
 		Class * type = nullptr;
-		Instance(Class * t, Interpreter * i);
+		Instance(Class * t);
 		Instance(Class * t, Dictionary<String, Pair<Modifier, Object *>> * a);
-		void attributesInitialisation(Interpreter * i);
+		void attributesInitialisation();
 		void defineDynamic(String name, Modifier access, Object * value);
 		Object * getInnerReference(String & name);
 		Object * getInnerValue(String & name);
