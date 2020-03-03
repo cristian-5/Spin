@@ -17,6 +17,11 @@ a stable release our team will eventually
 turn the interpreter into a *virtual machine*.
 We aim to create a powerful language.
 
+The quantum part of the language is currently
+under development, Dirac notation has been
+implemented but the underlying operations
+between vectors and matrices are unstable.
+
 ## A taste of spin
 
 ### Numeric Types
@@ -59,7 +64,7 @@ The documentation contains the language syntax specification.
 
 **Attention!** This project is currently under development and
 we only completed 70% of the total tasks. We are working on
-*class declarations* and *quantum objects*.
+*quantum objects*.
 
 **New Contributors are WELCOME**, so if you're a skilled dev
 feel free to contact me for joining our team.
@@ -90,6 +95,8 @@ The recommended version of *clang++* (**LLVM**) is 9.0.0.
 
 ### Ninja macOS Compilation
 
+You can test the language with the following program:
+
 If you don't have the small *ninja* build system installed:
 
 ``` bash
@@ -105,9 +112,12 @@ cd Tests
 ninja
 ```
 
-This creates a `ProgTest` file in the same folder;
-drop run the following command to execute it.
+The ninja build system will compile
+and link everything for you.
+
+This creates a `Test` file in the same folder;
+Run the following command to execute it.
 
 ``` bash
-./ProgTest
+./Test
 ```
