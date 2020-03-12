@@ -24,7 +24,7 @@ between vectors and matrices are unstable.
 
 ## A taste of spin
 
-More examples can be found in the [**Examples**](Examples/) folder.
+More examples can be found in the [Examples](Examples/) folder.
 
 ### Numeric Types
 
@@ -55,7 +55,7 @@ Check out the full [**Console Documentation**](Documentation/Libraries/Console.m
 ``` swift
 import Console;
 
-Console::writeLine("Hello world!");
+Console::writeLine("I'm using Console!");
 ```
 
 The documentation contains the language syntax specification.
@@ -118,8 +118,8 @@ The ninja build system will compile
 and link everything for you.
 
 This creates a `Build` folder in the same directory
-and a `Spin` executable file;
-Run the following command to execute it.
+and a `Spin` executable file; run the following
+command to execute it.
 
 ``` bash
 ./Spin
