@@ -44,7 +44,7 @@ namespace Spin {
 	void Complex::conjugate() {
 		b = -b;
 	}
-	Real Complex::getNormalized() const {
+	Real Complex::getNormalised() const {
 		return a * a + b * b;
 	}
 	Real Complex::getMagnitude() const {

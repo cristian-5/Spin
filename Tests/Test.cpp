@@ -18,7 +18,9 @@
 
 #include "../Source/Aliases/Input.hpp"
 
-#include "../Source/Aliases/Prototypes/Lexer.hpp"
+#include "../Source/Aliases/Prototypes/Manager.hpp"
+#include "../Source/Aliases/Prototypes/Wings.hpp"
+#include "../Source/Aliases/Prototypes/SyntaxTree.hpp"
 #include "../Source/Aliases/Prototypes/Parser.hpp"
 #include "../Source/Aliases/Prototypes/Interpreter.hpp"
 
@@ -26,65 +28,41 @@ using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	OStream << "Insert test string: ";
-	String * test = new String(getInput());
+	OStream << "Insert test path: ";
+	String test = getInput();
 	OStream << endLine;
 
-	Lexer * lexer = Lexer::self();
-
-	CodeUnit * unit = new CodeUnit(
-		nullptr,
-		new String("Virtual File"),
-		test
-	);
-	
-	unit -> tokens = lexer -> tokenise(unit -> contents);
-
 	Parser * parser = Parser::self();
+	Interpreter * interpreter = Interpreter::self();
 
+	Program * program = nullptr;
 	SyntaxTree * syntaxTree = nullptr;
 
 	try {
-		syntaxTree = parser -> parse(unit);
-	} catch (ParserErrorException & p) {
-		auto units = p.getUnitErrors();
-		for (UnitError * unit : * units) {
-			auto errors = unit -> getErrors();
-			OStream << "Found " << errors -> size()
-				   << " errors in '" << unit -> getName()
-				   << "':" << endLine;
-			for (SyntaxError error : * errors) {
-				UInt64 line = error.getLine();
-				OStream << "[line " << line << "]: "
-					   << error.getMessage() << endLine;
-			}
-			OStream << endLine;
-		}
-		return ExitCodes::failure;
-	}
-
-	if (!syntaxTree) {
-		OStream << "File Scope Failure!" << endLine << endLine;
-		return ExitCodes::failure;
-	}
-
-	Interpreter * interpreter = Interpreter::self();
-
-	try {
+		program = Wings::spread(test);
+		syntaxTree = parser -> parse(program);
 		interpreter -> evaluate(syntaxTree);
-	} catch (InterpreterErrorException & e) {
-		OStream << "Found evaluation error in file '"
-			   << e.getFileName() << "' [line "
-			   << e.getLine() << "]:" << endLine
-			   << e.getMessage() << endLine << endLine;
-		delete syntaxTree;
+	} catch (Program::Error & e) {
+		OStream << "% " << e.getErrorCode()
+				<< " Error on line " << e.getLine() << " of ['"
+				<< e.getFile() << "'] %" << endLine
+				<< e.getMessage() << endLine << endLine;
+		if (program) delete program;
+		if (syntaxTree) delete syntaxTree;
+		return ExitCodes::failure;
+	} catch (Manager::BadFileException & b) {
+		OStream << "% PPR Catastrophic Event %"
+				<< endLine << "Couldn't open file ['"
+				<< b.getPath() << "']!" << endLine << endLine;
+		if (program) delete program;
+		if (syntaxTree) delete syntaxTree;
 		return ExitCodes::failure;
 	}
+
+	delete program;
+	delete syntaxTree;
 
 	OStream << endLine;
-
-	delete unit;
-	delete syntaxTree;
 	
 	return ExitCodes::success;
 }

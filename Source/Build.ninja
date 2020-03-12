@@ -1,0 +1,47 @@
+
+# Commands:
+
+cppFlags = -O3
+cppVersion = -std=c++17
+
+rule build
+    command = clang++ -c $cppFlags -o $out $in $cppVersion
+
+rule link
+    command = clang++ $cppFlags -o $out $in $cppVersion
+
+# Dependencies:
+
+build      Build/Converter.o: build Interpreter/Converter.cpp
+build    Build/Environment.o: build Interpreter/Environment.cpp
+build    Build/Interpreter.o: build Interpreter/Interpreter.cpp
+build      Build/Libraries.o: build Interpreter/Libraries.cpp | Aliases/Prototypes/Chaos.hpp
+build      Build/Processor.o: build Interpreter/Processor.cpp
+
+build          Build/Regex.o: build Lexer/Regex.cpp
+build          Build/Lexer.o: build Lexer/Lexer.cpp
+build        Build/Manager.o: build Manager/Manager.cpp
+
+build    Build/Expressions.o: build ASTree/Expressions.cpp
+build     Build/Statements.o: build ASTree/Statements.cpp
+
+build         Build/Parser.o: build Parser/Parser.cpp
+build        Build/Program.o: build Parser/Program.cpp
+build          Build/Wings.o: build Parser/Wings.cpp | Aliases/Prototypes/Chaos.hpp
+
+build          Build/Token.o: build Token/Token.cpp
+
+build          Build/Array.o: build Types/Array.cpp
+build          Build/Class.o: build Types/Class.cpp
+build        Build/Complex.o: build Types/Complex.cpp
+build         Build/Object.o: build Types/Object.cpp
+build       Build/Routines.o: build Types/Routines.cpp
+build         Build/Vector.o: build Types/Vector.cpp
+
+# Main:
+
+build  Build/Spin.o: build Spin.cpp
+
+# Link:
+
+build Spin: link Build/Spin.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o

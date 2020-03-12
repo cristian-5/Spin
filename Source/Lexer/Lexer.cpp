@@ -26,17 +26,6 @@
 
 namespace Spin {
 
-	CodeUnit::CodeUnit(Array<Token> * tokens, String * name, String * contents) {
-		this -> tokens = tokens;
-		this -> name = name;
-		this -> contents = contents;
-	}
-	CodeUnit::~CodeUnit() {
-		if (tokens) delete tokens;
-		if (name) delete name;
-		if (contents) delete contents;
-	}
-
 	Lexer::Lexer() {
 
 		grammar = InitialiserList<TokenRule> {
@@ -169,6 +158,7 @@ namespace Spin {
 		} catch (RegexError & e) { }
 	}
 	Array<Token> * Lexer::tokenise(String * input) const {
+		if (!input) input = new String();
 		// Last Token Fallback:
 		String data = (* input) + "\n";
 		// Remove Single Line Comments:

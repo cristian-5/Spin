@@ -10,3 +10,8 @@
 *.o
 .ninja_deps
 .ninja_log
+
+Source/Build/
+
+Tests/Examples/
+Tests/Build/

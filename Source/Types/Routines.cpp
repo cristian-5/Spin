@@ -26,6 +26,7 @@
 #include "../Aliases/Prototypes/SyntaxTree.hpp"
 #include "../Aliases/Prototypes/Object.hpp"
 #include "../Aliases/Prototypes/Token.hpp"
+#include "../Aliases/Prototypes/Program.hpp"
 
 namespace Spin {
 
@@ -36,9 +37,10 @@ namespace Spin {
 	Object * Function::call(Array<Object *> a, Token * c) {
 		Interpreter * i = Interpreter::self();
 		if (a.size() != arity()) {
-			throw EvaluationError(
+			throw Program::Error(
+				i -> currentUnit,
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
-				* c
+				* c, ErrorCode::evl
 			);
 		}
 		Environment * parameters = new Environment(closure);
@@ -46,17 +48,19 @@ namespace Spin {
 		for (Parameter * param : * declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {
 				delete parameters;
-				throw EvaluationError(
+				throw Program::Error(
+					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType)
+					* (param -> tokenType), ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) !=
 					(a[j] -> getObjectName())) {
 					delete parameters;
-					throw EvaluationError(
+					throw Program::Error(
+						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType)
+						* (param -> tokenType), ErrorCode::evl
 					);
 				}
 			}
@@ -68,7 +72,7 @@ namespace Spin {
 		Environment * environment = new Environment(parameters);
 		try {
 			i -> executeFunction(declaration -> body, environment);
-		} catch (InterpreterReturn & ret) {
+		} catch (Interpreter::Return & ret) {
 			Object * value = ret.getReturnValue();
 			String type = declaration -> returnType -> tokenType -> lexeme;
 			// Safely unbinding self:
@@ -80,9 +84,11 @@ namespace Spin {
 			delete parameters;
 			parameters = nullptr;
 			if (value && type == value -> getObjectName()) return value;
-			throw EvaluationError(
+			throw Program::Error(
+				i -> currentUnit,
 				"Function " + stringValue() + " did not return a valid '" +
-				(declaration -> returnType -> tokenType -> lexeme) + "' value!", * ret.getReturnToken()
+				(declaration -> returnType -> tokenType -> lexeme) + "' value!",
+				* ret.getReturnToken(), ErrorCode::evl
 			);
 		}
 		// Safely unbinding self:
@@ -92,9 +98,11 @@ namespace Spin {
 		}
 		// Safely delete function parameters:
 		if (parameters) delete parameters;
-		throw EvaluationError(
+		throw Program::Error(
+			i -> currentUnit,
 			"Function " + stringValue() + " reached bottom of body without returning a valid '" +
-			(declaration -> returnType -> tokenType -> lexeme) + "' value!", * c
+			(declaration -> returnType -> tokenType -> lexeme) + "' value!",
+			* c, ErrorCode::evl
 		);
 	}
 	String Function::stringValue() const {
@@ -114,9 +122,10 @@ namespace Spin {
 	Object * Procedure::call(Array<Object *> a, Token * c) {
 		Interpreter * i = Interpreter::self();
 		if (a.size() != arity()) {
-			throw EvaluationError(
+			throw Program::Error(
+				i -> currentUnit,
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
-				* c
+				* c, ErrorCode::evl
 			);
 		}
 		Environment * parameters = new Environment(closure);
@@ -124,17 +133,19 @@ namespace Spin {
 		for (Parameter * param : * declaration -> params) {
 			if ((param -> type) != (a[j] -> type)) {
 				delete parameters;
-				throw EvaluationError(
+				throw Program::Error(
+					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType)
+					* (param -> tokenType), ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) !=
 					(a[j] -> getObjectName())) {
 					delete parameters;
-					throw EvaluationError(
+					throw Program::Error(
+						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType)
+						* (param -> tokenType), ErrorCode::evl
 					);
 				}
 			}
@@ -146,7 +157,7 @@ namespace Spin {
 		Environment * environment = new Environment(parameters);
 		try {
 			i -> executeFunction(declaration -> body, environment);
-		} catch (InterpreterReturn & ret) {
+		} catch (Interpreter::Return & ret) {
 			if (ret.getReturnValue() -> value) {
 				// Safely unbinding self:
 				if (self) {
@@ -156,9 +167,11 @@ namespace Spin {
 				// Safely delete function parameters:
 				delete parameters;
 				parameters = nullptr;
-				throw EvaluationError(
+				throw Program::Error(
+					i -> currentUnit,
 					"Procedure " + stringValue() + " reached invalid return statement with value of type '" +
-					ret.getReturnValue() -> getObjectName() + "' value!", * ret.getReturnToken()
+					ret.getReturnValue() -> getObjectName() + "' value!",
+					* ret.getReturnToken(), ErrorCode::evl
 				);
 			}
 		}
@@ -188,9 +201,10 @@ namespace Spin {
 	Object * NativeFunction::call(Array<Object *> a, Token * c) {
 		Interpreter * i = Interpreter::self();
 		if (a.size() != arity() && !mutableParameters) {
-			throw EvaluationError(
+			throw Program::Error(
+				i -> currentUnit,
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
-				* c
+				* c, ErrorCode::evl
 			);
 		}
 		SizeType j = 0;
@@ -198,16 +212,18 @@ namespace Spin {
 			if (!param) { j += 1; continue; }
 			if ((param -> type) != (a[j] -> type)) {
 				deallocate(a);
-				throw EvaluationError(
+				throw Program::Error(
+					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType)
+					* (param -> tokenType), ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) != (a[j] -> getObjectName())) {
 					deallocate(a);
-					throw EvaluationError(
+					throw Program::Error(
+						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType)
+						* (param -> tokenType), ErrorCode::evl
 					);
 				}
 			}
@@ -218,9 +234,10 @@ namespace Spin {
 			result = lambda(a, c);
 		} catch (ParameterException & p) {
 			deallocate(a);
-			throw EvaluationError(
+			throw Program::Error(
+				i -> currentUnit,
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
-				* c
+				* c, ErrorCode::evl
 			);
 		} catch (Exception & e) {
 			deallocate(a);
@@ -248,9 +265,10 @@ namespace Spin {
 	Object * NativeProcedure::call(Array<Object *> a, Token * c) {
 		Interpreter * i = Interpreter::self();
 		if (a.size() != arity() && !mutableParameters) {
-			throw EvaluationError(
+			throw Program::Error(
+				i -> currentUnit,
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
-				* c
+				* c, ErrorCode::evl
 			);
 		}
 		SizeType j = 0;
@@ -258,16 +276,18 @@ namespace Spin {
 			if (!param) { j += 1; continue; }
 			if ((param -> type) != (a[j] -> type)) {
 				deallocate(a);
-				throw EvaluationError(
+				throw Program::Error(
+					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType)
+					* (param -> tokenType), ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) != (a[j] -> getObjectName())) {
 					deallocate(a);
-					throw EvaluationError(
+					throw Program::Error(
+						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType)
+						* (param -> tokenType), ErrorCode::evl
 					);
 				}
 			}
@@ -277,9 +297,10 @@ namespace Spin {
 			lambda(a, c);
 		} catch (ParameterException & p) {
 			deallocate(a);
-			throw EvaluationError(
+			throw Program::Error(
+				i -> currentUnit,
 				"Call of " + stringValue() + " doesn't match the predefined parameters!",
-				* c
+				* c, ErrorCode::evl
 			);
 		}  catch (Exception & e) {
 			deallocate(a);

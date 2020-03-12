@@ -11,6 +11,7 @@
 namespace Spin {
 
 	class Object;
+	class CodeUnit;
 
 	/* Base Classes */
 
@@ -399,9 +400,8 @@ namespace Spin {
 	};
 	class FileStatement: public Statement {
 		public:
-		String * file;
-		String * name;
-		FileStatement(String * n, String * f);
+		CodeUnit * file;
+		FileStatement(CodeUnit * f);
 		void accept(Visitor * visitor) override;
 	};
 	class ForStatement: public Statement {
@@ -518,13 +518,12 @@ namespace Spin {
 
 	class SyntaxTree {
 		public:
-		Bool consoleLibrary = false;
-		Bool mathsLibrary = false;
-		Bool kronosLibrary = false;
+		Array<Hash> * libraries = nullptr;
 		Array<Statement *> * statements = nullptr;
 		SyntaxTree() = default;
 		SyntaxTree(Array<Statement *> * s);
 		~SyntaxTree() {
+			if (libraries) delete libraries;
 			if (!statements) return;
 			for (Statement * s : * statements) delete s;
 			delete statements;

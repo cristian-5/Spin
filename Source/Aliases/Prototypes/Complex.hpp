@@ -25,7 +25,7 @@ namespace Spin {
 		void setImaginaryPart(Real val);
 		Complex getConjugate() const;
 		void conjugate();
-		Real getNormalized() const;
+		Real getNormalised() const;
 		Real getMagnitude() const;
 		inline Real getModulus() const;
 		Real getPhase() const;

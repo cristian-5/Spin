@@ -18,95 +18,91 @@
 
 #include "Aliases/Input.hpp"
 
-#include "Aliases/Prototypes/Manager.hpp"
-#include "Aliases/Prototypes/Lexer.hpp"
-#include "Aliases/Prototypes/Parser.hpp"
-#include "Aliases/Prototypes/Interpreter.hpp"
+#include "../Source/Aliases/Prototypes/Manager.hpp"
+#include "../Source/Aliases/Prototypes/Wings.hpp"
+#include "../Source/Aliases/Prototypes/SyntaxTree.hpp"
+#include "../Source/Aliases/Prototypes/Parser.hpp"
+#include "../Source/Aliases/Prototypes/Interpreter.hpp"
 
 using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	if (argc == 2 && String(argv[1]) == "-v") {
-		OStream << endLine << "Spin Language Version: 3.0 beta." << endLine;
-		return ExitCodes::success;
-	}
+	argc -= 1; argv += 1;
 
-	Array<CodeUnit *> * units = new Array<CodeUnit *>();
-	for (UInt64 i = 1; i < argc; i += 1) {
-		String * file = nullptr;
-		try {
-			file = Manager::stringFromFile(argv[i]);
-			if (!file || (file -> length() == 0)) continue;
-			units -> push_back(
-				new CodeUnit(
-					nullptr,
-					new String(argv[i]),
-					file
-				)
-			);
-		} catch (Manager::BadFileException & exc) {
-			for (CodeUnit * u : * units) delete u; delete units;
-			OStream << "Bad Access! Invalid input file at path '"
-				   << exc.getPath() << "'!" << endLine;
+	String main;
+
+	switch (argc) {
+		case 0: {
+			OStream << endLine << "% Spin Catastrophic Event %"
+				<< endLine << "You forgot to specify the source file!"
+				<< endLine << "Type spin -h and we'll guide you through."
+				<< endLine << endLine;
 			return ExitCodes::failure;
-		}
-	}
-
-	if (units -> size() == 0) return ExitCodes::success;
-
-	Lexer * lexer = Lexer::self();
-
-	for (CodeUnit * unit : * units) {
-		unit -> tokens = lexer -> tokenise(
-			unit -> contents
-		);
+		} break;
+		case 1: {
+			String argument = String(argv[0]);
+			if (argument.length() == 0) {
+				OStream << endLine << "% Spin Catastrophic Event %"
+					<< endLine << "You forgot to specify the source file!"
+					<< endLine << "Type spin -h and we'll guide you through."
+					<< endLine << endLine;
+				return ExitCodes::failure;
+			}
+			if (argument == "-v" || argument == "--version") {
+				OStream << endLine << "% Spin Version 3.0.0 %" << endLine
+						<< endLine << "Andrea, please don't break this."
+						<< endLine << "Seriously, if u break it u fix it!"
+						<< endLine << endLine;
+				return ExitCodes::success;
+			} else if (argument == "-h" || argument == "--help") {
+				OStream << endLine << "% Spin help magician (it's helpful) %"
+						<< endLine << "  Usage: spin <File>"
+						<< endLine << "         <File>: should be the main file and"
+						<< endLine << "                 it should end with '.spin'."
+						<< endLine << "  I told you it was helpful."
+						<< endLine << endLine;
+				return ExitCodes::success;
+			} else main = argument;
+		} break;
+		default: {
+			OStream << endLine << "% Spin Catastrophic Event (I'm not your maid!) %"
+				<< endLine << "You gave me too many arguments. Go parse them yourself!"
+				<< endLine << "Type spin -h and we'll guide you through."
+				<< endLine << endLine;
+			return ExitCodes::failure;
+		} break;
 	}
 
 	Parser * parser = Parser::self();
+	Interpreter * interpreter = Interpreter::self();
 
+	Program * program = nullptr;
 	SyntaxTree * syntaxTree = nullptr;
 
 	try {
-		syntaxTree = parser -> parse(units);
-	} catch (ParserErrorException & p) {
-		auto units = p.getUnitErrors();
-		for (UnitError * unit : * units) {
-			auto errors = unit -> getErrors();
-			OStream << "Found " << errors -> size()
-				   << " errors in '" << unit -> getName()
-				   << "':" << endLine;
-			for (SyntaxError error : * errors) {
-				UInt64 line = error.getLine();
-				OStream << " [line " << line << "]: "
-					   << error.getMessage() << endLine;
-			}
-			OStream << endLine;
-		}
-		return ExitCodes::failure;
-	}
-
-	if (!syntaxTree) {
-		OStream << "File Scope Failure!" << endLine;
-		return ExitCodes::failure;
-	}
-
-	Interpreter * interpreter = Interpreter::self();
-
-	try {
+		program = Wings::spread(main);
+		syntaxTree = parser -> parse(program);
 		interpreter -> evaluate(syntaxTree);
-	} catch (InterpreterErrorException & e) {
-		OStream << "Found evaluation error in file '"
-			   << e.getFileName() << "' [line "
-			   << e.getLine() << "]:" << endLine
-			   << e.getMessage() << endLine;
-		delete syntaxTree;
+	} catch (Program::Error & e) {
+		OStream << endLine << "% " << e.getErrorCode()
+				<< " Error on line " << e.getLine() << " of ['"
+				<< e.getFile() << "'] %" << endLine
+				<< e.getMessage() << endLine << endLine;
+		if (program) delete program;
+		if (syntaxTree) delete syntaxTree;
+		return ExitCodes::failure;
+	} catch (Manager::BadFileException & b) {
+		OStream << endLine <<  "% PPR Catastrophic Event %"
+				<< endLine << "Couldn't open file ['"
+				<< b.getPath() << "']!" << endLine << endLine;
+		if (program) delete program;
+		if (syntaxTree) delete syntaxTree;
 		return ExitCodes::failure;
 	}
 
-	for (CodeUnit * unit : * units) delete unit;
-
+	delete program;
 	delete syntaxTree;
-
+	
 	return ExitCodes::success;
 }

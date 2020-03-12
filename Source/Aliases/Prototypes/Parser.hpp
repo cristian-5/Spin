@@ -11,48 +11,16 @@
 
 namespace Spin {
 
-	class Lexer;
 	class CodeUnit;
+	class Program;
 	class Expression;
 	class Statement;
 	class SyntaxTree;
-
-	class SyntaxError: public Exception {
-		private:
-		const String message;
-		const UInt64 line;
-		public:
-		SyntaxError(String m, UInt64 l);
-		const UInt64 & getLine() const;
-		const String & getMessage() const;
-	};
-
-	class UnitError {
-		private:
-		const Array<SyntaxError> * const errors;
-		const String name;
-		public:
-		const Array<SyntaxError> * const getErrors() const;
-		const String & getName() const;
-		UnitError(Array<SyntaxError> * e, String n);
-		~UnitError();
-	};
-
-	class ParserErrorException: public Exception {
-		private:
-		const Array<UnitError *> * const units;
-		public:
-		ParserErrorException(Array<UnitError *> * u);
-		ParserErrorException(UnitError * u);
-		~ParserErrorException();
-		const Array<UnitError *> * const getUnitErrors() const;
-	};
 
 	class Parser {
 		private:
 		CodeUnit * currentUnit = nullptr;
 		Array<Token> * tokens = nullptr;
-		Array<SyntaxError> * errors = new Array<SyntaxError>();
 		SizeType index = 0;
 		Bool isInControlFlow = false;
 		Bool isInFunction = false;
@@ -99,11 +67,6 @@ namespace Spin {
 		Statement * fileStatement();
 		void replace(TokenType type, String lexeme, TokenType newType);
 		void runTypeClassification();
-		String parseImport(SizeType & i);
-		SyntaxTree * runImportClassification(SyntaxTree * syntaxTree);
-		void runCastClassification();
-		void runVectorClassification();
-		void cleanEmptyTokens();
 		inline Bool match(TokenType type);
 		inline Bool matchRange(TokenType from, TokenType to);
 		inline Bool check(TokenType type);
@@ -116,7 +79,6 @@ namespace Spin {
 		inline Token recede();
 		inline Token consume(TokenType type, String lexeme = String());
 		inline void resetState();
-		void synchronise();
 		Parser() = default;
 		~Parser() = default;
 		public:
@@ -128,8 +90,7 @@ namespace Spin {
 			static Parser instance;
 			return & instance;
 		}
-		SyntaxTree * parse(Array<CodeUnit *> * units);
-		SyntaxTree * parse(CodeUnit * unit);
+		SyntaxTree * parse(Program * code);
 	};
 
 }

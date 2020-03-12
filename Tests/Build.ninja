@@ -1,47 +1,46 @@
 
 # Commands:
 
-cppFlags = -O3
 cppVersion = -std=c++17
 
 rule build
     command = clang++ -g -c -o $out $in $cppVersion
-#   command = clang++ -c $cppFlags -o $out $in $cppVersion
 
 rule link
     command = clang++ -g -o $out $in $cppVersion
-#   command = clang++ $cppFlags -o $out $in $cppVersion
 
 # Dependencies:
 
-build Expressions.o: build ../Source/ASTree/Expressions.cpp
-build  Statements.o: build ../Source/ASTree/Statements.cpp
+build      Build/Converter.o: build ../Source/Interpreter/Converter.cpp
+build    Build/Environment.o: build ../Source/Interpreter/Environment.cpp
+build    Build/Interpreter.o: build ../Source/Interpreter/Interpreter.cpp
+build      Build/Libraries.o: build ../Source/Interpreter/Libraries.cpp | ../Source/Aliases/Prototypes/Chaos.hpp
+build      Build/Processor.o: build ../Source/Interpreter/Processor.cpp
 
-build   Converter.o: build ../Source/Interpreter/Converter.cpp
-build Environment.o: build ../Source/Interpreter/Environment.cpp
-build Interpreter.o: build ../Source/Interpreter/Interpreter.cpp
-build   Libraries.o: build ../Source/Interpreter/Libraries.cpp
-build   Processor.o: build ../Source/Interpreter/Processor.cpp
+build          Build/Regex.o: build ../Source/Lexer/Regex.cpp
+build          Build/Lexer.o: build ../Source/Lexer/Lexer.cpp
+build        Build/Manager.o: build ../Source/Manager/Manager.cpp
 
-build       Regex.o: build ../Source/Lexer/Regex.cpp
-build       Lexer.o: build ../Source/Lexer/Lexer.cpp
-build     Manager.o: build ../Source/Manager/Manager.cpp
+build    Build/Expressions.o: build ../Source/ASTree/Expressions.cpp
+build     Build/Statements.o: build ../Source/ASTree/Statements.cpp
 
-build      Parser.o: build ../Source/Parser/Parser.cpp
+build         Build/Parser.o: build ../Source/Parser/Parser.cpp
+build        Build/Program.o: build ../Source/Parser/Program.cpp
+build          Build/Wings.o: build ../Source/Parser/Wings.cpp | ../Source/Aliases/Prototypes/Chaos.hpp
 
-build       Token.o: build ../Source/Token/Token.cpp
+build          Build/Token.o: build ../Source/Token/Token.cpp
 
-build       Array.o: build ../Source/Types/Array.cpp
-build       Class.o: build ../Source/Types/Class.cpp
-build     Complex.o: build ../Source/Types/Complex.cpp
-build      Object.o: build ../Source/Types/Object.cpp
-build    Routines.o: build ../Source/Types/Routines.cpp
-build      Vector.o: build ../Source/Types/Vector.cpp
+build          Build/Array.o: build ../Source/Types/Array.cpp
+build          Build/Class.o: build ../Source/Types/Class.cpp
+build        Build/Complex.o: build ../Source/Types/Complex.cpp
+build         Build/Object.o: build ../Source/Types/Object.cpp
+build       Build/Routines.o: build ../Source/Types/Routines.cpp
+build         Build/Vector.o: build ../Source/Types/Vector.cpp
 
 # Main:
 
-build  Test.o: build Test.cpp
+build  Build/Test.o: build Test.cpp
 
 # Link:
 
-build  Test: link Test.o Expressions.o Statements.o Converter.o Environment.o Interpreter.o Libraries.o Processor.o Regex.o Lexer.o Manager.o Parser.o Token.o Array.o Class.o Complex.o Object.o Routines.o Vector.o
+build Test: link Build/Test.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o

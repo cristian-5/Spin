@@ -13,34 +13,10 @@ namespace Spin {
 	class Environment;
 	class Class;
 	class Instance;
-
-	class InterpreterErrorException: public Exception {
-		private:
-		const String message;
-		const UInt64 line;
-		const String fileName;
-		public:
-		InterpreterErrorException(String m, UInt64 l, String n);
-		const String & getMessage() const;
-		const UInt64 & getLine() const;
-		const String & getFileName() const;
-	};
-
-	class InterpreterReturn: public Exception {
-		private:
-		Object * value = nullptr;
-		Token * returnToken = nullptr;
-		public:
-		InterpreterReturn(Object * v, Token * t);
-		~InterpreterReturn();
-		Object * getReturnValue() const;
-		Token * getReturnToken() const;
-	};
+	class CodeUnit;
 
 	class Interpreter: public Expression::Visitor, public Statement::Visitor {
 		private:
-		String * fileName = nullptr;
-		String * fileContents = nullptr;
 		Processor * CPU = Processor::self();
 		Environment * memory = nullptr;
 		Bool broken = false;
@@ -95,6 +71,17 @@ namespace Spin {
 		Interpreter() = default;
 		~Interpreter() = default;
 		public:
+		CodeUnit * currentUnit;
+		class Return: public Exception {
+			private:
+			Object * value = nullptr;
+			Token * returnToken = nullptr;
+			public:
+			Return(Object * v, Token * t);
+			~Return();
+			Object * getReturnValue() const;
+			Token * getReturnToken() const;
+		};
 		Instance * instanceDefinition = nullptr;
 		Interpreter(const Interpreter &) = delete;
 		Interpreter(Interpreter &&) = delete;

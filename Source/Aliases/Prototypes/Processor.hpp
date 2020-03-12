@@ -6,21 +6,12 @@
 
 #include <unordered_map>
 
-#include "Exception.hpp"
 #include "Token.hpp"
 #include "Object.hpp"
 
 namespace Spin {
 
-	class EvaluationError: public Exception {
-		private:
-		const String message;
-		const Token token;
-		public:
-		EvaluationError(String m, Token t);
-		const String & getMessage() const;
-		const Token & getToken() const;
-	};
+	class CodeUnit;
 
 	class Processor {
 		private:
@@ -71,6 +62,7 @@ namespace Spin {
 		Dictionary<BasicTypes, AssignmentHandler> mixedAssignment;
 		BasicTypes compose(BasicType a, BasicType b);
 		public:
+		CodeUnit * currentUnit = nullptr;
 		Processor(const Processor &) = delete;
 		Processor(Processor &&) = delete;
 		Processor & operator = (const Processor &) = delete;

@@ -27,15 +27,38 @@
 #include "../Aliases/Prototypes/SyntaxTree.hpp"
 #include "../Aliases/Prototypes/Interpreter.hpp"
 #include "../Aliases/Prototypes/Routines.hpp"
+#include "../Aliases/Prototypes/Chaos.hpp"
 
 #include "../Aliases/Input.hpp"
 
 namespace Spin {
 
+	// IMPORTANT: Do not ever change the order of
+	//            const declaration and libs or
+	//            they will break the dependencies.
+
+	const String Console::name = "Console";
+
+	const Dictionary<Hash, Library::LibraryHandler> Library::libs = {
+		{ Chaos<Hash>::hash(Console::name), Console::defineLibrary }
+	};
+
+	void Library::define(Hash id, Environment * memory) {
+		auto search = libs.find(id);
+		if (search != libs.end()) {
+			auto handler = search -> second;
+			handler(memory);
+		}
+	}
+	Bool Library::isKnown(Hash id) {
+		auto search = libs.find(id);
+		return search != libs.end();
+	}
+
 	void Console::defineLibrary(Environment * global) {
 		if (!global) return;
 		Class * dec = new Class(
-			"Console",
+			name,
 			new Array<AttributeStatement *>(),
 			new Dictionary<String, Pair<Modifier, Object *>>()
 		);
@@ -47,7 +70,7 @@ namespace Spin {
 		dec -> defineStatic("setForeground", Modifier::publicAccess, Console::setForeground());
 		dec -> defineStatic("reset", Modifier::publicAccess, Console::reset());
 		dec -> defineStatic("clean", Modifier::publicAccess, Console::clean());
-		global -> define("Console", new Object(BasicType::ClassType, dec));
+		global -> define(name, new Object(BasicType::ClassType, dec));
 	}
 	Object * Console::write() {
 		return new Object(BasicType::RoutineType, 

@@ -21,6 +21,8 @@
 #ifndef SPIN_STATEMENTS
 #define SPIN_STATEMENTS
 
+#include "../Aliases/Prototypes/Program.hpp"
+
 namespace Spin {
 
 	AttributeStatement::AttributeStatement(Statement * f, Modifier m) {
@@ -130,9 +132,8 @@ namespace Spin {
 		delete e;
 	}
 
-	FileStatement::FileStatement(String * n, String * f) {
+	FileStatement::FileStatement(CodeUnit * f) {
 		file = f;
-		name = n;
 	}
 	void FileStatement::accept(Visitor * visitor) {
 		try { visitor -> visitFileStatement(this); }

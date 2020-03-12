@@ -24,6 +24,8 @@ between vectors and matrices are unstable.
 
 ## A taste of spin
 
+More examples can be found in the [**Examples**](Examples/) folder.
+
 ### Numeric Types
 
 ``` swift
@@ -104,20 +106,21 @@ brew install ninja
 ```
 
 From the *Terminal* change the current directory to
-the Spin Tests directory.
+the Spin Source directory.
 Execute the following to compile using **clang++** (9.0.0):
 
 ``` bash
-cd Tests
+cd Source
 ninja
 ```
 
 The ninja build system will compile
 and link everything for you.
 
-This creates a `Test` file in the same folder;
+This creates a `Build` folder in the same directory
+and a `Spin` executable file;
 Run the following command to execute it.
 
 ``` bash
-./Test
+./Spin
 ```

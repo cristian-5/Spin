@@ -10,17 +10,6 @@
 
 namespace Spin {
 
-	class CodeUnit {
-		public:
-		Array<Token> * tokens;
-		String * name;
-		String * contents;
-		CodeUnit(Array<Token> * tokens,
-				 String * name,
-				 String * contents);
-		~CodeUnit();
-	};
-
 	class Lexer {
 		private:
 		Array<TokenRule> grammar;

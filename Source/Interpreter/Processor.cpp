@@ -25,16 +25,9 @@
 #include "../Aliases/Prototypes/Complex.hpp"
 #include "../Aliases/Prototypes/Vector.hpp"
 #include "../Aliases/Prototypes/Converter.hpp"
+#include "../Aliases/Prototypes/Program.hpp"
 
 namespace Spin {
-
-	EvaluationError::EvaluationError(String m, Token t): message(m), token(t) { }
-	const String & EvaluationError::getMessage() const {
-		return message;
-	}
-	const Token & EvaluationError::getToken() const {
-		return token;
-	}
 
 	Processor::Processor() {
 		unaryNegation = Dictionary<BasicType, UnaryHandler>({
@@ -1729,13 +1722,15 @@ namespace Spin {
 				auto handler = search -> second;
 				Object * temp = handler(l, r);
 				try { applyAssignment(t, l, temp); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 				delete temp; return;
 			}
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Binary operator '+=' doesn't support operands of type '" +
 				l -> getObjectName() + "' and '" +
-				r -> getObjectName() + "'!", * t
+				r -> getObjectName() + "'!",
+				* t, ErrorCode::evl
 			);
 		}
 		auto search = binaryAddition.find(compose(l -> type, r -> type));
@@ -1743,7 +1738,7 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(l, r);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
 		search = binaryAddition.find(compose(r -> type, l -> type));
@@ -1751,13 +1746,15 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(r, l);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '+=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applySubtractionAssignment(Token * t, Object * l, Object * r) {
@@ -1766,13 +1763,15 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(l, r);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '-=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyMultiplicationAssignment(Token * t, Object * l, Object * r) {
@@ -1781,7 +1780,7 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(l, r);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
 		search = binaryMultiplication.find(compose(r -> type, l -> type));
@@ -1789,13 +1788,15 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(r, l);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '*=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyDivisionAssignment(Token * t, Object * l, Object * r) {
@@ -1805,18 +1806,22 @@ namespace Spin {
 			Object * temp = handler(l, r);
 			if (!temp) {
 				// Check if in try catch block.
-				throw EvaluationError(
-					"Binary operator '/=' threw division by 0 exception!", * t
+				throw Program::Error(
+					currentUnit,
+					"Binary operator '/=' threw division by 0 exception!",
+					* t, ErrorCode::evl
 				);
 			}
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '/=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyModulusAssignment(Token * t, Object * l, Object * r) {
@@ -1826,20 +1831,24 @@ namespace Spin {
 			Int64 * b = (Int64 *) r -> value;
 			if ((* b) == 0) {
 				// Check if in try catch block.
-				throw EvaluationError(
-					"Binary operator '%=' threw division by 0 exception!", * t
+				throw Program::Error(
+					currentUnit,
+					"Binary operator '%=' threw division by 0 exception!",
+					* t, ErrorCode::evl
 				);
 			}
 			Int64 * c = new Int64((* a) % (* b));
 			Object * temp = new Object(BasicType::IntegerType, c);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '%=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyORAssignment(Token * t, Object * l, Object * r) {
@@ -1848,13 +1857,15 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(l, r);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '|=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyANDAssignment(Token * t, Object * l, Object * r) {
@@ -1863,13 +1874,15 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(l, r);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '&=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyXORAssignment(Token * t, Object * l, Object * r) {
@@ -1878,13 +1891,15 @@ namespace Spin {
 			auto handler = search -> second;
 			Object * temp = handler(l, r);
 			try { applyAssignment(t, l, temp); }
-			catch (EvaluationError & e) { throw; }
+			catch (Program::Error & e) { throw; }
 			delete temp; return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '^=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 
@@ -1895,10 +1910,12 @@ namespace Spin {
 				auto handler = search -> second;
 				return handler(l, r);
 			}
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Binary operator '+' doesn't support operands of type '" +
 				l -> getObjectName() + "' and '" +
-				r -> getObjectName() + "'!", * t
+				r -> getObjectName() + "'!",
+				* t, ErrorCode::evl
 			);
 		}
 		auto search = binaryAddition.find(compose(l -> type, r -> type));
@@ -1911,10 +1928,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(r, l);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '+' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applySubtraction(Token * t, Object * l, Object * r) {
@@ -1923,10 +1942,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '-' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyMultiplication(Token * t, Object * l, Object * r) {
@@ -1945,13 +1966,17 @@ namespace Spin {
 			Vector * a = (Vector *) l -> value;
 			Vector * b = (Vector *) r -> value;
 			if (a -> getDirection() == b -> getDirection()) {
-				throw EvaluationError(
-					"Binary operator '*' doesn't support Vectors that occupy the same space!", * t
+				throw Program::Error(
+					currentUnit,
+					"Binary operator '*' doesn't support Vectors that occupy the same space!",
+					* t, ErrorCode::evl
 				);
 			}
 			if (a -> getSize() != b -> getSize()) {
-				throw EvaluationError(
-					"Binary operator '*' doesn't support Vectors with different dimensions!", * t
+				throw Program::Error(
+					currentUnit,
+					"Binary operator '*' doesn't support Vectors with different dimensions!",
+					* t, ErrorCode::evl
 				);
 			}
 			if (a -> getDirection()) {
@@ -1967,10 +1992,12 @@ namespace Spin {
 				return nullptr;
 			}
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '*' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyDivision(Token * t, Object * l, Object * r) {
@@ -1980,16 +2007,20 @@ namespace Spin {
 			Object * temp = handler(l, r);
 			if (!temp) {
 				// Check if in try catch block.
-				throw EvaluationError(
-					"Binary operator '/' threw division by 0 exception!", * t
+				throw Program::Error(
+					currentUnit,
+					"Binary operator '/' threw division by 0 exception!",
+					* t, ErrorCode::evl
 				);
 			}
 			return temp;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '/' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyModulus(Token * t, Object * l, Object * r) {
@@ -1999,17 +2030,21 @@ namespace Spin {
 			Int64 * b = (Int64 *) r -> value;
 			if ((* b) == 0) {
 				// Check if in try catch block.
-				throw EvaluationError(
-					"Binary operator '%' threw division by 0 exception!", * t
+				throw Program::Error(
+					currentUnit,
+					"Binary operator '%' threw division by 0 exception!",
+					* t, ErrorCode::evl
 				);
 			}
 			Int64 * c = new Int64((* a) % (* b));
 			return new Object(BasicType::IntegerType, c);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '%' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyAND(Token * t, Object * l, Object * r) {
@@ -2018,10 +2053,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '&' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyXOR(Token * t, Object * l, Object * r) {
@@ -2030,10 +2067,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '^' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyOR(Token * t, Object * l, Object * r) {
@@ -2042,10 +2081,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '|' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyEquality(Token * t, Object * l, Object * r) {
@@ -2055,10 +2096,12 @@ namespace Spin {
 				auto handler = search -> second;
 				return handler(l, r);
 			}
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Logical operator '==' doesn't support operands of type '" +
 				l -> getObjectName() + "' and '" +
-				r -> getObjectName() + "'!", * t
+				r -> getObjectName() + "'!",
+				* t, ErrorCode::evl
 			);
 		}
 		auto search = binaryMixedEquality.find(compose(l -> type, r -> type));
@@ -2071,10 +2114,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(r, l);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Logical operator '==' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyInequality(Token * t, Object * l, Object * r) {
@@ -2088,10 +2133,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Logical operator '>' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyMajorEqual(Token * t, Object * l, Object * r) {
@@ -2100,10 +2147,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Logical operator '>=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyMinor(Token * t, Object * l, Object * r) {
@@ -2112,10 +2161,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Logical operator '<' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyMinorEqual(Token * t, Object * l, Object * r) {
@@ -2124,10 +2175,12 @@ namespace Spin {
 			auto handler = search -> second;
 			return handler(l, r);
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Logical operator '<=' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 
@@ -2139,76 +2192,80 @@ namespace Spin {
 		switch (t -> type) {
 			case TokenType::equality: {
 				try { return applyEquality(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::inequality: {
 				try { return applyInequality(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::major: {
 				try { return applyMajor(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::majorEqual: {
 				try { return applyMajorEqual(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::minor: {
 				try { return applyMinor(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::minorEqual: {
 				try { return applyMinorEqual(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			default: break;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Comparison operator '" + t -> lexeme + "' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyBinaryOperator(Token * t, Object * l, Object * r) {
 		switch (t -> type) {
 			case TokenType::plus: {
 				try { return applyAddition(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::minus: {
 				try { return applySubtraction(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::star: {
 				try { return applyMultiplication(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::slash: {
 				try { return applyDivision(t, l, r);}
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::ampersand: {
 				try { return applyAND(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::dollar: {
 				try { return applyXOR(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::pipe: {
 				try { return applyOR(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			case TokenType::modulus: {
 				try { return applyModulus(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} break;
 			default: break;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Binary operator '" + t -> lexeme + "' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applySubscriptOperator(Token * t, Object * l, Object * r) {
@@ -2220,22 +2277,28 @@ namespace Spin {
 					Character * c = new Character(s -> at(* i));
 					return new Object(BasicType::CharacterType, c);
 				}
-				throw EvaluationError(
-					"Subscript operator '[ ]' threw index out of range exception!", * t
+				throw Program::Error(
+					currentUnit,
+					"Subscript operator '[ ]' threw index out of range exception!",
+					* t, ErrorCode::evl
 				);
 			}
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Subscript operator '[ ]' doesn't support operand of type '" +
 				r -> getObjectName() + "' on inner expression of type '" +
-				l -> getObjectName() + "'!", * t
+				l -> getObjectName() + "'!",
+				* t, ErrorCode::evl
 			);
 		} else if (l -> type == BasicType::ArrayType) {
 			/* TODO: Ask the array... */
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Subscript operator '[ ]' doesn't support operand of type '" +
 			r -> getObjectName() + "' on inner expression of type '" +
-			l -> getObjectName() + "'!", * t
+			l -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyUnaryOperator(Token * t, Object * o) {
@@ -2246,9 +2309,11 @@ namespace Spin {
 					auto handler = search -> second;
 					return handler(o);
 				}
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unary operator '-' doesn't support any operand of type '" +
-					o -> getObjectName() + "'!", * t
+					o -> getObjectName() + "'!",
+					* t, ErrorCode::evl
 				);
 			} break;
 			case TokenType::plus: {
@@ -2261,9 +2326,11 @@ namespace Spin {
 					case BasicType::ComplexType:
 					case BasicType::VectorType: return o -> copy();
 					default: {
-						throw EvaluationError(
+						throw Program::Error(
+							currentUnit,
 							"Unary operator '+' doesn't support any operand of type '" +
-							o -> getObjectName() + "'!", * t
+							o -> getObjectName() + "'!",
+							* t, ErrorCode::evl
 						);
 					} break;
 				}
@@ -2274,9 +2341,11 @@ namespace Spin {
 					b = new Bool(!(* b));
 					return new Object(o -> type, b);
 				}
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unary operator '!' doesn't support any operand of type '" +
-					o -> getObjectName() + "'!", * t
+					o -> getObjectName() + "'!",
+					* t, ErrorCode::evl
 				);
 			} break;
 			case TokenType::conjugate: {
@@ -2288,9 +2357,11 @@ namespace Spin {
 					Vector * v = ((Vector *) o -> value) -> getConjugate();
 					return new Object(o -> type, v);
 				}
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unary operator '°' doesn't support any operand of type '" +
-					o -> getObjectName() + "'!", * t
+					o -> getObjectName() + "'!",
+					* t, ErrorCode::evl
 				);
 			} break;
 			case TokenType::transpose: {
@@ -2298,9 +2369,11 @@ namespace Spin {
 					Vector * v = ((Vector *) o -> value) -> getTransposed();
 					return new Object(o -> type, v);
 				}
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unary operator '^' doesn't support any operand of type '" +
-					o -> getObjectName() + "'!", * t
+					o -> getObjectName() + "'!",
+					* t, ErrorCode::evl
 				);
 			} break;
 			case TokenType::dagger: {
@@ -2308,9 +2381,11 @@ namespace Spin {
 					Vector * v = ((Vector *) o -> value) -> getConjugateTranspose();
 					return new Object(o -> type, v);
 				}
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unary operator ''' doesn't support any operand of type '" +
-					o -> getObjectName() + "'!", * t
+					o -> getObjectName() + "'!",
+					* t, ErrorCode::evl
 				);
 			} break;
 			case TokenType::tilde: {
@@ -2319,17 +2394,21 @@ namespace Spin {
 					auto handler = search -> second;
 					return handler(o);
 				}
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unary operator '~' doesn't support any operand of type '" +
-					o -> getObjectName() + "'!", * t
+					o -> getObjectName() + "'!",
+					* t, ErrorCode::evl
 				);
 			} break;
 			default: break;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Unary operator '" + t -> lexeme +
 			"' doesn't support any operand of type '" +
-			o -> getObjectName() + "'!", * t
+			o -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyAssignment(Token * t, Object * l, Object * r) {
@@ -2338,10 +2417,12 @@ namespace Spin {
 				Instance * a = (Instance *) l -> value;
 				Instance * b = (Instance *) r -> value;
 				if (a -> type != b -> type) {
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Assignment operator '" + t -> lexeme + "' doesn't support types '" +
 						a -> stringValue() + "' and '" +
-						b -> stringValue() + "' generated from different class definitions!", * t
+						b -> stringValue() + "' generated from different class definitions!",
+						* t, ErrorCode::evl
 					);
 				}
 				b = b -> copyByValue();
@@ -2363,10 +2444,12 @@ namespace Spin {
 			auto handler = search -> second;
 			handler(l, r); return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyVectorAssignment(Token * t, Object * l, Object * r) {
@@ -2381,52 +2464,56 @@ namespace Spin {
 			delete a; l -> value = b -> copy();
 			return;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 	void Processor::applyMutableAssignment(Token * t, Object * l, Object * r) {
 		switch (t -> type) {
 			case TokenType::plusEqual: {
 				try { applyAdditionAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			case TokenType::minusEqual: {
 				try { applySubtractionAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			case TokenType::starEqual: {
 				try { applyMultiplicationAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			case TokenType::slashEqual: {
 				try { applyDivisionAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			case TokenType::modulusEqual: {
 				try { applyModulusAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			case TokenType::pipeEqual: {
 				try { applyORAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			case TokenType::ampersandEqual: {
 				try { applyANDAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			case TokenType::dollarEqual: {
 				try { applyXORAssignment(t, l, r); }
-				catch (EvaluationError & e) { throw; }
+				catch (Program::Error & e) { throw; }
 			} return;
 			default: break;
 		}
-		throw EvaluationError(
+		throw Program::Error(
+			currentUnit,
 			"Mutable Assignment operator '" + t -> lexeme + "' doesn't support operands of type '" +
 			l -> getObjectName() + "' and '" +
-			r -> getObjectName() + "'!", * t
+			r -> getObjectName() + "'!",
+			* t, ErrorCode::evl
 		);
 	}
 
@@ -2437,13 +2524,17 @@ namespace Spin {
 			Vector * a = (Vector *) l -> value;
 			Vector * b = (Vector *) r -> value;
 			if (a -> getDirection() == b -> getDirection()) {
-				throw EvaluationError(
-					"Inner product '<Bra|Ket>' doesn't support Vectors that occupy the same space!", * t
+				throw Program::Error(
+					currentUnit,
+					"Inner product '<Bra|Ket>' doesn't support Vectors that occupy the same space!",
+					* t, ErrorCode::evl
 				);
 			}
 			if (a -> getSize() != b -> getSize()) {
-				throw EvaluationError(
-					"Inner product '<Bra|Ket>' doesn't support Vectors with different dimensions!", * t
+				throw Program::Error(
+					currentUnit,
+					"Inner product '<Bra|Ket>' doesn't support Vectors with different dimensions!",
+					* t, ErrorCode::evl
 				);
 			}
 			Complex * c = new Complex();
@@ -2452,8 +2543,10 @@ namespace Spin {
 			}
 			return new Object(BasicType::ComplexType, c);
 		}
-		throw EvaluationError(
-			"Could not resolve invalid inner product '<Bra|Ket>'!", * t
+		throw Program::Error(
+			currentUnit,
+			"Could not resolve invalid inner product '<Bra|Ket>'!",
+			* t, ErrorCode::evl
 		);
 	}
 	Object * Processor::applyOuterProduct(Token * t, Object * l, Object * r) {

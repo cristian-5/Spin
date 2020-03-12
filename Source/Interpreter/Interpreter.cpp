@@ -21,37 +21,26 @@
 #ifndef SPIN_INTERPRETER
 #define SPIN_INTERPRETER
 
-#include "../Aliases/Prototypes/Manager.hpp"
 #include "../Aliases/Prototypes/Libraries.hpp"
 #include "../Aliases/Prototypes/Environment.hpp"
 #include "../Aliases/Prototypes/Routines.hpp"
 #include "../Aliases/Prototypes/Array.hpp"
 #include "../Aliases/Prototypes/Class.hpp"
 #include "../Aliases/Prototypes/Vector.hpp"
+#include "../Aliases/Prototypes/Program.hpp"
 
 namespace Spin {
 
 	/* Exceptions */
 
-	InterpreterErrorException::InterpreterErrorException(String m, UInt64 l, String n): message(m), line(l), fileName(n) { }
-	const String & InterpreterErrorException::getMessage() const {
-		return message;
-	}
-	const UInt64 & InterpreterErrorException::getLine() const {
-		return line;
-	}
-	const String & InterpreterErrorException::getFileName() const {
-		return fileName;
-	}
-
-	InterpreterReturn::InterpreterReturn(Object * v, Token * t): value(v), returnToken(t) { }
-	InterpreterReturn::~InterpreterReturn() {
+	Interpreter::Return::Return(Object * v, Token * t): value(v), returnToken(t) { }
+	Interpreter::Return::~Return() {
 		if (returnToken) delete returnToken;
 	}
-	Object * InterpreterReturn::getReturnValue() const {
+	Object * Interpreter::Return::getReturnValue() const {
 		return value;
 	}
-	Token * InterpreterReturn::getReturnToken() const {
+	Token * Interpreter::Return::getReturnToken() const {
 		return returnToken;
 	}
 
@@ -67,9 +56,11 @@ namespace Spin {
 			} catch (Environment::VariableNotFoundException & r) {
 				if (expression) delete expression;
 				expression = nullptr;
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unexpected identifier '" +
-					e -> name -> lexeme + "'!", * e -> name
+					e -> name -> lexeme + "'!",
+					* e -> name, ErrorCode::evl
 				);
 			}
 			CPU -> applyAssignment(e -> o, obj, expression);
@@ -100,16 +91,20 @@ namespace Spin {
 		try {
 			v = memory -> getValue(e -> name);
 		} catch (Environment::VariableNotFoundException & exc) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> name + "'!", * e -> bra
+				e -> name + "'!",
+				* e -> bra, ErrorCode::evl
 			);
 		}
 		if (v -> type != BasicType::VectorType) {
 			delete v;
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> name + "'!", * e -> bra
+				e -> name + "'!",
+				* e -> bra, ErrorCode::evl
 			);
 		}
 		((Vector *) v -> value) -> inBraForm();
@@ -128,18 +123,20 @@ namespace Spin {
 			}
 			if (!(callee -> isCallable()) ||
 				!(callee -> value)) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Failed call of invalid function!",
-					* e -> parenthesis
+					* e -> parenthesis, ErrorCode::evl
 				);
 			}
 			function = (CallProtocol *)(callee -> value);
 			Bool lost = false;
 			if (function -> isInstanceOf<Class>()) {
 				if (!e -> isConstructor) {
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Constructor call is missing 'new' operator!",
-						* e -> parenthesis
+						* e -> parenthesis, ErrorCode::evl
 					);
 				}
 				lost = true;
@@ -151,9 +148,10 @@ namespace Spin {
 				delete backUpCallee;
 				function = (CallProtocol *)(callee -> value);
 			} else if (e -> isConstructor) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Operator 'new' doesn't support operands of type 'Routine'!",
-					* e -> parenthesis
+					* e -> parenthesis, ErrorCode::evl
 				);
 			}
 			Object * result = function -> call(arguments, e -> parenthesis);
@@ -187,9 +185,10 @@ namespace Spin {
 		try {
 			object = evaluate(e -> object);
 			if (object -> type != BasicType::InstanceType) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object is not an instance and does not contain properties!",
-					* e -> name
+					* e -> name, ErrorCode::evl
 				);
 			}
 			try {
@@ -210,9 +209,11 @@ namespace Spin {
 				} else delete object;
 				return value;
 			} catch (Environment::VariableNotFoundException & u) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object does not contain any attribute, field or method named '" +
-					e -> name -> lexeme + "'!", * e -> name
+					e -> name -> lexeme + "'!",
+					* e -> name, ErrorCode::evl
 				);
 			}
 		} catch (Exception & exc) {
@@ -227,9 +228,10 @@ namespace Spin {
 		try {
 			object = evaluate(e -> object);
 			if (object -> type != BasicType::InstanceType) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object is not an instance and does not contain properties!",
-					* e -> name
+					* e -> name, ErrorCode::evl
 				);
 			}
 			value = evaluate(e -> value);
@@ -246,9 +248,11 @@ namespace Spin {
 					);
 				}
 			} catch (Environment::VariableNotFoundException & u) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object does not contain any attribute, field or method named '" +
-					e -> name -> lexeme + "'!", * e -> name
+					e -> name -> lexeme + "'!",
+					* e -> name, ErrorCode::evl
 				);
 			}
 			CPU -> applyAssignment(e -> equals, field, value);
@@ -267,9 +271,11 @@ namespace Spin {
 		try {
 			return memory -> getValue(e -> name -> lexeme);
 		} catch (Environment::VariableNotFoundException & exc) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected identifier '" +
-				e -> name -> lexeme + "'!", * e -> name
+				e -> name -> lexeme + "'!",
+				* e -> name, ErrorCode::evl
 			);
 		}
 	}
@@ -279,31 +285,39 @@ namespace Spin {
 		try {
 			b = memory -> getValue(e -> bra);
 		} catch (Environment::VariableNotFoundException & exc) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> bra + "'!", * e -> inner
+				e -> bra + "'!",
+				* e -> inner, ErrorCode::evl
 			);
 		}
 		try {
 			k = memory -> getValue(e -> ket);
 		} catch (Environment::VariableNotFoundException & exc) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> ket + "'!", * e -> inner
+				e -> ket + "'!",
+				* e -> inner, ErrorCode::evl
 			);
 		}
 		if (b -> type != BasicType::VectorType) {
 			delete b; delete k;
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> bra + "'!", * e -> inner
+				e -> bra + "'!",
+				* e -> inner, ErrorCode::evl
 			);
 		}
 		if (k -> type != BasicType::VectorType) {
 			delete b; delete k;
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> ket + "'!", * e -> inner
+				e -> ket + "'!",
+				* e -> inner, ErrorCode::evl
 			);
 		}
 		((Vector *) b -> value) -> inBraForm();
@@ -317,16 +331,20 @@ namespace Spin {
 		try {
 			v = memory -> getValue(e -> name);
 		} catch (Environment::VariableNotFoundException & exc) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> name + "'!", * e -> ket
+				e -> name + "'!",
+				* e -> ket, ErrorCode::evl
 			);
 		}
 		if (v -> type != BasicType::VectorType) {
 			delete v;
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected Vector identifier '" +
-				e -> name + "'!", * e -> ket
+				e -> name + "'!",
+				* e -> ket, ErrorCode::evl
 			);
 		}
 		((Vector *) v -> value) -> inKetForm();
@@ -358,9 +376,10 @@ namespace Spin {
 		try {
 			expression = evaluate(e -> l);
 			if (!(expression -> isBool())) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Invalid Bool expression found on left side of circuit operator '||'!",
-					* e -> o
+					* e -> o, ErrorCode::evl
 				);
 			}
 			if ((e -> o -> type) == TokenType::OR) {
@@ -380,9 +399,11 @@ namespace Spin {
 			try {
 				obj = memory -> getReference(e -> name -> lexeme);
 			} catch (Environment::VariableNotFoundException & r) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unexpected identifier '" +
-					e -> name -> lexeme + "'!", * e -> name
+					e -> name -> lexeme + "'!",
+					* e -> name, ErrorCode::evl
 				);
 			}
 			CPU -> applyMutableAssignment(e -> o, obj, expression);
@@ -396,9 +417,10 @@ namespace Spin {
 		try {
 			return memory -> getValue("self");
 		} catch (Environment::VariableNotFoundException & exc) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected use of 'self' outside of allowed context!",
-				* e -> keyword
+				* e -> keyword, ErrorCode::evl
 			);
 		}
 	}
@@ -412,9 +434,10 @@ namespace Spin {
 			} else if (object -> type == BasicType::ClassType) {
 				definition = (Class *)object -> value;
 			} else {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object is not a definition that provides a static context!",
-					* e -> name
+					* e -> name, ErrorCode::evl
 				);
 			}
 			try {
@@ -435,9 +458,11 @@ namespace Spin {
 				} else delete object;
 				return value;
 			} catch (Environment::VariableNotFoundException & u) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object does not contain any static attribute, field or method named '" +
-					e -> name -> lexeme + "'!", * e -> name
+					e -> name -> lexeme + "'!",
+					* e -> name, ErrorCode::evl
 				);
 			}
 		} catch (Exception & exc) {
@@ -457,9 +482,10 @@ namespace Spin {
 			} else if (object -> type == BasicType::ClassType) {
 				definition = (Class *) object -> value;
 			} else {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object is not a definition that provides a static context!",
-					* e -> name
+					* e -> name, ErrorCode::evl
 				);
 			}
 			value = evaluate(e -> value);
@@ -476,9 +502,11 @@ namespace Spin {
 					);
 				}
 			} catch (Environment::VariableNotFoundException & u) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The resolved object does not contain any attribute, field or method named '" +
-					e -> name -> lexeme + "'!", * e -> name
+					e -> name -> lexeme + "'!",
+					* e -> name, ErrorCode::evl
 				);
 			}
 			CPU -> applyAssignment(e -> equals, field, value);
@@ -497,9 +525,10 @@ namespace Spin {
 			item = evaluate(e -> item);
 			if (!(item -> isSubscriptable()) ||
 				!(item -> value)) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"The selected object doesn't support subscription!",
-					* e -> bracket
+					* e -> bracket, ErrorCode::evl
 				);
 			}
 			expression = evaluate(e -> expression);
@@ -569,10 +598,12 @@ namespace Spin {
 				);
 				classDefinition = nullptr;
 			} catch (Environment::VariableRedefinitionException & r) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Object redefinition! The object '" +
 					e -> name -> lexeme + "' was already declared with type '" +
-					r.getType() + "'!", * e -> name
+					r.getType() + "'!",
+					* e -> name, ErrorCode::evl
 				);
 			}
 		} catch (Exception & exc) {
@@ -587,10 +618,11 @@ namespace Spin {
 		try {
 			memory -> forget(e -> name -> lexeme);
 		} catch (Environment::VariableNotFoundException & exc) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Unexpected identifier '" + e -> name -> lexeme +
 				"'! You can only delete variables defined in the innermost scope.",
-				* e -> name
+				* e -> name, ErrorCode::evl
 			);
 		}
 	}
@@ -599,9 +631,10 @@ namespace Spin {
 		try {
 			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unsupported evaluation of non logical condition in iteration statement!",
-					* e -> whileToken
+					* e -> whileToken, ErrorCode::evl
 				);
 			}
 			Bool condition = expression -> getBoolValue();
@@ -625,9 +658,8 @@ namespace Spin {
 		catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitFileStatement(FileStatement * e) {
-		if (fileName) delete fileName;
-		fileName = new String(* e -> name);
-		fileContents = e -> file;
+		currentUnit = e -> file;
+		CPU -> currentUnit = e -> file;
 	}
 	void Interpreter::visitForStatement(ForStatement * e) {
 		Object * expression = nullptr;
@@ -635,9 +667,10 @@ namespace Spin {
 			executeStatement(e -> declaration);
 			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
-					* e -> forToken
+					* e -> forToken, ErrorCode::evl
 				);
 			}
 			Bool condition = expression -> getBoolValue();
@@ -668,9 +701,11 @@ namespace Spin {
 					);
 				} catch (Environment::VariableRedefinitionException & r) {
 					if (function) delete function;
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Function redefinition! The object '" +
-						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+						e -> name -> lexeme + "' was already declared within the current scope!",
+						* e -> name, ErrorCode::evl
 					);
 				}
 			} else if (classDefinition) {
@@ -684,9 +719,11 @@ namespace Spin {
 					);
 				} catch (Environment::VariableRedefinitionException & r) {
 					if (function) delete function;
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Function redefinition! The object '" +
-						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+						e -> name -> lexeme + "' was already declared within the current scope!",
+						* e -> name, ErrorCode::evl
 					);
 				}
 			} else {
@@ -697,9 +734,11 @@ namespace Spin {
 				try { memory -> define(e -> name -> lexeme, function); }
 				catch (Environment::VariableRedefinitionException & r) {
 					if (function) delete function;
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Function redefinition! The object '" +
-						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+						e -> name -> lexeme + "' was already declared within the current scope!",
+						* e -> name, ErrorCode::evl
 					);
 				}
 			}
@@ -710,9 +749,10 @@ namespace Spin {
 		try {
 			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unsupported evaluation of non logical expression in conditional statement!",
-					* e -> ifToken
+					* e -> ifToken, ErrorCode::evl
 				);
 			}
 			if (expression -> getBoolValue()) {
@@ -747,9 +787,11 @@ namespace Spin {
 					);
 				} catch (Environment::VariableRedefinitionException & r) {
 					if (procedure) delete procedure;
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Function redefinition! The object '" +
-						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+						e -> name -> lexeme + "' was already declared within the current scope!",
+						* e -> name, ErrorCode::evl
 					);
 				}
 			} else if (classDefinition) {
@@ -763,9 +805,11 @@ namespace Spin {
 					);
 				} catch (Environment::VariableRedefinitionException & r) {
 					if (procedure) delete procedure;
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Function redefinition! The object '" +
-						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+						e -> name -> lexeme + "' was already declared within the current scope!",
+						* e -> name, ErrorCode::evl
 					);
 				}
 			} else {
@@ -773,9 +817,11 @@ namespace Spin {
 				try { memory -> define(e -> name -> lexeme, procedure); }
 				catch (Environment::VariableRedefinitionException & r) {
 					if (procedure) delete procedure;
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Procedure redefinition! The object '" +
-						e -> name -> lexeme + "' was already declared within the current scope!", * e -> name
+						e -> name -> lexeme + "' was already declared within the current scope!",
+						* e -> name, ErrorCode::evl
 					);
 				}
 			}
@@ -786,9 +832,10 @@ namespace Spin {
 		try {
 			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
-					* e -> untilToken
+					* e -> untilToken, ErrorCode::evl
 				);
 			}
 			Bool condition = expression -> getBoolValue();
@@ -813,7 +860,7 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			if (e -> e) expression = evaluate(e -> e);
-			throw InterpreterReturn(expression, new Token(* e -> returnToken));
+			throw Return(expression, new Token(* e -> returnToken));
 		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitUntilStatement(UntilStatement * e) {
@@ -821,9 +868,10 @@ namespace Spin {
 		try {
 			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
-					* e -> untilToken
+					* e -> untilToken, ErrorCode::evl
 				);
 			}
 			Bool condition = expression -> getBoolValue();
@@ -850,8 +898,10 @@ namespace Spin {
 				// This is the class definition:
 				try { definition = memory -> getReference(e -> object -> lexeme); }
 				catch (Environment::VariableNotFoundException & oex) {
-					throw EvaluationError(
-						"Object definition not found!", * e -> object
+					throw Program::Error(
+						currentUnit,
+						"Object definition not found!",
+						* e -> object, ErrorCode::evl
 					);
 				}
 				// Empty instance from class definition:
@@ -869,9 +919,10 @@ namespace Spin {
 					// There's no need to delete the expression since the original
 					// object has already been sent to lost and found.
 				} else if (definedClass -> arity() > 0) {
-					throw EvaluationError(
+					throw Program::Error(
+						currentUnit,
 						"Object instantiation requires constructor call when it's defined!",
-						* e -> name
+						* e -> name, ErrorCode::evl
 					);
 				}
 				expression = instance;
@@ -903,10 +954,12 @@ namespace Spin {
 			}
 		} catch (Environment::VariableRedefinitionException & r) {
 			if (expression) delete expression;
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Variable redefinition! The identifier '" +
 				e -> name -> lexeme + "' was already declared with type '" +
-				r.getType() + "' in current scope!", * e -> name
+				r.getType() + "' in current scope!",
+				* e -> name, ErrorCode::evl
 			);
 		}
 	}
@@ -946,10 +999,12 @@ namespace Spin {
 				memory -> define(e -> name, expression);
 			}
 		} catch (Environment::VariableRedefinitionException & r) {
-			throw EvaluationError(
+			throw Program::Error(
+				currentUnit,
 				"Vector redefinition! The identifier '" +
 				e -> name + "' was already declared with type '" +
-				r.getType() + "'!", * e -> vector
+				r.getType() + "'!",
+				* e -> vector, ErrorCode::evl
 			);
 		}
 	}
@@ -958,9 +1013,10 @@ namespace Spin {
 		try {
 			expression = evaluate(e -> expression);
 			if (!(expression -> isBool())) {
-				throw EvaluationError(
+				throw Program::Error(
+					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
-					* e -> whileToken
+					* e -> whileToken, ErrorCode::evl
 				);
 			}
 			Bool condition = expression -> getBoolValue();
@@ -1010,21 +1066,16 @@ namespace Spin {
 		if (!syntaxTree) return;
 		globals = new Environment();
 		memory = globals;
-		if (syntaxTree -> consoleLibrary) Console::defineLibrary(globals);
-		if (syntaxTree -> mathsLibrary) Maths::defineLibrary(globals);
-		if (syntaxTree -> kronosLibrary) Kronos::defineLibrary(globals);
+		if (syntaxTree -> libraries) {
+			for (Hash & lib : * (syntaxTree -> libraries)) {
+				Library::define(lib, globals);
+			}
+		}
 		try {
 			for (Statement * statement : * syntaxTree -> statements) {
 				executeStatement(statement);
 			}
-		} catch (EvaluationError & e) {
-			const SizeType cursor = e.getToken().position;
-			SizeType line = Manager::getLine(fileContents, cursor);
-			if (!fileName) fileName = new String("Unknown File");
-			throw InterpreterErrorException(
-				e.getMessage(), line, * fileName
-			);
-		}
+		} catch (Program::Error & e) { throw; }
 		delete memory;
 		memory = nullptr;
 		globals = nullptr;
