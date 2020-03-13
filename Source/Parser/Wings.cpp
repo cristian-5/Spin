@@ -129,7 +129,12 @@ namespace Spin {
 						}
 						imports.push_back(fileName);
 						// Replace that symbol for usage.
-						replace(code, TokenType::symbol, import, TokenType::customType);
+						String name;
+						for (SizeType i = import.length() - 1; i <= 0; i -= 1) {
+							if (import[i] == '/') break;
+							name = import[i] + name;
+						} 
+						replace(code, TokenType::symbol, name, TokenType::customType);
 					}
 				} catch (Program::Error & e) { throw; }
 			}
@@ -209,15 +214,6 @@ namespace Spin {
 	}
 
 	Program * Wings::spread(String path) {
-
-		// TODO: Run smart type classification (prototype)
-		//       in order to be able to parse object
-		//       instantiations on files that link to the
-		//       current lib. Example: 'A.spin' contains
-		//       class 'A' which is used in 'Main.spin' and
-		//       'B.spin'; both 'Main' and 'B' need to
-		//       prototype 'A' in order to be able to use
-		//       it otherwise they are going to fail parse.
 
 		// Getting the main file:
 		String * file = nullptr;

@@ -23,7 +23,7 @@
 
 #include "../Aliases/Prototypes/Complex.hpp"
 #include "../Aliases/Prototypes/Vector.hpp"
-#include "../Aliases/Prototypes/Congruential.hpp"
+#include "../Aliases/Prototypes/Chaos.hpp"
 
 namespace Spin {
 

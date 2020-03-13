@@ -2292,6 +2292,8 @@ namespace Spin {
 			);
 		} else if (l -> type == BasicType::ArrayType) {
 			/* TODO: Ask the array... */
+		} else if (l -> type == BasicType::VectorType) {
+			/* TODO: Ask the vector... */
 		}
 		throw Program::Error(
 			currentUnit,

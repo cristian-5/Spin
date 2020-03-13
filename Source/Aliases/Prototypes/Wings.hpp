@@ -16,8 +16,6 @@ namespace Spin {
 
 		private:
 
-		// TODO: run type classification for known libs (new Console).
-
 		static void replace(CodeUnit * code, TokenType type, String lexeme, TokenType newType);
 		static Bool isKnownLibrary(String l);
 		static String complete(CodeUnit * code, SizeType & i);

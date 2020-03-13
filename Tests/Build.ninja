@@ -34,6 +34,7 @@ build          Build/Array.o: build ../Source/Types/Array.cpp
 build          Build/Class.o: build ../Source/Types/Class.cpp
 build        Build/Complex.o: build ../Source/Types/Complex.cpp
 build         Build/Object.o: build ../Source/Types/Object.cpp
+build          Build/Qubit.o: build ../Source/Types/Qubit.cpp | ../Source/Aliases/Prototypes/Chaos.hpp
 build       Build/Routines.o: build ../Source/Types/Routines.cpp
 build         Build/Vector.o: build ../Source/Types/Vector.cpp
 
