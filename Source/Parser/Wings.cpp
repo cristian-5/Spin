@@ -17,6 +17,7 @@
 !*/
 
 #include "../Aliases/Prototypes/Wings.hpp"
+#include "../Aliases/Input.hpp"
 
 #ifndef SPIN_WINGS
 #define SPIN_WINGS
@@ -45,7 +46,8 @@ namespace Spin {
 		i += 1;
 		String import;
 		while (i < wing -> size()) {
-			if (wing -> at(i).type == TokenType::symbol) {
+			if (wing -> at(i).type == TokenType::symbol ||
+				wing -> at(i).type == TokenType::customType) {
 				import += wing -> at(i).lexeme;
 				wing -> at(i).type = TokenType::empty;
 			} else {
@@ -96,11 +98,24 @@ namespace Spin {
 		);
 	}
 
+	String Wings::parentFolder(String f) {
+		if (f.empty() || f.length() <= 1) String();
+		SizeType i = f.length() - 1;
+		while (f[i] != '/') {
+			// If no slashes found:
+			if (i - 1 < 0) return String();
+			i -= 1;
+		}
+		String path = f.substr(0, i + 1);
+		return path;
+	}
+
 	Array<String> Wings::classify(CodeUnit * code, Array<Hash> * libs) {
 		if (!code || !libs) return Array<String>();
 		Array<Token> * file = code -> tokens;
 		if (!file || file -> empty()) return Array<String>();
 		Array<String> imports;
+		Array<Hash> knownLibraries;
 		const SizeType tokenCount = file -> size();
 		for (SizeType i = 0; i < tokenCount; i += 1) {
 			if (file -> at(i).type == TokenType::importKeyword) {
@@ -109,10 +124,26 @@ namespace Spin {
 					String import = complete(code, i);
 					if (isKnownLibrary(import)) {
 						Hash hash = Chaos<Hash>::hash(import);
-						for (Hash & i : * libs) {
-							if (i == hash) continue;
+						for (Hash & i : knownLibraries) {
+							if (i == hash) {
+								// Redefinition of known library:
+								throw Program::Error(
+									code,
+									"Found repetitive import directive!",
+									file -> at(store),
+									ErrorCode::ppr
+								);
+							}
 						}
-						libs -> push_back(hash);
+						knownLibraries.push_back(hash);
+						Bool listed = false;
+						for (Hash & i : * libs) {
+							if (i == hash) {
+								listed = true;
+								continue;
+							}
+						}
+						if (!listed) libs -> push_back(hash);
 						// Replace that symbol for usage.
 						replace(code, TokenType::symbol, import, TokenType::customType);
 					} else {
@@ -133,7 +164,7 @@ namespace Spin {
 						for (SizeType i = import.length() - 1; i <= 0; i -= 1) {
 							if (import[i] == '/') break;
 							name = import[i] + name;
-						} 
+						}
 						replace(code, TokenType::symbol, name, TokenType::customType);
 					}
 				} catch (Program::Error & e) { throw; }
@@ -144,7 +175,6 @@ namespace Spin {
 	}
 
 	Bool Wings::isSpread(String wing, Array<CodeUnit *> * wings) {
-		// TO FIX: use full path instead of relative path!
 		if (!wings) return false;
 		for (CodeUnit * code : * wings) {
 			if (!code) continue;
@@ -160,6 +190,7 @@ namespace Spin {
 		catch (Program::Error & e) { throw; }
 		Lexer * lexer = Lexer::self();
 		for (String & wing : imports) {
+			wing = parentFolder(*(code -> name)) + wing;
 			// We need to check if wing has not been
 			// already spread in resolved:
 			if (isSpread(wing, resolved)) continue;
@@ -171,7 +202,7 @@ namespace Spin {
 				spreadWing(
 					new CodeUnit(
 						lexer -> tokenise(unitFile),
-						new String(wing), // TOFIX: Add current folder prefix
+						new String(wing),
 						unitFile
 					),
 					resolved, libs
@@ -244,6 +275,7 @@ namespace Spin {
 
 		Array<CodeUnit *> * wings = new Array<CodeUnit *>();
 		for (String & wing: imports) {
+			wing = parentFolder(path) + wing;
 			String * unitFile = nullptr;
 			try {
 				unitFile = Manager::stringFromFile(wing);

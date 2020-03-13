@@ -18,6 +18,7 @@ namespace Spin {
 
 		static void replace(CodeUnit * code, TokenType type, String lexeme, TokenType newType);
 		static Bool isKnownLibrary(String l);
+		static String parentFolder(String f);
 		static String complete(CodeUnit * code, SizeType & i);
 		static Array<String> classify(CodeUnit * code, Array<Hash> * libs);
 		static Bool isSpread(String wing, Array<CodeUnit *> * wings);
