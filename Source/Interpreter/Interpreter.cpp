@@ -582,7 +582,7 @@ namespace Spin {
 			classDefinition = new Class(e -> name -> lexeme, e -> dynamicAttributes);
 			if (e -> atCreate) {
 				classDefinition -> atCreate = new Procedure(
-					e -> atCreate, new Environment()
+					e -> atCreate, memory
 				);
 			}
 			String name;
@@ -693,7 +693,7 @@ namespace Spin {
 			if (instanceDefinition) {
 				Object * function = new Object(
 					BasicType::RoutineType,
-					new Function(e, new Environment())
+					new Function(e, memory)
 				);
 				try {
 					instanceDefinition -> defineDynamic(
@@ -711,7 +711,7 @@ namespace Spin {
 			} else if (classDefinition) {
 				Object * function = new Object(
 					BasicType::RoutineType,
-					new Function(e, new Environment())
+					new Function(e, memory)
 				);
 				try {
 					classDefinition -> defineStatic(
@@ -779,7 +779,7 @@ namespace Spin {
 			if (instanceDefinition) {
 				Object * procedure = new Object(
 					BasicType::RoutineType,
-					new Procedure(e, new Environment())
+					new Procedure(e, memory)
 				);
 				try {
 					instanceDefinition -> defineDynamic(
@@ -797,7 +797,7 @@ namespace Spin {
 			} else if (classDefinition) {
 				Object * procedure = new Object(
 					BasicType::RoutineType,
-					new Procedure(e, new Environment())
+					new Procedure(e, memory)
 				);
 				try {
 					classDefinition -> defineStatic(
