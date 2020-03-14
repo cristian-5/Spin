@@ -38,10 +38,12 @@ build         Build/Object.o: build ../Source/Types/Object.cpp
 build       Build/Routines.o: build ../Source/Types/Routines.cpp
 build         Build/Vector.o: build ../Source/Types/Vector.cpp
 
+build      Build/Benchmark.o: build Benchmark/Benchmark.cpp
+
 # Main:
 
 build  Build/Test.o: build Test.cpp
 
 # Link:
 
-build Test: link Build/Test.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o
+build Test: link Build/Test.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o Build/Benchmark.o
