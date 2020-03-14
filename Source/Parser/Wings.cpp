@@ -168,7 +168,7 @@ namespace Spin {
 						replace(code, TokenType::symbol, name, TokenType::customType);
 					}
 				} catch (Program::Error & e) { throw; }
-			}
+			} else if (file -> at(i).type != TokenType::beginFile) break;
 		}
 		imports.shrink_to_fit();
 		return imports;

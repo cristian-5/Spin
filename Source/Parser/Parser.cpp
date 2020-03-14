@@ -558,6 +558,11 @@ namespace Spin {
 				case TokenType::returnKeyword: st = returnStatement(); break;
 				case TokenType::deleteKeyword: st = deleteStatement(); break;
 				case TokenType::semicolon: advance(); st = new RestStatement(); break;
+				case TokenType::importKeyword: throw Program::Error(
+					currentUnit,
+					"Found unexpected 'import' keyword! Imports are only supported at the top of the file!",
+					keyword, ErrorCode::ppr
+				); break;
 				default: st = expressionStatement(); break;
 			}
 		} catch (Program::Error & e) { throw; }
