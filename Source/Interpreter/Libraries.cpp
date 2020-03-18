@@ -27,33 +27,28 @@
 #include "../Aliases/Prototypes/SyntaxTree.hpp"
 #include "../Aliases/Prototypes/Interpreter.hpp"
 #include "../Aliases/Prototypes/Routines.hpp"
-#include "../Aliases/Prototypes/Chaos.hpp"
 
 #include "../Aliases/Input.hpp"
 
 namespace Spin {
 
-	// IMPORTANT: Do not ever change the order of
-	//            const declaration and libs or
-	//            they will break the dependencies.
-
-	const String Console::name = "Console";
-
-	const Dictionary<Hash, Library::LibraryHandler> Library::libs = {
-		{ Chaos<Hash>::hash(Console::name), Console::defineLibrary }
+	const Dictionary<String, Library::LibraryHandler> Library::libs = {
+		{ "Console", Console::defineLibrary }
 	};
 
-	void Library::define(Hash id, Environment * memory) {
-		auto search = libs.find(id);
+	void Library::define(String name, Environment * memory) {
+		auto search = libs.find(name);
 		if (search != libs.end()) {
 			auto handler = search -> second;
 			handler(memory);
 		}
 	}
-	Bool Library::isKnown(Hash id) {
-		auto search = libs.find(id);
+	Bool Library::isKnown(String name) {
+		auto search = libs.find(name);
 		return search != libs.end();
 	}
+
+	const String Console::name = "Console";
 
 	void Console::defineLibrary(Environment * global) {
 		if (!global) return;

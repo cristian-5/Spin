@@ -20,10 +20,10 @@ namespace Spin {
 		static Bool isKnownLibrary(String l);
 		static String parentFolder(String f);
 		static String complete(CodeUnit * code, SizeType & i);
-		static Array<String> classify(CodeUnit * code, Array<Hash> * libs);
+		static Array<String> classify(CodeUnit * code, Array<String> * libs);
 		static Bool isSpread(String wing, Array<CodeUnit *> * wings);
 		static void prepareWing(CodeUnit * code);
-		static void spreadWing(CodeUnit * code, Array<CodeUnit *> * resolved, Array<Hash> * libs);
+		static void spreadWing(CodeUnit * code, Array<CodeUnit *> * resolved, Array<String> * libs);
 		static void prototype(CodeUnit * code);
 
 		public:

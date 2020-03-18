@@ -1067,7 +1067,7 @@ namespace Spin {
 		globals = new Environment();
 		memory = globals;
 		if (syntaxTree -> libraries) {
-			for (Hash & lib : * (syntaxTree -> libraries)) {
+			for (String & lib : * (syntaxTree -> libraries)) {
 				Library::define(lib, globals);
 			}
 		}

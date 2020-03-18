@@ -518,7 +518,7 @@ namespace Spin {
 
 	class SyntaxTree {
 		public:
-		Array<Hash> * libraries = nullptr;
+		Array<String> * libraries = nullptr;
 		Array<Statement *> * statements = nullptr;
 		SyntaxTree() = default;
 		SyntaxTree(Array<Statement *> * s);

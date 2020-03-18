@@ -15,9 +15,9 @@ namespace Spin {
 		private: Library() = delete;
 		public:
 		typedef Lambda<void (Environment *)> LibraryHandler;
-		static const Dictionary<Hash, LibraryHandler> libs;
-		static void define(Hash id, Environment * memory);
-		static Bool isKnown(Hash id);
+		static const Dictionary<String, LibraryHandler> libs;
+		static void define(String name, Environment * memory);
+		static Bool isKnown(String name);
 	};
 
 	class Console {

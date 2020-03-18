@@ -51,9 +51,9 @@ namespace Spin {
 
 		CodeUnit * main;
 		Array<CodeUnit *> * wings;
-		Array<Hash> * libraries;
+		Array<String> * libraries;
 
-		Program(CodeUnit * main, Array<CodeUnit *> * wings, Array<Hash> * libraries);
+		Program(CodeUnit * main, Array<CodeUnit *> * wings, Array<String> * libraries);
 
 	};
 

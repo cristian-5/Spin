@@ -36,7 +36,7 @@ namespace Spin {
 		if (contents) delete contents;
 	}
 
-	Program::Program(CodeUnit * main, Array<CodeUnit *> * wings, Array<Hash> * libraries) {
+	Program::Program(CodeUnit * main, Array<CodeUnit *> * wings, Array<String> * libraries) {
 		this -> main = main;
 		this -> wings = wings;
 		this -> libraries = libraries;

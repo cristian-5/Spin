@@ -15,7 +15,7 @@ rule link
 build      Build/Converter.o: build Interpreter/Converter.cpp
 build    Build/Environment.o: build Interpreter/Environment.cpp
 build    Build/Interpreter.o: build Interpreter/Interpreter.cpp
-build      Build/Libraries.o: build Interpreter/Libraries.cpp | Aliases/Prototypes/Chaos.hpp
+build      Build/Libraries.o: build Interpreter/Libraries.cpp
 build      Build/Processor.o: build Interpreter/Processor.cpp
 
 build          Build/Regex.o: build Lexer/Regex.cpp
@@ -27,7 +27,7 @@ build     Build/Statements.o: build ASTree/Statements.cpp
 
 build         Build/Parser.o: build Parser/Parser.cpp
 build        Build/Program.o: build Parser/Program.cpp
-build          Build/Wings.o: build Parser/Wings.cpp | Aliases/Prototypes/Chaos.hpp
+build          Build/Wings.o: build Parser/Wings.cpp
 
 build          Build/Token.o: build Token/Token.cpp
 

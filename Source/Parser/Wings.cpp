@@ -25,7 +25,6 @@
 #include "../Aliases/Prototypes/Manager.hpp"
 #include "../Aliases/Prototypes/Lexer.hpp"
 #include "../Aliases/Prototypes/Libraries.hpp"
-#include "../Aliases/Prototypes/Chaos.hpp"
 
 namespace Spin {
 
@@ -37,7 +36,7 @@ namespace Spin {
 	}
 
 	Bool Wings::isKnownLibrary(String l) {
-		return Library::isKnown(Chaos<Hash>::hash(l));
+		return Library::isKnown(l);
 	}
 
 	String Wings::complete(CodeUnit * code, SizeType & i) {
@@ -99,7 +98,7 @@ namespace Spin {
 	}
 
 	String Wings::parentFolder(String f) {
-		if (f.empty() || f.length() <= 1) String();
+		if (f.empty() || f.length() <= 1) return String();
 		SizeType i = f.length() - 1;
 		while (f[i] != '/') {
 			// If no slashes found:
@@ -110,12 +109,12 @@ namespace Spin {
 		return path;
 	}
 
-	Array<String> Wings::classify(CodeUnit * code, Array<Hash> * libs) {
+	Array<String> Wings::classify(CodeUnit * code, Array<String> * libs) {
 		if (!code || !libs) return Array<String>();
 		Array<Token> * file = code -> tokens;
 		if (!file || file -> empty()) return Array<String>();
 		Array<String> imports;
-		Array<Hash> knownLibraries;
+		Array<String> knownLibraries;
 		const SizeType tokenCount = file -> size();
 		for (SizeType i = 0; i < tokenCount; i += 1) {
 			if (file -> at(i).type == TokenType::importKeyword) {
@@ -123,9 +122,8 @@ namespace Spin {
 					const SizeType store = i;
 					String import = complete(code, i);
 					if (isKnownLibrary(import)) {
-						Hash hash = Chaos<Hash>::hash(import);
-						for (Hash & i : knownLibraries) {
-							if (i == hash) {
+						for (String & i : knownLibraries) {
+							if (i == import) {
 								// Redefinition of known library:
 								throw Program::Error(
 									code,
@@ -135,15 +133,15 @@ namespace Spin {
 								);
 							}
 						}
-						knownLibraries.push_back(hash);
+						knownLibraries.push_back(import);
 						Bool listed = false;
-						for (Hash & i : * libs) {
-							if (i == hash) {
+						for (String & i : * libs) {
+							if (i == import) {
 								listed = true;
-								continue;
+								break;
 							}
 						}
-						if (!listed) libs -> push_back(hash);
+						if (!listed) libs -> push_back(import);
 						// Replace that symbol for usage.
 						replace(code, TokenType::symbol, import, TokenType::customType);
 					} else {
@@ -183,7 +181,7 @@ namespace Spin {
 		return false;
 	}
 
-	void Wings::spreadWing(CodeUnit * code, Array<CodeUnit *> * resolved, Array<Hash> * libs) {
+	void Wings::spreadWing(CodeUnit * code, Array<CodeUnit *> * resolved, Array<String> * libs) {
 		if (! code || !libs) return;
 		Array<String> imports;
 		try { imports = classify(code, libs); }
@@ -263,7 +261,7 @@ namespace Spin {
 
 		// Classify import statements:
 
-		Array<Hash> * libs = new Array<Hash>();
+		Array<String> * libs = new Array<String>();
 
 		Array<String> imports;
 		try {
