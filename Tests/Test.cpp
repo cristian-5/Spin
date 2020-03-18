@@ -43,7 +43,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		syntaxTree = parser -> parse(program);
 		interpreter -> evaluate(syntaxTree);
 	} catch (Program::Error & e) {
-		OStream << "% " << e.getErrorCode()
+		OStream << endLine << endLine << "% " << e.getErrorCode()
 				<< " Error on line " << e.getLine() << " of ['"
 				<< e.getFile() << "'] %" << endLine
 				<< e.getMessage() << endLine << endLine;
@@ -51,7 +51,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		if (syntaxTree) delete syntaxTree;
 		return ExitCodes::failure;
 	} catch (Manager::BadFileException & b) {
-		OStream << "% PPR Catastrophic Event %"
+		OStream << endLine << endLine << "% PPR Catastrophic Event %"
 				<< endLine << "Couldn't open file ['"
 				<< b.getPath() << "']!" << endLine << endLine;
 		if (program) delete program;
