@@ -25,6 +25,7 @@
 #include "../Aliases/Prototypes/Regex.hpp"
 #include "../Aliases/Prototypes/SyntaxTree.hpp"
 #include "../Aliases/Prototypes/Program.hpp"
+#include "../Aliases/Prototypes/Object.hpp"
 
 namespace Spin {
 
@@ -341,7 +342,9 @@ namespace Spin {
 		Token t = peek();
 		if (t.isTypeLiteral()) {
 			advance();
-			return new Literal(new Token(t));
+			Literal * lit = new Literal(new Token(t));
+			lit -> object = Object::fromLiteral(lit -> token);
+			return lit;
 		} else if (t.type == TokenType::symbol ||
 				   t.type == TokenType::customType ||
 				   t.type == TokenType::basicType) {
