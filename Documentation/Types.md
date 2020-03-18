@@ -1,7 +1,7 @@
 
 # Spin Types
 
-Spin has a set of native types like **c** or **c++**.
+Spin has a set of native types like other languages.
 Those types are actually virtual classes that
 contain methods and properties.
 
@@ -12,7 +12,7 @@ contain methods and properties.
 |      **Byte** |  1 Byte  | Unsigned Integer |
 |   **Integer** |  8 Bytes | Signed Integer   |
 
-### Types seen internally as Integers
+### Types internally seen as Integers
 
 |          Type | Size     | Description      |
 |--------------:|----------|:----------------:|

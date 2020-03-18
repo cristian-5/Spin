@@ -19,19 +19,29 @@ The sections that follow describe each of these categories.
 In the example
 
 ``` swift
+import Console;
+
 class A {
 
     @shared Integer x = 6;
     @hidden Integer y = 9;
 
+    @create proc A() {
+        Console::writeLine("Running Constructor");
+    }
+
     @public proc subProgram(a: Real, b: Integer) {
         Integer i = 10;
-        c = a + b; // Results in Integer.
+        Integer c = a + b;
         c += i * a;
         self::x = c + self.y;
     }
 
 }
+
+A a = new A();
+a.subProgram(3.0, 3);
+
 ```
 
 `x` is a public static variable, `y` is a private instance variable,
