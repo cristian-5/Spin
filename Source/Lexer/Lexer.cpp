@@ -22,184 +22,530 @@
 #define SPIN_LEXER
 
 #include "../Aliases/Prototypes/Token.hpp"
-#include "../Aliases/Prototypes/Regex.hpp"
 
 namespace Spin {
 
-	Lexer::Lexer() {
+	const Dictionary<String, TokenType> Lexer::keywords = {
 
-		grammar = InitialiserList<TokenRule> {
+		{ "if", TokenType::ifKeyword },
+		{ "else", TokenType::elseKeyword },
+		{ "switch", TokenType::switchKeyword },
+		{ "case", TokenType::caseKeyword },
+		{ "default", TokenType::defaultKeyword },
+		{ "while", TokenType::whileKeyword },
+		{ "do", TokenType::doKeyword },
+		{ "loop", TokenType::loopKeyword },
+		{ "for", TokenType::forKeyword },
+		{ "repeat", TokenType::repeatKeyword },
+		{ "until", TokenType::untilKeyword },
+		{ "break", TokenType::breakKeyword },
+		{ "continue", TokenType::continueKeyword },
+		{ "self", TokenType::selfKeyword },
+		{ "new", TokenType::newKeyword },
+		{ "delete", TokenType::deleteKeyword },
+		{ "import", TokenType::importKeyword },
+		{ "func", TokenType::funcKeyword },
+		{ "proc", TokenType::procKeyword },
+		{ "class", TokenType::classKeyword },
+		{ "rest", TokenType::restKeyword },
+		{ "return", TokenType::returnKeyword },
 
-			{ Regex("^([ \\t\\n]+)"), TokenType::empty },
+		{ "Bool", TokenType::basicType },
+		{ "Byte", TokenType::basicType },
+		{ "Character", TokenType::basicType },
+		{ "Complex", TokenType::basicType },
+		{ "Imaginary", TokenType::basicType },
+		{ "Integer", TokenType::basicType },
+		{ "Real", TokenType::basicType },
+		{ "String", TokenType::basicType },
+		{ "Vector", TokenType::basicType },
 
-			{ Regex("^(\\/\\*+[^*]*\\*+(?:[^/*][^*]*\\*+)*\\/)"), TokenType::comment },
+		{ "false", TokenType::boolLiteral },
+		{ "true", TokenType::boolLiteral },
 
-			{ Regex("^([0-9]+(?:\\.[0-9]+(?:[e][-]?[0-9]+)?)?i)"), TokenType::imaginaryLiteral },
-			{ Regex("^([0-9]+\\.[0-9]+(?:[e][-]?[0-9]+)?)"), TokenType::realLiteral },
-			{ Regex("^((?:0[x][0-9A-F]+)|(?:0b[01]+)|(?:0o[0-7]+)|(?:0d[0-9]+)|(?:[0-9]+))"), TokenType::intLiteral },
-			{ Regex("^(\"(?:[^\\\\\"]|\\\\[\"\\\\0abfnrtv]|\\\\0x[0-9A-F]{2})*\")"), TokenType::stringLiteral },
-			{ Regex("^('(?:[^\\\\]|\\\\0x[0-9A-F]{2}|\\\\['\\\\0abfnrtv])')"), TokenType::charLiteral },
-			{ Regex("^(false|true)\\b"), TokenType::boolLiteral },
+	};
 
-			{ Regex("^(<[01]\\|)"), TokenType::basisBraLiteral },
-			{ Regex("^(\\|[01]>)"), TokenType::basisKetLiteral },
+	const Dictionary<String, TokenType> Lexer::specifiers = {
 
-			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::braketSymbol },
-			{ Regex("^(<[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::braSymbol },
-			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*><[A-Za-z_][A-Za-z0-9_]*\\|)"), TokenType::ketbraSymbol },
-			{ Regex("^(\\|[A-Za-z_][A-Za-z0-9_]*>)"), TokenType::ketSymbol },
+		{ "@public", TokenType::publicModifier },
+		{ "@hidden", TokenType::hiddenModifier },
+		{ "@secure", TokenType::secureModifier },
+		{ "@immune", TokenType::immuneModifier },
+		{ "@static", TokenType::staticModifier },
+		{ "@shared", TokenType::sharedModifier },
 
-			{ Regex("^(\\->)"), TokenType::arrow },
-			{ Regex("^(\\::)"), TokenType::doublecolon },
-			{ Regex("^(\\:)"), TokenType::colon },
-			{ Regex("^(\\;)"), TokenType::semicolon },
-			{ Regex("^(\\,)"), TokenType::comma },
-			{ Regex("^(\\.)"), TokenType::dot },
-			{ Regex("^(<=)"), TokenType::minorEqual },
-			{ Regex("^(<)"), TokenType::minor },
-			{ Regex("^(>=)"), TokenType::majorEqual },
-			{ Regex("^(>)"), TokenType::major },
-			{ Regex("^(==)"), TokenType::equality },
-			{ Regex("^(=)"), TokenType::equal },
-			{ Regex("^(\\?)"), TokenType::questionMark },
-			{ Regex("^(\\!=)"), TokenType::inequality },
-			{ Regex("^(\\!)"), TokenType::exclamationMark },
+		{ "@create", TokenType::createSpecifier },
+		{ "@delete", TokenType::deleteSpecifier },
 
-			{ Regex("^(\\+=)"), TokenType::plusEqual },
-			{ Regex("^(\\+)"), TokenType::plus },
-			{ Regex("^(\\-=)"), TokenType::minusEqual },
-			{ Regex("^(\\-)"), TokenType::minus },
-			{ Regex("^(\\~)"), TokenType::tilde },
-			{ Regex("^(\\*=)"), TokenType::starEqual },
-			{ Regex("^(\\*)"), TokenType::star },
-			{ Regex("^(\\\\)"), TokenType::backslash },
-			{ Regex("^(\\/=)"), TokenType::slashEqual },
-			{ Regex("^(\\/)"), TokenType::slash },
-			{ Regex("^(\\|=)"), TokenType::pipeEqual },
-			{ Regex("^(\\|\\|)"), TokenType::OR },
-			{ Regex("^(\\|)"), TokenType::pipe },
-			{ Regex("^(\\&=)"), TokenType::ampersandEqual },
-			{ Regex("^(\\&\\&)"), TokenType::AND },
-			{ Regex("^(\\&)"), TokenType::ampersand },
-			{ Regex("^(\\%=)"), TokenType::modulusEqual },
-			{ Regex("^(\\%)"), TokenType::modulus },
-			{ Regex("^(\\$=)"), TokenType::dollarEqual },
-			{ Regex("^(\\$)"), TokenType::dollar },
-			{ Regex("^(\\°)"), TokenType::conjugate },
-			{ Regex("^(\\^)"), TokenType::transpose },
-			{ Regex("^(\\')"), TokenType::dagger },
+	};
 
-			{ Regex("^(\\()"), TokenType::openParenthesis },
-			{ Regex("^(\\))"), TokenType::closeParenthesis },
-			{ Regex("^(\\[)"), TokenType::openBracket },
-			{ Regex("^(\\])"), TokenType::closeBracket },
-			{ Regex("^(\\{)"), TokenType::openBrace },
-			{ Regex("^(\\})"), TokenType::closeBrace },
-
-			{ Regex("^(if)\\b"), TokenType::ifKeyword },
-			{ Regex("^(else)\\b"), TokenType::elseKeyword },
-			{ Regex("^(switch)\\b"), TokenType::switchKeyword },
-			{ Regex("^(case)\\b"), TokenType::caseKeyword },
-			{ Regex("^(default)\\b"), TokenType::defaultKeyword },
-			{ Regex("^(while)\\b"), TokenType::whileKeyword },
-			{ Regex("^(do)\\b"), TokenType::doKeyword },
-			{ Regex("^(loop)\\b"), TokenType::loopKeyword },
-			{ Regex("^(for)\\b"), TokenType::forKeyword },
-			{ Regex("^(repeat)\\b"), TokenType::repeatKeyword },
-			{ Regex("^(until)\\b"), TokenType::untilKeyword },
-			{ Regex("^(break)\\b"), TokenType::breakKeyword },
-			{ Regex("^(continue)\\b"), TokenType::continueKeyword },
-			{ Regex("^(self)\\b"), TokenType::selfKeyword },
-
-			{ Regex("^(new)\\b"), TokenType::newKeyword },
-			{ Regex("^(delete)\\b"), TokenType::deleteKeyword },
-
-			{ Regex("^(import)\\b"), TokenType::importKeyword },
-
-			{ Regex("^(func)\\b"), TokenType::funcKeyword },
-			{ Regex("^(proc)\\b"), TokenType::procKeyword },
-
-			{ Regex("^(class)\\b"), TokenType::classKeyword },
-			
-			{ Regex("^(@(?:public))\\b"), TokenType::publicModifier },
-			{ Regex("^(@(?:hidden))\\b"), TokenType::hiddenModifier },
-			{ Regex("^(@(?:secure))\\b"), TokenType::secureModifier },
-			{ Regex("^(@(?:immune))\\b"), TokenType::immuneModifier },
-			{ Regex("^(@(?:static))\\b"), TokenType::staticModifier },
-			{ Regex("^(@(?:shared))\\b"), TokenType::sharedModifier },
-
-			{ Regex("^(@(?:create))\\b"), TokenType::createSpecifier },
-			{ Regex("^(@(?:delete))\\b"), TokenType::deleteSpecifier },
-
-			{ Regex("^(rest)\\b"), TokenType::restKeyword },
-			{ Regex("^(return)\\b"), TokenType::returnKeyword },
-
-			{ Regex("^(Bool|Byte|Character|Complex|Imaginary|Integer|Real|String|Vector)\\b"), TokenType::basicType },
-
-			{ Regex("^([A-Za-z_][A-Za-z0-9_]*)\\b"), TokenType::symbol }
-
-		};
-
+	void Lexer::scanToken() {
+		Character c = advance();
+		switch (c) {
+			case ';': addToken(";", TokenType::semicolon); break;
+			case '(': addToken("(", TokenType::openParenthesis); break;
+			case ')': addToken(")", TokenType::closeParenthesis); break;
+			case '{': addToken("{", TokenType::openBrace); break;
+			case '}': addToken("}", TokenType::closeBrace); break;
+			case '=':
+				if (match('=')) addToken("==", TokenType::equality);
+				else addToken("=", TokenType::equal); break;
+			case '+':
+				if (match('=')) addToken("+=", TokenType::plusEqual);
+				else addToken("+", TokenType::plus); break;
+			case '-':
+				if (match('=')) addToken("-=", TokenType::minusEqual);
+				else if (match('>')) addToken("->", TokenType::arrow);
+				else addToken("-", TokenType::minus); break;
+			case '*':
+				if (match('=')) addToken("*=", TokenType::starEqual);
+				else addToken("*", TokenType::star); break;
+			case '/':
+				if (match('=')) {
+					addToken("/=", TokenType::slashEqual);
+				} else if (match('/')) {
+					while (peek() != '\n' && !isAtEnd()) advance();
+				} else if (match('*')) {
+					Bool exit = false;
+					while (!exit) {
+						while (peek() != '*' && !isAtEnd()) advance();
+						if (isAtEnd()) break;
+						while (peek() == '*' && !isAtEnd()) advance();
+						if (isAtEnd()) break;
+						if (match('/')) { exit = true; break; }
+					}
+					if (!exit) {
+						addToken(
+							source -> substr(start, index - start),
+							TokenType::invalid
+						);
+					}
+				} else addToken("/", TokenType::slash); break;
+			case '<':
+				if (match('=')) addToken("<=", TokenType::minorEqual);
+				else if (peek() == '0' || peek() == '1') {
+					scanBraLiteral();
+				} else if (isAlpha(peek())) {
+					scanBraKet();
+				} else addToken("<", TokenType::minor); break;
+			case '>':
+				if (match('=')) addToken(">=", TokenType::majorEqual);
+				else addToken(">", TokenType::major); break;
+			case '[': addToken("[", TokenType::openBracket); break;
+			case ']': addToken("]", TokenType::closeBracket); break;
+			case ',': addToken(",", TokenType::comma); break;
+			case '.': addToken(".", TokenType::dot); break;
+			case '@': scanSpecifier(); break;
+			case '"': scanString(); break;
+			case '\'': scanCharacter(); break;
+			case '\\':
+				addToken("\\", TokenType::backslash); break;
+			case '!':
+				if (match('=')) addToken("!=", TokenType::inequality);
+				else addToken("!", TokenType::exclamationMark); break;
+			case '|':
+				if (match('=')) addToken("|=", TokenType::pipeEqual);
+				else if (match('|')) addToken("||", TokenType::OR);
+				else if (peek() == '0' || peek() == '1') {
+					scanKetLiteral();
+				} else if (isAlpha(peek())) {
+					scanKetBra();
+				} else addToken("|", TokenType::pipe); break;
+			case '&':
+				if (match('=')) addToken("&=", TokenType::ampersandEqual);
+				else if (match('&')) addToken("&&", TokenType::AND);
+				else addToken("&", TokenType::ampersand); break;
+			case '%':
+				if (match('=')) addToken("%=", TokenType::modulusEqual);
+				else addToken("%", TokenType::modulus); break;
+			case '$':
+				if (match('=')) addToken("$=", TokenType::dollarEqual);
+				else addToken("$", TokenType::dollar); break;
+			case ':':
+				if (match(':')) addToken("::", TokenType::doublecolon);
+				else addToken(":", TokenType::colon); break;
+			case '~': addToken("~", TokenType::tilde); break;
+			case '\xC2': // ° = C2 B0 : Character 16 { shift + (à°#) }
+				if (match('\xB0')) addToken("°", TokenType::conjugate);
+				else unknown.push_back(c); break;
+			case '\xE2': // † = E2 80 A0 : Character 24 { option + X }
+				if (match('\x80')) {
+					if (match('\xA0')) addToken("†", TokenType::dagger);
+					else {
+						unknown.push_back(c);
+						unknown.push_back('\x80');
+					}
+				} else unknown.push_back(c); break;
+			case '^': addToken("^", TokenType::transpose); break;
+			case '?': addToken("?", TokenType::questionMark); break;
+			case ' ': case '\r': case '\t': case '\n': break;
+			default: 
+				if (isDigit(c)) scanNumber();
+				else if (isAlpha(c)) scanSymbol();
+				else unknown.push_back(c);
+			break;
+		}
 	}
-	void Lexer::removeComments(String & input) {
-		if (input.empty()) return;
-		try {
-			Regex regex = Regex("\\/[\\/]+.*");
-			SMatch match;
-			std::regex_search(input, match, regex);
-			while (match.size() >= 1) {
-				SizeType len = match.str(0).length();
-				SizeType pos = match.position(0);
-				for (SizeType i = pos; i < pos + len; i += 1) {
-					input[i] = ' ';
-				}
-				std::regex_search(input, match, regex);
-			}
-		} catch (RegexError & e) { }
+
+	void Lexer::scanBraKet() {
+		while (isAlphaNumeric(peek())) advance();
+		if (!match('|')) {
+			index = start + 1;
+			addToken("<", TokenType::minor);
+			return;
+		}
+		SizeType save = index;
+		if (!isAlpha(peek())) {
+			addToken(
+				source-> substr(start, index - start),
+				TokenType::braSymbol
+			);
+			return;
+		}
+		do advance(); while (isAlphaNumeric(peek()));
+		if (!match('>')) {
+			index = save;
+			addToken(
+				source-> substr(start, index - start),
+				TokenType::braSymbol
+			);
+			return;
+		}
+		addToken(
+			source-> substr(start, index - start),
+			TokenType::braketSymbol
+		);
 	}
-	Array<Token> * Lexer::tokenise(String * input) const {
-		if (!input) input = new String();
-		// Last Token Fallback:
-		String data = (* input) + "\n";
-		// Remove Single Line Comments:
-		Lexer::removeComments(data);
-		// Remove Line Endings:
-		RegexTools::replaceMatches("\n", data, " ");
-		Array<Token> * tokens = new Array<Token>();
-		SizeType pos = 0;
-		Token temp = Token("beginFile", TokenType::beginFile, 0);
-		tokens -> push_back(temp);
-		Bool previousInvalid = false;
-		while (data.length() > 0) {
-			Bool tokenised = false;
-			for (TokenRule rule : grammar) {
-				String result = RegexTools::findFirstGroup(rule.pattern, data);
-				if (result.length() > 0) {
-					tokenised = true;
-					data = data.substr(result.length());
-					temp = Token(result, rule.type, pos);
-					pos += result.length();
-					previousInvalid = false;
-					if (rule.type == TokenType::empty) break;
-					if (rule.type == TokenType::comment) break;
-					tokens -> push_back(temp); break;
+
+	void Lexer::scanKetBra() {
+		while (isAlphaNumeric(peek())) advance();
+		if (!match('>')) {
+			index = start + 1;
+			addToken("|", TokenType::pipe);
+			return;
+		}
+		SizeType save = index;
+		if (!match('<')) {
+			addToken(
+				source-> substr(start, index - start),
+				TokenType::ketSymbol
+			);
+			return;
+		}
+		if (!isAlpha(peek())) {
+			index = save;
+			addToken(
+				source-> substr(start, index - start),
+				TokenType::braSymbol
+			);
+			return;
+		}
+		do advance(); while (isAlphaNumeric(peek()));
+		if (!match('|')) {
+			index = save;
+			addToken(
+				source-> substr(start, index - start),
+				TokenType::braSymbol
+			);
+			return;
+		}
+		addToken(
+			source-> substr(start, index - start),
+			TokenType::ketbraSymbol
+		);
+	}
+
+	void Lexer::scanNumber() {
+		TokenType type = TokenType::intLiteral;
+		if (peekPrev() == '0') {
+			// Try to parse base:
+			if (match('x')) {
+				Character x = peek();
+				if (!((x >= '0' && x <= '9') ||
+					  (x >= 'A' && x <= 'F'))) {
+					// '0xSomething' so we return '0':
+					index = start + 1;
+					addToken("0", TokenType::intLiteral);
+					return;
 				}
-			}
-			if (!tokenised) {
-				String s = "-"; s[0] = data[0];
-				if (!previousInvalid) {
-					tokens -> push_back({ s, TokenType::invalid, pos });
-					previousInvalid = true;
-				} else {
-					tokens -> at(tokens -> size() - 1).lexeme += s;
+				while ((x >= '0' && x <= '9') ||
+					   (x >= 'A' && x <= 'F')) {
+					advance();
+					x = peek();
 				}
-				pos += 1;
-				data.erase(data.begin());
+				addToken(
+					source -> substr(start, index - start),
+					TokenType::intLiteral
+				);
+				return;
+			} else if (match('b')) {
+				Character b = peek();
+				if (b != '0' && b != '1') {
+					// '0bSomething' so we return '0':
+					index = start + 1;
+					addToken("0", TokenType::intLiteral);
+					return;
+				}
+				while (b == '0' || b == '1') {
+					advance();
+					b = peek();
+				}
+				addToken(
+					source -> substr(start, index - start),
+					TokenType::intLiteral
+				);
+				return;
+			} else if (match('o')) {
+				Character o = peek();
+				if (o < '0' || o > '7') {
+					// '0oSomething' so we return '0':
+					index = start + 1;
+					addToken("0", TokenType::intLiteral);
+					return;
+				}
+				while (o >= '0' && o <= '7') {
+					advance();
+					o = peek();
+				}
+				addToken(
+					source -> substr(start, index - start),
+					TokenType::intLiteral
+				);
+				return;
+			} else if (match('d')) {
+				Character d = peek();
+				if (d < '0' || d > '9') {
+					// '0dSomething' so we return '0':
+					index = start + 1;
+					addToken("0", TokenType::intLiteral);
+					return;
+				}
+				while (d >= '0' && d <= '9') {
+					advance();
+					d = peek();
+				}
+				addToken(
+					source -> substr(start, index - start),
+					TokenType::intLiteral
+				);
+				return;
 			}
 		}
-		tokens -> push_back({ "endFile", TokenType::endFile, 0 });
-		tokens -> shrink_to_fit();
-		return tokens;
+		while (isDigit(peek())) advance();
+		if (peek() == '.' && isDigit(peekNext())) {
+			type = TokenType::realLiteral;
+			advance();
+			while (isDigit(peek())) advance();
+			if (match('e')) {
+				match('-');
+				if (!isDigit(peek())) {
+					// 123.456ea || 123.46e-a:
+					unknown += source -> substr(start, index - start);
+					return;
+				}
+				while (isDigit(peek())) advance();
+			}
+		}
+		if (match('i')) type = TokenType::imaginaryLiteral;
+		addToken(source -> substr(start, index - start), type);
+	}
+
+	void Lexer::scanSymbol() {
+		while (isAlphaNumeric(peek())) advance();
+		String lexeme = source -> substr(start, index - start);
+		auto search = keywords.find(lexeme);
+		if (search != keywords.end()) {
+			addToken(lexeme, search -> second);
+		} else addToken(lexeme, TokenType::symbol);
+	}
+
+	void Lexer::scanString() {
+		while (peek() != '"' && !isAtEnd()) {
+			if (match('\\')) match('"');
+			else advance();
+		}
+		if (isAtEnd()) {
+			addToken(
+				source -> substr(start, index - start),
+				TokenType::invalid
+			);
+			return;
+		}
+		advance();
+		addToken(
+			source -> substr(start, index - start),
+			TokenType::stringLiteral
+		);
+	}
+
+	void Lexer::scanSpecifier() {
+		while (isAlphaNumeric(peek())) advance();
+		String lexeme = source -> substr(start, index - start);
+		auto search = specifiers.find(lexeme);
+		if (search != specifiers.end()) {
+			addToken(lexeme, search -> second);
+		} else unknown += lexeme;
+	}
+
+	void Lexer::scanBraLiteral() {
+		advance();
+		if (!match('|')) {
+			index = start + 1;
+			addToken("<", TokenType::minor);
+			return;
+		}
+		addToken(
+			source -> substr(start, index - start),
+			TokenType::basisBraLiteral
+		);
+	}
+
+	void Lexer::scanKetLiteral() {
+		advance();
+		if (!match('>')) {
+			index = start + 1;
+			addToken("|", TokenType::pipe);
+			return;
+		}
+		addToken(
+			source -> substr(start, index - start),
+			TokenType::basisKetLiteral
+		);
+	}
+
+	void Lexer::scanCharacter() {
+		if (match('\\')) {
+			if (isAtEnd()) {
+				unknown.push_back('\'');
+				unknown.push_back('\\');
+				return;
+			}
+			advance();
+		} else if (match('\'')) {
+			unknown.push_back('\'');
+			unknown.push_back('\'');
+			return;
+		} else if (isAtEnd()) {
+			unknown.push_back('\'');
+			return;
+		} else advance();
+		if (match('\'')) {
+			addToken(
+				source -> substr(start, index - start),
+				TokenType::charLiteral
+			);
+			return;
+		}
+		// Ending quote not found:
+		unknown += source -> substr(start, index - start);
+	}
+
+	void Lexer::addToken(Token t) {
+		tokens -> push_back(t);
+	}
+	void Lexer::addToken(String l, TokenType t) {
+		tokens -> push_back({ l, t, start });
+	}
+	void Lexer::addInvalid(Token t) {
+		t.type = TokenType::invalid;
+		if (tokens -> empty() ||
+			tokens -> at(0).type == TokenType::beginFile) {
+			tokens -> push_back(t);
+			return;
+		}
+		Token l = tokens -> at(tokens -> size() - 1);
+		tokens -> pop_back();
+		tokens -> push_back(t);
+		tokens -> push_back(l);
+	}
+	void Lexer::addInvalid(String i) {
+		Token t = { i, TokenType::invalid, 0 };
+		if (tokens -> empty() ||
+			tokens -> at(0).type == TokenType::beginFile) {
+			tokens -> push_back(t);
+			return;
+		}
+		Token l = tokens -> at(tokens -> size() - 1);
+		tokens -> pop_back();
+		t.position = start - i.length();
+		tokens -> push_back(t);
+		tokens -> push_back(l);
+	}
+	Bool Lexer::match(Character c) {
+		if (isAtEnd()) return false;
+		if (source -> at(index) != c) return false;
+		index += 1;
+		return true;
+	}
+	Bool Lexer::isAtEnd() {
+		return index >= source -> length();
+	}
+	Character Lexer::peek() {
+		if (isAtEnd()) return '\0';
+		return source -> at(index);
+	}
+	Character Lexer::peekPrev() {
+		if (index - 1 < 0) return '\0';
+		return source -> at(index - 1);
+	}
+	Character Lexer::peekNext() {
+		if (index + 1 >= source -> length()) return '\0';
+		return source -> at(index + 1);
+	}
+	Character Lexer::advance() {
+		index += 1;
+		return source -> at(index - 1);
+	}
+	Bool Lexer::isDigit(Character d) {
+		return d >= '0' && d <= '9';
+	}
+	Bool Lexer::isAlpha(Character a) {
+		return (a >= 'a' && a <= 'z') ||      
+			   (a >= 'A' && a <= 'Z') ||
+				a == '_';
+	}
+	Bool Lexer::isAlphaNumeric(Character c) {
+		return isAlpha(c) || isDigit(c);
+	}
+	void Lexer::resetState() {
+		tokens = nullptr;
+		source = nullptr;
+		start = 0;
+		index = 0;
+		unknown.clear();
+	}
+	Array<Token> * Lexer::tokenise(String * input) {
+		if (!input || input -> empty()) {
+			return new Array<Token>({
+				{ "beginFile", TokenType::beginFile, 0 },
+				{ "endFile", TokenType::endFile, 0 }
+			});
+		}
+		source = new String(* input);
+		tokens = new Array<Token>();
+		addToken({ "beginFile", TokenType::beginFile, 0 });
+		while (!isAtEnd()) {
+			start = index;
+			SizeType l = unknown.length();
+			scanToken();
+			if (!unknown.empty() && unknown.length() == l) {
+				// Found a good token, lex the unknown:
+				addInvalid(unknown);
+				unknown.clear();
+			}
+		}
+		// Unknow token at the end:
+		if (!unknown.empty()) {
+			addToken({
+				unknown,
+				TokenType::invalid,
+				start - unknown.length() + 1
+			});
+		}
+		addToken({ "endFile", TokenType::endFile, 0 });
+		Array<Token> * result = tokens;
+		resetState();
+		return result;
 	}
 
 }

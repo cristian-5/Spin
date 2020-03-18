@@ -43,8 +43,6 @@ namespace Spin {
 		comma,
 		dot,
 
-		virtualOperator,
-
 		/* Low Priority */
 
 		plusEqual,
