@@ -54,6 +54,7 @@ namespace Spin {
 	class RepeatUntilStatement;
 	class RestStatement;
 	class ReturnStatement;
+	class SwapStatement;
 	class UntilStatement;
 	class VariableStatement;
 	class VectorStatement;
@@ -114,6 +115,7 @@ namespace Spin {
 			virtual void visitRepeatUntilStatement(RepeatUntilStatement * e) = 0;
 			virtual void visitRestStatement(RestStatement * e) = 0;
 			virtual void visitReturnStatement(ReturnStatement * e) = 0;
+			virtual void visitSwapStatement(SwapStatement * e) = 0;
 			virtual void visitUntilStatement(UntilStatement * e) = 0;
 			virtual void visitVariableStatement(VariableStatement * e) = 0;
 			virtual void visitVectorStatement(VectorStatement * e) = 0;
@@ -473,6 +475,15 @@ namespace Spin {
 		ReturnStatement(Expression * ex, Token * rt);
 		void accept(Visitor * visitor) override;
 		~ReturnStatement();
+	};
+	class SwapStatement: public Statement {
+		public:
+		Token * l;
+		Token * r;
+		Token * swap;
+		SwapStatement(Token * l, Token * r, Token * s);
+		void accept(Visitor * visitor) override;
+		~SwapStatement();
 	};
 	class UntilStatement: public Statement {
 		public:

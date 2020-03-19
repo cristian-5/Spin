@@ -96,9 +96,7 @@ namespace Spin {
 
 		ifKeyword,
 		elseKeyword,
-		switchKeyword,
-		caseKeyword,
-		defaultKeyword,
+		swapKeyword,
 		whileKeyword,
 		doKeyword,
 		loopKeyword,

@@ -63,6 +63,7 @@ namespace Spin {
 		Statement * loopStatement();
 		Statement * restStatement();
 		Statement * returnStatement();
+		Statement * swapStatement();
 		Statement * deleteStatement();
 		Statement * fileStatement();
 		void replace(TokenType type, String lexeme, TokenType newType);

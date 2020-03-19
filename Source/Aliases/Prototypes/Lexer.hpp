@@ -13,7 +13,7 @@ namespace Spin {
 
 	class Lexer {
 		private:
-		static const Dictionary<String, TokenType> keywords;
+		static const Dictionary<String, TokenType> reserved;
 		static const Dictionary<String, TokenType> specifiers;
 		String unknown;
 		Array<Token> * tokens = nullptr;

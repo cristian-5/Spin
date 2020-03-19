@@ -860,6 +860,33 @@ namespace Spin {
 			throw Return(expression, new Token(* e -> returnToken));
 		} catch (Exception & exc) { throw; }
 	}
+	void Interpreter::visitSwapStatement(SwapStatement * e) {
+		Object * l = nullptr;
+		Object * r = nullptr;
+		try {
+			l = memory -> getReference(e -> l -> lexeme);
+			r = memory -> getReference(e -> r -> lexeme);
+			if (l -> type == r -> type) {
+				memory -> setReference(e -> l -> lexeme, r);
+				memory -> setReference(e -> r -> lexeme, l);
+				return;
+			}
+			throw Program::Error(
+				currentUnit,
+				"Swap failed over incompatible types '" + 
+				l -> getObjectName() + "' and '" +
+				r -> getObjectName() + "'!",
+				* (e -> swap), ErrorCode::evl
+			);
+		} catch (Environment::VariableNotFoundException & exc) {
+			Token errorToken = * (l ? e -> l : e -> r);
+			throw Program::Error(
+				currentUnit,
+				"Unexpected identifier '" + errorToken.lexeme + "'!",
+				errorToken, ErrorCode::evl
+			);
+		} catch (Exception & exc) { throw; }
+	}
 	void Interpreter::visitUntilStatement(UntilStatement * e) {
 		Object * expression = nullptr;
 		try {

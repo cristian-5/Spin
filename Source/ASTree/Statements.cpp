@@ -253,6 +253,20 @@ namespace Spin {
 		if (e) delete e;
 		if (returnToken) delete returnToken;
 	}
+
+	SwapStatement::SwapStatement(Token * l, Token * r, Token * s) {
+		this -> l = l;
+		this -> r = r;
+		this -> swap = s;
+	}
+	void SwapStatement::accept(Visitor * visitor) {
+		try { visitor -> visitSwapStatement(this); }
+		catch (Exception & e) { throw; }
+	}
+	SwapStatement::~SwapStatement() {
+		if (l) delete l;
+		if (r) delete r;
+	}
 		
 	UntilStatement::UntilStatement(Expression * e, Statement * b, Token * u) {
 		expression = e;

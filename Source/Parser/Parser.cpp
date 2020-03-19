@@ -560,6 +560,7 @@ namespace Spin {
 				case TokenType::restKeyword: st = restStatement(); break;
 				case TokenType::returnKeyword: st = returnStatement(); break;
 				case TokenType::deleteKeyword: st = deleteStatement(); break;
+				case TokenType::swapKeyword: st = swapStatement(); break;
 				case TokenType::semicolon: advance(); st = new RestStatement(); break;
 				case TokenType::importKeyword: throw Program::Error(
 					currentUnit,
@@ -572,7 +573,7 @@ namespace Spin {
 		return st;
 	}
 	Statement * Parser::ifStatement() {
-		Token * ifToken = new Token(peekAdvance());
+		Token * ifToken = new Token(advance());
 		Expression * condition = nullptr;
 		Statement * thenBranch = nullptr;
 		Statement * elseBranch = nullptr;
@@ -620,7 +621,7 @@ namespace Spin {
 				peek(), ErrorCode::syx
 			);
 		}
-		Token * breakToken = new Token(peekAdvance());
+		Token * breakToken = new Token(advance());
 		try {
 			consume(TokenType::semicolon, ";");
 		} catch (Program::Error & e) {
@@ -637,7 +638,7 @@ namespace Spin {
 				peek(), ErrorCode::syx
 			);
 		}
-		Token * continueToken = new Token(peekAdvance());
+		Token * continueToken = new Token(advance());
 		try {
 			consume(TokenType::semicolon, ";");
 		} catch (Program::Error & e) {
@@ -681,7 +682,7 @@ namespace Spin {
 					stringType = typeString(true);
 					p -> type = Object::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
-					p -> tokenType = new Token(peekAdvance());
+					p -> tokenType = new Token(advance());
 					params -> push_back(p);
 				} while (match(TokenType::comma));
 			}
@@ -749,7 +750,7 @@ namespace Spin {
 					stringType = typeString(true);
 					p -> type = Object::typeFromString(* stringType);
 					delete stringType; stringType = nullptr;
-					p -> tokenType = new Token(peekAdvance());
+					p -> tokenType = new Token(advance());
 					params -> push_back(p);
 				} while (match(TokenType::comma));
 			}
@@ -971,7 +972,7 @@ namespace Spin {
 	Statement * Parser::forStatement() {
 		Bool oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
-		Token * forToken = new Token(peekAdvance());
+		Token * forToken = new Token(advance());
 		Statement * declaration = nullptr;
 		Expression * condition = nullptr;
 		Expression * stepper = nullptr;
@@ -1007,7 +1008,7 @@ namespace Spin {
 	Statement * Parser::whileStatement() {
 		Bool oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
-		Token * whileToken = new Token(peekAdvance());
+		Token * whileToken = new Token(advance());
 		Expression * condition = nullptr;
 		Statement * body = nullptr;
 		try {
@@ -1052,7 +1053,7 @@ namespace Spin {
 	Statement * Parser::untilStatement() {
 		Bool oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
-		Token * untilToken = new Token(peekAdvance());
+		Token * untilToken = new Token(advance());
 		Expression * condition = nullptr;
 		Statement * body = nullptr;
 		try {
@@ -1097,7 +1098,7 @@ namespace Spin {
 	Statement * Parser::loopStatement() {
 		Bool oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
-		Token * loopToken = new Token(peekAdvance());
+		Token * loopToken = new Token(advance());
 		Statement * body = nullptr;
 		try {
 			body = statement();
@@ -1117,7 +1118,7 @@ namespace Spin {
 		return new RestStatement();
 	}
 	Statement * Parser::returnStatement() {
-		Token * returnToken = new Token(peekAdvance());
+		Token * returnToken = new Token(advance());
 		Expression * ex = nullptr;
 		try {
 			if (!match(TokenType::semicolon)) {
@@ -1148,6 +1149,26 @@ namespace Spin {
 			);
 		}
 		return new ReturnStatement(ex, returnToken);
+	}
+	Statement * Parser::swapStatement() {
+		Token swap = advance();
+		try {
+			consume(TokenType::openParenthesis);
+			Token l = consume(TokenType::symbol);
+			consume(TokenType::colon);
+			Token r = consume(TokenType::symbol);
+			consume(TokenType::closeParenthesis);
+			return new SwapStatement(
+				new Token(l),
+				new Token(r),
+				new Token(swap)
+			);
+		} catch (Program::Error & e) { throw; }
+		throw Program::Error(
+			currentUnit,
+			"Found invalid swap statement!",
+			swap, ErrorCode::syx
+		);
 	}
 	Statement * Parser::deleteStatement() {
 		advance();
@@ -1195,11 +1216,6 @@ namespace Spin {
 		return peek().type == TokenType::endFile;
 	}
 	inline Token Parser::peek() { return tokens -> at(index); }
-	inline Token Parser::peekAdvance() {
-		Token peekToken = peek();
-		advance();
-		return peekToken;
-	}
 	inline Token Parser::previous() { return tokens -> at(index - 1); }
 	inline Token Parser::advance() {
 		if (!isAtEnd()) index += 1;

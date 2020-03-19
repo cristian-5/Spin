@@ -25,13 +25,11 @@
 
 namespace Spin {
 
-	const Dictionary<String, TokenType> Lexer::keywords = {
+	const Dictionary<String, TokenType> Lexer::reserved = {
 
 		{ "if", TokenType::ifKeyword },
 		{ "else", TokenType::elseKeyword },
-		{ "switch", TokenType::switchKeyword },
-		{ "case", TokenType::caseKeyword },
-		{ "default", TokenType::defaultKeyword },
+		{ "swap", TokenType::swapKeyword },
 		{ "while", TokenType::whileKeyword },
 		{ "do", TokenType::doKeyword },
 		{ "loop", TokenType::loopKeyword },
@@ -353,8 +351,8 @@ namespace Spin {
 	void Lexer::scanSymbol() {
 		while (isAlphaNumeric(peek())) advance();
 		String lexeme = source -> substr(start, index - start);
-		auto search = keywords.find(lexeme);
-		if (search != keywords.end()) {
+		auto search = reserved.find(lexeme);
+		if (search != reserved.end()) {
 			addToken(lexeme, search -> second);
 		} else addToken(lexeme, TokenType::symbol);
 	}

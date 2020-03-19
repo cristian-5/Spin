@@ -38,6 +38,7 @@ namespace Spin {
 		void collect();
 		void unbind(String name);
 		Object * getReference(String name);
+		void setReference(String name, Object * pointer);
 		Object * getValue(String name);
 	};
 

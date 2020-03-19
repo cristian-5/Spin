@@ -34,7 +34,7 @@ namespace Spin {
 		this -> enclosing = enclosing;
 	}
 	Environment::~Environment() {
-		for (const Pair<String, Object *> & value : values) {
+		for (auto & value : values) {
 			(value.second) -> safeDestroy();
 		}
 		collect();
@@ -76,6 +76,10 @@ namespace Spin {
 		}
 		if (enclosing) return enclosing -> getReference(name);
 		throw VariableNotFoundException();
+	}
+	void Environment::setReference(String name, Object * pointer) {
+		values[name] = pointer;
+		if (enclosing) enclosing -> setReference(name, pointer);
 	}
 	Object * Environment::getValue(String name) {
 		auto search = values.find(name);

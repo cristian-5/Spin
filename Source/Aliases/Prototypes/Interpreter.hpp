@@ -62,6 +62,7 @@ namespace Spin {
 		void visitRepeatUntilStatement(RepeatUntilStatement * e) override;
 		void visitRestStatement(RestStatement * e) override;
 		void visitReturnStatement(ReturnStatement * e) override;
+		void visitSwapStatement(SwapStatement * e) override;
 		void visitUntilStatement(UntilStatement * e) override;
 		void visitVariableStatement(VariableStatement * e) override;
 		void visitVectorStatement(VectorStatement * e) override;
