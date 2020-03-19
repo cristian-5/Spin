@@ -980,8 +980,9 @@ namespace Spin {
 		String * type = nullptr;
 		try {
 			consume(TokenType::openParenthesis, "(");
-			type = typeString();
+			type = typeString(true);
 			if (type) {
+				advance();
 				declaration = variableDeclaration(* type);
 				delete type; type = nullptr;
 			} else declaration = expressionStatement();
