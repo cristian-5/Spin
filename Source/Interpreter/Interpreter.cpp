@@ -184,7 +184,7 @@ namespace Spin {
 		Object * object = nullptr;
 		try {
 			object = evaluate(e -> object);
-			if (object -> type != BasicType::InstanceType) {
+			if (object -> type == BasicType::UnknownType) {
 				throw Program::Error(
 					currentUnit,
 					"The resolved object is not an instance and does not contain properties!",
@@ -198,11 +198,7 @@ namespace Spin {
 					value = ((Instance *) object -> value) -> getInnerValue(
 						e -> name -> lexeme
 					);
-				} else {
-					value = ((Instance *) object -> value) -> getValue(
-						e -> name -> lexeme
-					);
-				}
+				} else value = object -> getAttribute(e -> name -> lexeme);
 				if (value -> type == BasicType::RoutineType) {
 					// Bind self to the function:
 					((CallProtocol *) value -> value) -> self = object;

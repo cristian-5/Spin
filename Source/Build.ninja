@@ -32,6 +32,7 @@ build          Build/Wings.o: build Parser/Wings.cpp
 build          Build/Token.o: build Token/Token.cpp
 
 build          Build/Array.o: build Types/Array.cpp
+build          Build/Basic.o: build Types/Basic.cpp
 build          Build/Class.o: build Types/Class.cpp
 build        Build/Complex.o: build Types/Complex.cpp
 build         Build/Object.o: build Types/Object.cpp
@@ -45,4 +46,4 @@ build  Build/Spin.o: build Spin.cpp
 
 # Link:
 
-build Spin: link Build/Spin.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o
+build Spin: link Build/Spin.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Basic.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o

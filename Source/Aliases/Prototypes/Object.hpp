@@ -74,6 +74,7 @@ namespace Spin {
 		Bool isArray() const;
 		Bool isSubscriptable() const;
 		Bool getBoolValue() const;
+		Object * getAttribute(String & name);
 		static BasicType typeFromString(String & s);
 		static Object * fromLiteral(Token * t);
 	};

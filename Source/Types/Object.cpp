@@ -28,6 +28,8 @@
 #include "../Aliases/Prototypes/Routines.hpp"
 #include "../Aliases/Prototypes/Class.hpp"
 #include "../Aliases/Prototypes/Converter.hpp"
+#include "../Aliases/Prototypes/Environment.hpp"
+#include "../Aliases/Prototypes/Basic.hpp"
 
 namespace Spin {
 	
@@ -222,6 +224,17 @@ namespace Spin {
 	Bool Object::getBoolValue() const {
 		if (isBool()) return *((Bool *)value);
 		else return false;
+	}
+	Object * Object::getAttribute(String & name) {
+		try {
+			switch (type) {
+				case BasicType::InstanceType:
+					return ((Instance *) value) -> getInnerValue(name);
+				case BasicType::StringType:
+					return BasicString::handleGetValue((String *) value, name);
+				default: throw Environment::VariableNotFoundException();
+			}
+		} catch (Exception & e) { throw; }
 	}
 	BasicType Object::typeFromString(String & s) {
 		if (s == "Integer") return BasicType::IntegerType;

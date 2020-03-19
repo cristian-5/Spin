@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Chaos.cpp                              |
+ *    |  Chaos.hpp                              |
  *    |                                         |
  *    |        Chaos Cycle Bit Generator        |
  *    |                                         |

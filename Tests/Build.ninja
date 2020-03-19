@@ -31,6 +31,7 @@ build          Build/Wings.o: build ../Source/Parser/Wings.cpp
 build          Build/Token.o: build ../Source/Token/Token.cpp
 
 build          Build/Array.o: build ../Source/Types/Array.cpp
+build          Build/Basic.o: build ../Source/Types/Basic.cpp
 build          Build/Class.o: build ../Source/Types/Class.cpp
 build        Build/Complex.o: build ../Source/Types/Complex.cpp
 build         Build/Object.o: build ../Source/Types/Object.cpp
@@ -46,4 +47,4 @@ build  Build/Test.o: build Test.cpp
 
 # Link:
 
-build Test: link Build/Test.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o Build/Benchmark.o
+build Test: link Build/Test.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Basic.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o Build/Benchmark.o

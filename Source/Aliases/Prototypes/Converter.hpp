@@ -4,6 +4,7 @@
 #ifndef SPIN_CONVERTER_HPP
 #define SPIN_CONVERTER_HPP
 
+#include <cmath>
 #include <sstream>
 #include <regex>
 
