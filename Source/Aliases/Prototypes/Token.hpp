@@ -4,10 +4,6 @@
 #ifndef SPIN_TOKEN_HPP
 #define SPIN_TOKEN_HPP
 
-#include <regex>
-
-using Regex = std::regex;
-
 namespace Spin {
 
 	enum TokenType {
@@ -149,11 +145,6 @@ namespace Spin {
 		Bool isTypeBasicType() const;
 		Bool isTypeType() const;
 		Bool isTypeBraKet() const;
-	};
-
-	struct TokenRule {
-		Regex pattern;
-		TokenType type;
 	};
 
 }

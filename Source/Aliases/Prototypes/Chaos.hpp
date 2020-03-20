@@ -170,6 +170,7 @@ namespace Spin {
 		};
 		static CBRNG generator;
 		public:
+		Chaos() = delete;
 		static class Seed {
 			UInt64 value = 0;
 			public:

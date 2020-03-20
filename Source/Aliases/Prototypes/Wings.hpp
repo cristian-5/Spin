@@ -13,9 +13,7 @@
 namespace Spin {
 
 	class Wings {
-
 		private:
-
 		static void replace(CodeUnit * code, TokenType type, String lexeme, TokenType newType);
 		static Bool isKnownLibrary(String l);
 		static String parentFolder(String f);
@@ -25,11 +23,9 @@ namespace Spin {
 		static void prepareWing(CodeUnit * code);
 		static void spreadWing(CodeUnit * code, Array<CodeUnit *> * resolved, Array<String> * libs);
 		static void prototype(CodeUnit * code);
-
 		public:
-
+		Wings() = delete;
 		static Program * spread(String path);
-
 	};
 
 }

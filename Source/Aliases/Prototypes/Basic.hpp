@@ -9,10 +9,11 @@ namespace Spin {
 	class Object;
 
 	class BasicString {
-		private: BasicString() = delete;
+		private:
 		static inline Object * getLengthProperty(String * self);
 		static inline Object * getIsEmptyMethod(String * self);
 		public:
+		BasicString() = delete;
 		static Object * handleGetValue(String * self, String & name);
 	};
 

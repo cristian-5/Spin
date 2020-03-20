@@ -12,8 +12,8 @@ namespace Spin {
 	class Object;
 
 	class Library {
-		private: Library() = delete;
 		public:
+		Library() = delete;
 		typedef Lambda<void (Environment *)> LibraryHandler;
 		static const Dictionary<String, LibraryHandler> libs;
 		static void define(String name, Environment * memory);
@@ -21,8 +21,8 @@ namespace Spin {
 	};
 
 	class Console {
-		private: Console() = default;
 		public:
+		Console() = default;
 		static const String name;
 		static Object * write();
 		static Object * writeLine();
@@ -39,13 +39,15 @@ namespace Spin {
 	};
 
 	class Kronos {
-		private: Kronos() = default;
-		public: static void defineLibrary(Environment * global);
+		public:
+		Kronos() = default;
+		static void defineLibrary(Environment * global);
 	};
 
 	class Maths {
-		private: Maths() = default;
-		public: static void defineLibrary(Environment * global);
+		public:
+		Maths() = default;
+		static void defineLibrary(Environment * global);
 	};
 
 }

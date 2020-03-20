@@ -4,6 +4,8 @@
 #ifndef SPIN_SYNTAX_HPP
 #define SPIN_SYNTAX_HPP
 
+#include <vector>
+
 #include "Exception.hpp"
 #include "Token.hpp"
 #include "Object.hpp"
