@@ -254,23 +254,27 @@ namespace Spin {
 	}
 
 	String Converter::realToGroupedString(Real a) {
-		StringStream result;
-		if (a > 0) result << "+ " << a;
-		else result << "- " << fabs(a);
-		return result.str();
+		StringStream stream;
+		stream << a;
+		String result = stream.str();
+		if (result[0] == '-') result.insert(1, 1, ' ');
+		else result = "+ " + result;
+		return result;
 	}
 	String Converter::imaginaryToGroupedString(Real a) {
-		StringStream result;
-		if (a > 0) result << "+ " << a << 'i';
-		else result << "- " << fabs(a) << 'i';
-		return result.str();
+		StringStream stream;
+		stream << a;
+		String result = stream.str();
+		if (result[0] == '-') result.insert(1, 1, ' ');
+		else result = "+ " + result;
+		result.push_back('i');
+		return result;
 	}
 	String Converter::realToString(Real a) {
 		StringStream result;
 		result << a;
 		return result.str();
 	}
-	
 
 }
 

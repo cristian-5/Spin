@@ -25,6 +25,8 @@
 #include "../Aliases/Prototypes/Vector.hpp"
 #include "../Aliases/Prototypes/Chaos.hpp"
 
+#include <ctime>
+
 namespace Spin {
 
 	Bool Qubit::isValid() {
@@ -39,8 +41,23 @@ namespace Spin {
 
 	Bool Qubit::measure(Int64 qubit) {
 		if (!isValid) throw InavlidStateException();
-		
+		Chaos<UInt64>::seed = time(nullptr);
+		Real rand = Chaos<UInt64>::next();
+		for (UInt64 i = 0; i < data -> getSize(); i += 1) {
+			rand -= (data -> at(i).getNormalised()) * 0xFFFFFFFFFFFFFFFF;
+			if (rand <= 0) {
+				collapse(i);
+				return ;
+			}
+		}
 		return false;
+	}
+
+	Int64 Qubit::collapse(Int64 i) {
+		for (UInt64 j = 0; j < data -> getSize(); j += 1) {
+			data -> at(j) = 0;
+		}
+		data -> at(i) = 1;
 	}
 
 }
