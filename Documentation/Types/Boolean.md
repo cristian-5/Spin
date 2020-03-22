@@ -5,7 +5,7 @@ The `Boolean` type can be used for logical expression and
 it's the only type that can be used to determine
 the outcome of a logical statement.
 
-Unlike *c++* the type can't store integer values.
+Unlike **c++** the type can't store integer values.
 
 In file serialisations, to avoid read-write
 mistakes, the value `true` will be written
