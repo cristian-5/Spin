@@ -34,9 +34,6 @@ class Boolean {
 	@shared func || (Boolean, Boolean) -> Boolean;
 	@shared func && (Boolean, Boolean) -> Boolean;
 
-	@shared func | (Boolean, Boolean) -> Boolean;
-	@shared func & (Boolean, Boolean) -> Boolean;
-
 }
 ```
 
@@ -91,7 +88,7 @@ Boolean x = !false; // x <- true.
 
 ### @shared func || (Boolean, Boolean) -> Boolean;
 
-> This operator will always short circuit when used twice `||`.\
+> This operator will always short circuit when used twice (`||`).\
 > To avoid this behaviour use a single `|` instead of two.
 
 Infix binary operator that performs the logic `OR`
@@ -103,7 +100,7 @@ Boolean x = false || false; // x <- false.
 
 ### @shared func && (Boolean, Boolean) -> Boolean;
 
-> This operator will always short circuit when used twice `&&`.\
+> This operator will always short circuit when used twice (`&&`).\
 > To avoid this behaviour use a single `&` instead of two.
 
 Infix binary operator that performs the logic `AND`
