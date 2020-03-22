@@ -52,7 +52,7 @@ Character exclam = hello[10];
 
 Check out the full [**Console Documentation**](Documentation/Libraries/Console.md)
 
-``` java
+``` swift
 import Console;
 
 Console::writeLine("I'm using Console!");
