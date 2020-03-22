@@ -8,10 +8,15 @@ operations, as well as colour and exit codes management.
 
 **Warning**: Colours are only supported on ANSI compatible terminals.
 
-## Definition
+## Usage
 
 ``` swift
+import Console;
+```
 
+## Class Prototype
+
+``` swift
 class Console {
 
 	@shared proc write(object: Any...);
@@ -28,13 +33,6 @@ class Console {
 	@shared proc clean();
 
 }
-
-```
-
-## Usage
-
-``` swift
-import Console;
 ```
 
 ### @shared proc write(object: Any...);
