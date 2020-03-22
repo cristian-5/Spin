@@ -17,7 +17,7 @@ namespace Spin {
 
 		Vector * data;
 
-		Bool isValid();
+		Boolean isValid();
 		Int64 collapse(Int64 i);
 
 		static const Real error = 0.005;
@@ -36,7 +36,7 @@ namespace Spin {
 		Vector * getData();
 		void setData(Vector * data);
 
-		Bool measure(Int64 qubit);
+		Boolean measure(Int64 qubit);
 
 	};
 

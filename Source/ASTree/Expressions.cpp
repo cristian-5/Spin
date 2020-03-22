@@ -65,7 +65,7 @@ namespace Spin {
 		delete bra;
 	}
 
-	Call::Call(Expression * c, Token * p, Array<Expression *> * a, Bool i) {
+	Call::Call(Expression * c, Token * p, Array<Expression *> * a, Boolean i) {
 		parenthesis = p;
 		callee = c;
 		arguments = a;
@@ -99,7 +99,7 @@ namespace Spin {
 		delete o;
 	}
 
-	DynamicGet::DynamicGet(Expression * o, Token * n, Bool s) {
+	DynamicGet::DynamicGet(Expression * o, Token * n, Boolean s) {
 		object = o;
 		name = n;
 		selfReference = s;
@@ -113,7 +113,7 @@ namespace Spin {
 		delete name;
 	}
 
-	DynamicSet::DynamicSet(Expression * o, Token * n, Expression * v, Token * e, Bool s) {
+	DynamicSet::DynamicSet(Expression * o, Token * n, Expression * v, Token * e, Boolean s) {
 		object = o;
 		name = n;
 		value = v;
@@ -258,7 +258,7 @@ namespace Spin {
 		delete keyword;
 	}
 
-	StaticGet::StaticGet(Expression * o, Token * n, Bool s) {
+	StaticGet::StaticGet(Expression * o, Token * n, Boolean s) {
 		object = o;
 		name = n;
 		selfReference = s;
@@ -272,7 +272,7 @@ namespace Spin {
 		delete name;
 	}
 
-	StaticSet::StaticSet(Expression * o, Token * n, Expression * v, Token * e, Bool s) {
+	StaticSet::StaticSet(Expression * o, Token * n, Expression * v, Token * e, Boolean s) {
 		object = o;
 		name = n;
 		value = v;

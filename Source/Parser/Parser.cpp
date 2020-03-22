@@ -257,7 +257,7 @@ namespace Spin {
 	}
 	Expression * Parser::call() {
 		Expression * ex = nullptr;
-		Bool isConstructor = false;
+		Boolean isConstructor = false;
 		try {
 			if (check(TokenType::newKeyword)) {
 				advance();
@@ -283,7 +283,7 @@ namespace Spin {
 				} catch (Program::Error & e) { throw; }
 			} else if (match(TokenType::dot)) {
 				try {
-					Bool selfReference = false;
+					Boolean selfReference = false;
 					if (index > 2 &&
 						tokens -> at(index - 2).type ==
 						TokenType::selfKeyword) {
@@ -296,7 +296,7 @@ namespace Spin {
 				} catch (Program::Error & e) { throw; }
 			 } else if (match(TokenType::doublecolon)) {
 				try {
-					Bool selfReference = false;
+					Boolean selfReference = false;
 					if (index > 2 &&
 						tokens -> at(index - 2).type ==
 						TokenType::selfKeyword) {
@@ -318,7 +318,7 @@ namespace Spin {
 		}
 		return ex;
 	}
-	Expression * Parser::completeCall(Expression * callee, Bool isConstructor) {
+	Expression * Parser::completeCall(Expression * callee, Boolean isConstructor) {
 		Token * parenthesis = new Token(previous());
 		Array<Expression *> * arguments = new Array<Expression *>();
 		if (!check(TokenType::closeParenthesis)) {
@@ -444,7 +444,7 @@ namespace Spin {
 
 	/* Statements */
 
-	String * Parser::typeString(Bool current) {
+	String * Parser::typeString(Boolean current) {
 		if (current) return new String(peek().lexeme);
 		return new String(previous().lexeme);
 	}
@@ -472,7 +472,7 @@ namespace Spin {
 		if (type) delete type;
 		return st;
 	}
-	Statement * Parser::variableDeclaration(String stringType, Bool isClass) {
+	Statement * Parser::variableDeclaration(String stringType, Boolean isClass) {
 		if (stringType == "Vector") {
 			try { return vectorDeclaration(); }
 			catch (Program::Error & e) { throw; }
@@ -660,11 +660,11 @@ namespace Spin {
 	}
 	Statement * Parser::functionStatement() {
 		advance();
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = false;
-		Bool oldProcedure = isInProcedure;
+		Boolean oldProcedure = isInProcedure;
 		isInProcedure = false;
-		Bool oldFunction = isInFunction;
+		Boolean oldFunction = isInFunction;
 		isInFunction = true;
 		Token * name = nullptr;
 		String * stringType = nullptr;
@@ -724,13 +724,13 @@ namespace Spin {
 		isInFunction = oldFunction;
 		return new FunctionStatement(name, params, body, returnType);
 	}
-	Statement * Parser::procedureStatement(Bool allowType) {
+	Statement * Parser::procedureStatement(Boolean allowType) {
 		advance();
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = false;
-		Bool oldFunction = isInFunction;
+		Boolean oldFunction = isInFunction;
 		isInFunction = false;
-		Bool oldProcedure = isInProcedure;
+		Boolean oldProcedure = isInProcedure;
 		isInProcedure = true;
 		Token * name = nullptr;
 		String * stringType = nullptr;
@@ -779,11 +779,11 @@ namespace Spin {
 	}
 	Statement * Parser::classDeclaration() {
 		advance();
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = false;
-		Bool oldProcedure = isInProcedure;
+		Boolean oldProcedure = isInProcedure;
 		isInProcedure = false;
-		Bool oldFunction = isInFunction;
+		Boolean oldFunction = isInFunction;
 		isInFunction = false;
 		Token * name = nullptr;
 		isInClass = true;
@@ -797,7 +797,7 @@ namespace Spin {
 			while (!check(TokenType::closeBrace) && !isAtEnd()) {
 				// TODO: Parse the class body.
 				Modifier access;
-				Bool dynamic = true;
+				Boolean dynamic = true;
 				if (match(TokenType::publicModifier)) access = Modifier::publicAccess;
 				else if (match(TokenType::hiddenModifier)) access = Modifier::hiddenAccess;
 				else if (match(TokenType::sharedModifier)) {
@@ -970,7 +970,7 @@ namespace Spin {
 		return field;
 	}
 	Statement * Parser::forStatement() {
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
 		Token * forToken = new Token(advance());
 		Statement * declaration = nullptr;
@@ -1007,7 +1007,7 @@ namespace Spin {
 		);
 	}
 	Statement * Parser::whileStatement() {
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
 		Token * whileToken = new Token(advance());
 		Expression * condition = nullptr;
@@ -1027,7 +1027,7 @@ namespace Spin {
 		return new WhileStatement(condition, body, whileToken);
 	}
 	Statement * Parser::doWhileStatement() {
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
 		advance();
 		Statement * body = nullptr;
@@ -1052,7 +1052,7 @@ namespace Spin {
 		return new DoWhileStatement(body, condition, whileToken);
 	}
 	Statement * Parser::untilStatement() {
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
 		Token * untilToken = new Token(advance());
 		Expression * condition = nullptr;
@@ -1072,7 +1072,7 @@ namespace Spin {
 		return new UntilStatement(condition, body, untilToken);
 	}
 	Statement * Parser::repeatUntilStatement() {
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
 		advance();
 		Statement * body = nullptr;
@@ -1097,7 +1097,7 @@ namespace Spin {
 		return new RepeatUntilStatement(body, condition, untilToken);
 	}
 	Statement * Parser::loopStatement() {
-		Bool oldControlFlow = isInControlFlow;
+		Boolean oldControlFlow = isInControlFlow;
 		isInControlFlow = true;
 		Token * loopToken = new Token(advance());
 		Statement * body = nullptr;
@@ -1190,13 +1190,13 @@ namespace Spin {
 
 	/* Core */
 
-	inline Bool Parser::match(TokenType type) {
+	inline Boolean Parser::match(TokenType type) {
 		if (check(type)) {
 			advance();
 			return true;
 		} return false;
 	}
-	inline Bool Parser::matchRange(TokenType from, TokenType to) {
+	inline Boolean Parser::matchRange(TokenType from, TokenType to) {
 		if (isAtEnd()) return false;
 		TokenType current = peek().type;
 		if (current >= from && current <= to) {
@@ -1204,16 +1204,16 @@ namespace Spin {
 			return true;
 		} return false;
 	}
-	inline Bool Parser::check(TokenType type) {
+	inline Boolean Parser::check(TokenType type) {
 		if (isAtEnd()) return false;
 		return peek().type == type;
 	}
-	inline Bool Parser::isOutOfRange() {
+	inline Boolean Parser::isOutOfRange() {
 		if (tokens -> size() == 0) return true;
 		if (index >= tokens -> size()) return true;
 		return false;
 	}
-	inline Bool Parser::isAtEnd() {
+	inline Boolean Parser::isAtEnd() {
 		return peek().type == TokenType::endFile;
 	}
 	inline Token Parser::peek() { return tokens -> at(index); }

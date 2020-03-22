@@ -56,7 +56,7 @@ namespace Spin {
 					for (UInt32 i = 0; i < 8; i += 1) dat[i] = 0;
 				}
 
-				Bool increment() {
+				Boolean increment() {
 					for (UInt32 i = 0; i < 8; i += 1) {
 						if (dat[i] == 0xFF) dat[i] = 0;
 						else {
@@ -67,7 +67,7 @@ namespace Spin {
 					return false;
 				}
 
-				Bool good() const {
+				Boolean good() const {
 					for (UInt32 i = 0; i < 8; i += 1) {
 						if (dat[i] != 0xFF) return true;
 					}
@@ -87,11 +87,11 @@ namespace Spin {
 			};
 
 			template <typename ValueType>
-			static inline Bool getBit(ValueType val, UInt32 pos) {
+			static inline Boolean getBit(ValueType val, UInt32 pos) {
 				return val & ((ValueType) 1 << pos);
 			}
 			template <typename ValueType>
-			static inline ValueType setBit(ValueType val, UInt32 pos, Bool to) {
+			static inline ValueType setBit(ValueType val, UInt32 pos, Boolean to) {
 				return (val & ~((ValueType) 1 << pos)) | ((ValueType) to << pos);
 			}
 
@@ -102,13 +102,13 @@ namespace Spin {
 
 			UInt8 flags;
 
-			inline static UInt64 shiftTransform(UInt64 val, Int32 i, Bool & startBit) {
+			inline static UInt64 shiftTransform(UInt64 val, Int32 i, Boolean & startBit) {
 				val ^= (UInt64)startBit << i;
 				startBit ^= getBit(val, i);
 				return val;
 			}
 
-			static UInt64 generate(UInt64 val, Bool left, Bool startBit) {
+			static UInt64 generate(UInt64 val, Boolean left, Boolean startBit) {
 				if (left) {
 					for (Int32 i = 0; i < 64; i += 1) {
 						val = shiftTransform(val, i, startBit);
@@ -122,8 +122,8 @@ namespace Spin {
 			}
 
 			UInt64 generate(UInt64 inval, UInt32 BP) {
-				Bool left = (getBit(val, (22 + BP) % 64) ^ getBit(flags, 1) ^ true);
-				Bool startBit = (getBit(val, (44 + BP) % 64) ^ getBit(flags, 0) ^ true);
+				Boolean left = (getBit(val, (22 + BP) % 64) ^ getBit(flags, 1) ^ true);
+				Boolean startBit = (getBit(val, (44 + BP) % 64) ^ getBit(flags, 0) ^ true);
 				flags = setBit(flags, 1, left);
 				flags = setBit(flags, 0, startBit);
 				return last = generate(inval, left, startBit) ^ inval ^ ~last;
@@ -133,7 +133,7 @@ namespace Spin {
 				return val = ((generate(val, 0) << 1) * (generate(tmp, 1) << 1)) ^ generate(val, 2);
 			}
 
-			void setSeed(UInt64 rnd, UInt64 offset, Bool reseed) {
+			void setSeed(UInt64 rnd, UInt64 offset, Boolean reseed) {
 				flags = 0;
 				val = rnd + offset;
 				last = ~(rnd - offset);
@@ -147,7 +147,7 @@ namespace Spin {
 			}
 
 			UInt64 next() {
-				Bool gd = cnt.increment();
+				Boolean gd = cnt.increment();
 				UInt64 tmp = cnt;
 				if (tmp == 0) tmp += 1;
 				UInt64 rtn = generateOuter(tmp);
@@ -159,11 +159,11 @@ namespace Spin {
 				return rtn;
 			}
 
-			Bool good() const {
+			Boolean good() const {
 				return cnt.good();
 			}
 
-			Bool reseeds() const {
+			Boolean reseeds() const {
 				return getBit(flags, 2);
 			}
 
@@ -218,21 +218,21 @@ namespace Spin {
 	}
 
 	template <>
-	/// Generates a Bool between false ... true included.
-	inline Bool Chaos<Bool>::next() {
+	/// Generates a Boolean between false ... true included.
+	inline Boolean Chaos<Boolean>::next() {
 		// N % 2 === N & 1 but faster.
 		return generator.next() & 1;
 	}
 	template <>
-	/// Generates a Bool between false ... max included.
-	inline Bool Chaos<Bool>::next(Bool max) {
+	/// Generates a Boolean between false ... max included.
+	inline Boolean Chaos<Boolean>::next(Boolean max) {
 		if (!max) return false;
 		// N % 2 === N & 1 but faster.
 		return generator.next() & 1;
 	}
 	template <>
-	/// Generates a Bool between min ... max included.
-	inline Bool Chaos<Bool>::next(Bool min, Bool max) {
+	/// Generates a Boolean between min ... max included.
+	inline Boolean Chaos<Boolean>::next(Boolean min, Boolean max) {
 		if (min == max) return min;
 		// N % 2 === N & 1 but faster.
 		return generator.next() & 1;

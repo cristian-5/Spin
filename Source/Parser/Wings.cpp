@@ -35,7 +35,7 @@ namespace Spin {
 		}
 	}
 
-	Bool Wings::isKnownLibrary(String l) {
+	Boolean Wings::isKnownLibrary(String l) {
 		return Library::isKnown(l);
 	}
 
@@ -134,7 +134,7 @@ namespace Spin {
 							}
 						}
 						knownLibraries.push_back(import);
-						Bool listed = false;
+						Boolean listed = false;
 						for (String & i : * libs) {
 							if (i == import) {
 								listed = true;
@@ -172,7 +172,7 @@ namespace Spin {
 		return imports;
 	}
 
-	Bool Wings::isSpread(String wing, Array<CodeUnit *> * wings) {
+	Boolean Wings::isSpread(String wing, Array<CodeUnit *> * wings) {
 		if (!wings) return false;
 		for (CodeUnit * code : * wings) {
 			if (!code) continue;

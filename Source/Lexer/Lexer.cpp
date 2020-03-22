@@ -48,7 +48,7 @@ namespace Spin {
 		{ "rest", TokenType::restKeyword },
 		{ "return", TokenType::returnKeyword },
 
-		{ "Bool", TokenType::basicType },
+		{ "Boolean", TokenType::basicType },
 		{ "Byte", TokenType::basicType },
 		{ "Character", TokenType::basicType },
 		{ "Complex", TokenType::basicType },
@@ -104,7 +104,7 @@ namespace Spin {
 				} else if (match('/')) {
 					while (peek() != '\n' && !isAtEnd()) advance();
 				} else if (match('*')) {
-					Bool exit = false;
+					Boolean exit = false;
 					while (!exit) {
 						while (peek() != '*' && !isAtEnd()) advance();
 						if (isAtEnd()) break;
@@ -469,13 +469,13 @@ namespace Spin {
 		tokens -> push_back(t);
 		tokens -> push_back(l);
 	}
-	Bool Lexer::match(Character c) {
+	Boolean Lexer::match(Character c) {
 		if (isAtEnd()) return false;
 		if (source -> at(index) != c) return false;
 		index += 1;
 		return true;
 	}
-	Bool Lexer::isAtEnd() {
+	Boolean Lexer::isAtEnd() {
 		return index >= source -> length();
 	}
 	Character Lexer::peek() {
@@ -494,15 +494,15 @@ namespace Spin {
 		index += 1;
 		return source -> at(index - 1);
 	}
-	Bool Lexer::isDigit(Character d) {
+	Boolean Lexer::isDigit(Character d) {
 		return d >= '0' && d <= '9';
 	}
-	Bool Lexer::isAlpha(Character a) {
+	Boolean Lexer::isAlpha(Character a) {
 		return (a >= 'a' && a <= 'z') ||      
 			   (a >= 'A' && a <= 'Z') ||
 				a == '_';
 	}
-	Bool Lexer::isAlphaNumeric(Character c) {
+	Boolean Lexer::isAlphaNumeric(Character c) {
 		return isAlpha(c) || isDigit(c);
 	}
 	void Lexer::resetState() {

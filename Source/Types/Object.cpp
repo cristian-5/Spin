@@ -36,7 +36,7 @@ namespace Spin {
 	Object::Object(BasicType t) {
 		type = t;
 		switch (type) {
-			case BasicType::BoolType: value = new Bool(false); return;
+			case BasicType::BooleanType: value = new Boolean(false); return;
 			case BasicType::CharacterType: value = new Character(0); return;
 			case BasicType::ByteType: value = new UInt8(0); return;
 			case BasicType::IntegerType: value = new Int64(0); return;
@@ -56,7 +56,7 @@ namespace Spin {
 	Object::~Object() {
 		if (!value) return;
 		switch (type) {
-			case BasicType::BoolType: delete (Bool *) value; return;
+			case BasicType::BooleanType: delete (Boolean *) value; return;
 			case BasicType::CharacterType: delete (Character *) value; return;
 			case BasicType::ByteType: delete (UInt8 *) value; return;
 			case BasicType::IntegerType: delete (Int64 *) value; return;
@@ -80,34 +80,34 @@ namespace Spin {
 		}
 		delete this;
 	}
-	Bool Object::isByte() const {
+	Boolean Object::isByte() const {
 		return type == BasicType::ByteType;
 	}
-	Bool Object::isInteger() const {
+	Boolean Object::isInteger() const {
 		return type == BasicType::IntegerType;
 	}
-	Bool Object::isReal() const {
+	Boolean Object::isReal() const {
 		return type == BasicType::RealType;
 	}
-	Bool Object::isComplexType() const {
+	Boolean Object::isComplexType() const {
 		return type == BasicType::ComplexType ||
 			   type == BasicType::ImaginaryType;
 	}			
-	Bool Object::isNumericType() const {
+	Boolean Object::isNumericType() const {
 		return isInteger() || isReal() || isComplexType();
 	}
-	Bool Object::isBool() const {
-		return type == BasicType::BoolType;
+	Boolean Object::isBoolean() const {
+		return type == BasicType::BooleanType;
 	}
-	Bool Object::isString() const {
+	Boolean Object::isString() const {
 		return type == BasicType::StringType;
 	}
-	Bool Object::isCharacter() const {
+	Boolean Object::isCharacter() const {
 		return type == BasicType::CharacterType;
 	}
 	String Object::getObjectName() const {
 		switch (type) {
-			case BasicType::BoolType: return "Bool";
+			case BasicType::BooleanType: return "Boolean";
 			case BasicType::CharacterType: return "Character";
 			case BasicType::ByteType: return "Byte";
 			case BasicType::IntegerType: return "Integer";
@@ -127,7 +127,7 @@ namespace Spin {
 		Object * copy = new Object();
 		copy -> type = type;
 		switch (type) {
-			case BasicType::BoolType: copy -> value = new Bool(* ((Bool *) value)); break;
+			case BasicType::BooleanType: copy -> value = new Boolean(* ((Boolean *) value)); break;
 			case BasicType::CharacterType: copy -> value = new Character(* ((Character *) value)); break;
 			case BasicType::ByteType: copy -> value = new UInt8(* ((UInt8 *) value)); break;
 			case BasicType::IntegerType: copy -> value = new Int64(* ((Int64 *) value)); break;
@@ -146,8 +146,8 @@ namespace Spin {
 	}
 	String Object::getObjectStringValue() const {
 		switch (type) {
-			case BasicType::BoolType: {
-				Bool * b = (Bool *) value;
+			case BasicType::BooleanType: {
+				Boolean * b = (Boolean *) value;
 				if (* b) return "true";
 				else return "false";
 			}
@@ -204,25 +204,25 @@ namespace Spin {
 			}
 		}
 	}
-	Bool Object::isUnknown() const {
+	Boolean Object::isUnknown() const {
 		return type == BasicType::UnknownType;
 	}
-	Bool Object::isFunction() const {
+	Boolean Object::isFunction() const {
 		return type == BasicType::RoutineType;
 	}
-	Bool Object::isCallable() const {
+	Boolean Object::isCallable() const {
 		return type == BasicType::RoutineType ||
 			   type == BasicType::ClassType;
 	}
-	Bool Object::isArray() const {
+	Boolean Object::isArray() const {
 		return type == BasicType::ArrayType;
 	}
-	Bool Object::isSubscriptable() const {
+	Boolean Object::isSubscriptable() const {
 		return type == BasicType::StringType ||
 			   type == BasicType::ArrayType;
 	}
-	Bool Object::getBoolValue() const {
-		if (isBool()) return *((Bool *)value);
+	Boolean Object::getBoolValue() const {
+		if (isBoolean()) return *((Boolean *)value);
 		else return false;
 	}
 	Object * Object::getAttribute(String & name) {
@@ -230,6 +230,8 @@ namespace Spin {
 			switch (type) {
 				case BasicType::InstanceType:
 					return ((Instance *) value) -> getInnerValue(name);
+				case BasicType::BooleanType:
+					return BasicBoolean::handleGetValue((Boolean *) value, name);
 				case BasicType::StringType:
 					return BasicString::handleGetValue((String *) value, name);
 				default: throw Environment::VariableNotFoundException();
@@ -242,7 +244,7 @@ namespace Spin {
 		if (s == "String") return BasicType::StringType;
 		if (s == "Imaginary") return BasicType::ImaginaryType;
 		if (s == "Complex") return BasicType::ComplexType;
-		if (s == "Bool") return BasicType::BoolType;
+		if (s == "Boolean") return BasicType::BooleanType;
 		if (s == "Character") return BasicType::CharacterType;
 		if (s == "Byte") return BasicType::ByteType;
 		return BasicType::UnknownType;
@@ -267,9 +269,9 @@ namespace Spin {
 				o -> value = v;
 			} break;
 			case TokenType::boolLiteral: {
-				o -> type = BasicType::BoolType;
-				o -> value = new Bool(
-					Converter::stringToBool(t -> lexeme)
+				o -> type = BasicType::BooleanType;
+				o -> value = new Boolean(
+					Converter::stringToBoolean(t -> lexeme)
 				);
 			} break;
 			case TokenType::charLiteral: {
@@ -294,12 +296,12 @@ namespace Spin {
 			} break;
 			case TokenType::basisBraLiteral: {
 				o -> type = BasicType::VectorType;
-				Bool state = (t -> lexeme)[1] == '0' ? 0 : 1;
+				Boolean state = (t -> lexeme)[1] == '0' ? 0 : 1;
 				o -> value = Vector::basis(Vector::braDirection, state);
 			} break;
 			case TokenType::basisKetLiteral: {
 				o -> type = BasicType::VectorType;
-				Bool state = (t -> lexeme)[1] == '0' ? 0 : 1;
+				Boolean state = (t -> lexeme)[1] == '0' ? 0 : 1;
 				o -> value = Vector::basis(Vector::ketDirection, state);
 			} break;
 			default: return o;

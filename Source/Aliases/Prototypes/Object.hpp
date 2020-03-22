@@ -10,7 +10,7 @@ namespace Spin {
 
 	enum BasicType: UInt8 {
 
-		BoolType,
+		BooleanType,
 		CharacterType,
 
 		ByteType,
@@ -57,23 +57,23 @@ namespace Spin {
 		Object(BasicType t, void * v);
 		~Object();
 		void safeDestroy();
-		Bool isByte() const;
-		Bool isInteger() const;
-		Bool isReal() const;
-		Bool isComplexType() const;
-		Bool isNumericType() const;
-		Bool isBool() const;
-		Bool isString() const;
-		Bool isCharacter() const;
+		Boolean isByte() const;
+		Boolean isInteger() const;
+		Boolean isReal() const;
+		Boolean isComplexType() const;
+		Boolean isNumericType() const;
+		Boolean isBoolean() const;
+		Boolean isString() const;
+		Boolean isCharacter() const;
 		String getObjectName() const;
 		Object * copy() const;
 		String getObjectStringValue() const;
-		Bool isUnknown() const;
-		Bool isFunction() const;
-		Bool isCallable() const;
-		Bool isArray() const;
-		Bool isSubscriptable() const;
-		Bool getBoolValue() const;
+		Boolean isUnknown() const;
+		Boolean isFunction() const;
+		Boolean isCallable() const;
+		Boolean isArray() const;
+		Boolean isSubscriptable() const;
+		Boolean getBoolValue() const;
 		Object * getAttribute(String & name);
 		static BasicType typeFromString(String & s);
 		static Object * fromLiteral(Token * t);

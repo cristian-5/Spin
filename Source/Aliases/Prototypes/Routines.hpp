@@ -33,7 +33,7 @@ namespace Spin {
 		virtual inline UInt32 arity() const = 0;
 		virtual CallProtocol * copy() const = 0;
 		template<typename t>
-		Bool isInstanceOf() {
+		Boolean isInstanceOf() {
 			return (DynamicCast<t *>(this));
 		}
 	};
@@ -71,9 +71,9 @@ namespace Spin {
 		Array<Parameter *> * params = nullptr;
 		NativeLambda lambda = nullptr;
 		String name;
-		Bool mutableParameters = false;
+		Boolean mutableParameters = false;
 		public:
-		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
+		NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Boolean m = false);
 		~NativeFunction() = default;
 		Object * call(Array<Object *> a, Token * c) override;
 		void deallocate(Array<Object *> & parameters);
@@ -87,9 +87,9 @@ namespace Spin {
 		Array<Parameter *> * params = nullptr;
 		NativeLambda lambda = nullptr;
 		String name;
-		Bool mutableParameters = false;
+		Boolean mutableParameters = false;
 		public:
-		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Bool m = false);
+		NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Boolean m = false);
 		~NativeProcedure() = default;
 		Object * call(Array<Object *> a, Token * c) override;
 		void deallocate(Array<Object *> & parameters);

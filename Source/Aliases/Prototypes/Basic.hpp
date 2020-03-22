@@ -8,6 +8,15 @@ namespace Spin {
 
 	class Object;
 
+	class BasicBoolean {
+		private:
+		static inline Object * getToggleMethod(Boolean * self);
+		static inline Object * getToStringMethod(Boolean * self);
+		public:
+		BasicBoolean() = delete;
+		static Object * handleGetValue(Boolean * self, String & name);
+	};
+
 	class BasicString {
 		private:
 		static inline Object * getLengthProperty(String * self);

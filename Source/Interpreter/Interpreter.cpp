@@ -130,7 +130,7 @@ namespace Spin {
 				);
 			}
 			function = (CallProtocol *)(callee -> value);
-			Bool lost = false;
+			Boolean lost = false;
 			if (function -> isInstanceOf<Class>()) {
 				if (!e -> isConstructor) {
 					throw Program::Error(
@@ -368,10 +368,10 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluate(e -> l);
-			if (!(expression -> isBool())) {
+			if (!(expression -> isBoolean())) {
 				throw Program::Error(
 					currentUnit,
-					"Invalid Bool expression found on left side of circuit operator '||'!",
+					"Invalid Boolean expression found on left side of circuit operator '||'!",
 					* e -> o, ErrorCode::evl
 				);
 			}
@@ -623,14 +623,14 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluate(e -> expression);
-			if (!(expression -> isBool())) {
+			if (!(expression -> isBoolean())) {
 				throw Program::Error(
 					currentUnit,
 					"Unsupported evaluation of non logical condition in iteration statement!",
 					* e -> whileToken, ErrorCode::evl
 				);
 			}
-			Bool condition = expression -> getBoolValue();
+			Boolean condition = expression -> getBoolValue();
 			executeStatement(e -> body);
 			if (broken) { broken = false; return; }
 			while (condition) {
@@ -659,14 +659,14 @@ namespace Spin {
 		try {
 			executeStatement(e -> declaration);
 			expression = evaluate(e -> expression);
-			if (!(expression -> isBool())) {
+			if (!(expression -> isBoolean())) {
 				throw Program::Error(
 					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> forToken, ErrorCode::evl
 				);
 			}
-			Bool condition = expression -> getBoolValue();
+			Boolean condition = expression -> getBoolValue();
 			while (condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
@@ -741,7 +741,7 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluate(e -> expression);
-			if (!(expression -> isBool())) {
+			if (!(expression -> isBoolean())) {
 				throw Program::Error(
 					currentUnit,
 					"Unsupported evaluation of non logical expression in conditional statement!",
@@ -824,14 +824,14 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluate(e -> expression);
-			if (!(expression -> isBool())) {
+			if (!(expression -> isBoolean())) {
 				throw Program::Error(
 					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> untilToken, ErrorCode::evl
 				);
 			}
-			Bool condition = expression -> getBoolValue();
+			Boolean condition = expression -> getBoolValue();
 			executeStatement(e -> body);
 			if (broken) { broken = false; return; }
 			while (!condition) {
@@ -887,14 +887,14 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluate(e -> expression);
-			if (!(expression -> isBool())) {
+			if (!(expression -> isBoolean())) {
 				throw Program::Error(
 					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> untilToken, ErrorCode::evl
 				);
 			}
-			Bool condition = expression -> getBoolValue();
+			Boolean condition = expression -> getBoolValue();
 			while (!condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
@@ -1032,14 +1032,14 @@ namespace Spin {
 		Object * expression = nullptr;
 		try {
 			expression = evaluate(e -> expression);
-			if (!(expression -> isBool())) {
+			if (!(expression -> isBoolean())) {
 				throw Program::Error(
 					currentUnit,
 					"Unsupported evaluation of non logical expression in iteration statement!",
 					* e -> whileToken, ErrorCode::evl
 				);
 			}
-			Bool condition = expression -> getBoolValue();
+			Boolean condition = expression -> getBoolValue();
 			while (condition) {
 				executeStatement(e -> body);
 				if (broken) { broken = false; break; }
@@ -1086,6 +1086,7 @@ namespace Spin {
 		if (!syntaxTree) return;
 		globals = new Environment();
 		memory = globals;
+		Library::defineVirual(globals);
 		if (syntaxTree -> libraries) {
 			for (String & lib : * (syntaxTree -> libraries)) {
 				Library::define(lib, globals);

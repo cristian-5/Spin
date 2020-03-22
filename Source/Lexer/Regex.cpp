@@ -23,7 +23,7 @@
 
 namespace Spin {
 
-	Bool RegexTools::test(Regex & regex, const String & input) {
+	Boolean RegexTools::test(Regex & regex, const String & input) {
 		try {
 			SMatch match;
 			std::regex_search(input, match, regex);

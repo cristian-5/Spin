@@ -91,7 +91,7 @@ namespace Spin {
 		};
 		virtual Object * accept(Visitor *) = 0;
 		template<typename t>
-		Bool isInstanceOf() {
+		Boolean isInstanceOf() {
 			return (DynamicCast<t *>(this));
 		}
 	};
@@ -125,7 +125,7 @@ namespace Spin {
 		};
 		virtual void accept(Visitor *) = 0;
 		template<typename t>
-		Bool isInstanceOf() {
+		Boolean isInstanceOf() {
 			return (DynamicCast<t *>(this));
 		}
 	};
@@ -187,8 +187,8 @@ namespace Spin {
 		Token * parenthesis;
 		Expression * callee;
 		Array<Expression *> * arguments;
-		Bool isConstructor;
-		Call(Expression * c, Token * p, Array<Expression *> * a, Bool i);
+		Boolean isConstructor;
+		Call(Expression * c, Token * p, Array<Expression *> * a, Boolean i);
 		Object * accept(Visitor * visitor) override;
 		~Call();
 	};
@@ -205,8 +205,8 @@ namespace Spin {
 		public:
 		Expression * object;
 		Token * name;
-		Bool selfReference;
-		DynamicGet(Expression * o, Token * n, Bool s = false);
+		Boolean selfReference;
+		DynamicGet(Expression * o, Token * n, Boolean s = false);
 		Object * accept(Visitor * visitor) override;
 		~DynamicGet();
 	};
@@ -216,8 +216,8 @@ namespace Spin {
 		Token * name;
 		Token * equals;
 		Expression * value;
-		Bool selfReference;
-		DynamicSet(Expression * o, Token * n, Expression * v, Token * e, Bool s = false);
+		Boolean selfReference;
+		DynamicSet(Expression * o, Token * n, Expression * v, Token * e, Boolean s = false);
 		Object * accept(Visitor * visitor) override;
 		~DynamicSet();
 	};
@@ -305,8 +305,8 @@ namespace Spin {
 		public:
 		Expression * object;
 		Token * name;
-		Bool selfReference;
-		StaticGet(Expression * o, Token * n, Bool s = false);
+		Boolean selfReference;
+		StaticGet(Expression * o, Token * n, Boolean s = false);
 		Object * accept(Visitor * visitor) override;
 		~StaticGet();
 	};
@@ -316,8 +316,8 @@ namespace Spin {
 		Token * name;
 		Token * equals;
 		Expression * value;
-		Bool selfReference;
-		StaticSet(Expression * o, Token * n, Expression * v, Token * e, Bool s = false);
+		Boolean selfReference;
+		StaticSet(Expression * o, Token * n, Expression * v, Token * e, Boolean s = false);
 		Object * accept(Visitor * visitor) override;
 		~StaticSet();
 	};

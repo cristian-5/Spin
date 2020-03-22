@@ -20,7 +20,7 @@ namespace Spin {
 
 		Complex * space = nullptr;
 		SizeType size = 0;
-		Bool direction = ketDirection;
+		Boolean direction = ketDirection;
 
 		public:
 
@@ -31,21 +31,21 @@ namespace Spin {
 			public: InvalidOperationException() = default;
 		};
 
-		static const Bool braDirection = true;
-		static const Bool ketDirection = false;
+		static const Boolean braDirection = true;
+		static const Boolean ketDirection = false;
 
-		Vector(SizeType s, Bool d);
-		Vector(Bool d);
+		Vector(SizeType s, Boolean d);
+		Vector(Boolean d);
 		Vector() = default;
 		~Vector();
 
-		Bool getDirection() const;
+		Boolean getDirection() const;
 		SizeType getSize() const;
-		Bool isEmpty() const;
+		Boolean isEmpty() const;
 
-		Bool isBra() const;
-		Bool isKet() const;
-		void setDirection(Bool d);
+		Boolean isBra() const;
+		Boolean isKet() const;
+		void setDirection(Boolean d);
 
 		inline void negate();
 		void invert();
@@ -71,8 +71,8 @@ namespace Spin {
 		Complex & operator [] (SizeType i);
 		Complex & at(SizeType i);
 
-		Bool operator == (Vector r) const;
-		Bool operator != (Vector r) const;
+		Boolean operator == (Vector r) const;
+		Boolean operator != (Vector r) const;
 		Vector operator + (Vector r) const;
 		Vector operator - () const;
 		Vector operator - (Vector r) const;
@@ -83,7 +83,7 @@ namespace Spin {
 		void multiplyByScalarReal(Real & r);
 		void multiplyByScalarInteger(Int64 & i);
 
-		static Vector * basis(Bool d, Bool s);
+		static Vector * basis(Boolean d, Boolean s);
 		Complex * copyAt(SizeType i) const;
 		Complex * referenceAt(SizeType i) const;
 		Vector * copy() const;

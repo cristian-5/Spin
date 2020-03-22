@@ -16,7 +16,7 @@ namespace Spin {
 	class RegexTools {
 		public:
 		RegexTools() = delete;
-		static Bool test(Regex & regex, const String & input);
+		static Boolean test(Regex & regex, const String & input);
 		static String match(Regex & regex, const String & input);
 		static String findFirstGroup(Regex & regex, const String & input);
 		static Array<String> findAllGroups(Regex & regex, const String & input);

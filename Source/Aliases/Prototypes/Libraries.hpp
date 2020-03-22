@@ -16,8 +16,9 @@ namespace Spin {
 		Library() = delete;
 		typedef Lambda<void (Environment *)> LibraryHandler;
 		static const Dictionary<String, LibraryHandler> libs;
+		static void defineVirual(Environment * memory);
 		static void define(String name, Environment * memory);
-		static Bool isKnown(String name);
+		static Boolean isKnown(String name);
 	};
 
 	class Console {
@@ -47,6 +48,17 @@ namespace Spin {
 	class Maths {
 		public:
 		Maths() = default;
+		static void defineLibrary(Environment * global);
+	};
+
+	// Basic Types:
+
+	class VirtualBoolean {
+		public:
+		VirtualBoolean() = default;
+		static const String name;
+		static Object * description();
+		static Object * from();
 		static void defineLibrary(Environment * global);
 	};
 

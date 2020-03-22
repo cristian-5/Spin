@@ -29,7 +29,7 @@
 
 namespace Spin {
 
-	Bool Qubit::isValid() {
+	Boolean Qubit::isValid() {
 		Real sum = 0;
 		const SizeType size = data -> getSize();
 		for (SizeType i = 0; i < size; i += 1) {
@@ -39,7 +39,7 @@ namespace Spin {
 			   std::fabs(sum) < 1 + Qubit::error;
 	}
 
-	Bool Qubit::measure(Int64 qubit) {
+	Boolean Qubit::measure(Int64 qubit) {
 		if (!isValid) throw InavlidStateException();
 		Chaos<UInt64>::seed = time(nullptr);
 		Real rand = Chaos<UInt64>::next();

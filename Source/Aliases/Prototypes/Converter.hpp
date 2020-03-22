@@ -16,9 +16,9 @@ namespace Spin {
 
 	class Converter {
 		private:
-		static inline Bool checkBase(Regex base, String & s);
-		static inline Bool test(Regex r, String & s);
-		static Bool isHexChar(Character & c);
+		static inline Boolean checkBase(Regex base, String & s);
+		static inline Boolean test(Regex r, String & s);
+		static Boolean isHexChar(Character & c);
 		static Character hexToChar(String & s);
 		static Int64 decToInt64(String & s);
 		static UInt8 charToHex(Character & c);
@@ -28,7 +28,7 @@ namespace Spin {
 		static Int64 binToInt64(String & s);
 		public:
 		Converter() = delete;
-		static Bool stringToBool(String & s);
+		static Boolean stringToBoolean(String & s);
 		static Int64 stringToInt64(String & s);
 		static Real stringToReal(String & s);
 		static Real stringToImaginary(String & s);

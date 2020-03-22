@@ -16,7 +16,7 @@ Spin offers a wide variety of literals:
 |   **Integer** | Integer Number   | `67` `0x5F` `0d16` `0b1010` `0o76`   |
 |    **String** | String           | `"hello world"` `"\t tab"`           |
 | **Character** | Character        | `'a'` `'A'` `'$'` `'\n'`             |
-|      **Bool** | Bool Value       | `true` `false`                       |
+| **Boolean** | [Boolean Value](Types/Boolean.md) | `true` `false` |
 |    **Vector** | Quantum Basis    | `<0|` `<1|`                          |
 |    **Vector** | Quantum Basis    | `|0>` `|1>`                          |
 

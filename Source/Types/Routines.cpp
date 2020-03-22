@@ -195,7 +195,7 @@ namespace Spin {
 		return new Procedure(* this);
 	}
 
-	NativeFunction::NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Bool m) {
+	NativeFunction::NativeFunction(NativeLambda l, Array<Parameter *> * p, String n, Boolean m) {
 		lambda = l; params = p; name = n; mutableParameters = m;
 	}
 	Object * NativeFunction::call(Array<Object *> a, Token * c) {
@@ -259,7 +259,7 @@ namespace Spin {
 		return new NativeFunction(* this);
 	}
 
-	NativeProcedure::NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Bool m) {
+	NativeProcedure::NativeProcedure(NativeLambda l, Array<Parameter *> * p, String n, Boolean m) {
 		lambda = l; params = p; name = n; mutableParameters = m;
 	}
 	Object * NativeProcedure::call(Array<Object *> a, Token * c) {

@@ -38,7 +38,7 @@
 
 	using String = std::string;
 
-	using Bool = bool;
+	using Boolean = bool;
 	using Character = char;
 	using Real = double;
 

@@ -31,10 +31,10 @@ namespace Spin {
 		Real getPhase() const;
 		inline Real getAngle() const;
 		void operator = (Real r);
-		Bool operator == (Complex r) const;
-		Bool operator == (Real r) const;
-		Bool operator != (Complex r) const;
-		Bool operator != (Real r) const;
+		Boolean operator == (Complex r) const;
+		Boolean operator == (Real r) const;
+		Boolean operator != (Complex r) const;
+		Boolean operator != (Real r) const;
 		Complex operator - () const;
 		Complex operator + (Complex r) const;
 		void operator += (Complex r);

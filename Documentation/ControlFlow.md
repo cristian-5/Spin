@@ -3,23 +3,20 @@
 
 ## If Statements:
 
-The condition needs to be a **Bool** value, otherwise you'll get a *runtime error*.
+The condition needs to be a [Boolean](Types/Boolean.md) value, otherwise you'll get a *runtime error*.
 Syntax is similar to *c++*, you can omit the curly braces if there's only one statement to evaluate.
 
 ``` swift
 
 if (a == 0) {
     a += 1;
-}
-
-if (condition) return;
-else a = 8;
+} else a = 8;
 
 ```
 
 ## Loops:
 
-The condition needs to be a **Bool** value, otherwise you'll get a *runtime error*.
+The condition needs to be a [Boolean](Types/Boolean.md) value, otherwise you'll get a *runtime error*.
 Syntax is similar to c++, you can omit the curly braces if there's only one statement to evaluate.
 
 ``` swift

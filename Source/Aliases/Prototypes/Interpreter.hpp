@@ -19,8 +19,8 @@ namespace Spin {
 		private:
 		Processor * CPU = Processor::self();
 		Environment * memory = nullptr;
-		Bool broken = false;
-		Bool continued = false;
+		Boolean broken = false;
+		Boolean continued = false;
 		Class * classDefinition = nullptr;
 		Modifier currentModifier = Modifier::publicAccess;
 		Object * visitAssignmentExpression(Assignment * e) override;

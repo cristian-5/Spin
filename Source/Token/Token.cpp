@@ -28,21 +28,21 @@ namespace Spin {
 		this -> type = type;
 		this -> position = position;
 	}
-	Bool Token::isTypeLiteral() const {
+	Boolean Token::isTypeLiteral() const {
 		return type >= TokenType::intLiteral &&
 			   type <= TokenType::boolLiteral;
 	}
-	Bool Token::isTypeNumeral() const {
+	Boolean Token::isTypeNumeral() const {
 		return type >= TokenType::intLiteral &&
 			   type <= TokenType::realLiteral;
 	}
-	Bool Token::isTypeBasicType() const {
+	Boolean Token::isTypeBasicType() const {
 		return type == TokenType::basicType;
 	}
-	Bool Token::isTypeType() const {
+	Boolean Token::isTypeType() const {
 		return type == TokenType::classKeyword;
 	}
-	Bool Token::isTypeBraKet() const {
+	Boolean Token::isTypeBraKet() const {
 		return type >= TokenType::braketSymbol &&
 			   type <= TokenType::ketbraSymbol;
 	}

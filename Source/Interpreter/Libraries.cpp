@@ -36,14 +36,19 @@ namespace Spin {
 		{ "Console", Console::defineLibrary }
 	};
 
+	void Library::defineVirual(Environment * memory) {
+		if (!memory) return;
+		VirtualBoolean::defineLibrary(memory);
+	}
 	void Library::define(String name, Environment * memory) {
+		if (!memory) return;
 		auto search = libs.find(name);
 		if (search != libs.end()) {
 			auto handler = search -> second;
 			handler(memory);
 		}
 	}
-	Bool Library::isKnown(String name) {
+	Boolean Library::isKnown(String name) {
 		auto search = libs.find(name);
 		return search != libs.end();
 	}
@@ -212,6 +217,44 @@ namespace Spin {
 
 	void Maths::defineLibrary(Environment * global) {
 		if (!global) return;
+	}
+
+	// Virtual Classes:
+
+	const String VirtualBoolean::name = "Boolean";
+
+	void VirtualBoolean::defineLibrary(Environment * global) {
+		if (!global) return;
+		Class * dec = new Class(
+			name,
+			new Array<AttributeStatement *>(),
+			new Dictionary<String, Pair<Modifier, Object *>>()
+		);
+		dec -> defineStatic("description", Modifier::publicAccess, VirtualBoolean::description());
+		dec -> defineStatic("from", Modifier::publicAccess, VirtualBoolean::from());
+		global -> define(name, new Object(BasicType::ClassType, dec));
+	}
+	Object * VirtualBoolean::description() {
+		return new Object(
+			BasicType::StringType,
+			new String("Boolean")
+		);
+	}
+	Object * VirtualBoolean::from() {
+		return new Object(BasicType::RoutineType, 
+			new NativeFunction(
+				[] (Array<Object *> a, Token * t) {
+					if (!a[0]) return new Object(BasicType::BooleanType);
+					return new Object(
+						BasicType::BooleanType,
+						new Boolean(a[0] -> getBoolValue())
+					);
+				}, new Array<Parameter *>(
+					{ new Parameter(BasicType::BooleanType, nullptr, nullptr) }
+				),
+				"<func Boolean::from>"
+			)
+		);
 	}
 
 }

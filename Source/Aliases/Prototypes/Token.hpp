@@ -140,11 +140,11 @@ namespace Spin {
 		Token(String lexeme,
 			  TokenType type,
 			  SizeType position = 0);
-		Bool isTypeLiteral() const;
-		Bool isTypeNumeral() const;
-		Bool isTypeBasicType() const;
-		Bool isTypeType() const;
-		Bool isTypeBraKet() const;
+		Boolean isTypeLiteral() const;
+		Boolean isTypeNumeral() const;
+		Boolean isTypeBasicType() const;
+		Boolean isTypeType() const;
+		Boolean isTypeBraKet() const;
 	};
 
 }

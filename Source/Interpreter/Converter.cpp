@@ -33,13 +33,13 @@
 
 namespace Spin {
 
-	inline Bool Converter::checkBase(Regex base, String & s) {
+	inline Boolean Converter::checkBase(Regex base, String & s) {
 		return RegexTools::test(base, s);
 	}
-	inline Bool Converter::test(Regex r, String & s) {
+	inline Boolean Converter::test(Regex r, String & s) {
 		return RegexTools::test(r, s);
 	}
-	Bool Converter::isHexChar(Character & c) {
+	Boolean Converter::isHexChar(Character & c) {
 		return ((c >= '0') && (c <= '9')) ||
 				((c >= 'a') && (c <= 'f')) ||
 				((c >= 'A') && (c <= 'F'));
@@ -105,7 +105,7 @@ namespace Spin {
 		return result;
 	}
 
-	Bool Converter::stringToBool(String & s) {
+	Boolean Converter::stringToBoolean(String & s) {
 		return s == "true";
 	}
 	Int64 Converter::stringToInt64(String & s) {
@@ -228,7 +228,7 @@ namespace Spin {
 		// maximum number of digits + 1.
 		static Character buffer[20];
 		SizeType size = 20;
-		Bool negative = false;
+		Boolean negative = false;
 		if (i < 0) {
 			negative = true;
 			i = - i;

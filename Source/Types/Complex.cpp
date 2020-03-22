@@ -63,22 +63,22 @@ namespace Spin {
 		a = r;
 		b = 0;
 	}
-	Bool Complex::operator == (Complex r) const {
+	Boolean Complex::operator == (Complex r) const {
 		if (a != r.a) return false;
 		if (b != r.b) return false;
 		return true;
 	}
-	Bool Complex::operator == (Real r) const {
+	Boolean Complex::operator == (Real r) const {
 		if (a != r) return false;
 		if (b != 0) return false;
 		return true;
 	}
-	Bool Complex::operator != (Complex r) const {
+	Boolean Complex::operator != (Complex r) const {
 		if (a == r.a) return false;
 		if (b == r.b) return false;
 		return true;
 	}
-	Bool Complex::operator != (Real r) const {
+	Boolean Complex::operator != (Real r) const {
 		if (a == r) return false;
 		if (b != 0) return false;
 		return true;

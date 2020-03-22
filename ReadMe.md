@@ -28,7 +28,7 @@ More examples can be found in the [Examples](Examples/) folder.
 
 ### Numeric Types
 
-``` swift
+``` java
 Integer a = 3 + 2 * 7 - 5;
 Integer conversions = 0b10; // binary.
 conversions = 0xAB24 * 0o5; // hex + oct.
@@ -40,8 +40,8 @@ Complex c = a * b - (3.5 + 6i);
 
 ### Minor Types
 
-``` swift
-Bool condition = false;
+``` java
+Boolean condition = false;
 Byte raw = 0xFF;
 raw = ~raw; // bitwise inversion.
 String hello = "number " + 10 + '!';
@@ -52,7 +52,7 @@ Character exclam = hello[10];
 
 Check out the full [**Console Documentation**](Documentation/Libraries/Console.md)
 
-``` swift
+``` java
 import Console;
 
 Console::writeLine("I'm using Console!");

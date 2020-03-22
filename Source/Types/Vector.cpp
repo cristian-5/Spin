@@ -32,35 +32,35 @@ namespace Spin {
 	// bra +- ket = error TODO: Better error handling in processor
 	// ket +- bra = error
 
-	Vector::Vector(SizeType s, Bool d) {
+	Vector::Vector(SizeType s, Boolean d) {
 		size = s;
 		if (size == 0) return;
 		space = new Complex[size];
 		direction = d;
 	}
-	Vector::Vector(Bool d) {
+	Vector::Vector(Boolean d) {
 		direction = d;
 	}
 	Vector::~Vector() {
 		if (size == 0) return;
 		delete [] space;
 	}
-	Bool Vector::getDirection() const {
+	Boolean Vector::getDirection() const {
 		return direction;
 	}
 	SizeType Vector::getSize() const {
 		return size;
 	}
-	Bool Vector::isEmpty() const {
+	Boolean Vector::isEmpty() const {
 		return size == 0;
 	}
-	Bool Vector::isBra() const {
+	Boolean Vector::isBra() const {
 		return direction == braDirection;
 	}
-	Bool Vector::isKet() const {
+	Boolean Vector::isKet() const {
 		return direction == ketDirection;
 	}
-	void Vector::setDirection(Bool d) {
+	void Vector::setDirection(Boolean d) {
 		direction = d;
 	}
 	inline void Vector::negate() {
@@ -142,7 +142,7 @@ namespace Spin {
 		if (i >= size) throw InvalidIndexException();
 		return space[i];
 	}
-	Bool Vector::operator == (Vector r) const {
+	Boolean Vector::operator == (Vector r) const {
 		if (size != r.size ||
 			direction != r.direction) {
 			return false;
@@ -152,7 +152,7 @@ namespace Spin {
 		}
 		return true;
 	}
-	Bool Vector::operator != (Vector r) const {
+	Boolean Vector::operator != (Vector r) const {
 		if (size != r.size ||
 			direction != r.direction) {
 			return true;
@@ -216,7 +216,7 @@ namespace Spin {
 			space[i] = Complex(space[i].a * (Real)(i), space[i].b * (Real)(i));
 		}
 	}
-	Vector * Vector::basis(Bool d, Bool s) {
+	Vector * Vector::basis(Boolean d, Boolean s) {
 		Vector * b = new Vector(2, d);
 		if (s) b -> at(0) = Complex(1, 0);
 		else b -> at(1) = Complex(1, 0);
