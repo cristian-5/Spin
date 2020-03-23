@@ -29,6 +29,8 @@ class Console {
 	@shared proc setForeground(r: Byte, g: Byte, b: Byte);
 	@shared proc setForeground(c: Byte);
 
+	@shared proc newLine();
+
 	@shared proc reset();
 	@shared proc clean();
 
@@ -121,6 +123,15 @@ Changes the output foreground colour.
 ``` swift
 Console::setForeground(83); // Greenish.
 ```
+
+### @shared proc newLine();
+
+Ends the current line and moves the cursor to the new one.
+
+``` swift
+Console::newLine();
+```
+
 
 ### @shared proc reset();
 

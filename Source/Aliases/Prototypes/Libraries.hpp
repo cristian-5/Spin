@@ -34,6 +34,7 @@ namespace Spin {
 		static Object * setBlink();
 		static Object * setBold();
 		static Object * setInverse();
+		static Object * newLine();
 		static Object * reset();
 		static Object * clean();
 		static void defineLibrary(Environment * global);

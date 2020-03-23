@@ -68,6 +68,7 @@ namespace Spin {
 		dec -> defineStatic("readLine", Modifier::publicAccess, Console::readLine());
 		dec -> defineStatic("setBackground", Modifier::publicAccess, Console::setBackground());
 		dec -> defineStatic("setForeground", Modifier::publicAccess, Console::setForeground());
+		dec -> defineStatic("newLine", Modifier::publicAccess, Console::newLine());
 		dec -> defineStatic("reset", Modifier::publicAccess, Console::reset());
 		dec -> defineStatic("clean", Modifier::publicAccess, Console::clean());
 		global -> define(name, new Object(BasicType::ClassType, dec));
@@ -171,6 +172,17 @@ namespace Spin {
 					return nullptr;
 				}, new Array<Parameter *>(),
 				"<proc Console::setForeground>", true
+			)
+		);
+	}
+	Object * Console::newLine() {
+		return new Object(BasicType::RoutineType, 
+			new NativeProcedure(
+				[] (Array<Object *> a, Token * t) {
+					OStream << endLine;
+					return nullptr;
+				}, new Array<Parameter *>(),
+				"<proc Console::newLine>"
 			)
 		);
 	}
