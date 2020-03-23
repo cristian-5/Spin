@@ -156,9 +156,6 @@ namespace Spin {
 			case '%':
 				if (match('=')) addToken("%=", TokenType::modulusEqual);
 				else addToken("%", TokenType::modulus); break;
-			case '$':
-				if (match('=')) addToken("$=", TokenType::dollarEqual);
-				else addToken("$", TokenType::dollar); break;
 			case ':':
 				if (match(':')) addToken("::", TokenType::doublecolon);
 				else addToken(":", TokenType::colon); break;
@@ -174,7 +171,9 @@ namespace Spin {
 						unknown.push_back('\x80');
 					}
 				} else unknown.push_back(c); break;
-			case '^': addToken("^", TokenType::transpose); break;
+			case '^':
+				if (match('=')) addToken("^=", TokenType::hatEqual);
+				else addToken("^", TokenType::hat); break;
 			case '?': addToken("?", TokenType::questionMark); break;
 			case ' ': case '\r': case '\t': case '\n': break;
 			default: 
@@ -412,30 +411,25 @@ namespace Spin {
 	}
 
 	void Lexer::scanCharacter() {
-		if (match('\\')) {
-			if (isAtEnd()) {
-				unknown.push_back('\'');
-				unknown.push_back('\\');
-				return;
-			}
-			advance();
-		} else if (match('\'')) {
-			unknown.push_back('\'');
-			unknown.push_back('\'');
-			return;
-		} else if (isAtEnd()) {
-			unknown.push_back('\'');
-			return;
-		} else advance();
-		if (match('\'')) {
-			addToken(
-				source -> substr(start, index - start),
-				TokenType::charLiteral
-			);
+		if (isAtEnd()) {
+			addToken("'", TokenType::transpose);
 			return;
 		}
-		// Ending quote not found:
-		unknown += source -> substr(start, index - start);
+		advance();
+		if (isAtEnd()) {
+			index = start + 1;
+			addToken("'", TokenType::transpose);
+			return;
+		}
+		if (!match('\'')) {
+			index = start + 1;
+			addToken("'", TokenType::transpose);
+			return;
+		}
+		addToken(
+			source -> substr(start, index - start),
+			TokenType::charLiteral
+		);
 	}
 
 	void Lexer::addToken(Token t) {

@@ -2246,7 +2246,7 @@ namespace Spin {
 				try { return applyAND(t, l, r); }
 				catch (Program::Error & e) { throw; }
 			} break;
-			case TokenType::dollar: {
+			case TokenType::hat: {
 				try { return applyXOR(t, l, r); }
 				catch (Program::Error & e) { throw; }
 			} break;
@@ -2504,7 +2504,7 @@ namespace Spin {
 				try { applyANDAssignment(t, l, r); }
 				catch (Program::Error & e) { throw; }
 			} return;
-			case TokenType::dollarEqual: {
+			case TokenType::hatEqual: {
 				try { applyXORAssignment(t, l, r); }
 				catch (Program::Error & e) { throw; }
 			} return;
