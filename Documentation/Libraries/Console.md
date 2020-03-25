@@ -62,7 +62,7 @@ Console::writeLine("Hello world!");
 ### @shared func read(object: Any...) -> String;
 
 Writes object to the output buffer, without
-ending the current line, waits for user input,
+ending the current line. Then waits for user input,
 returns the corresponding string.
 
 **object**: Can be any type of object.
@@ -74,7 +74,7 @@ String name = Console::read("Insert your name: ");
 ### @shared func readLine(object: Any...) -> String;
 
 Writes object to the output buffer,
-ending the current line, waits for user input,
+ending the current line. Then waits for user input,
 returns the corresponding string.
 
 **object**: Can be any type of object.
@@ -131,7 +131,6 @@ Ends the current line and moves the cursor to the new one.
 ``` swift
 Console::newLine();
 ```
-
 
 ### @shared proc reset();
 

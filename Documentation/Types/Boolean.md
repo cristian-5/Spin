@@ -57,7 +57,7 @@ String value = x.toString(); // value <- "true".
 
 ### @immune String description = "Boolean";
 
-Gets the string description of the type.
+Contains a String describing the type.
 
 ``` java
 String desc = Boolean::description; // desc <- "Boolean".
@@ -65,7 +65,7 @@ String desc = Boolean::description; // desc <- "Boolean".
 
 ### @shared func from(Boolean) -> Boolean;
 
-Used to force a cast from an expression.
+Forces a cast from an expression.
 
 ``` java
 Boolean fromExpression = Boolean::from(x != 10);
