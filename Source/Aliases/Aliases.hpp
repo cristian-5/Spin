@@ -4,7 +4,7 @@
  *    + --------------------------------------- +
  *    |  Aliases.hpp                            |
  *    |                                         |
- *    |               Code Aliases              | 
+ *    |               Code Aliases              |
  *    |                                         |
  *    |  Created by Cristian A.                 |
  *    |  Copyright © MIT. All rights reserved.  |

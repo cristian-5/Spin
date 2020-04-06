@@ -63,6 +63,6 @@ Int32 main(Int32 argc, Character * argv[]) {
 	delete syntaxTree;
 
 	OStream << endLine;
-	
+
 	return ExitCodes::success;
 }
