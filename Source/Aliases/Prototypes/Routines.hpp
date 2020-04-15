@@ -8,15 +8,15 @@
 #include <vector>
 
 #include "Exception.hpp"
+#include "Environment.hpp"
+#include "Object.hpp"
 
 namespace Spin {
 
 	class FunctionStatement;
 	class ProcedureStatement;
 	class Parameter;
-	class Object;
 	class Token;
-	class Environment;
 
 	typedef Lambda<Object * (Array<Object *> a, Token * t)> NativeLambda;
 
@@ -32,6 +32,22 @@ namespace Spin {
 		virtual String stringValue() const = 0;
 		virtual inline UInt32 arity() const = 0;
 		virtual CallProtocol * copy() const = 0;
+		inline void bindSelf(Environment * e) {
+			if (self) e -> define("self", self);
+		}
+		inline void unbindSelf(Environment * e) {
+			if (self) {
+				e -> unbind("self");
+				// Self is a wrapper to the original declaration.
+				// We can't destroy the original and so we swap
+				// it with something fake which easy to delete.
+				// That way we only delete the wrapper leaving
+				// the original declaration intact.
+				self -> value = nullptr;
+				delete self;
+				self = nullptr;
+			}
+		}
 		template<typename t>
 		Boolean isInstanceOf() {
 			return (DynamicCast<t *>(this));

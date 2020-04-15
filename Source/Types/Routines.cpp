@@ -22,9 +22,7 @@
 #define SPIN_ROUTINES
 
 #include "../Aliases/Prototypes/Interpreter.hpp"
-#include "../Aliases/Prototypes/Environment.hpp"
 #include "../Aliases/Prototypes/SyntaxTree.hpp"
-#include "../Aliases/Prototypes/Object.hpp"
 #include "../Aliases/Prototypes/Token.hpp"
 #include "../Aliases/Prototypes/Program.hpp"
 
@@ -46,21 +44,21 @@ namespace Spin {
 		Environment * parameters = new Environment(closure);
 		SizeType j = 0;
 		for (Parameter * param : * declaration -> params) {
-			if ((param -> type) != (a[j] -> type)) {
+			Object * at = a[j];
+			if ((param -> type) != (at -> type)) {
 				delete parameters;
 				throw Program::Error(
 					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType), ErrorCode::evl
+					* c, ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
-				if ((param -> tokenType -> lexeme) !=
-					(a[j] -> getObjectName())) {
+				if ((param -> tokenType -> lexeme) != (at -> getObjectName())) {
 					delete parameters;
 					throw Program::Error(
 						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType), ErrorCode::evl
+						* c, ErrorCode::evl
 					);
 				}
 			}
@@ -68,21 +66,16 @@ namespace Spin {
 			j += 1;
 		}
 		// Binding self:
-		if (self) parameters -> define("self", self);
+		bindSelf(parameters);
 		Environment * environment = new Environment(parameters);
-		try {
-			i -> executeFunction(declaration -> body, environment);
-		} catch (Interpreter::Return & ret) {
+		try { i -> executeFunction(declaration -> body, environment); }
+		catch (Interpreter::Return & ret) {
 			Object * value = ret.getReturnValue();
 			String type = declaration -> returnType -> tokenType -> lexeme;
 			// Safely unbinding self:
-			if (self) {
-				parameters -> unbind("self");
-				self = nullptr;
-			}
+			unbindSelf(parameters);
 			// Safely delete function parameters:
 			delete parameters;
-			parameters = nullptr;
 			if (value && type == value -> getObjectName()) return value;
 			throw Program::Error(
 				i -> currentUnit,
@@ -92,12 +85,9 @@ namespace Spin {
 			);
 		}
 		// Safely unbinding self:
-		if (self) {
-			parameters -> unbind("self");
-			self = nullptr;
-		}
+		unbindSelf(parameters);
 		// Safely delete function parameters:
-		if (parameters) delete parameters;
+		delete parameters;
 		throw Program::Error(
 			i -> currentUnit,
 			"Function " + stringValue() + " reached bottom of body without returning a valid '" +
@@ -136,16 +126,15 @@ namespace Spin {
 				throw Program::Error(
 					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType), ErrorCode::evl
+					* c, ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
-				if ((param -> tokenType -> lexeme) !=
-					(a[j] -> getObjectName())) {
+				if ((param -> tokenType -> lexeme) != (a[j] -> getObjectName())) {
 					delete parameters;
 					throw Program::Error(
 						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType), ErrorCode::evl
+						* c, ErrorCode::evl
 					);
 				}
 			}
@@ -153,20 +142,15 @@ namespace Spin {
 			j += 1;                                        
 		}
 		// Binding self:
-		if (self) parameters -> define("self", self);
+		bindSelf(parameters);
 		Environment * environment = new Environment(parameters);
-		try {
-			i -> executeFunction(declaration -> body, environment);
-		} catch (Interpreter::Return & ret) {
+		try { i -> executeFunction(declaration -> body, environment); }
+		catch (Interpreter::Return & ret) {
 			if (ret.getReturnValue() -> value) {
 				// Safely unbinding self:
-				if (self) {
-					parameters -> unbind("self");
-					self = nullptr;
-				}
+				unbindSelf(parameters);
 				// Safely delete function parameters:
 				delete parameters;
-				parameters = nullptr;
 				throw Program::Error(
 					i -> currentUnit,
 					"Procedure " + stringValue() + " reached invalid return statement with value of type '" +
@@ -175,14 +159,10 @@ namespace Spin {
 				);
 			}
 		}
-		Instance * s = (Instance *)self->value;
 		// Safely unbinding self:
-		if (self) {
-			parameters -> unbind("self");
-			self = nullptr;
-		}
+		unbindSelf(parameters);
 		// Safely delete function parameters:
-		if (parameters) delete parameters;
+		delete parameters;
 		return nullptr;
 	}
 	String Procedure::stringValue() const {
@@ -215,7 +195,7 @@ namespace Spin {
 				throw Program::Error(
 					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType), ErrorCode::evl
+					* c, ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) != (a[j] -> getObjectName())) {
@@ -223,7 +203,7 @@ namespace Spin {
 					throw Program::Error(
 						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType), ErrorCode::evl
+						* c, ErrorCode::evl
 					);
 				}
 			}
@@ -244,6 +224,17 @@ namespace Spin {
 			throw;
 		}
 		deallocate(a);
+		// Safely unbinding self:
+		if (self) {
+			// Self is a wrapper to the original declaration.
+			// We can't destroy the original and so we swap
+			// it with something fake which easy to delete.
+			// That way we only delete the wrapper leaving
+			// the original declaration intact.
+			self -> value = nullptr;
+			delete self;
+			self = nullptr;
+		}
 		return result;
 	}
 	void NativeFunction::deallocate(Array<Object *> & parameters) {
@@ -279,7 +270,7 @@ namespace Spin {
 				throw Program::Error(
 					i -> currentUnit,
 					"Call of " + stringValue() + " doesn't match the predefined parameters!",
-					* (param -> tokenType), ErrorCode::evl
+					* c, ErrorCode::evl
 				);
 			} else if (param -> type == BasicType::ClassType) {
 				if ((param -> tokenType -> lexeme) != (a[j] -> getObjectName())) {
@@ -287,7 +278,7 @@ namespace Spin {
 					throw Program::Error(
 						i -> currentUnit,
 						"Call of " + stringValue() + " doesn't match the predefined parameters!",
-						* (param -> tokenType), ErrorCode::evl
+						* c, ErrorCode::evl
 					);
 				}
 			}
@@ -307,6 +298,17 @@ namespace Spin {
 			throw;
 		}
 		deallocate(a);
+		// Safely unbinding self:
+		if (self) {
+			// Self is a wrapper to the original declaration.
+			// We can't destroy the original and so we swap
+			// it with something fake which easy to delete.
+			// That way we only delete the wrapper leaving
+			// the original declaration intact.
+			self -> value = nullptr;
+			delete self;
+			self = nullptr;
+		}
 		return nullptr;
 	}
 	void NativeProcedure::deallocate(Array<Object *> & parameters) {

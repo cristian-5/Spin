@@ -202,6 +202,7 @@ namespace Spin {
 	}
 	Literal::~Literal() {
 		delete token;
+		if (object) delete object;
 	}
 
 	Logical::Logical(Expression * ls, Token * op, Expression * rs) {

@@ -47,50 +47,48 @@ namespace Spin {
 	/* Expressions */
 
 	Object * Interpreter::visitAssignmentExpression(Assignment * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> value);
-			Object * obj = nullptr;
-			try {
-				obj = memory -> getReference(e -> name -> lexeme);
-			} catch (Environment::VariableNotFoundException & r) {
-				if (expression) delete expression;
-				expression = nullptr;
-				throw Program::Error(
-					currentUnit,
-					"Unexpected identifier '" +
-					e -> name -> lexeme + "'!",
-					* e -> name, ErrorCode::evl
-				);
-			}
-			CPU -> applyAssignment(e -> o, obj, expression);
-			return expression;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
+		Object * expression;
+		Object * obj;
+		try { expression = evaluate(e -> value); }
+		catch (Exception & exc) { throw; }
+		try { obj = memory -> getReference(e -> name -> lexeme); }
+		catch (Environment::VariableNotFoundException & r) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Unexpected identifier '" +
+				e -> name -> lexeme + "'!",
+				* e -> name, ErrorCode::evl
+			);
+		}
+		try { CPU -> applyAssignment(e -> o, obj, expression); }
+		catch (Program::Error & p) {
+			delete expression;
 			throw;
 		}
+		return expression;
 	}
 	Object * Interpreter::visitBinaryExpression(Binary * e) {
 		Object * l = nullptr;
 		Object * r = nullptr;
-		Object * result = nullptr;
+		Object * result;
 		try {
 			l = evaluate(e -> l);
 			r = evaluate(e -> r);
 			result = CPU -> applyBinaryOperator(e -> o, l, r);
-			delete r; delete l; return result;
 		} catch (Exception & exc) {
 			if (l) delete l;
 			if (r) delete r;
-			if (result) delete result;
 			throw;
 		}
+		delete r;
+		delete l;
+		return result;
 	}
 	Object * Interpreter::visitBraExpression(Bra * e) {
-		Object * v = nullptr;
-		try {
-			v = memory -> getValue(e -> name);
-		} catch (Environment::VariableNotFoundException & exc) {
+		Object * v;
+		try { v = memory -> getValue(e -> name); }
+		catch (Environment::VariableNotFoundException & exc) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected Vector identifier '" +
@@ -111,74 +109,90 @@ namespace Spin {
 		return v;
 	}
 	Object * Interpreter::visitCallExpression(Call * e) {
-		Object * callee = nullptr;
-		CallProtocol * function = nullptr;
-		Array<Object *> arguments = Array<Object *>();
-		try {
-			callee = evaluate(e -> callee);
-			for (Expression * a : * e -> arguments) {
-				Object * evaluation = evaluate(a);
-				arguments.push_back(evaluation -> copy());
-				delete evaluation;
+		Array<Object *> arguments;
+		Object * callee;
+		Object * result;
+		try { callee = evaluate(e -> callee); }
+		catch (Exception & exc) { throw; }
+		if (!(callee -> isCallable()) || !(callee -> value)) {
+			delete callee;
+			throw Program::Error(
+				currentUnit,
+				"Failed call of invalid function!",
+				* e -> parenthesis, ErrorCode::evl
+			);
+		}
+		Object * evaluation;
+		for (Expression * a : * e -> arguments) {
+			try { evaluation = evaluate(a); }
+			catch (Exception & exc) {
+				delete callee;
+				for (auto a : arguments) delete a;
+				throw;
 			}
-			if (!(callee -> isCallable()) ||
-				!(callee -> value)) {
+			arguments.push_back(evaluation);
+		}
+		CallProtocol * function = (CallProtocol *)(callee -> value);
+		if (function -> isInstanceOf<Class>()) {
+			if (!(e -> isConstructor)) {
+				delete callee;
+				for (auto a : arguments) delete a;
 				throw Program::Error(
 					currentUnit,
-					"Failed call of invalid function!",
+					"Constructor call is missing 'new' operator!",
 					* e -> parenthesis, ErrorCode::evl
 				);
 			}
+			// Needs a reference instead of a copy of the definition:
+			Object * backUpCallee = callee;
+			callee = memory -> getReference(
+				((Class *) callee -> value) -> name
+			);
+			delete backUpCallee;
 			function = (CallProtocol *)(callee -> value);
-			Boolean lost = false;
-			if (function -> isInstanceOf<Class>()) {
-				if (!e -> isConstructor) {
-					throw Program::Error(
-						currentUnit,
-						"Constructor call is missing 'new' operator!",
-						* e -> parenthesis, ErrorCode::evl
-					);
-				}
-				lost = true;
-				// Needs a reference instead of a copy of the definition:
-				Object * backUpCallee = callee;
-				callee = memory -> getReference(
-					((Class *) callee -> value) -> name
-				);
-				delete backUpCallee;
-				function = (CallProtocol *)(callee -> value);
-			} else if (e -> isConstructor) {
-				throw Program::Error(
-					currentUnit,
-					"Operator 'new' doesn't support operands of type 'Routine'!",
-					* e -> parenthesis, ErrorCode::evl
-				);
+			try { result = function -> call(arguments, e -> parenthesis); }
+			catch (Exception & exc) {
+				delete callee;
+				for (auto a : arguments) delete a;
+				throw;
 			}
-			Object * result = function -> call(arguments, e -> parenthesis);
-			if (lost) memory -> lose(result);
+			memory -> lose(result);
+			delete callee;
 			return result;
-		} catch (Exception & exc) {
-			// There's no need to delete the arguments since
-			// they always get deleted in the function call.
-			if (callee) delete callee;
+		} else if (e -> isConstructor) {
+			delete callee;
+			for (auto a : arguments) delete a;
+			throw Program::Error(
+				currentUnit,
+				"Operator 'new' doesn't support operands of type 'Routine'!",
+				* e -> parenthesis, ErrorCode::evl
+			);
+		}
+		try { result = function -> call(arguments, e -> parenthesis); }
+		catch (Exception & exc) {
+			delete callee;
+			for (auto a : arguments) delete a;
 			throw;
 		}
+		delete callee;
+		return result;
 	}
 	Object * Interpreter::visitComparisonExpression(Comparison * e) {
 		Object * l = nullptr;
 		Object * r = nullptr;
-		Object * result = nullptr;
+		Object * result;
 		try {
 			l = evaluate(e -> l);
 			r = evaluate(e -> r);
 			result = CPU -> applyComparisonOperator(e -> o, l, r);
-			delete r; delete l; return result;
 		} catch (Exception & exc) {
 			if (l) delete l;
 			if (r) delete r;
-			if (result) delete result;
 			throw;
 		}
+		delete r;
+		delete l;
+		return result;
 	}
 	Object * Interpreter::visitDynamicGetExpression(DynamicGet * e) {
 		Object * object = nullptr;
@@ -264,9 +278,8 @@ namespace Spin {
 		catch (Exception & exc) { throw; }
 	}
 	Object * Interpreter::visitIdentifierExpression(Identifier * e) {
-		try {
-			return memory -> getValue(e -> name -> lexeme);
-		} catch (Environment::VariableNotFoundException & exc) {
+		try { return memory -> getValue(e -> name -> lexeme); }
+		catch (Environment::VariableNotFoundException & exc) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected identifier '" +
@@ -276,11 +289,10 @@ namespace Spin {
 		}
 	}
 	Object * Interpreter::visitInnerExpression(Inner * e) {
-		Object * b = nullptr;
-		Object * k = nullptr;
-		try {
-			b = memory -> getValue(e -> bra);
-		} catch (Environment::VariableNotFoundException & exc) {
+		Object * b;
+		Object * k;
+		try { b = memory -> getValue(e -> bra); }
+		catch (Environment::VariableNotFoundException & exc) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected Vector identifier '" +
@@ -288,9 +300,9 @@ namespace Spin {
 				* e -> inner, ErrorCode::evl
 			);
 		}
-		try {
-			k = memory -> getValue(e -> ket);
-		} catch (Environment::VariableNotFoundException & exc) {
+		try { k = memory -> getValue(e -> ket); }
+		catch (Environment::VariableNotFoundException & exc) {
+			delete b;
 			throw Program::Error(
 				currentUnit,
 				"Unexpected Vector identifier '" +
@@ -318,15 +330,13 @@ namespace Spin {
 		}
 		((Vector *) b -> value) -> inBraForm();
 		((Vector *) k -> value) -> inKetForm();
-		try {
-			return CPU -> applyInnerProduct(e -> inner, b, k);
-		} catch (Exception & exc) { throw; }
+		try { return CPU -> applyInnerProduct(e -> inner, b, k); }
+		catch (Exception & exc) { throw; }
 	}
 	Object * Interpreter::visitKetExpression(Ket * e) {
-		Object * v = nullptr;
-		try {
-			v = memory -> getValue(e -> name);
-		} catch (Environment::VariableNotFoundException & exc) {
+		Object * v;
+		try { v = memory -> getValue(e -> name); }
+		catch (Environment::VariableNotFoundException & exc) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected Vector identifier '" +
@@ -360,56 +370,56 @@ namespace Spin {
 		return new Object(BasicType::ArrayType, new ArrayList(elements));
 	}
 	Object * Interpreter::visitLiteralExpression(Literal * e) {
-		try {
-			return e -> object -> copy();
-		} catch (Exception & exc) { throw; }
+		try { return e -> object -> copy(); }
+		catch (Exception & exc) { throw; }
 	}
 	Object * Interpreter::visitLogicalExpression(Logical * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> l);
-			if (!(expression -> isBoolean())) {
-				throw Program::Error(
-					currentUnit,
-					"Invalid Boolean expression found on left side of circuit operator '||'!",
-					* e -> o, ErrorCode::evl
-				);
-			}
-			if ((e -> o -> type) == TokenType::OR) {
-				if (expression -> getBoolValue()) return expression;
-			} else if (!(expression -> getBoolValue())) return expression;
-			return evaluate(e -> r);
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			throw;
+		Object * expression;
+		try { expression = evaluate(e -> l); }
+		catch (Exception & exc) { throw; }
+		if (!(expression -> isBoolean())) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Invalid Boolean expression found on left side of circuit operator '||'!",
+				* e -> o, ErrorCode::evl
+			);
 		}
+		if ((e -> o -> type) == TokenType::OR) {
+			if (expression -> getBoolValue()) return expression;
+		} else if (!(expression -> getBoolValue())) return expression;
+		delete expression;
+		try { return evaluate(e -> r); }
+		catch (Exception & exc) { throw; }
 	}
 	Object * Interpreter::visitMutableExpression(Mutable * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> value);
-			Object * obj = nullptr;
-			try {
-				obj = memory -> getReference(e -> name -> lexeme);
-			} catch (Environment::VariableNotFoundException & r) {
-				throw Program::Error(
-					currentUnit,
-					"Unexpected identifier '" +
-					e -> name -> lexeme + "'!",
-					* e -> name, ErrorCode::evl
-				);
-			}
-			CPU -> applyMutableAssignment(e -> o, obj, expression);
-			return obj -> copy();
-		} catch (Exception & exc) { throw; }
+		Object * expression;
+		Object * obj;
+		try { expression = evaluate(e -> value); }
+		catch (Exception & exc) { throw; }
+		try { obj = memory -> getReference(e -> name -> lexeme); }
+		catch (Environment::VariableNotFoundException & r) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Unexpected identifier '" +
+				e -> name -> lexeme + "'!",
+				* e -> name, ErrorCode::evl
+			);
+		}
+		try { CPU -> applyMutableAssignment(e -> o, obj, expression); }
+		catch (Exception & exc) {
+			delete expression;
+			throw;
+		}
+		return expression;
 	}
 	Object * Interpreter::visitOuterExpression(Outer * e) {
 		return nullptr;
 	}
 	Object * Interpreter::visitSelfExpression(Self * e) {
-		try {
-			return memory -> getValue("self");
-		} catch (Environment::VariableNotFoundException & exc) {
+		try { return memory -> getValue("self"); }
+		catch (Environment::VariableNotFoundException & exc) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected use of 'self' outside of allowed context!",
@@ -511,42 +521,46 @@ namespace Spin {
 		return value;
 	}
 	Object * Interpreter::visitSubscriptExpression(Subscript * e) {
-		Object * item = nullptr;
-		Object * expression = nullptr;
-		Object * result = nullptr;
-		try {
-			item = evaluate(e -> item);
-			if (!(item -> isSubscriptable()) ||
-				!(item -> value)) {
-				throw Program::Error(
-					currentUnit,
-					"The selected object doesn't support subscription!",
-					* e -> bracket, ErrorCode::evl
-				);
-			}
-			expression = evaluate(e -> expression);
-			result = CPU -> applySubscriptOperator(e -> bracket, item, expression);
-			delete item; delete expression;
-			return result;
-		} catch (Exception & exc) {
-			if (item) delete item;
-			if (expression) delete expression;
-			if (result) delete result;
+		Object * item;
+		Object * expression;
+		Object * result;
+		try { item = evaluate(e -> item); }
+		catch (Exception & exc) { throw; }
+		if (!(item -> isSubscriptable()) || !(item -> value)) {
+			delete item;
+			throw Program::Error(
+				currentUnit,
+				"The selected object doesn't support subscription!",
+				* e -> bracket, ErrorCode::evl
+			);
+		}
+		try { expression = evaluate(e -> expression); }
+		catch (Exception & exc) {
+			delete item;
 			throw;
 		}
+		try { result = CPU -> applySubscriptOperator(e -> bracket, item, expression); }
+		catch (Exception & exc) {
+			delete item;
+			delete expression;
+			throw;
+		}
+		delete item;
+		delete expression;
+		return result;
 	}
 	Object * Interpreter::visitUnaryExpression(Unary * e) {
-		Object * expression = nullptr;
-		Object * result = nullptr;
-		try {
-			expression = evaluate(e -> r);
-			result = CPU -> applyUnaryOperator(e -> o, expression);
-			delete expression; return result;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			if (result) delete result;
+		Object * expression;
+		Object * result;
+		try { expression = evaluate(e -> r); }
+		catch (Exception & exc) { throw; }
+		try { result = CPU -> applyUnaryOperator(e -> o, expression); }
+		catch (Exception & exc) {
+			delete expression;
 			throw;
 		}
+		delete expression;
+		return result;
 	}
 
 	Object * Interpreter::evaluate(Expression * e) {
@@ -557,15 +571,13 @@ namespace Spin {
 	/* Statements */
 
 	void Interpreter::visitAttributeStatement(AttributeStatement * e) {
-		try {
-			currentModifier = e -> modifier;
-			e -> field -> accept(this);
-		} catch (Exception & exc) { throw; }
+		currentModifier = e -> modifier;
+		try { e -> field -> accept(this); }
+		catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitBlockStatement(BlockStatement * e) {
-		try {
-			executeBlock(e -> statements, new Environment(memory));
-		} catch (Exception & exc) { throw; }
+		try { executeBlock(e -> statements, new Environment(memory)); }
+		catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitBreakStatement(BreakStatement * e) {
 		broken = true;
@@ -608,9 +620,8 @@ namespace Spin {
 		continued = true;
 	}
 	void Interpreter::visitDeleteStatement(DeleteStatement * e) {
-		try {
-			memory -> forget(e -> name -> lexeme);
-		} catch (Environment::VariableNotFoundException & exc) {
+		try { memory -> forget(e -> name -> lexeme); }
+		catch (Environment::VariableNotFoundException & exc) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected identifier '" + e -> name -> lexeme +
@@ -620,34 +631,47 @@ namespace Spin {
 		}
 	}
 	void Interpreter::visitDoWhileStatement(DoWhileStatement * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> expression);
-			if (!(expression -> isBoolean())) {
-				throw Program::Error(
-					currentUnit,
-					"Unsupported evaluation of non logical condition in iteration statement!",
-					* e -> whileToken, ErrorCode::evl
-				);
-			}
-			Boolean condition = expression -> getBoolValue();
-			executeStatement(e -> body);
-			if (broken) { broken = false; return; }
-			while (condition) {
-				executeStatement(e -> body);
-				if (broken) { broken = false; break; }
-				delete expression; expression = nullptr;
-				expression = evaluate(e -> expression);
-				condition = expression -> getBoolValue();
-			}
-			if (expression) delete expression;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
+		Object * expression;
+		try { expression = evaluate(e -> expression); }
+		catch (Exception & exc) { throw; }
+		if (!(expression -> isBoolean())) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Unsupported evaluation of non logical condition in iteration statement!",
+				* e -> whileToken, ErrorCode::evl
+			);
+		}
+		try { executeStatement(e -> body); }
+		catch (Exception & exc) {
+			delete expression;
 			throw;
 		}
+		Boolean condition = expression -> getBoolValue();
+		if (broken) {
+			broken = false;
+			delete expression;
+			return;
+		}
+		while (condition) {
+			try { executeStatement(e -> body); }
+			catch (Exception & exc) {
+				delete expression;
+				throw;
+			}
+			delete expression;
+			if (broken) {
+				broken = false;
+				break;
+			}
+			try { expression = evaluate(e -> expression); }
+			catch (Exception & exc) { throw; }
+			condition = expression -> getBoolValue();
+		}
+		delete expression;
 	}
 	void Interpreter::visitExpressionStatement(ExpressionStatement * e) {
-		try { evaluate(e -> e); }
+		try { delete evaluate(e -> e); }
 		catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitFileStatement(FileStatement * e) {
@@ -760,12 +784,11 @@ namespace Spin {
 		}
 	}
 	void Interpreter::visitLoopStatement(LoopStatement * e) {
-		try {
-			while (true) {
-				executeStatement(e -> body);
-				if (broken) { broken = false; break; }
-			}
-		} catch (Exception & exc) { throw; }
+		while (true) {
+			try { executeStatement(e -> body); }
+			catch (Exception & exc) { throw; }
+			if (broken) { broken = false; break; }
+		}
 	}
 	void Interpreter::visitProcedureStatement(ProcedureStatement * e) {
 		try {
@@ -851,10 +874,11 @@ namespace Spin {
 	}
 	void Interpreter::visitReturnStatement(ReturnStatement * e) {
 		Object * expression = nullptr;
-		try {
-			if (e -> e) expression = evaluate(e -> e);
-			throw Return(expression, new Token(* e -> returnToken));
-		} catch (Exception & exc) { throw; }
+		if (e -> e) {
+			try { expression = evaluate(e -> e); }
+			catch (Exception & exc) { throw; }
+		}
+		throw Return(expression, new Token(* e -> returnToken));
 	}
 	void Interpreter::visitSwapStatement(SwapStatement * e) {
 		Object * l = nullptr;
@@ -913,52 +937,67 @@ namespace Spin {
 		Object * definition = nullptr;
 		Object * instance = nullptr;
 		CallProtocol * constructor = nullptr;
-		try {
-			if (e -> object) {
-				// This is the class definition:
-				try { definition = memory -> getReference(e -> object -> lexeme); }
-				catch (Environment::VariableNotFoundException & oex) {
-					throw Program::Error(
-						currentUnit,
-						"Object definition not found!",
-						* e -> object, ErrorCode::evl
-					);
-				}
-				// Empty instance from class definition:
-				Class * definedClass = (Class *) definition -> value;
-				instance = new Object(
-					BasicType::InstanceType,
-					new Instance(definedClass)
+		if (e -> object) {
+			// This is the class definition:
+			try { definition = memory -> getReference(e -> object -> lexeme); }
+			catch (Environment::VariableNotFoundException & oex) {
+				throw Program::Error(
+					currentUnit,
+					"Object definition not found!",
+					* e -> object, ErrorCode::evl
 				);
-				// Call of eventual custom constructor:
-				if (e -> initialiser) {
-					// This returns a new instance with the specified definition.
-					expression = evaluate(e -> initialiser);
-					// This should work if the definitions are compatible.
-					CPU -> applyAssignment(e -> equal, instance, expression);
-					// There's no need to delete the expression since the original
-					// object has already been sent to lost and found.
-				} else if (definedClass -> arity() > 0) {
-					throw Program::Error(
-						currentUnit,
-						"Object instantiation requires constructor call when it's defined!",
-						* e -> name, ErrorCode::evl
-					);
-				}
-				expression = instance;
-			} else {
-				// Normal variables:
-				if (e -> initialiser) {
-					expression = evaluate(e -> initialiser);
-					Object * o = new Object(e -> type);
-					CPU -> applyAssignment(e -> equal, o, expression);
-					delete expression; expression = o;
-				} else expression = new Object(e -> type);
 			}
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			if (instance) delete instance;
-			throw;
+			// Empty instance from class definition:
+			Class * definedClass = (Class *) definition -> value;
+			instance = new Object(
+				BasicType::InstanceType,
+				new Instance(definedClass)
+			);
+			// Call of eventual custom constructor:
+			if (e -> initialiser) {
+				// This returns a new instance with the specified definition.
+				try { expression = evaluate(e -> initialiser); }
+				catch (Exception & exc) {
+					delete instance;
+					throw;
+				}
+				// This should work if the definitions are compatible.
+				try { CPU -> applyAssignment(e -> equal, instance, expression); }
+				catch (Exception & exc) {
+					delete instance;
+					delete expression;
+					throw;
+				}
+				// There's no need to delete the expression since the original
+				// object has already been sent to lost and found.
+			} else if (definedClass -> arity() > 0) {
+				// TODO: Also check if it has 0 arity and it's
+				//       defined, we should call it automatically.
+				//       (It probably already happens but IDK)
+				throw Program::Error(
+					currentUnit,
+					"Object instantiation requires constructor call when it's defined!",
+					* e -> name, ErrorCode::evl
+				);
+			}
+			expression = instance;
+		} else {
+			// Normal variables:
+			if (e -> initialiser) {
+				Object * o = new Object(e -> type);
+				try {
+					// We use an assignment so it can
+					// cast an object into the other.
+					expression = evaluate(e -> initialiser);
+					CPU -> applyAssignment(e -> equal, o, expression);
+				} catch (Exception & exc) {
+					if (expression) delete expression;
+					delete o;
+					throw;
+				}
+				delete expression;
+				expression = o;
+			} else expression = new Object(e -> type);
 		}
 		try {
 			if (instanceDefinition) {
@@ -985,26 +1024,27 @@ namespace Spin {
 	}
 	void Interpreter::visitVectorStatement(VectorStatement * e) {
 		Object * expression = nullptr;
-		try {
-			if (e -> initialiser) {
+		if (e -> initialiser) {
+			Object * o = new Object(
+				BasicType::VectorType,
+				// A ket starts with '|':
+				new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
+			);
+			try {
 				expression = evaluate(e -> initialiser);
-				Object * o = new Object(
-					BasicType::VectorType,
-					// A ket starts with '|':
-					new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
-				);
 				CPU -> applyVectorAssignment(e -> equal, o, expression);
-				delete expression; expression = o;
-			} else {
-				expression = new Object(
-					BasicType::VectorType,
-					// A ket starts with '|':
-					new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
-				);
+			} catch (Exception & exc) {
+				if (expression) delete expression;
+				delete o;
+				throw;
 			}
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			throw;
+			delete expression; expression = o;
+		} else {
+			expression = new Object(
+				BasicType::VectorType,
+				// A ket starts with '|':
+				new Vector(e -> vector -> lexeme[0] == '|' ? 0 : 1)
+			);
 		}
 		try {
 			if (instanceDefinition) {
@@ -1029,6 +1069,7 @@ namespace Spin {
 		}
 	}
 	void Interpreter::visitWhileStatement(WhileStatement * e) {
+		// IMPROVE: try catch.
 		Object * expression = nullptr;
 		try {
 			expression = evaluate(e -> expression);
@@ -1060,26 +1101,25 @@ namespace Spin {
 	}
 	void Interpreter::executeBlock(Array<Statement *> * statements, Environment * environment) {
 		Environment * previous = memory;
-		try {
-			memory = environment;
-			for (Statement * statement : * statements) {
-				executeStatement(statement);
-				if (broken || continued) {
-					continued = false; break;
-				}
+		memory = environment;
+		for (Statement * statement : * statements) {
+			try { executeStatement(statement); }
+			catch (Exception & exc) {
+				memory = previous;
+				delete environment;
+				throw;
 			}
-		} catch (Exception & exc) {
-			memory = previous;
-			delete environment;
-			throw;
+			if (broken || continued) {
+				continued = false;
+				break;
+			}
 		}
 		memory = previous;
 		delete environment;
 	}
 	void Interpreter::executeFunction(BlockStatement * block, Environment * environment) {
-		try {
-			executeBlock(block -> statements, environment);
-		} catch (Exception & exc) { throw; }
+		try { executeBlock(block -> statements, environment); }
+		catch (Exception & exc) { throw; }
 	}
 
 	void Interpreter::evaluate(SyntaxTree * syntaxTree) {
@@ -1092,12 +1132,11 @@ namespace Spin {
 				Library::define(lib, globals);
 			}
 		}
-		try {
-			for (Statement * statement : * syntaxTree -> statements) {
-				executeStatement(statement);
-			}
-		} catch (Program::Error & e) { throw; }
-		delete memory;
+		for (Statement * statement : * syntaxTree -> statements) {
+			try { executeStatement(statement); }
+			catch (Program::Error & e) { throw; }
+		}
+		delete globals;
 		memory = nullptr;
 		globals = nullptr;
 	}
