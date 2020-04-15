@@ -762,25 +762,25 @@ namespace Spin {
 		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitIfStatement(IfStatement * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> expression);
-			if (!(expression -> isBoolean())) {
-				throw Program::Error(
-					currentUnit,
-					"Unsupported evaluation of non logical expression in conditional statement!",
-					* e -> ifToken, ErrorCode::evl
-				);
-			}
-			if (expression -> getBoolValue()) {
-				executeStatement(e -> thenBranch);
-			} else if (e -> elseBranch) {
-				executeStatement(e -> elseBranch);
-			}
-			if (expression) delete expression;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			throw;
+		Object * expression;
+		try { expression = evaluate(e -> expression); }
+		catch (Exception & exc) { throw; }
+		if (!(expression -> isBoolean())) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Unsupported evaluation of non logical expression in conditional statement!",
+				* e -> ifToken, ErrorCode::evl
+			);
+		}
+		if (expression -> getBoolValue()) {
+			delete expression;
+			try { executeStatement(e -> thenBranch); }
+			catch (Exception & exc) { throw; }
+		} else if (e -> elseBranch) {
+			delete expression;
+			try { executeStatement(e -> elseBranch); }
+			catch (Exception & exc) { throw; }
 		}
 	}
 	void Interpreter::visitLoopStatement(LoopStatement * e) {
@@ -844,36 +844,49 @@ namespace Spin {
 		} catch (Exception & exc) { throw; }
 	}
 	void Interpreter::visitRepeatUntilStatement(RepeatUntilStatement * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> expression);
-			if (!(expression -> isBoolean())) {
-				throw Program::Error(
-					currentUnit,
-					"Unsupported evaluation of non logical expression in iteration statement!",
-					* e -> untilToken, ErrorCode::evl
-				);
-			}
-			Boolean condition = expression -> getBoolValue();
-			executeStatement(e -> body);
-			if (broken) { broken = false; return; }
-			while (!condition) {
-				executeStatement(e -> body);
-				if (broken) { broken = false; break; }
-				delete expression; expression = nullptr;
-				expression = evaluate(e -> expression);
-				condition = expression -> getBoolValue();
-			}
-			if (expression) delete expression;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
+		Object * expression;
+		try { expression = evaluate(e -> expression); }
+		catch (Exception & exc) { throw; }
+		if (!(expression -> isBoolean())) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Unsupported evaluation of non logical condition in iteration statement!",
+				* e -> untilToken, ErrorCode::evl
+			);
+		}
+		try { executeStatement(e -> body); }
+		catch (Exception & exc) {
+			delete expression;
 			throw;
 		}
+		Boolean condition = expression -> getBoolValue();
+		if (broken) {
+			broken = false;
+			delete expression;
+			return;
+		}
+		while (!condition) {
+			try { executeStatement(e -> body); }
+			catch (Exception & exc) {
+				delete expression;
+				throw;
+			}
+			delete expression;
+			if (broken) {
+				broken = false;
+				break;
+			}
+			try { expression = evaluate(e -> expression); }
+			catch (Exception & exc) { throw; }
+			condition = expression -> getBoolValue();
+		}
+		delete expression;
 	}
 	void Interpreter::visitRestStatement(RestStatement * e) {
 	}
 	void Interpreter::visitReturnStatement(ReturnStatement * e) {
-		Object * expression = nullptr;
+		Object * expression;
 		if (e -> e) {
 			try { expression = evaluate(e -> e); }
 			catch (Exception & exc) { throw; }
@@ -886,11 +899,18 @@ namespace Spin {
 		try {
 			l = memory -> getReference(e -> l -> lexeme);
 			r = memory -> getReference(e -> r -> lexeme);
-			if (l -> type == r -> type) {
-				memory -> setReference(e -> l -> lexeme, r);
-				memory -> setReference(e -> r -> lexeme, l);
-				return;
-			}
+		} catch (Environment::VariableNotFoundException & exc) {
+			Token errorToken = * (l ? e -> r : e -> l);
+			throw Program::Error(
+				currentUnit,
+				"Unexpected identifier '" + errorToken.lexeme + "'!",
+				errorToken, ErrorCode::evl
+			);
+		}
+		if (l -> type == r -> type) {
+			memory -> setReference(e -> l -> lexeme, r);
+			memory -> setReference(e -> r -> lexeme, l);
+		} else {
 			throw Program::Error(
 				currentUnit,
 				"Swap failed over incompatible types '" + 
@@ -898,39 +918,34 @@ namespace Spin {
 				r -> getObjectName() + "'!",
 				* (e -> swap), ErrorCode::evl
 			);
-		} catch (Environment::VariableNotFoundException & exc) {
-			Token errorToken = * (l ? e -> l : e -> r);
-			throw Program::Error(
-				currentUnit,
-				"Unexpected identifier '" + errorToken.lexeme + "'!",
-				errorToken, ErrorCode::evl
-			);
-		} catch (Exception & exc) { throw; }
+		}
 	}
 	void Interpreter::visitUntilStatement(UntilStatement * e) {
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> expression);
-			if (!(expression -> isBoolean())) {
-				throw Program::Error(
-					currentUnit,
-					"Unsupported evaluation of non logical expression in iteration statement!",
-					* e -> untilToken, ErrorCode::evl
-				);
-			}
-			Boolean condition = expression -> getBoolValue();
-			while (!condition) {
-				executeStatement(e -> body);
-				if (broken) { broken = false; break; }
-				delete expression; expression = nullptr;
-				expression = evaluate(e -> expression);
-				condition = expression -> getBoolValue();
-			}
-			if (expression) delete expression;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			throw;
+		Object * expression;
+		try { expression = evaluate(e -> expression); }
+		catch (Exception & exc) { throw; }
+		if (!(expression -> isBoolean())) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Unsupported evaluation of non logical expression in iteration statement!",
+				* e -> untilToken, ErrorCode::evl
+			);
 		}
+		Boolean condition = expression -> getBoolValue();
+		while (!condition) {
+			delete expression;
+			try { executeStatement(e -> body); }
+			catch (Exception & exc) { throw; }
+			if (broken) {
+				broken = false;
+				break;
+			}
+			try { expression = evaluate(e -> expression); }
+			catch (Exception & exc) { throw; }
+			condition = expression -> getBoolValue();
+		}
+		delete expression;
 	}
 	void Interpreter::visitVariableStatement(VariableStatement * e) {
 		Object * expression = nullptr;
@@ -1069,30 +1084,31 @@ namespace Spin {
 		}
 	}
 	void Interpreter::visitWhileStatement(WhileStatement * e) {
-		// IMPROVE: try catch.
-		Object * expression = nullptr;
-		try {
-			expression = evaluate(e -> expression);
-			if (!(expression -> isBoolean())) {
-				throw Program::Error(
-					currentUnit,
-					"Unsupported evaluation of non logical expression in iteration statement!",
-					* e -> whileToken, ErrorCode::evl
-				);
-			}
-			Boolean condition = expression -> getBoolValue();
-			while (condition) {
-				executeStatement(e -> body);
-				if (broken) { broken = false; break; }
-				delete expression; expression = nullptr;
-				expression = evaluate(e -> expression);
-				condition = expression -> getBoolValue();
-			}
-			if (expression) delete expression;
-		} catch (Exception & exc) {
-			if (expression) delete expression;
-			throw;
+		Object * expression;
+		try { expression = evaluate(e -> expression); }
+		catch (Exception & exc) { throw; }
+		if (!(expression -> isBoolean())) {
+			delete expression;
+			throw Program::Error(
+				currentUnit,
+				"Unsupported evaluation of non logical expression in iteration statement!",
+				* e -> whileToken, ErrorCode::evl
+			);
 		}
+		Boolean condition = expression -> getBoolValue();
+		while (condition) {
+			delete expression;
+			try { executeStatement(e -> body); }
+			catch (Exception & exc) { throw; }
+			if (broken) {
+				broken = false;
+				break;
+			}
+			try { expression = evaluate(e -> expression); }
+			catch (Exception & exc) { throw; }
+			condition = expression -> getBoolValue();
+		}
+		delete expression;
 	}
 
 	void Interpreter::executeStatement(Statement * statement) {
