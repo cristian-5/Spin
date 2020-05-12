@@ -23,7 +23,6 @@ namespace Spin {
 		Dictionary<BasicType, UnaryHandler> unaryNegation;
 		Dictionary<BasicType, UnaryHandler> unaryInversion;
 		Dictionary<BasicTypes, BinaryHandler> binaryAddition;
-		Dictionary<BasicTypes, BinaryHandler> stringAddition;
 		Dictionary<BasicTypes, BinaryHandler> binarySubtraction;
 		Dictionary<BasicTypes, BinaryHandler> binaryMultiplication;
 		Dictionary<BasicTypes, BinaryHandler> binaryDivision;

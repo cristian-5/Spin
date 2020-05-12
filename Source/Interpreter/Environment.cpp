@@ -34,10 +34,10 @@ namespace Spin {
 		this -> enclosing = enclosing;
 	}
 	Environment::~Environment() {
+		collect();
 		for (auto & value : values) {
 			(value.second) -> safeDestroy();
 		}
-		collect();
 	}
 	void Environment::define(String name, Object * value) {
 		auto search = values.find(name);

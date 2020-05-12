@@ -35,7 +35,7 @@ namespace Spin {
 		StructureType,
 		ExceptionType,
 
-		UnknownType
+		VoidType,
 
 	};
 
@@ -51,7 +51,7 @@ namespace Spin {
 	class Object {
 		public:
 		void * value = nullptr;
-		BasicType type = BasicType::UnknownType;
+		BasicType type = BasicType::VoidType;
 		Object() = default;
 		Object(BasicType t);
 		Object(BasicType t, void * v);
@@ -68,7 +68,7 @@ namespace Spin {
 		String getObjectName() const;
 		Object * copy() const;
 		String getObjectStringValue() const;
-		Boolean isUnknown() const;
+		Boolean isVoid() const;
 		Boolean isFunction() const;
 		Boolean isCallable() const;
 		Boolean isArray() const;
@@ -77,6 +77,7 @@ namespace Spin {
 		Object * getAttribute(String & name);
 		static BasicType typeFromString(String & s);
 		static Object * fromLiteral(Token * t);
+		static Object * voidObject;
 	};
 
 }

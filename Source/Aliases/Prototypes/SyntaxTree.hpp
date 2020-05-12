@@ -90,7 +90,7 @@ namespace Spin {
 			virtual Object * visitUnaryExpression(Unary * e) = 0;
 		};
 		virtual Object * accept(Visitor *) = 0;
-		template<typename t>
+		template <typename t>
 		Boolean isInstanceOf() {
 			return (DynamicCast<t *>(this));
 		}
@@ -124,7 +124,7 @@ namespace Spin {
 			virtual void visitWhileStatement(WhileStatement * e) = 0;
 		};
 		virtual void accept(Visitor *) = 0;
-		template<typename t>
+		template <typename t>
 		Boolean isInstanceOf() {
 			return (DynamicCast<t *>(this));
 		}
@@ -134,7 +134,7 @@ namespace Spin {
 
 	class Parameter {
 		public:
-		BasicType type = BasicType::UnknownType;
+		BasicType type = BasicType::VoidType;
 		Token * tokenType = nullptr;
 		Token * name = nullptr;
 		Parameter() = default;

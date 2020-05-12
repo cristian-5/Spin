@@ -196,108 +196,6 @@ namespace Spin {
 				}
 			}
 		});
-		stringAddition = Dictionary<BasicTypes, BinaryHandler>({
-			{
-				compose(BasicType::StringType, BasicType::StringType),
-				[] (Object * l, Object * r) -> Object * {
-					String * a = (String *) l -> value;
-					String * b = (String *) r -> value;
-					String * c = new String((* a) + (* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::StringType, BasicType::CharacterType),
-				[] (Object * l, Object * r) -> Object * {
-					String * a = (String *) l -> value;
-					Character * b = (Character *) r -> value;
-					String * c = new String(* a);
-					c -> push_back(* b);
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::StringType, BasicType::RealType),
-				[] (Object * l, Object * r) -> Object * {
-					String * a = (String *) l -> value;
-					Real * b = (Real *) r -> value;
-					String * c = new String((* a) + Converter::realToString(* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::StringType, BasicType::ImaginaryType),
-				[] (Object * l, Object * r) -> Object * {
-					String * a = (String *) l -> value;
-					Real * b = (Real *) r -> value;
-					String * c = new String((* a) + Converter::realToString(* b) + "i");
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::StringType, BasicType::IntegerType),
-				[] (Object * l, Object * r) -> Object * {
-					String * a = (String *) l -> value;
-					Int64 * b = (Int64 *) r -> value;
-					String * c = new String((* a) + Converter::integerToString(* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::StringType, BasicType::ComplexType),
-				[] (Object * l, Object * r) -> Object * {
-					String * a = (String *) l -> value;
-					Complex * b = (Complex *) r -> value;
-					String * c = new String((* a) + b -> stringValue());
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::CharacterType, BasicType::StringType),
-				[] (Object * l, Object * r) -> Object * {
-					Character * a = (Character *) l -> value;
-					String * b = (String *) r -> value;
-					String * c = new String((* a) + (* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::RealType, BasicType::StringType),
-				[] (Object * l, Object * r) -> Object * {
-					Real * a = (Real *) l -> value;
-					String * b = (String *) r -> value;
-					String * c = new String(Converter::realToString(* a) + (* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::ImaginaryType, BasicType::StringType),
-				[] (Object * l, Object * r) -> Object * {
-					Real * a = (Real *) l -> value;
-					String * b = (String *) r -> value;
-					String * c = new String(Converter::realToString(* a) + "i" + (* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::IntegerType, BasicType::StringType),
-				[] (Object * l, Object * r) -> Object * {
-					Int64 * a = (Int64 *) l -> value;
-					String * b = (String *) r -> value;
-					String * c = new String(Converter::integerToString(* a) + (* b));
-					return new Object(BasicType::StringType, c);
-				}
-			},
-			{
-				compose(BasicType::ComplexType, BasicType::StringType),
-				[] (Object * l, Object * r) -> Object * {
-					Complex * a = (Complex *) l -> value;
-					String * b = (String *) r -> value;
-					String * c = new String(a -> stringValue() + (* b));
-					return new Object(BasicType::StringType, c);
-				}
-			}
-		});
 		binarySubtraction = Dictionary<BasicTypes, BinaryHandler>({
 			{
 				compose(BasicType::IntegerType, BasicType::IntegerType),
@@ -1716,22 +1614,17 @@ namespace Spin {
 	}
 
 	void Processor::applyAdditionAssignment(Token * t, Object * l, Object * r) {
-		if (l -> isString() || r -> isString()) {
-			auto search = stringAddition.find(compose(l -> type, r -> type));
-			if (search != stringAddition.end()) {
-				auto handler = search -> second;
-				Object * temp = handler(l, r);
-				try { applyAssignment(t, l, temp); }
-				catch (Program::Error & e) { throw; }
-				delete temp; return;
-			}
-			throw Program::Error(
-				currentUnit,
-				"Binary operator '+=' doesn't support operands of type '" +
-				l -> getObjectName() + "' and '" +
-				r -> getObjectName() + "'!",
-				* t, ErrorCode::evl
+		if (l -> isString()) {
+			Object * temp = new Object(
+				BasicType::StringType,
+				new String(
+					(l -> getObjectStringValue()) +
+					(r -> getObjectStringValue())
+				)
 			);
+			try { applyAssignment(t, l, temp); }
+			catch (Program::Error & e) { throw; }
+			delete temp; return;
 		}
 		auto search = binaryAddition.find(compose(l -> type, r -> type));
 		if (search != binaryAddition.end()) {
@@ -1904,18 +1797,13 @@ namespace Spin {
 	}
 
 	Object * Processor::applyAddition(Token * t, Object * l, Object * r) {
-		if (l -> isString() || r -> isString()) {
-			auto search = stringAddition.find(compose(l -> type, r -> type));
-			if (search != stringAddition.end()) {
-				auto handler = search -> second;
-				return handler(l, r);
-			}
-			throw Program::Error(
-				currentUnit,
-				"Binary operator '+' doesn't support operands of type '" +
-				l -> getObjectName() + "' and '" +
-				r -> getObjectName() + "'!",
-				* t, ErrorCode::evl
+		if ((l -> isString()) || (r -> isString())) {
+			return new Object(
+				BasicType::StringType,
+				new String(
+					(l -> getObjectStringValue()) +
+					(r -> getObjectStringValue())
+				)
 			);
 		}
 		auto search = binaryAddition.find(compose(l -> type, r -> type));
@@ -2279,7 +2167,7 @@ namespace Spin {
 				}
 				throw Program::Error(
 					currentUnit,
-					"Subscript operator '[ ]' threw index out of range exception!",
+					"Subscript operator '[]' threw index out of range exception!",
 					* t, ErrorCode::evl
 				);
 			}
@@ -2297,7 +2185,7 @@ namespace Spin {
 		}
 		throw Program::Error(
 			currentUnit,
-			"Subscript operator '[ ]' doesn't support operand of type '" +
+			"Subscript operator '[]' doesn't support operand of type '" +
 			r -> getObjectName() + "' on inner expression of type '" +
 			l -> getObjectName() + "'!",
 			* t, ErrorCode::evl

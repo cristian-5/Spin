@@ -25,41 +25,22 @@ namespace Spin {
 		public:
 		Console() = default;
 		static const String name;
-		static Object * write();
-		static Object * writeLine();
-		static Object * read();
-		static Object * readLine();
-		static Object * setBackground();
-		static Object * setForeground();
-		static Object * setBlink();
-		static Object * setBold();
-		static Object * setInverse();
-		static Object * newLine();
-		static Object * reset();
-		static Object * clean();
 		static void defineLibrary(Environment * global);
 	};
 
-	class Kronos {
-		public:
-		Kronos() = default;
-		static void defineLibrary(Environment * global);
-	};
-
-	class Maths {
-		public:
-		Maths() = default;
-		static void defineLibrary(Environment * global);
-	};
-
-	// Basic Types:
+	// Static Virtual Classes:
 
 	class VirtualBoolean {
 		public:
 		VirtualBoolean() = default;
 		static const String name;
-		static Object * description();
-		static Object * from();
+		static void defineLibrary(Environment * global);
+	};
+
+	class VirtualString {
+		public:
+		VirtualString() = default;
+		static const String name;
 		static void defineLibrary(Environment * global);
 	};
 

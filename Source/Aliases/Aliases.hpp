@@ -43,6 +43,7 @@
 	using Real = double;
 
 	#define Array std::vector
+	#define Set std::set
 	#define Dictionary std::unordered_map
 
 	#define InitialiserList std::initializer_list

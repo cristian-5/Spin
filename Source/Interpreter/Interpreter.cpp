@@ -157,7 +157,10 @@ namespace Spin {
 				throw;
 			}
 			memory -> lose(result);
-			delete callee;
+			// NEVER delete callee when it's a constructor
+			// since it's a reference of the class inside
+			// the global environment. It will be deleted
+			// automatically at the end of the execution.
 			return result;
 		} else if (e -> isConstructor) {
 			delete callee;
@@ -173,6 +176,11 @@ namespace Spin {
 			delete callee;
 			for (auto a : arguments) delete a;
 			throw;
+		}
+		if (!result) {
+			// If it was a procedure, return the pointer to void.
+			Object * voidObject = Object::voidObject -> copy();
+			return voidObject;
 		}
 		delete callee;
 		return result;
@@ -196,29 +204,24 @@ namespace Spin {
 	}
 	Object * Interpreter::visitDynamicGetExpression(DynamicGet * e) {
 		Object * object = nullptr;
-		try {
-			object = evaluate(e -> object);
-			if (object -> type == BasicType::UnknownType) {
-				throw Program::Error(
-					currentUnit,
-					"The resolved object is not an instance and does not contain properties!",
-					* e -> name, ErrorCode::evl
-				);
-			}
+		try { object = evaluate(e -> object); }
+		catch (Exception & exc) { throw; }
+		if (object -> isVoid()) {
+			throw Program::Error(
+				currentUnit,
+				"The resolved object is not an instance and does not contain properties!",
+				* e -> name, ErrorCode::evl
+			);
+		}
+		Object * value = nullptr;
+		// Check if we are inside a class method:
+		if (e -> selfReference) {
 			try {
-				Object * value = nullptr;
-				// Check if we are inside a method:
-				if (e -> selfReference) {
-					value = ((Instance *) object -> value) -> getInnerValue(
-						e -> name -> lexeme
-					);
-				} else value = object -> getAttribute(e -> name -> lexeme);
-				if (value -> type == BasicType::RoutineType) {
-					// Bind self to the function:
-					((CallProtocol *) value -> value) -> self = object;
-				} else delete object;
-				return value;
+				value = ((Instance *) object -> value) -> getInnerValue(
+					e -> name -> lexeme
+				);
 			} catch (Environment::VariableNotFoundException & u) {
+				delete object;
 				throw Program::Error(
 					currentUnit,
 					"The resolved object does not contain any attribute, field or method named '" +
@@ -226,49 +229,75 @@ namespace Spin {
 					* e -> name, ErrorCode::evl
 				);
 			}
-		} catch (Exception & exc) {
-			if (object) delete object;
-			throw;
+		} else {
+			if (e -> object -> isInstanceOf<Identifier>()) {
+				const Token token = * ((Identifier *)(e -> object)) -> name;
+				const String & name = token.lexeme;
+				delete object;
+				try { object = memory -> getReference(name); }
+				catch (Environment::VariableNotFoundException & exc) {
+					throw Program::Error(
+						currentUnit, "Unexpected identifier '" +
+						name + "'!", token, ErrorCode::evl
+					);
+				}
+				// Since the wrapper to self gets deleted but
+				// value doesn't we need a wrapper copy of the
+				// the original so we don't delete the original.
+				object = new Object(* object);
+			}
+			value = object -> getAttribute(e -> name -> lexeme);
 		}
-		return object;
+		if (value -> type == BasicType::RoutineType) {
+			// Bind self to the function:
+			((CallProtocol *) value -> value) -> self = object;
+		} else delete object;
+		return value;
 	}
 	Object * Interpreter::visitDynamicSetExpression(DynamicSet * e) {
 		Object * object = nullptr;
+		try { object = evaluate(e -> object); }
+		catch (Exception & exc) { throw; }
+		if (object -> type != BasicType::InstanceType) {
+			throw Program::Error(
+				currentUnit,
+				"The resolved object is not an instance and does not contain properties!",
+				* e -> name, ErrorCode::evl
+			);
+		}
 		Object * value = nullptr;
+		try { value = evaluate(e -> value); }
+		catch (Exception & exc) {
+			delete object;
+			throw;
+		}
+		Object * field = nullptr;
 		try {
-			object = evaluate(e -> object);
-			if (object -> type != BasicType::InstanceType) {
-				throw Program::Error(
-					currentUnit,
-					"The resolved object is not an instance and does not contain properties!",
-					* e -> name, ErrorCode::evl
+			// Check if we are inside a method:
+			if (e -> selfReference) {
+				field = ((Instance *) object -> value) -> getInnerReference(
+					e -> name -> lexeme
+				);
+			} else {
+				field = ((Instance *) object -> value) -> getReference(
+					e -> name -> lexeme
 				);
 			}
-			value = evaluate(e -> value);
-			Object * field = nullptr;
-			try {
-				// Check if we are inside a method:
-				if (e -> selfReference) {
-					field = ((Instance *) object -> value) -> getInnerReference(
-						e -> name -> lexeme
-					);
-				} else {
-					field = ((Instance *) object -> value) -> getReference(
-						e -> name -> lexeme
-					);
-				}
-			} catch (Environment::VariableNotFoundException & u) {
-				throw Program::Error(
-					currentUnit,
-					"The resolved object does not contain any attribute, field or method named '" +
-					e -> name -> lexeme + "'!",
-					* e -> name, ErrorCode::evl
-				);
-			}
-			CPU -> applyAssignment(e -> equals, field, value);
-		} catch (Exception & exc) {
-			if (object) delete object;
-			if (value) delete value;
+		} catch (Environment::VariableNotFoundException & u) {
+			delete object;
+			delete value;
+			throw Program::Error(
+				currentUnit,
+				"The resolved object does not contain any attribute, field or method named '" +
+				e -> name -> lexeme + "'!",
+				* e -> name, ErrorCode::evl
+			);
+		}
+		try { CPU -> applyAssignment(e -> equals, field, value); }
+		catch (Exception & exc) {
+			delete object;
+			delete value;
+			delete field;
 			throw;
 		}
 		return value;

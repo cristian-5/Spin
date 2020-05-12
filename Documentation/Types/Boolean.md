@@ -24,15 +24,14 @@ Boolean y = 5 > 0; // y <- true.
 class Boolean {
 
 	@public proc toggle();
-	@public func toString() -> String;
-
-	@immune String description = "Boolean";
 
 	@shared func from(Boolean) -> Boolean;
 
 	@shared func ! (Boolean) -> Boolean;
 	@shared func || (Boolean, Boolean) -> Boolean;
 	@shared func && (Boolean, Boolean) -> Boolean;
+
+	@define func toString() -> String;
 
 }
 ```
@@ -45,24 +44,6 @@ Toggles the value.
 Boolean x = false.toggle(); // x <- true.
 ```
 
-### @public func toString() -> String;
-
-Gets the string representation of the value.\
-It returns either `"true"` or `"false"`.
-
-``` java
-Boolean x = true;
-String value = x.toString(); // value <- "true".
-```
-
-### @immune String description = "Boolean";
-
-Contains a String describing the type.
-
-``` java
-String desc = Boolean::description; // desc <- "Boolean".
-```
-
 ### @shared func from(Boolean) -> Boolean;
 
 Forces a cast from an expression.
@@ -73,12 +54,13 @@ Boolean fromExpression = Boolean::from(x != 10);
 
 ## Operators
 
-> Operators like `==` and `!=`, where the operands share the same type,
+> Comparison Operators like `==` and `!=`,
+> where the operands share the same type,
 > are always supported by every Basic Type.
 
 The **Boolean** type allows the use of the following operators:
 
-### @shared func ! (Boolean) -> Boolean;
+### @define func ! (Boolean) -> Boolean;
 
 Prefix operator that returns the inverted (toggled) value.
 
@@ -86,7 +68,7 @@ Prefix operator that returns the inverted (toggled) value.
 Boolean x = !false; // x <- true.
 ```
 
-### @shared func || (Boolean, Boolean) -> Boolean;
+### @define func || (Boolean, Boolean) -> Boolean;
 
 > This operator will always short circuit when used twice (`||`).\
 > To avoid this behaviour use a single `|` instead of two.
@@ -98,7 +80,7 @@ between the two operands and returns the result.
 Boolean x = false || false; // x <- false.
 ```
 
-### @shared func && (Boolean, Boolean) -> Boolean;
+### @define func && (Boolean, Boolean) -> Boolean;
 
 > This operator will always short circuit when used twice (`&&`).\
 > To avoid this behaviour use a single `&` instead of two.
@@ -108,4 +90,18 @@ between the two operands and returns the result.
 
 ``` java
 Boolean x = true && false; // x <- false.
+```
+
+## Overrides
+
+### @define func toString() -> String;
+
+Gets the string representation of the value.\
+It returns either `"true"` or `"false"`.
+
+``` java
+Boolean x = true;
+String v1 = x;            // v1 <- "true".
+x.toggle();
+String v2 = x.toString(); // v2 <- "false".
 ```

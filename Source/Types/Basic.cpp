@@ -22,68 +22,145 @@
 #define SPIN_BASIC
 
 #include "../Aliases/Prototypes/Routines.hpp"
-#include "../Aliases/Prototypes/Object.hpp"
-#include "../Aliases/Prototypes/Environment.hpp"
+
+// This macro is extremely important since it generates
+// code for the initialisation of the attributes
+// of a virtual class for a given type T.
+// Essentially, it will make your life easier.
+
+#define Attributes(T) Dictionary<String, Basic ## T :: T ## Handler> Basic ## T
+
+// These macros are specifically designed to
+// help the programmers use mnemonics instead
+// of gibberish that they will forget after a
+// while, causing problems in later development.
+
+#define CustomParameters true
+#define PrepareCustomParameters new Array<Parameter *>()
+#define NoParameters new Array<Parameter *>()
+#define GenericParameter nullptr
+#define PrepareParameters(P) new Array<Parameter *>({ P })
+#define BasicParameter(P) new Parameter(P, nullptr, nullptr)
 
 namespace Spin {
 
-	Object * BasicBoolean::handleGetValue(Boolean * self, String & name) {
-		if (name == "toggle") return getToggleMethod(self);
-		else if (name == "toString") return getToStringMethod(self);
-		throw Environment::VariableNotFoundException();
-	}
-	inline Object * BasicBoolean::getToggleMethod(Boolean * self) {
-		return new Object(
-			BasicType::RoutineType,
-			new NativeProcedure(
-				[self] (Array<Object *> a, Token * t) {
-					* self = !(* self);
-					return nullptr;
-				}, new Array<Parameter *>(),
-				"<proc Boolean.toggle>"
-			)
-		);
-	}
-	inline Object * BasicBoolean::getToStringMethod(Boolean * self) {
-		return new Object(
-			BasicType::RoutineType,
-			new NativeFunction(
-				[self] (Array<Object *> a, Token * t) {
-					return new Object(
-						BasicType::StringType,
-						new String((* self) ? "true" : "false")
-					);
-				}, new Array<Parameter *>(),
-				"<func Boolean.toString>"
-			)
-		);
-	}
-
-	Object * BasicString::handleGetValue(String * self, String & name) {
-		if (name == "isEmpty") return getIsEmptyMethod(self);
-		else if (name == "length") return getLengthProperty(self);
-		throw Environment::VariableNotFoundException();
-	}
-	inline Object * BasicString::getLengthProperty(String * self) {
-		return new Object(
-			BasicType::IntegerType,
-			new Int64(self -> length())
-		);
-	}
-	inline Object * BasicString::getIsEmptyMethod(String * self) {
-		return new Object(
-			BasicType::RoutineType,
-			new NativeFunction(
-				[self] (Array<Object *> a, Token * t) {
-					return new Object(
-						BasicType::BooleanType,
-						new Boolean(self -> empty())
-					);
-				}, new Array<Parameter *>(),
-				"<func String.isEmpty>"
-			)
-		);
-	}
+	const Attributes(Boolean)::attributes = {
+		{
+			"toggle", [] (Boolean * self) -> Object * {
+				return new Object(
+					BasicType::RoutineType,
+					new NativeProcedure(
+						[self] (Array<Object *> a, Token * t) {
+							* self = !(* self);
+							return nullptr;
+						}, NoParameters,
+						"<proc Boolean.toggle>"
+					)
+				);
+			}
+		},
+		{
+			"toString", [] (Boolean * self) -> Object * {
+				return new Object(
+					BasicType::RoutineType,
+					new NativeFunction(
+						[self] (Array<Object *> a, Token * t) {
+							return new Object(
+								BasicType::StringType,
+								new String((* self) ? "true" : "false")
+							);
+						}, NoParameters,
+						"<func Boolean.toString>"
+					)
+				);
+			}
+		}
+	};
+	const Attributes(String)::attributes = {
+		{
+			"length", [] (String * self) -> Object * {
+				return new Object(
+					BasicType::IntegerType,
+					new Int64(self -> length())
+				);
+			}
+		},
+		{
+			"append", [] (String * self) -> Object * {
+				return new Object(
+					BasicType::RoutineType,
+					new NativeProcedure(
+						[self] (Array<Object *> a, Token * t) {
+							(* self) += a[0] -> getObjectStringValue();
+							return nullptr;
+						}, PrepareParameters(GenericParameter),
+						"<func String.append>"
+					)
+				);
+			}
+		},
+		{
+			"contains", [] (String * self) -> Object * {
+				return new Object(
+					BasicType::RoutineType,
+					new NativeFunction(
+						[self] (Array<Object *> a, Token * t) {
+							if (a[0] -> type == BasicType::StringType) {
+								return new Object(
+									BasicType::BooleanType,
+									new Boolean(
+										(self -> find(
+											* (String *)(a[0] -> value)
+										)) != String::npos
+									)
+								);
+							} else if (a[0] -> type == BasicType::CharacterType) {
+								return new Object(
+									BasicType::BooleanType,
+									new Boolean(
+										(self -> find(
+											* (Character *)(a[0] -> value)
+										)) != String::npos
+									)
+								);
+							} else throw ParameterException();
+						}, PrepareParameters(GenericParameter),
+						"<func String.contains>"
+					)
+				);
+			}
+		},
+		{
+			"clear", [] (String * self) -> Object * {
+				return new Object(
+					BasicType::RoutineType,
+					new NativeProcedure(
+						[self] (Array<Object *> a, Token * t) {
+							self -> clear();
+							return nullptr;
+						}, NoParameters,
+						"<proc String.clear>"
+					)
+				);
+			}
+		},
+		{
+			"isEmpty", [] (String * self) -> Object * {
+				return new Object(
+					BasicType::RoutineType,
+					new NativeFunction(
+						[self] (Array<Object *> a, Token * t) {
+							return new Object(
+								BasicType::BooleanType,
+								new Boolean(self -> empty())
+							);
+						}, NoParameters,
+						"<func String.isEmpty>"
+					)
+				);
+			}
+		}
+	};
 
 }
 

@@ -46,7 +46,7 @@ namespace Spin {
 			case BasicType::StringType: value = new String(); return;
 			case BasicType::ArrayType: value = new ArrayList(); return;
 			case BasicType::VectorType: value = new Vector(); return;
-			case BasicType::UnknownType: default: return;
+			case BasicType::VoidType: default: return;
 		}
 	}
 	Object::Object(BasicType t, void * v) {
@@ -69,7 +69,7 @@ namespace Spin {
 			case BasicType::RoutineType: delete (CallProtocol *) value; return;
 			case BasicType::ClassType: delete (Class *) value; return;
 			case BasicType::InstanceType: delete (Instance *) value; return;
-			case BasicType::UnknownType: default: return;
+			case BasicType::VoidType: default: return;
 		}
 	}
 	void Object::safeDestroy() {
@@ -120,7 +120,8 @@ namespace Spin {
 			case BasicType::RoutineType: return "Routine";
 			case BasicType::ClassType: return "Definition";
 			case BasicType::InstanceType: return "Instance";
-			case BasicType::UnknownType: default: return "Unknown";
+			case BasicType::VoidType: return "Void";
+			default: return "Unknown";
 		}
 	}
 	Object * Object::copy() const {
@@ -140,7 +141,7 @@ namespace Spin {
 			case BasicType::RoutineType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::ClassType: copy -> value = ((CallProtocol *) value) -> copy(); break;
 			case BasicType::InstanceType: copy -> value = ((Instance *) value) -> copy(); break;
-			case BasicType::UnknownType: default: copy -> value = value; break;
+			default: copy -> value = value; break;
 		}
 		return copy;
 	}
@@ -188,24 +189,21 @@ namespace Spin {
 				return v -> stringValue();
 			}
 			case BasicType::RoutineType: {
-				if (!value) return "<void>";
 				return ((CallProtocol *) value) -> stringValue();
 			}
 			case BasicType::ClassType: {
-				if (!value) return "<empty>";
 				return ((Class *) value) -> stringValue();
 			}
 			case BasicType::InstanceType: {
-				if (!value) return "<empty>";
 				return ((Instance *) value) -> stringValue();
 			}
-			case BasicType::UnknownType: default: {
-				return "Unknown"; break;
+			case BasicType::VoidType: default: {
+				return "Void"; break;
 			}
 		}
 	}
-	Boolean Object::isUnknown() const {
-		return type == BasicType::UnknownType;
+	Boolean Object::isVoid() const {
+		return type == BasicType::VoidType;
 	}
 	Boolean Object::isFunction() const {
 		return type == BasicType::RoutineType;
@@ -247,7 +245,7 @@ namespace Spin {
 		if (s == "Boolean") return BasicType::BooleanType;
 		if (s == "Character") return BasicType::CharacterType;
 		if (s == "Byte") return BasicType::ByteType;
-		return BasicType::UnknownType;
+		return BasicType::VoidType;
 	}
 	Object * Object::fromLiteral(Token * t) {
 		Object * o = new Object();
@@ -308,6 +306,8 @@ namespace Spin {
 		}
 		return o;
 	}
+
+	Object * Object::voidObject = new Object(BasicType::VoidType);
 
 }
 
