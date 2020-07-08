@@ -16,10 +16,10 @@
  *
 !*/
 
-#include "Aliases/Input.hpp"
+#include "Common/Interface.hpp"
 
-#include "../Source/Aliases/Prototypes/Manager.hpp"
-#include "../Source/Aliases/Prototypes/Wings.hpp"
+#include "Manager/Manager.hpp"
+#include "Parser/Wings.hpp"
 #include "../Source/Aliases/Prototypes/SyntaxTree.hpp"
 #include "../Source/Aliases/Prototypes/Parser.hpp"
 #include "../Source/Aliases/Prototypes/Interpreter.hpp"

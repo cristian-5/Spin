@@ -2,7 +2,7 @@
 # Commands:
 
 cppFlags = -O3
-cppVersion = -std=c++17
+cppVersion = -std=c++2a
 
 rule build
     command = clang++ -c $cppFlags -o $out $in $cppVersion

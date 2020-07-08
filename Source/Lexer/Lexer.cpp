@@ -16,91 +16,88 @@
  *
 !*/
 
-#include "../Aliases/Prototypes/Lexer.hpp"
+#include "Lexer.hpp"
 
-#ifndef SPIN_LEXER
-#define SPIN_LEXER
-
-#include "../Aliases/Prototypes/Token.hpp"
+#ifndef SPIN_LEXER_CPP
+#define SPIN_LEXER_CPP
 
 namespace Spin {
 
-	const Dictionary<String, TokenType> Lexer::reserved = {
+	const Dictionary<String, Token::Type> Lexer::reserved = {
 
-		{ "if", TokenType::ifKeyword },
-		{ "else", TokenType::elseKeyword },
-		{ "swap", TokenType::swapKeyword },
-		{ "while", TokenType::whileKeyword },
-		{ "do", TokenType::doKeyword },
-		{ "loop", TokenType::loopKeyword },
-		{ "for", TokenType::forKeyword },
-		{ "repeat", TokenType::repeatKeyword },
-		{ "until", TokenType::untilKeyword },
-		{ "break", TokenType::breakKeyword },
-		{ "continue", TokenType::continueKeyword },
-		{ "self", TokenType::selfKeyword },
-		{ "new", TokenType::newKeyword },
-		{ "delete", TokenType::deleteKeyword },
-		{ "import", TokenType::importKeyword },
-		{ "func", TokenType::funcKeyword },
-		{ "proc", TokenType::procKeyword },
-		{ "class", TokenType::classKeyword },
-		{ "rest", TokenType::restKeyword },
-		{ "return", TokenType::returnKeyword },
+		{ "if", Token::Type::ifKeyword },
+		{ "else", Token::Type::elseKeyword },
+		{ "swap", Token::Type::swapKeyword },
+		{ "while", Token::Type::whileKeyword },
+		{ "do", Token::Type::doKeyword },
+		{ "loop", Token::Type::loopKeyword },
+		{ "for", Token::Type::forKeyword },
+		{ "repeat", Token::Type::repeatKeyword },
+		{ "until", Token::Type::untilKeyword },
+		{ "break", Token::Type::breakKeyword },
+		{ "continue", Token::Type::continueKeyword },
+		{ "self", Token::Type::selfKeyword },
+		{ "new", Token::Type::newKeyword },
+		{ "delete", Token::Type::deleteKeyword },
+		{ "import", Token::Type::importKeyword },
+		{ "func", Token::Type::funcKeyword },
+		{ "proc", Token::Type::procKeyword },
+		{ "class", Token::Type::classKeyword },
+		{ "rest", Token::Type::restKeyword },
+		{ "return", Token::Type::returnKeyword },
 
-		{ "Boolean", TokenType::basicType },
-		{ "Byte", TokenType::basicType },
-		{ "Character", TokenType::basicType },
-		{ "Complex", TokenType::basicType },
-		{ "Imaginary", TokenType::basicType },
-		{ "Integer", TokenType::basicType },
-		{ "Real", TokenType::basicType },
-		{ "String", TokenType::basicType },
-		{ "Vector", TokenType::basicType },
+		{ "Boolean", Token::Type::basicType },
+		{ "Byte", Token::Type::basicType },
+		{ "Character", Token::Type::basicType },
+		{ "Complex", Token::Type::basicType },
+		{ "Imaginary", Token::Type::basicType },
+		{ "Integer", Token::Type::basicType },
+		{ "Real", Token::Type::basicType },
+		{ "String", Token::Type::basicType },
+		{ "Vector", Token::Type::basicType },
 
-		{ "false", TokenType::boolLiteral },
-		{ "true", TokenType::boolLiteral },
+		{ "false", Token::Type::boolLiteral },
+		{ "true", Token::Type::boolLiteral },
 
 	};
+	const Dictionary<String, Token::Type> Lexer::specifiers = {
 
-	const Dictionary<String, TokenType> Lexer::specifiers = {
+		{ "@public", Token::Type::publicModifier },
+		{ "@hidden", Token::Type::hiddenModifier },
+		{ "@secure", Token::Type::secureModifier },
+		{ "@immune", Token::Type::immuneModifier },
+		{ "@static", Token::Type::staticModifier },
+		{ "@shared", Token::Type::sharedModifier },
 
-		{ "@public", TokenType::publicModifier },
-		{ "@hidden", TokenType::hiddenModifier },
-		{ "@secure", TokenType::secureModifier },
-		{ "@immune", TokenType::immuneModifier },
-		{ "@static", TokenType::staticModifier },
-		{ "@shared", TokenType::sharedModifier },
-
-		{ "@create", TokenType::createSpecifier },
-		{ "@delete", TokenType::deleteSpecifier },
+		{ "@create", Token::Type::createSpecifier },
+		{ "@delete", Token::Type::deleteSpecifier },
 
 	};
 
 	void Lexer::scanToken() {
 		Character c = advance();
 		switch (c) {
-			case ';': addToken(";", TokenType::semicolon); break;
-			case '(': addToken("(", TokenType::openParenthesis); break;
-			case ')': addToken(")", TokenType::closeParenthesis); break;
-			case '{': addToken("{", TokenType::openBrace); break;
-			case '}': addToken("}", TokenType::closeBrace); break;
+			case ';': addToken(";", Token::Type::semicolon); break;
+			case '(': addToken("(", Token::Type::openParenthesis); break;
+			case ')': addToken(")", Token::Type::closeParenthesis); break;
+			case '{': addToken("{", Token::Type::openBrace); break;
+			case '}': addToken("}", Token::Type::closeBrace); break;
 			case '=':
-				if (match('=')) addToken("==", TokenType::equality);
-				else addToken("=", TokenType::equal); break;
+				if (match('=')) addToken("==", Token::Type::equality);
+				else addToken("=", Token::Type::equal); break;
 			case '+':
-				if (match('=')) addToken("+=", TokenType::plusEqual);
-				else addToken("+", TokenType::plus); break;
+				if (match('=')) addToken("+=", Token::Type::plusEqual);
+				else addToken("+", Token::Type::plus); break;
 			case '-':
-				if (match('=')) addToken("-=", TokenType::minusEqual);
-				else if (match('>')) addToken("->", TokenType::arrow);
-				else addToken("-", TokenType::minus); break;
+				if (match('=')) addToken("-=", Token::Type::minusEqual);
+				else if (match('>')) addToken("->", Token::Type::arrow);
+				else addToken("-", Token::Type::minus); break;
 			case '*':
-				if (match('=')) addToken("*=", TokenType::starEqual);
-				else addToken("*", TokenType::star); break;
+				if (match('=')) addToken("*=", Token::Type::starEqual);
+				else addToken("*", Token::Type::star); break;
 			case '/':
 				if (match('=')) {
-					addToken("/=", TokenType::slashEqual);
+					addToken("/=", Token::Type::slashEqual);
 				} else if (match('/')) {
 					while (peek() != '\n' && !isAtEnd()) advance();
 				} else if (match('*')) {
@@ -115,66 +112,66 @@ namespace Spin {
 					if (!exit) {
 						addToken(
 							source -> substr(start, index - start),
-							TokenType::invalid
+							Token::Type::invalid
 						);
 					}
-				} else addToken("/", TokenType::slash); break;
+				} else addToken("/", Token::Type::slash); break;
 			case '<':
-				if (match('=')) addToken("<=", TokenType::minorEqual);
+				if (match('=')) addToken("<=", Token::Type::minorEqual);
 				else if (peek() == '0' || peek() == '1') {
 					scanBraLiteral();
 				} else if (isAlpha(peek())) {
 					scanBraKet();
-				} else addToken("<", TokenType::minor); break;
+				} else addToken("<", Token::Type::minor); break;
 			case '>':
-				if (match('=')) addToken(">=", TokenType::majorEqual);
-				else addToken(">", TokenType::major); break;
-			case '[': addToken("[", TokenType::openBracket); break;
-			case ']': addToken("]", TokenType::closeBracket); break;
-			case ',': addToken(",", TokenType::comma); break;
-			case '.': addToken(".", TokenType::dot); break;
+				if (match('=')) addToken(">=", Token::Type::majorEqual);
+				else addToken(">", Token::Type::major); break;
+			case '[': addToken("[", Token::Type::openBracket); break;
+			case ']': addToken("]", Token::Type::closeBracket); break;
+			case ',': addToken(",", Token::Type::comma); break;
+			case '.': addToken(".", Token::Type::dot); break;
 			case '@': scanSpecifier(); break;
 			case '"': scanString(); break;
 			case '\'': scanCharacter(); break;
 			case '\\':
-				addToken("\\", TokenType::backslash); break;
+				addToken("\\", Token::Type::backslash); break;
 			case '!':
-				if (match('=')) addToken("!=", TokenType::inequality);
-				else addToken("!", TokenType::exclamationMark); break;
+				if (match('=')) addToken("!=", Token::Type::inequality);
+				else addToken("!", Token::Type::exclamationMark); break;
 			case '|':
-				if (match('=')) addToken("|=", TokenType::pipeEqual);
-				else if (match('|')) addToken("||", TokenType::OR);
+				if (match('=')) addToken("|=", Token::Type::pipeEqual);
+				else if (match('|')) addToken("||", Token::Type::OR);
 				else if (peek() == '0' || peek() == '1') {
 					scanKetLiteral();
 				} else if (isAlpha(peek())) {
 					scanKetBra();
-				} else addToken("|", TokenType::pipe); break;
+				} else addToken("|", Token::Type::pipe); break;
 			case '&':
-				if (match('=')) addToken("&=", TokenType::ampersandEqual);
-				else if (match('&')) addToken("&&", TokenType::AND);
-				else addToken("&", TokenType::ampersand); break;
+				if (match('=')) addToken("&=", Token::Type::ampersandEqual);
+				else if (match('&')) addToken("&&", Token::Type::AND);
+				else addToken("&", Token::Type::ampersand); break;
 			case '%':
-				if (match('=')) addToken("%=", TokenType::modulusEqual);
-				else addToken("%", TokenType::modulus); break;
+				if (match('=')) addToken("%=", Token::Type::modulusEqual);
+				else addToken("%", Token::Type::modulus); break;
 			case ':':
-				if (match(':')) addToken("::", TokenType::doublecolon);
-				else addToken(":", TokenType::colon); break;
-			case '~': addToken("~", TokenType::tilde); break;
+				if (match(':')) addToken("::", Token::Type::doublecolon);
+				else addToken(":", Token::Type::colon); break;
+			case '~': addToken("~", Token::Type::tilde); break;
 			case '\xC2': // ° = C2 B0 : Character 16 { shift + (à°#) }
-				if (match('\xB0')) addToken("°", TokenType::conjugate);
+				if (match('\xB0')) addToken("°", Token::Type::conjugate);
 				else unknown.push_back(c); break;
 			case '\xE2': // † = E2 80 A0 : Character 24 { option + X }
 				if (match('\x80')) {
-					if (match('\xA0')) addToken("†", TokenType::dagger);
+					if (match('\xA0')) addToken("†", Token::Type::dagger);
 					else {
 						unknown.push_back(c);
 						unknown.push_back('\x80');
 					}
 				} else unknown.push_back(c); break;
 			case '^':
-				if (match('=')) addToken("^=", TokenType::hatEqual);
-				else addToken("^", TokenType::hat); break;
-			case '?': addToken("?", TokenType::questionMark); break;
+				if (match('=')) addToken("^=", Token::Type::hatEqual);
+				else addToken("^", Token::Type::hat); break;
+			case '?': addToken("?", Token::Type::questionMark); break;
 			case ' ': case '\r': case '\t': case '\n': break;
 			default: 
 				if (isDigit(c)) scanNumber();
@@ -183,19 +180,18 @@ namespace Spin {
 			break;
 		}
 	}
-
 	void Lexer::scanBraKet() {
 		while (isAlphaNumeric(peek())) advance();
 		if (!match('|')) {
 			index = start + 1;
-			addToken("<", TokenType::minor);
+			addToken("<", Token::Type::minor);
 			return;
 		}
 		SizeType save = index;
 		if (!isAlpha(peek())) {
 			addToken(
 				source-> substr(start, index - start),
-				TokenType::braSymbol
+				Token::Type::braSymbol
 			);
 			return;
 		}
@@ -204,28 +200,27 @@ namespace Spin {
 			index = save;
 			addToken(
 				source-> substr(start, index - start),
-				TokenType::braSymbol
+				Token::Type::braSymbol
 			);
 			return;
 		}
 		addToken(
 			source-> substr(start, index - start),
-			TokenType::braketSymbol
+			Token::Type::braketSymbol
 		);
 	}
-
 	void Lexer::scanKetBra() {
 		while (isAlphaNumeric(peek())) advance();
 		if (!match('>')) {
 			index = start + 1;
-			addToken("|", TokenType::pipe);
+			addToken("|", Token::Type::pipe);
 			return;
 		}
 		SizeType save = index;
 		if (!match('<')) {
 			addToken(
 				source-> substr(start, index - start),
-				TokenType::ketSymbol
+				Token::Type::ketSymbol
 			);
 			return;
 		}
@@ -233,7 +228,7 @@ namespace Spin {
 			index = save;
 			addToken(
 				source-> substr(start, index - start),
-				TokenType::braSymbol
+				Token::Type::braSymbol
 			);
 			return;
 		}
@@ -242,18 +237,17 @@ namespace Spin {
 			index = save;
 			addToken(
 				source-> substr(start, index - start),
-				TokenType::braSymbol
+				Token::Type::braSymbol
 			);
 			return;
 		}
 		addToken(
 			source-> substr(start, index - start),
-			TokenType::ketbraSymbol
+			Token::Type::ketbraSymbol
 		);
 	}
-
 	void Lexer::scanNumber() {
-		TokenType type = TokenType::intLiteral;
+		Token::Type type = Token::Type::intLiteral;
 		if (peekPrev() == '0') {
 			// Try to parse base:
 			if (match('x')) {
@@ -262,7 +256,7 @@ namespace Spin {
 					  (x >= 'A' && x <= 'F'))) {
 					// '0xSomething' so we return '0':
 					index = start + 1;
-					addToken("0", TokenType::intLiteral);
+					addToken("0", Token::Type::intLiteral);
 					return;
 				}
 				while ((x >= '0' && x <= '9') ||
@@ -272,7 +266,7 @@ namespace Spin {
 				}
 				addToken(
 					source -> substr(start, index - start),
-					TokenType::intLiteral
+					Token::Type::intLiteral
 				);
 				return;
 			} else if (match('b')) {
@@ -280,7 +274,7 @@ namespace Spin {
 				if (b != '0' && b != '1') {
 					// '0bSomething' so we return '0':
 					index = start + 1;
-					addToken("0", TokenType::intLiteral);
+					addToken("0", Token::Type::intLiteral);
 					return;
 				}
 				while (b == '0' || b == '1') {
@@ -289,7 +283,7 @@ namespace Spin {
 				}
 				addToken(
 					source -> substr(start, index - start),
-					TokenType::intLiteral
+					Token::Type::intLiteral
 				);
 				return;
 			} else if (match('o')) {
@@ -297,7 +291,7 @@ namespace Spin {
 				if (o < '0' || o > '7') {
 					// '0oSomething' so we return '0':
 					index = start + 1;
-					addToken("0", TokenType::intLiteral);
+					addToken("0", Token::Type::intLiteral);
 					return;
 				}
 				while (o >= '0' && o <= '7') {
@@ -306,7 +300,7 @@ namespace Spin {
 				}
 				addToken(
 					source -> substr(start, index - start),
-					TokenType::intLiteral
+					Token::Type::intLiteral
 				);
 				return;
 			} else if (match('d')) {
@@ -314,7 +308,7 @@ namespace Spin {
 				if (d < '0' || d > '9') {
 					// '0dSomething' so we return '0':
 					index = start + 1;
-					addToken("0", TokenType::intLiteral);
+					addToken("0", Token::Type::intLiteral);
 					return;
 				}
 				while (d >= '0' && d <= '9') {
@@ -323,14 +317,14 @@ namespace Spin {
 				}
 				addToken(
 					source -> substr(start, index - start),
-					TokenType::intLiteral
+					Token::Type::intLiteral
 				);
 				return;
 			}
 		}
 		while (isDigit(peek())) advance();
 		if (peek() == '.' && isDigit(peekNext())) {
-			type = TokenType::realLiteral;
+			type = Token::Type::realLiteral;
 			advance();
 			while (isDigit(peek())) advance();
 			if (match('e')) {
@@ -343,19 +337,17 @@ namespace Spin {
 				while (isDigit(peek())) advance();
 			}
 		}
-		if (match('i')) type = TokenType::imaginaryLiteral;
+		if (match('i')) type = Token::Type::imaginaryLiteral;
 		addToken(source -> substr(start, index - start), type);
 	}
-
 	void Lexer::scanSymbol() {
 		while (isAlphaNumeric(peek())) advance();
 		String lexeme = source -> substr(start, index - start);
 		auto search = reserved.find(lexeme);
 		if (search != reserved.end()) {
 			addToken(lexeme, search -> second);
-		} else addToken(lexeme, TokenType::symbol);
+		} else addToken(lexeme, Token::Type::symbol);
 	}
-
 	void Lexer::scanString() {
 		while (peek() != '"' && !isAtEnd()) {
 			if (match('\\')) match('"');
@@ -364,17 +356,16 @@ namespace Spin {
 		if (isAtEnd()) {
 			addToken(
 				source -> substr(start, index - start),
-				TokenType::invalid
+				Token::Type::invalid
 			);
 			return;
 		}
 		advance();
 		addToken(
 			source -> substr(start, index - start),
-			TokenType::stringLiteral
+			Token::Type::stringLiteral
 		);
 	}
-
 	void Lexer::scanSpecifier() {
 		while (isAlphaNumeric(peek())) advance();
 		String lexeme = source -> substr(start, index - start);
@@ -383,65 +374,61 @@ namespace Spin {
 			addToken(lexeme, search -> second);
 		} else unknown += lexeme;
 	}
-
 	void Lexer::scanBraLiteral() {
 		advance();
 		if (!match('|')) {
 			index = start + 1;
-			addToken("<", TokenType::minor);
+			addToken("<", Token::Type::minor);
 			return;
 		}
 		addToken(
 			source -> substr(start, index - start),
-			TokenType::basisBraLiteral
+			Token::Type::basisBraLiteral
 		);
 	}
-
 	void Lexer::scanKetLiteral() {
 		advance();
 		if (!match('>')) {
 			index = start + 1;
-			addToken("|", TokenType::pipe);
+			addToken("|", Token::Type::pipe);
 			return;
 		}
 		addToken(
 			source -> substr(start, index - start),
-			TokenType::basisKetLiteral
+			Token::Type::basisKetLiteral
 		);
 	}
-
 	void Lexer::scanCharacter() {
 		if (isAtEnd()) {
-			addToken("'", TokenType::transpose);
+			addToken("'", Token::Type::transpose);
 			return;
 		}
 		advance();
 		if (isAtEnd()) {
 			index = start + 1;
-			addToken("'", TokenType::transpose);
+			addToken("'", Token::Type::transpose);
 			return;
 		}
 		if (!match('\'')) {
 			index = start + 1;
-			addToken("'", TokenType::transpose);
+			addToken("'", Token::Type::transpose);
 			return;
 		}
 		addToken(
 			source -> substr(start, index - start),
-			TokenType::charLiteral
+			Token::Type::charLiteral
 		);
 	}
-
 	void Lexer::addToken(Token t) {
 		tokens -> push_back(t);
 	}
-	void Lexer::addToken(String l, TokenType t) {
+	void Lexer::addToken(String l, Token::Type t) {
 		tokens -> push_back({ l, t, start });
 	}
 	void Lexer::addInvalid(Token t) {
-		t.type = TokenType::invalid;
+		t.type = Token::Type::invalid;
 		if (tokens -> empty() ||
-			tokens -> at(0).type == TokenType::beginFile) {
+			tokens -> at(0).type == Token::Type::beginFile) {
 			tokens -> push_back(t);
 			return;
 		}
@@ -451,9 +438,9 @@ namespace Spin {
 		tokens -> push_back(l);
 	}
 	void Lexer::addInvalid(String i) {
-		Token t = { i, TokenType::invalid, 0 };
+		Token t = { i, Token::Type::invalid, 0 };
 		if (tokens -> empty() ||
-			tokens -> at(0).type == TokenType::beginFile) {
+			tokens -> at(0).type == Token::Type::beginFile) {
 			tokens -> push_back(t);
 			return;
 		}
@@ -509,13 +496,13 @@ namespace Spin {
 	Array<Token> * Lexer::tokenise(String * input) {
 		if (!input || input -> empty()) {
 			return new Array<Token>({
-				{ "beginFile", TokenType::beginFile, 0 },
-				{ "endFile", TokenType::endFile, 0 }
+				{ "beginFile", Token::Type::beginFile, 0 },
+				{ "endFile", Token::Type::endFile, 0 }
 			});
 		}
 		source = new String(* input);
 		tokens = new Array<Token>();
-		addToken({ "beginFile", TokenType::beginFile, 0 });
+		addToken({ "beginFile", Token::Type::beginFile, 0 });
 		while (!isAtEnd()) {
 			start = index;
 			SizeType l = unknown.length();
@@ -530,11 +517,11 @@ namespace Spin {
 		if (!unknown.empty()) {
 			addToken({
 				unknown,
-				TokenType::invalid,
+				Token::Type::invalid,
 				start - unknown.length() + 1
 			});
 		}
-		addToken({ "endFile", TokenType::endFile, 0 });
+		addToken({ "endFile", Token::Type::endFile, 0 });
 		Array<Token> * result = tokens;
 		resetState();
 		return result;

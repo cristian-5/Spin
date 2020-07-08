@@ -16,35 +16,35 @@
  *
 !*/
 
-#include "../Aliases/Prototypes/Token.hpp"
+#include "Token.hpp"
 
 #ifndef SPIN_TOKEN
 #define SPIN_TOKEN
 
 namespace Spin {
 
-	Token::Token(String lexeme, TokenType type, SizeType position) {
+	Token::Token(String lexeme, Type type, SizeType position) {
 		this -> lexeme = lexeme;
 		this -> type = type;
 		this -> position = position;
 	}
 	Boolean Token::isTypeLiteral() const {
-		return type >= TokenType::intLiteral &&
-			   type <= TokenType::boolLiteral;
+		return type >= Type::intLiteral &&
+			   type <= Type::boolLiteral;
 	}
 	Boolean Token::isTypeNumeral() const {
-		return type >= TokenType::intLiteral &&
-			   type <= TokenType::realLiteral;
+		return type >= Type::intLiteral &&
+			   type <= Type::realLiteral;
 	}
 	Boolean Token::isTypeBasicType() const {
-		return type == TokenType::basicType;
+		return type == Type::basicType;
 	}
 	Boolean Token::isTypeType() const {
-		return type == TokenType::classKeyword;
+		return type == Type::classKeyword;
 	}
 	Boolean Token::isTypeBraKet() const {
-		return type >= TokenType::braketSymbol &&
-			   type <= TokenType::ketbraSymbol;
+		return type >= Type::braketSymbol &&
+			   type <= Type::ketbraSymbol;
 	}
 
 }

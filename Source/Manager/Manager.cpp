@@ -16,10 +16,10 @@
  *
 !*/
 
-#include "../Aliases/Prototypes/Manager.hpp"
+#include "Manager.hpp"
 
-#ifndef SPIN_MANAGER
-#define SPIN_MANAGER
+#ifndef SPIN_MANAGER_CPP
+#define SPIN_MANAGER_CPP
 
 namespace Spin {
 
