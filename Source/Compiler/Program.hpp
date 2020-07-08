@@ -6,6 +6,8 @@
 
 #include "../Common/Exception.hpp"
 
+#include "../Token/Token.hpp"
+
 #include <vector>
 
 namespace Spin {

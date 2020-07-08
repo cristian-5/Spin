@@ -26,24 +26,38 @@
 namespace Spin {
 
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
+	
 		{ Token::Type::openParenthesis, { grouping, nullptr, Precedence::none } },
+
 		{ Token::Type::exclamationMark, { unary, nullptr, Precedence::none } },
 		{ Token::Type::tilde, { unary, nullptr, Precedence::term } },
 		{ Token::Type::minus, { unary, binary, Precedence::term } },
 		{ Token::Type::plus, { nullptr, binary, Precedence::term } },
 		{ Token::Type::slash, { nullptr, binary, Precedence::factor } },
 		{ Token::Type::star, { nullptr, binary, Precedence::factor } },
+
 		{ Token::Type::intLiteral, { integerLiteral, nullptr, Precedence::none } },
 		{ Token::Type::realLiteral, { realLiteral, nullptr, Precedence::none } },
 		{ Token::Type::imaginaryLiteral, { imaginaryLiteral, nullptr, Precedence::none } },
 		{ Token::Type::stringLiteral, { stringLiteral, nullptr, Precedence::none } },
 		{ Token::Type::charLiteral, { characterLiteral, nullptr, Precedence::none } },
 		{ Token::Type::boolLiteral, { booleanLiteral, nullptr, Precedence::none } },
+
+		{ Token::Type::inequality, { nullptr, binary, Precedence::equality } },
+		{ Token::Type::equality, { nullptr, binary, Precedence::equality } },
+
+		{ Token::Type::major, { nullptr, binary, Precedence::comparison } },
+		{ Token::Type::majorEqual, { nullptr, binary, Precedence::comparison } },
+		{ Token::Type::minor, { nullptr, binary, Precedence::comparison } },
+		{ Token::Type::minorEqual, { nullptr, binary, Precedence::comparison } },
+
 	};
 
 	const Dictionary<Unary, Type> Compiler::prefix = {
 		{ compose(Token::Type::exclamationMark, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::exclamationMark, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::minus, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::ByteType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::RealType), Type::RealType },
 		{ compose(Token::Type::minus, Type::ImaginaryType), Type::ImaginaryType },
@@ -51,11 +65,41 @@ namespace Spin {
 		{ compose(Token::Type::tilde, Type::ByteType), Type::ByteType },
 	};
 	const Dictionary<Binary, Type> Compiler::infix = {
-
+		// # + # ------------------------------------------------------------- # Composing Addition #
+		{ compose(Token::Type::plus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::CharacterType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::ByteType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::IntegerType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::IntegerType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::plus, Type::RealType, Type::IntegerType), Type::RealType },
+		{ compose(Token::Type::plus, Type::RealType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::plus, Type::ImaginaryType, Type::ImaginaryType), Type::ImaginaryType },
+		// # - # ------------------------------------------------------------- # Composing Subtraction #
+		{ compose(Token::Type::minus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::CharacterType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::ByteType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::IntegerType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::IntegerType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::minus, Type::RealType, Type::IntegerType), Type::RealType },
+		{ compose(Token::Type::minus, Type::RealType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::minus, Type::ImaginaryType, Type::ImaginaryType), Type::ImaginaryType },
+		// # * # ------------------------------------------------------------- # Composing Multiplication #
+		// # / # ------------------------------------------------------------- # Composing Division #
+		// # % # ------------------------------------------------------------- # Composing Modulus #
 	};
 
 	void Compiler::booleanLiteral() {
-		if (previous.lexeme == "true") {
+		if (Converter::stringToBoolean(previous.lexeme)) {
 			emitOperation(OPCode::PST);
 		} else emitOperation(OPCode::PSF);
 		typeStack.push(Type::BooleanType);
@@ -122,7 +166,7 @@ namespace Spin {
 		Type typeB = typeStack.pop();
 		const Types types = runtimeCompose(typeA, typeB);
 		auto search = infix.find(
-			runtimeCompose(typeA, token.type, typeB)
+			runtimeCompose(token.type, typeA, typeB)
 		);
 		if (search == infix.end()) {
 			throw Program::Error(
@@ -134,10 +178,16 @@ namespace Spin {
 			);
 		}
 		switch (token.type) {
-			case  Token::Type::plus: emitOperation({ OPCode::ADD, { .types = types } });
-			case Token::Type::minus: emitOperation({ OPCode::SUB, { .types = types } });
-			case  Token::Type::star: emitOperation({ OPCode::MUL, { .types = types } });
-			case Token::Type::slash: emitOperation({ OPCode::DIV, { .types = types } });
+			case  Token::Type::plus: emitOperation({ OPCode::ADD, { .types = types } }); break;
+			case Token::Type::minus: emitOperation({ OPCode::SUB, { .types = types } }); break;
+			case  Token::Type::star: emitOperation({ OPCode::MUL, { .types = types } }); break;
+			case Token::Type::slash: emitOperation({ OPCode::DIV, { .types = types } }); break;
+			case   Token::Type::equality: emitOperation({ OPCode::EQL, { .types = types } }); break;
+			case Token::Type::inequality: emitOperation({ OPCode::NEQ, { .types = types } }); break;
+			case      Token::Type::major: emitOperation({ OPCode::GRT, { .types = types } }); break;
+			case Token::Type::majorEqual: emitOperation({ OPCode::GEQ, { .types = types } }); break;
+			case      Token::Type::minor: emitOperation({ OPCode::LSS, { .types = types } }); break;
+			case Token::Type::minorEqual: emitOperation({ OPCode::LEQ, { .types = types } }); break;
 		}
 		typeStack.push(search -> second);
 	}
@@ -158,9 +208,9 @@ namespace Spin {
 			);
 		}
 		switch (token.type) {
-			case Token::Type::exclamationMark: emitOperation({ OPCode::NOT, { .type = type } });
-			case Token::Type::minus: emitOperation({ OPCode::NEG, { .type = type } });
-			case Token::Type::tilde: emitOperation({ OPCode::INV, { .type = type } });
+			case Token::Type::exclamationMark: emitOperation({ OPCode::NOT, { .type = type } }); break;
+			case Token::Type::minus: emitOperation({ OPCode::NEG, { .type = type } }); break;
+			case Token::Type::tilde: emitOperation({ OPCode::INV, { .type = type } }); break;
 		}
 		typeStack.push(search -> second);
 	}

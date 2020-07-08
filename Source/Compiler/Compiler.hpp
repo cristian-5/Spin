@@ -23,7 +23,7 @@ namespace Spin {
 		logicOR,
 		logicAND,
 		equality,
-		comparsion,
+		comparison,
 		term,
 		factor,
 		unary,
@@ -60,7 +60,7 @@ namespace Spin {
 		static consteval Unary compose(Token::Type token, Type type) {
 			return (Unary)(((Unary) token << 8) | type);
 		}
-		static consteval Binary compose(Type a, Token::Type token, Type b) {
+		static consteval Binary compose(Token::Type token, Type a, Type b) {
 			return (Binary)(((Binary) a << 16) | ((Binary) token << 8) | b);
 		}
 		static consteval Types compose(Type a, Type b) {
@@ -69,13 +69,13 @@ namespace Spin {
 
 		static ParseRule getRule(Token::Type token);
 
-		static Unary runtimeCompose(Token::Type token, Type type) {
+		static inline Unary runtimeCompose(Token::Type token, Type type) {
 			return (Unary)(((Unary) token << 8) | type);
 		}
-		static Binary runtimeCompose(Type a, Token::Type token, Type b) {
+		static inline Binary runtimeCompose(Token::Type token, Type a, Type b) {
 			return (Binary)(((Binary) a << 16) | ((Binary) token << 8) | b);
 		}
-		static Types runtimeCompose(Type a, Type b) {
+		static inline Types runtimeCompose(Type a, Type b) {
 			return (Types)(((Types) a << 8) | b);
 		}
 

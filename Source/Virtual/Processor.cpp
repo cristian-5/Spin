@@ -39,49 +39,171 @@
 
 #define symmetric(A) compose(A, A)
 
+#define makeBinaryFrom(L) [] (Value & l, Value & r) -> Value L
+#define makeUnaryFrom(L) [] (Value & r) -> Value L
+
 namespace Spin {
 
 	DefineBinaryTable(addition) = {
 		{
 			compose(Type::CharacterType, Type::CharacterType),
-			[] (Value l, Value r) -> Value {
-				return { .byte = (Character)(l.byte + r.byte) };
-			}
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			[] (Value l, Value r) -> Value {
-				return { .byte = (Byte)(l.byte + r.byte) };
-			}
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
+			})
 		},
 		{
 			compose(Type::CharacterType, Type::ByteType),
-			[] (Value l, Value r) -> Value {
-				return { .byte = (Byte)(l.byte + r.byte) };
-			}
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) + r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) + r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .integer = (Int64)(l.integer + (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return { .integer = (Int64)(l.integer + (Int64)(r.byte)) };
+			})
 		},
 		{
 			compose(Type::IntegerType, Type::IntegerType),
-			[] (Value l, Value r) -> Value {
+			makeBinaryFrom({
 				return { .integer = l.integer + r.integer };
-			}
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .real = l.integer + r.real };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .real = l.real + r.integer };
+			})
 		},
 		{
 			compose(Type::RealType, Type::RealType),
-			[] (Value l, Value r) -> Value {
+			makeBinaryFrom({
 				return { .real = l.real + r.real };
-			}
+			})
+		},	
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .real = l.real + r.real };
+			})
 		},
-		
+	};
+	DefineBinaryTable(subtraction) = {
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) - r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .integer = (Int64)((Int64)(l.byte) - r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .integer = (Int64)(l.integer - (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return { .integer = (Int64)(l.integer - (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .integer = l.integer - r.integer };
+			})
+		},
 		{
 			compose(Type::IntegerType, Type::RealType),
-			[] (Value l, Value r) -> Value {
-				return { .real = l.integer + r.real };
-			}
-		}
+			makeBinaryFrom({
+				return { .real = l.integer - r.real };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .real = l.real - r.integer };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .real = l.real - r.real };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .real = l.real - r.real };
+			})
+		},
 	};
-
-	DefineBinaryTable(subtraction) = { };
 	DefineBinaryTable(multiplication) = { };
 	DefineBinaryTable(division) = { };
 	DefineBinaryTable(modulus) = { };
@@ -89,25 +211,25 @@ namespace Spin {
 	DefineBinaryTable(smartAND) = {
 		{
 			compose(Type::IntegerType, Type::IntegerType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .integer = l.integer & r.integer };
 			}
 		},
 		{
 			compose(Type::ByteType, Type::ByteType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .byte = l.byte & r.byte };
 			}
 		},
 		{
 			compose(Type::CharacterType, Type::CharacterType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .byte = l.byte & r.byte };
 			}
 		},
 		{
 			compose(Type::BooleanType, Type::BooleanType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .boolean = l.boolean && r.boolean };
 			}
 		}
@@ -115,25 +237,25 @@ namespace Spin {
 	DefineBinaryTable(smartOR) = {
 		{
 			compose(Type::IntegerType, Type::IntegerType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .integer = l.integer | r.integer };
 			}
 		},
 		{
 			compose(Type::ByteType, Type::ByteType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .byte = l.byte | r.byte };
 			}
 		},
 		{
 			compose(Type::CharacterType, Type::CharacterType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .byte = l.byte | r.byte };
 			}
 		},
 		{
 			compose(Type::BooleanType, Type::BooleanType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .boolean = l.boolean || r.boolean };
 			}
 		}
@@ -141,36 +263,49 @@ namespace Spin {
 	DefineBinaryTable(smartXOR) = {
 		{
 			compose(Type::IntegerType, Type::IntegerType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .integer = l.integer ^ r.integer };
 			}
 		},
 		{
 			compose(Type::ByteType, Type::ByteType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .byte = l.byte ^ r.byte };
 			}
 		},
 		{
 			compose(Type::CharacterType, Type::CharacterType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .byte = l.byte ^ r.byte };
 			}
 		},
 		{
 			compose(Type::BooleanType, Type::BooleanType),
-			[] (Value l, Value r) -> Value {
+			[] (Value & l, Value & r) -> Value {
 				return { .boolean = l.boolean != r.boolean };
 			}
 		}
 	};
 
 	DefineUnaryTable(negation) = {
-		{ Type::IntegerType, [] (Value a) -> Value { return { .integer = - a.integer }; } },
-		{ Type::RealType, [] (Value a) -> Value { return { .real = - a.real }; } },
-		{ Type::ImaginaryType, [] (Value a) -> Value { return { .real = - a.real }; } },
-		// TODO: Complex, Vector.
+		{ Type::CharacterType, makeUnaryFrom({ return { .integer = - r.byte }; }) },
+		{      Type::ByteType, makeUnaryFrom({ return { .integer = - r.byte }; }) },
+		{   Type::IntegerType, makeUnaryFrom({ return { .integer = - r.integer }; }) },
+		{      Type::RealType, makeUnaryFrom({ return { .real = - r.real }; }) },
+		{ Type::ImaginaryType, makeUnaryFrom({ return { .real = - r.real }; }) },
 	};
+
+	DefineBinaryTable(inequality) = {
+
+	};
+	DefineBinaryTable(equality) = {
+
+	};
+
+	DefineBinaryTable(major) = { };
+	DefineBinaryTable(majorEqual) = { };
+	DefineBinaryTable(minor) = { };
+	DefineBinaryTable(minorEqual) = { };
 
 	void Processor::run(Program * program) {
 		if (!program) return;
@@ -199,6 +334,12 @@ namespace Spin {
 				break;
 				case OPCode::PST: stack.push({ .boolean = true }); break;
 				case OPCode::PSF: stack.push({ .boolean = false }); break;
+				case OPCode::EQL: binaryCase(equality); break;
+				case OPCode::NEQ: binaryCase(inequality); break;
+				case OPCode::GRT: binaryCase(major); break;
+				case OPCode::GEQ: binaryCase(majorEqual); break;
+				case OPCode::LSS: binaryCase(minor); break;
+				case OPCode::LEQ: binaryCase(minorEqual); break;
 				case OPCode::NOT:
 					if (ip.as.type == Type::BooleanType) {
 						stack.push({ .boolean = !(stack.pop().boolean) });
