@@ -12,17 +12,20 @@
 High level programming language for *research* in
 **Quantum Computing** built in *c++*.
 
-This language is currently *interpreted* but after
-a stable release our team will eventually
-turn the interpreter into a *virtual machine*.
+The **Virtual Machine** and the **Compiler** are
+being implemented right now.
 We aim to create a powerful language.
 
 The quantum part of the language is currently
 under development, Dirac notation has been
-implemented but the underlying operations
-between vectors and matrices are unstable.
+implemented in the interpreter, but the
+**VM** doesn't support them yet.
 
 ## A taste of spin
+
+**These examples have only been conceptualised
+and we are still implementing them in the VM**
+If you're looking for the Interpreter, contact me.
 
 More examples can be found in the [Examples](Examples/) folder.
 
@@ -65,8 +68,8 @@ The documentation contains the language syntax specification.
 ## Code Contribution
 
 **Attention!** This project is currently under development and
-we only completed 70% of the total tasks. We are working on
-*quantum objects*.
+we only completed 20% of the total tasks. We are working on the
+*Virtual Machine*.
 
 **New Contributors are WELCOME**, so if you're a skilled dev
 feel free to contact me for joining our team.
@@ -84,12 +87,12 @@ I drink it *every day* just before working on this project.
 
 ## Compilation
 
-This code is written in **c++17** so don't try to build
+This code is written in **c++2a** so don't try to build
 it using an *older version*.
 
-The Interpreter must be compiled using *clang++*.
-We don't cover support for *gcc* / *g++* and we don't ensure
-that our source will be successfully compiled with them.
+The **VM** must be compiled using *clang++*.
+We don't cover support for *gcc* / *g++* and we don't make
+sure that our source will be successfully compiled with them.
 
 We recommend using *clang++* on **macOS** and **Linux**.
 
