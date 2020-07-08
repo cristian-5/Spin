@@ -23,8 +23,8 @@ implemented in the interpreter, but the
 
 ## A taste of spin
 
-**These examples have only been conceptualised
-and we are still implementing them in the VM**
+**Attention!** These examples have only been conceptualised
+and we are still implementing them in the **VM**.\
 If you're looking for the Interpreter, contact me.
 
 More examples can be found in the [Examples](Examples/) folder.
