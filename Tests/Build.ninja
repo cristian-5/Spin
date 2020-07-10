@@ -2,10 +2,13 @@
 # Commands:
 
 cppVersion = -std=c++2a
-aliases = ../Source/Aliases/Aliases.hpp
-interface = ../Source/Aliases/Input.hpp
-stack = ../Source/Virtual/Stack.hpp
-program = ../Compiler/Program.hpp
+
+header = ../Source/Common/Header.hpp
+interface = ../Source/Common/interface.hpp
+stack = ../Source/Common/Stack.hpp
+
+token = ../Source/Token/Token.hpp
+program = ../Source/Compiler/Program.hpp
 
 rule compile
     command = clang++ -g -c -o $out $in $cppVersion
@@ -13,49 +16,26 @@ rule compile
 rule link
     command = clang++ -g -o $out $in $cppVersion
 
-# Dependencies:
-
-# build      Build/Converter.o: compile ../Source/Interpreter/Converter.cpp
-# build    Build/Environment.o: compile ../Source/Interpreter/Environment.cpp
-# build    Build/Interpreter.o: compile ../Source/Interpreter/Interpreter.cpp
-# build      Build/Libraries.o: compile ../Source/Interpreter/Libraries.cpp
-# build      Build/Processor.o: compile ../Source/Interpreter/Processor.cpp
-
-# build          Build/Regex.o: compile ../Source/Lexer/Regex.cpp
-# build          Build/Lexer.o: compile ../Source/Lexer/Lexer.cpp
-# build        Build/Manager.o: compile ../Source/Manager/Manager.cpp
-
-# build    Build/Expressions.o: compile ../Source/ASTree/Expressions.cpp
-# build     Build/Statements.o: compile ../Source/ASTree/Statements.cpp
-
-# build         Build/Parser.o: compile ../Source/Parser/Parser.cpp
-# build        Build/Program.o: compile ../Source/Parser/Program.cpp
-# build          Build/Wings.o: compile ../Source/Parser/Wings.cpp
-
-# build          Build/Token.o: compile ../Source/Token/Token.cpp
-
-# build          Build/Array.o: compile ../Source/Types/Array.cpp
-# build          Build/Basic.o: compile ../Source/Types/Basic.cpp
-# build          Build/Class.o: compile ../Source/Types/Class.cpp
-# build        Build/Complex.o: compile ../Source/Types/Complex.cpp
-# build         Build/Object.o: compile ../Source/Types/Object.cpp
-# build        Build/Qubit.o: compile ../Source/Types/Qubit.cpp | ../Source/Aliases/Prototypes/Chaos.hpp
-# build       Build/Routines.o: compile ../Source/Types/Routines.cpp
-# build         Build/Vector.o: compile ../Source/Types/Vector.cpp
-
-# build      Build/Benchmark.o: build Benchmark/Benchmark.cpp
-
 # Virtual Processor
 
-build Build/Processor.o: compile ../Source/Virtual/Processor.cpp | $aliases $stack $program
-build  Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp | $aliases $stack $program
+build      Build/Token.o: compile ../Source/Token/Token.cpp | $header $token
+build      Build/Lexer.o: compile ../Source/Lexer/Lexer.cpp | $header $token
+
+build    Build/Manager.o: compile ../Source/Manager/Manager.cpp | $header
+
+build      Build/Regex.o: compile ../Source/Utility/Regex.cpp | $header
+build  Build/Converter.o: compile ../Source/Utility/Converter.cpp | $header
+
+build    Build/Program.o: compile ../Source/Compiler/Program.cpp | $header $program $token
+build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp | $header $stack $program $token
+build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $header $program
+
+build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp | $header $stack $program
 
 # Main:
 
-# build  Build/Test.o: compile Test.cpp    | $interface $aliases
-build Build/Virtual.o: compile Virtual.cpp | $interface $aliases
+build Build/Test.o: compile Test.cpp | $interface $header $program $token
 
 # Link:
 
-# build  Test: link Build/Test.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Basic.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o Build/Benchmark.o
-build Virtual: link Build/Virtual.o Build/Processor.o
+build Test: link Build/Test.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Regex.o Build/Converter.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o

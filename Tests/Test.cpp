@@ -2,7 +2,7 @@
 /*!
  *
  *    + --------------------------------------- +
- *    |  Test.cpp                               |
+ *    |  Virtual.cpp                            |
  *    |                                         |
  *    |                  Main                   |
  *    |                                         |
@@ -16,53 +16,49 @@
  *
 !*/
 
-#include "../Source/Aliases/Input.hpp"
+#include "../Source/Common/Interface.hpp"
 
-#include "../Source/Aliases/Prototypes/Manager.hpp"
-#include "../Source/Aliases/Prototypes/Wings.hpp"
-#include "../Source/Aliases/Prototypes/SyntaxTree.hpp"
-#include "../Source/Aliases/Prototypes/Parser.hpp"
-#include "../Source/Aliases/Prototypes/Interpreter.hpp"
+#include "../Source/Lexer/Lexer.hpp"
+#include "../Source/Compiler/Compiler.hpp"
+#include "../Source/Compiler/Decompiler.hpp"
+#include "../Source/Virtual/Processor.hpp"
 
 using namespace Spin;
 
+using namespace std;
+
 Int32 main(Int32 argc, Character * argv[]) {
 
-	OStream << "Insert test path: ";
-	String test = getInput();
-	OStream << endLine;
+	String * input = new String("+ 2 - 3 * (- 4) + 5");
 
-	Parser * parser = Parser::self();
-	Interpreter * interpreter = Interpreter::self();
+	auto lexer = Lexer::self();
 
+	SourceCode * code = new SourceCode(
+		new CodeUnit(
+			lexer -> tokenise(input),
+			new String("Virtual File"),
+			input
+		),
+		nullptr, nullptr
+	);
+
+	auto compiler = Compiler::self();
 	Program * program = nullptr;
-	SyntaxTree * syntaxTree = nullptr;
-
-	try {
-		program = Wings::spread(test);
-		syntaxTree = parser -> parse(program);
-		interpreter -> evaluate(syntaxTree);
-	} catch (Program::Error & e) {
-		OStream << endLine << endLine << "% " << e.getErrorCode()
-				<< " Error on line " << e.getLine() << " of ['"
-				<< e.getFile() << "'] %" << endLine
-				<< e.getMessage() << endLine << endLine;
-		if (program) delete program;
-		if (syntaxTree) delete syntaxTree;
-		return ExitCodes::failure;
-	} catch (Manager::BadFileException & b) {
-		OStream << endLine << endLine << "% PPR Catastrophic Event %"
-				<< endLine << "Couldn't open file ['"
-				<< b.getPath() << "']!" << endLine << endLine;
-		if (program) delete program;
-		if (syntaxTree) delete syntaxTree;
+	try { program = compiler -> compile(code); }
+	catch (Program::Error & error) {
+		cout << "Error: " << error.getMessage() << endl;
 		return ExitCodes::failure;
 	}
 
-	delete program;
-	delete syntaxTree;
+	Decompiler::decompile(program -> instructions);
 
-	OStream << endLine;
+	auto processor = Processor::self();
+
+	try { processor -> run(program); }
+	catch (Program::Error & error) {
+		cout << "Error: " << error.getMessage() << endl;
+		return ExitCodes::failure;
+	}
 
 	return ExitCodes::success;
 }
