@@ -67,7 +67,7 @@ namespace Spin {
 			return (Types)(((Types) a << 8) | b);
 		}
 
-		static ParseRule getRule(Token::Type token);
+		ParseRule getRule(Token::Type token);
 
 		static inline Unary runtimeCompose(Token::Type token, Type type) {
 			return (Unary)(((Unary) token << 8) | type);
@@ -84,6 +84,7 @@ namespace Spin {
 		void stringLiteral();
 		void imaginaryLiteral();
 		void realLiteral();
+		void realIdioms();
 		void integerLiteral();
 
 		void expression();

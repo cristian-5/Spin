@@ -33,6 +33,7 @@ namespace Spin {
 			stringLiteral,
 			charLiteral,
 			boolLiteral,
+			realIdiom,
 
 			arrow,
 			doublecolon,
@@ -57,11 +58,13 @@ namespace Spin {
 			ampersandEqual,
 			hatEqual,
 			modulusEqual,
+			dollarEqual,
 			star,
 			slash,
 			ampersand,
 			hat,
 			modulus,
+			dollar,
 
 			minor,
 			minorEqual,

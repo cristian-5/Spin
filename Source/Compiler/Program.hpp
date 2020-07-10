@@ -1,8 +1,8 @@
 
 #include "../Common/Header.hpp"
 
-#ifndef SPIN_PROGRAM_PURE
-#define SPIN_PROGRAM_PURE
+#ifndef SPIN_PROGRAM_HPP
+#define SPIN_PROGRAM_HPP
 
 #include "../Common/Exception.hpp"
 
@@ -61,6 +61,8 @@ namespace Spin {
 		INV, // bitwise inversion
 		PST, // push true
 		PSF, // push false
+		PSI, // push infinity
+		PSU, // push undefined
 		EQL, // equal
 		NEQ, // not equal
 		GRT, // great
@@ -68,9 +70,11 @@ namespace Spin {
 		GEQ, // great equal
 		LEQ, // less equal
 		NOT, // boolean not
-		AND, // boolean / bitwise and
-		ORR, // boolean / bitwise or
-		XOR, // boolean / bitwise xor
+		AND, // boolean and
+		ORR, // boolean or
+		BWA, // bitwise and
+		BWO, // bitwise or
+		BWX, // bitwise xor
 		RET, // return
 		HLT, // halt
 	};

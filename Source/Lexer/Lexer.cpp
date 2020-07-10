@@ -59,6 +59,9 @@ namespace Spin {
 		{ "false", Token::Type::boolLiteral },
 		{ "true", Token::Type::boolLiteral },
 
+		{ "infinity", Token::Type::realIdiom },
+		{ "undefined", Token::Type::realIdiom },
+
 	};
 	const Dictionary<String, Token::Type> Lexer::specifiers = {
 
@@ -146,6 +149,9 @@ namespace Spin {
 				} else if (isAlpha(peek())) {
 					scanKetBra();
 				} else addToken("|", Token::Type::pipe); break;
+			case '$':
+				if (match('=')) addToken("$=", Token::Type::dollarEqual);
+				else addToken("$", Token::Type::dollar); break;
 			case '&':
 				if (match('=')) addToken("&=", Token::Type::ampersandEqual);
 				else if (match('&')) addToken("&&", Token::Type::AND);
