@@ -25,8 +25,8 @@ namespace Spin {
 		Processor() = default;
 		~Processor() = default;
 
-		typedef Value (* Process)(Value &, Value &);
-		typedef Value (* Mutation)(Value &);
+		typedef Value (* Process)(Value, Value);
+		typedef Value (* Mutation)(Value);
 
 		static const Dictionary<Types, Process> addition;
 		static const Dictionary<Types, Process> subtraction;
@@ -36,9 +36,9 @@ namespace Spin {
 
 		static const Dictionary<Type, Mutation> negation;
 
-		static const Dictionary<Types, Process> smartAND;
-		static const Dictionary<Types, Process> smartOR;
-		static const Dictionary<Types, Process> smartXOR;
+		static const Dictionary<Types, Process> bitwiseAND;
+		static const Dictionary<Types, Process> bitwiseOR;
+		static const Dictionary<Types, Process> bitwiseXOR;
 
 		static const Dictionary<Types, Process> inequality;
 		static const Dictionary<Types, Process> equality;
@@ -51,6 +51,9 @@ namespace Spin {
 		static consteval Types compose(Type a, Type b) {
 			return (Types)(((Types) a << 8) | b);
 		}
+
+		static const Real infinity;
+		static const Real undefined;
 
 		public:
 
