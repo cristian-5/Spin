@@ -31,13 +31,13 @@
 	a = stack.pop();                        \
 	stack.push(                             \
 		T.find(ip.as.types) -> second(a, b) \
-	)                                       \
+	)
 
 #define unaryCase(T)                        \
 	a = stack.pop();                        \
 	stack.push(                             \
 		T.find(ip.as.type) -> second(a)     \
-	)                                       \
+	)
 
 #define symmetric(A) compose(A, A)
 
@@ -313,8 +313,184 @@ namespace Spin {
 			})
 		},
 	};
-	DefineBinaryTable(division) = { };
-	DefineBinaryTable(modulus) = { };
+	DefineBinaryTable(division) = {
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				if (!r.integer) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) / r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				if (!r.integer) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) / r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)(l.integer / (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)(l.integer / (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				if (!r.integer) throw Exception();
+				return { .integer = l.integer / r.integer };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .real = (Real)(l.integer) / r.real };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .real = (Real)(l.integer) / r.real };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .real = l.real / (Real)(r.integer) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .real = l.real / r.real };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .real = l.real / r.real };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .real = l.real / (Real)(r.integer) };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::RealType),
+			makeBinaryFrom({
+				return { .real = l.real / r.real };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .real = l.real / r.real };
+			})
+		},
+	};
+	DefineBinaryTable(modulus) = {
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				if (!r.integer) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) % r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				if (!r.integer) throw Exception();
+				return { .integer = (Int64)((Int64)(l.byte) % r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)(l.integer % (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				if (!r.byte) throw Exception();
+				return { .integer = (Int64)(l.integer % (Int64)(r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				if (!r.integer) throw Exception();
+				return { .integer = l.integer % r.integer };
+			})
+		},
+	};
 
 	DefineBinaryTable(bitwiseAND) = {
 		{
@@ -385,12 +561,8 @@ namespace Spin {
 		{ Type::ImaginaryType, makeUnaryFrom({ return { .real = - r.real }; }) },
 	};
 
-	DefineBinaryTable(inequality) = {
-
-	};
-	DefineBinaryTable(equality) = {
-
-	};
+	DefineBinaryTable(inequality) = { };
+	DefineBinaryTable(equality) = { };
 
 	DefineBinaryTable(major) = { };
 	DefineBinaryTable(majorEqual) = { };
@@ -411,7 +583,7 @@ namespace Spin {
 				case OPCode::SUB: binaryCase(subtraction); break;
 				case OPCode::MUL: binaryCase(multiplication); break;
 				case OPCode::DIV: break;
-				case OPCode::MOD: binaryCase(modulus); break;
+				case OPCode::MOD: break;
 				case OPCode::NEG: unaryCase(negation); break;
 				case OPCode::INV:
 					if (ip.as.type == Type::IntegerType) {
@@ -451,13 +623,14 @@ namespace Spin {
 				case OPCode::BWO: binaryCase(bitwiseOR); break;
 				case OPCode::BWX: binaryCase(bitwiseXOR); break;
 				case OPCode::RET: break;
-				case OPCode::HLT: return;
+				case OPCode::HLT: break; // TODO: set 'return;'.
 				default: break; // TODO: Exception.
 			}
 		}
 		while (!stack.isEmpty()) {
-			std::cout << (int)stack.pop().integer << std::endl;
+			std::cout << "    " << (Int64)stack.pop().integer << std::endl;
 		}
+		std::cout << std::endl;
 		// Free:
 		stack.clear();
 	}

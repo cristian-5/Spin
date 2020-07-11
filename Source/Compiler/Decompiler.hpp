@@ -28,10 +28,10 @@ namespace Spin {
 			acqua,
 		};
 
-		static void aloneOP(String o, Colour c);
-		static void indexOP(String o, Int64 i, Colour c);
-		static void typesOP(String o, Types x, Colour c);
-		static void unaryOP(String o, Type x, Colour c);
+		static void aloneOP(String o, Colour c, String h);
+		static void indexOP(String o, Int64 i, Colour c, String h);
+		static void typesOP(String o, Types x, Colour c, String h);
+		static void unaryOP(String o, Type x, Colour c, String h);
 		
 		static String resolve(Type type);
 

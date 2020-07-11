@@ -34,6 +34,7 @@ namespace Spin {
 		{ Token::Type::minus, { & Compiler::unary, & Compiler::binary, Precedence::term } },
 		{ Token::Type::plus, { & Compiler::unary, & Compiler::binary, Precedence::term } },
 		{ Token::Type::slash, { nullptr, & Compiler::binary, Precedence::factor } },
+		{ Token::Type::modulus, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::star, { nullptr, & Compiler::binary, Precedence::factor } },
 
 		{ Token::Type::intLiteral, { & Compiler::integerLiteral, nullptr, Precedence::none } },
@@ -132,7 +133,33 @@ namespace Spin {
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::RealType), Type::ImaginaryType },
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::ImaginaryType), Type::RealType },
 		// # / # ------------------------------------------------------------- # Composing Division #
+		{ compose(Token::Type::slash, Type::CharacterType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::CharacterType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::ByteType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::IntegerType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::IntegerType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::IntegerType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::slash, Type::IntegerType, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::slash, Type::RealType, Type::IntegerType), Type::RealType },
+		{ compose(Token::Type::slash, Type::RealType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::slash, Type::RealType, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::slash, Type::ImaginaryType, Type::IntegerType), Type::ImaginaryType },
+		{ compose(Token::Type::slash, Type::ImaginaryType, Type::RealType), Type::ImaginaryType },
+		{ compose(Token::Type::slash, Type::ImaginaryType, Type::ImaginaryType), Type::RealType },
 		// # % # ------------------------------------------------------------- # Composing Modulus #
+		{ compose(Token::Type::modulus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::CharacterType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::ByteType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::IntegerType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 	};
 
 	void Compiler::booleanLiteral() {
