@@ -88,16 +88,22 @@ namespace Spin {
 		void integerLiteral();
 
 		void expression();
+		void statement();
+		void declaration();
 		void grouping();
 		void binary();
 		void unary();
 
 		void parsePrecedence(Precedence precedence);
 
+		inline Boolean match(Token::Type type);
+		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
+		inline void emitObject(Pointer ptr, Type type);
+
 		void emitReturn();
 		void emitHalt();
 

@@ -81,21 +81,21 @@ namespace Spin {
 
 	using Types = UInt16;
 
-	struct ByteCode {
-		OPCode code = OPCode::RST;
-		union {
-			SizeType index;
-			Type type;
-			Types types;
-		} as;
-	};
-
 	union Value {
 		Integer integer;
 		Pointer pointer;
 		Real real;
 		Byte byte;
 		Boolean boolean;
+	};
+
+	struct ByteCode {
+		OPCode code = OPCode::RST;
+		union {
+			Value value;
+			Type type;
+			Types types;
+		} as;
 	};
 
 	class Program {
@@ -120,7 +120,7 @@ namespace Spin {
 		};
 		Program() = default;
 		Array<ByteCode> instructions;
-		Array<Value> literals;
+		Array<Pair<Pointer, Type>> objects;
 	};
 
 	class SourceCode {

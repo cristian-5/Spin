@@ -17,7 +17,7 @@ namespace Spin {
 
 		private:
 
-		Array<Value> literals;
+		static Array<Pair<Pointer, Type>> objects;
 		Array<ByteCode> instructions;
 
 		Stack<Value> stack;
@@ -54,6 +54,9 @@ namespace Spin {
 
 		static const Real infinity;
 		static const Real undefined;
+
+		void freeLiterals(Program * program);
+		void freeObjects();
 
 		public:
 

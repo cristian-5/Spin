@@ -52,7 +52,7 @@ namespace Spin {
 			 << "                " << colours[Colour::gray]
 			 << "! " << h << reset << endl;
 	}
-	void Decompiler::indexOP(String o, Int64 i, Colour c, String h) {
+	void Decompiler::constOP(String o, Int64 i, Colour c, String h) {
 		cout << "    " << colours[c] << o << reset
 			 << "    " << colours[Colour::acqua]
 			 << std::uppercase << std::hex << std::setw(8)
@@ -104,7 +104,7 @@ namespace Spin {
 	void Decompiler::decompile(ByteCode byte) {
 		switch (byte.code) {
 			case OPCode::RST: aloneOP("RST", Colour::yellow, "rest"); break;
-			case OPCode::CNS: indexOP("CNS", byte.as.index, Colour::green, "push constant"); break;
+			case OPCode::CNS: constOP("CNS", byte.as.value.integer, Colour::green, "push constant"); break;
 			case OPCode::ADD: typesOP("ADD", byte.as.types, Colour::blue, "addition"); break;
 			case OPCode::SUB: typesOP("SUB", byte.as.types, Colour::blue, "subtraction"); break;
 			case OPCode::MUL: typesOP("MUL", byte.as.types, Colour::blue, "multiplication"); break;

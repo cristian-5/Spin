@@ -37,6 +37,9 @@ namespace Spin {
 		{ Token::Type::modulus, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::star, { nullptr, & Compiler::binary, Precedence::factor } },
 
+		{ Token::Type::AND, { nullptr, & Compiler::binary, Precedence::logicAND } },
+		{ Token::Type::OR, { nullptr, & Compiler::binary, Precedence::logicOR } },
+
 		{ Token::Type::intLiteral, { & Compiler::integerLiteral, nullptr, Precedence::none } },
 		{ Token::Type::realLiteral, { & Compiler::realLiteral, nullptr, Precedence::none } },
 		{ Token::Type::imaginaryLiteral, { & Compiler::imaginaryLiteral, nullptr, Precedence::none } },
@@ -100,6 +103,7 @@ namespace Spin {
 		{ compose(Token::Type::plus, Type::RealType, Type::IntegerType), Type::RealType },
 		{ compose(Token::Type::plus, Type::RealType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::plus, Type::ImaginaryType, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::plus, Type::StringType, Type::StringType), Type::StringType },
 		// # - # ------------------------------------------------------------- # Composing Subtraction #
 		{ compose(Token::Type::minus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::CharacterType, Type::ByteType), Type::IntegerType },
@@ -169,9 +173,25 @@ namespace Spin {
 		typeStack.push(Type::BooleanType);
 	}
 	void Compiler::characterLiteral() {
+		String lexeme = previous.lexeme.substr(
+			1, previous.lexeme.length() - 2
+		);
+		Character literal = Converter::escapeChar(lexeme);
+		emitOperation(
+			{ OPCode::CNS, { .value = { .byte = ((Byte)(literal)) } } }
+		);
 		typeStack.push(Type::CharacterType);
 	}
 	void Compiler::stringLiteral() {
+		String literal = previous.lexeme.substr(
+			1, previous.lexeme.length() - 2
+		);
+		literal = Converter::escapeString(literal);
+		const Pointer ptr = new String(literal);
+		emitOperation(
+			{ OPCode::CNS, { .value = { .pointer = ptr } } }
+		);
+		emitObject(ptr, Type::StringType);
 		typeStack.push(Type::StringType);
 	}
 	void Compiler::imaginaryLiteral() {
@@ -179,10 +199,7 @@ namespace Spin {
 			previous.lexeme
 		);
 		emitOperation(
-			{ OPCode::CNS, { .index = program -> literals.size() } }
-		);
-		program -> literals.push_back(
-			{ .real = literal }
+			{ OPCode::CNS, { .value = { .real = literal } } }
 		);
 		typeStack.push(Type::ImaginaryType);
 	}
@@ -191,10 +208,7 @@ namespace Spin {
 			previous.lexeme
 		);
 		emitOperation(
-			{ OPCode::CNS, { .index = program -> literals.size() } }
-		);
-		program -> literals.push_back(
-			{ .real = literal }
+			{ OPCode::CNS, { .value = { .real = literal } } }
 		);
 		typeStack.push(Type::RealType);
 	}
@@ -209,10 +223,7 @@ namespace Spin {
 			previous.lexeme
 		);
 		emitOperation(
-			{ OPCode::CNS, { .index = program -> literals.size() } }
-		);
-		program -> literals.push_back(
-			{ .integer = literal }
+			{ OPCode::CNS, { .value = { .integer = literal } } }
 		);
 		typeStack.push(Type::IntegerType);
 	}
@@ -220,6 +231,12 @@ namespace Spin {
 	void Compiler::expression() {
 		try { parsePrecedence(Precedence::assignment); }
 		catch (Program::Error & e) { throw; }
+	}
+	void Compiler::statement() {
+
+	}
+	void Compiler::declaration() {
+		
 	}
 	void Compiler::grouping() {
 		try {
@@ -319,6 +336,14 @@ namespace Spin {
 		return search -> second;
 	}
 
+	inline Boolean Compiler::match(Token::Type type) {
+		if (!check(type)) return false;
+		advance();
+		return true;
+	}
+	inline Boolean Compiler::check(Token::Type type) {
+		return current.type == type;
+	}
 	inline void Compiler::advance() {
 		previous = current;
 		current = tokens -> at(index);
@@ -342,7 +367,12 @@ namespace Spin {
 		program -> instructions.push_back(code);
 	}
 	inline void Compiler::emitOperation(OPCode code) {
-		program -> instructions.push_back({ code, { .index = 0 } });
+		program -> instructions.push_back({ code, {
+			.value = { .integer = 0 } }
+		});
+	}
+	inline void Compiler::emitObject(Pointer ptr, Type type) {
+		program -> objects.push_back({ ptr, type });
 	}
 
 	void Compiler::emitReturn() {
@@ -363,7 +393,7 @@ namespace Spin {
 		try {
 			advance();
 			consume(Token::Type::beginFile, "Begin File");
-			expression();
+			while (!match(Token::Type::endFile)) declaration();
 			emitHalt();
 		} catch (Program::Error & e) { throw; }
 

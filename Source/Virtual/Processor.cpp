@@ -49,7 +49,10 @@ namespace Spin {
 	const Real Processor::infinity = std::numeric_limits<double>::infinity();
 	const Real Processor::undefined = std::numeric_limits<double>::quiet_NaN();
 
+	Array<Pair<Pointer, Type>> Processor::objects = { };
+
 	DefineBinaryTable(addition) = {
+		// Basic Types:
 		{
 			compose(Type::CharacterType, Type::CharacterType),
 			makeBinaryFrom({
@@ -126,6 +129,18 @@ namespace Spin {
 			compose(Type::ImaginaryType, Type::ImaginaryType),
 			makeBinaryFrom({
 				return { .real = l.real + r.real };
+			})
+		},
+		// Basic Objects:
+		{
+			compose(Type::StringType, Type::StringType),
+			makeBinaryFrom({
+				const Pointer string = new String(
+					(*((String *)(l.pointer))) +
+					(*((String *)(r.pointer)))
+				);
+				objects.push_back({ string, Type::StringType });
+				return { .pointer = string };
 			})
 		},
 	};
@@ -572,13 +587,12 @@ namespace Spin {
 	void Processor::run(Program * program) {
 		if (!program) return;
 		instructions = program -> instructions;
-		literals = program -> literals;
 		// Main:
 		Value a, b;
 		for (ByteCode ip : instructions) {
 			switch (ip.code) {
 				case OPCode::RST: break;
-				case OPCode::CNS: stack.push(literals[ip.as.index]); break;
+				case OPCode::CNS: stack.push(ip.as.value); break;
 				case OPCode::ADD: binaryCase(addition); break;
 				case OPCode::SUB: binaryCase(subtraction); break;
 				case OPCode::MUL: binaryCase(multiplication); break;
@@ -633,6 +647,28 @@ namespace Spin {
 		std::cout << std::endl;
 		// Free:
 		stack.clear();
+		freeLiterals(program);
+		freeObjects();
+	}
+
+	void Processor::freeLiterals(Program * program) {
+		for (auto & object : program -> objects) {
+			switch (object.second) {
+				case Type::StringType: delete ((String *)object.first); break;
+				default: break;
+			}
+		}
+		program -> objects.clear();
+	}
+
+	void Processor::freeObjects() {
+		for (auto & object : objects) {
+			switch (object.second) {
+				case Type::StringType: delete ((String *)object.first); break;
+				default: break;
+			}
+		}
+		objects.clear();
 	}
 
 }
