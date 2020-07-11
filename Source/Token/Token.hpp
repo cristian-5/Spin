@@ -108,6 +108,8 @@ namespace Spin {
 			continueKeyword,
 			selfKeyword,
 
+			printKeywork,
+
 			importKeyword,
 
 			funcKeyword,

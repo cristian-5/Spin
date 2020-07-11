@@ -18,6 +18,8 @@
 
 	#define padding(n) std::setw(n) << std::setfill('0')
 	#define upperCase std::uppercase
+	#define hexadecimal std::hex
+	#define decimal std::dec
 
 	inline String getInput() {
 		String input;

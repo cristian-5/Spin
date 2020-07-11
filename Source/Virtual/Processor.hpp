@@ -1,5 +1,5 @@
 
-#include "../Common/Header.hpp"
+#include "../Common/Interface.hpp"
 
 #ifndef SPIN_PROCESSOR_HPP
 #define SPIN_PROCESSOR_HPP
@@ -27,6 +27,7 @@ namespace Spin {
 
 		typedef Value (* Process)(Value, Value);
 		typedef Value (* Mutation)(Value);
+		typedef void (* Immutable)(Value);
 
 		static const Dictionary<Types, Process> addition;
 		static const Dictionary<Types, Process> subtraction;
@@ -35,6 +36,7 @@ namespace Spin {
 		static const Dictionary<Types, Process> modulus;
 
 		static const Dictionary<Type, Mutation> negation;
+		static const Dictionary<Type, Immutable> print;
 
 		static const Dictionary<Types, Process> bitwiseAND;
 		static const Dictionary<Types, Process> bitwiseOR;

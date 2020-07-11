@@ -46,6 +46,8 @@ namespace Spin {
 		{ "rest", Token::Type::restKeyword },
 		{ "return", Token::Type::returnKeyword },
 
+		{ "print", Token::Type::printKeywork },
+
 		{ "Boolean", Token::Type::basicType },
 		{ "Byte", Token::Type::basicType },
 		{ "Character", Token::Type::basicType },

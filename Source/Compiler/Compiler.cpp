@@ -233,10 +233,17 @@ namespace Spin {
 		catch (Program::Error & e) { throw; }
 	}
 	void Compiler::statement() {
-
+		if (match(Token::Type::printKeywork)) {
+			try { printStatement(); }
+			catch (Program::Error & e) { throw; }
+		} else {
+			try { expressionStatement(); }
+			catch (Program::Error & e) { throw; }
+		}
 	}
 	void Compiler::declaration() {
-		
+		try { statement(); }
+		catch (Program::Error & e) { throw; }
 	}
 	void Compiler::grouping() {
 		try {
@@ -261,7 +268,7 @@ namespace Spin {
 				"Binary operator '" + token.lexeme + "' doesn't support operands of type '" +
 				Converter::typeToString(typeA) + "' and '" +
 				Converter::typeToString(typeB) + "'!",
-				token, ErrorCode::syx
+				token, ErrorCode::typ
 			);
 		}
 		switch (token.type) {
@@ -296,7 +303,7 @@ namespace Spin {
 				currentUnit,
 				"Unary operator '" + token.lexeme + "' doesn't support any operand of type '" +
 				Converter::typeToString(type) + "'!",
-				token, ErrorCode::syx
+				token, ErrorCode::typ
 			);
 		}
 		switch (token.type) {
@@ -306,6 +313,32 @@ namespace Spin {
 			default: break;
 		}
 		typeStack.push(search -> second);
+	}
+
+	void Compiler::expressionStatement() {
+		try {
+			expression();
+			consume(Token::Type::semicolon, ";");
+		} catch (Program::Error & e) { throw; }
+		emitOperation(OPCode::POP);
+	}
+	void Compiler::printStatement() {
+		const Token token = previous;
+		try {
+			expression();
+			consume(Token::Type::semicolon, ";");
+		} catch (Program::Error & e) { throw; }
+		Type type = typeStack.pop();
+		if (type > Type::StringType) {
+			throw Program::Error(
+				currentUnit,
+				"Print statement doesn't support any operand of type '" +
+				Converter::typeToString(type) + "'!",
+				token, ErrorCode::typ
+			);
+		}
+		emitOperation({ OPCode::PRN, { .type = type } });
+		emitOperation(OPCode::NLN);
 	}
 
 	void Compiler::parsePrecedence(Precedence precedence) {
@@ -337,9 +370,9 @@ namespace Spin {
 	}
 
 	inline Boolean Compiler::match(Token::Type type) {
+		if (check(Token::Type::endFile)) return check(type);
 		if (!check(type)) return false;
-		advance();
-		return true;
+		advance(); return true;
 	}
 	inline Boolean Compiler::check(Token::Type type) {
 		return current.type == type;

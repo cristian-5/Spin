@@ -94,6 +94,9 @@ namespace Spin {
 		void binary();
 		void unary();
 
+		void expressionStatement();
+		void printStatement();
+
 		void parsePrecedence(Precedence precedence);
 
 		inline Boolean match(Token::Type type);

@@ -21,12 +21,7 @@
 #ifndef SPIN_DECOMPILER_CPP
 #define SPIN_DECOMPILER_CPP
 
-#include <iostream>
 #include <vector>
-#include <iomanip>
-
-using std::cout;
-using std::endl;
 
 #define reset "\x1B[0m"
 
@@ -45,40 +40,38 @@ namespace Spin {
 		"\x1B[38;5;250m",  // gray
 		"\x1B[38;5;14m",   // sky
 		"\x1B[38;5;30m",   // acqua
+		"\x1B[38;5;210m",   // peach
 	};
 
 	void Decompiler::aloneOP(String o, Colour c, String h) {
-		cout << "    " << colours[c] << o << reset
-			 << "                " << colours[Colour::gray]
-			 << "! " << h << reset << endl;
+		OStream << "    " << colours[c] << o << reset
+				<< "                " << colours[Colour::gray]
+				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::constOP(String o, Int64 i, Colour c, String h) {
-		cout << "    " << colours[c] << o << reset
-			 << "    " << colours[Colour::acqua]
-			 << std::uppercase << std::hex << std::setw(8)
-			 << std::setfill('0') << i << reset
-			 << "    " << colours[Colour::gray]
-			 << "! " << h << reset << endl;
+		OStream << "    " << colours[c] << o << reset
+				<< "    " << colours[Colour::acqua]
+				<< upperCase << hexadecimal << i << reset << endLine;
 	}
 	void Decompiler::typesOP(String o, Types x, Colour c, String h) {
 		Type a = (Type)((x & 0xFF00) >> 8);
 		Type b = (Type)(x & 0x00FF);
 		Colour w = (a <= Type::ImaginaryType ? Colour::orange : Colour::pink);
 		Colour k = (b <= Type::ImaginaryType ? Colour::orange : Colour::pink);
-		cout << "    " << colours[c] << o << reset
-			 << "    " << colours[w] << resolve(a)
-			 << reset << ", " << colours[k]
-			 << resolve(b) << reset
-			 << "    " << colours[Colour::gray]
-			 << "! " << h << reset << endl;
+		OStream << "    " << colours[c] << o << reset
+				<< "    " << colours[w] << resolve(a)
+				<< reset << ", " << colours[k]
+				<< resolve(b) << reset
+				<< "    " << colours[Colour::gray]
+				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::unaryOP(String o, Type x, Colour c, String h) {
 		Colour a = (x <= Type::ImaginaryType ? Colour::orange : Colour::pink);
-		cout << "    " << colours[c] << o << reset
-			 << "    " << colours[a]
-			 << resolve(x) << reset
-			 << "         " << colours[Colour::gray]
-			 << "! " << h << reset << endl;
+		OStream << "    " << colours[c] << o << reset
+				<< "    " << colours[a]
+				<< resolve(x) << reset
+				<< "         " << colours[Colour::gray]
+				<< "! " << h << reset << endLine;
 	}
 
 	String Decompiler::resolve(Type type) {
@@ -116,6 +109,7 @@ namespace Spin {
 			case OPCode::PSF: aloneOP("PSF", Colour::yellow, "push false"); break;
 			case OPCode::PSI: aloneOP("PSI", Colour::yellow, "push infinity"); break;
 			case OPCode::PSU: aloneOP("PSU", Colour::yellow, "push undefined"); break;
+			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
 			case OPCode::EQL: typesOP("EQL", byte.as.types, Colour::orange, "equal"); break;
 			case OPCode::NEQ: typesOP("NEQ", byte.as.types, Colour::orange, "not equal"); break;
 			case OPCode::GRT: typesOP("GRT", byte.as.types, Colour::orange, "great"); break;
@@ -129,15 +123,17 @@ namespace Spin {
 			case OPCode::BWO: typesOP("BWO", byte.as.types, Colour::blue, "bitwise or"); break;
 			case OPCode::BWX: typesOP("BWX", byte.as.types, Colour::blue, "bitwise xor"); break;
 			case OPCode::RET: aloneOP("RET", Colour::orange, "return"); break;
+			case OPCode::PRN: unaryOP("PRN", byte.as.type, Colour::peach, "print"); break;
+			case OPCode::NLN: aloneOP("NLN", Colour::peach, "new line"); break;
 			case OPCode::HLT: aloneOP("HLT", Colour::red, "halt"); break;
 			default: break;
 		}
-		cout << std::dec;
+		OStream << decimal;
 	}
 	void Decompiler::decompile(Array<ByteCode> source) {
-		cout << endl;
+		OStream << endLine;
 		for (auto & i : source) decompile(i);
-		cout << endl;
+		OStream << endLine;
 	}
 
 }

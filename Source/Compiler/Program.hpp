@@ -24,21 +24,24 @@ namespace Spin {
 	};
 
 	enum ErrorCode : UInt8 {
-		flm, lxr, ppr, syx, evl
+		flm, lxr, ppr, syx, typ, evl
 	};
+
+	// Never change the order of types
+	// since it's used for type check.
 
 	enum Type : UInt8 {
 
 		BooleanType,
 		CharacterType,
 		ByteType,
-		
 		IntegerType,
 		RealType,
 		ImaginaryType,
 
-		ComplexType,
 		StringType,
+		ComplexType,
+
 		ArrayType,
 		VectorType,
 		RoutineType,
@@ -63,6 +66,7 @@ namespace Spin {
 		PSF, // push false
 		PSI, // push infinity
 		PSU, // push undefined
+		POP, // pop
 		EQL, // equal
 		NEQ, // not equal
 		GRT, // great
@@ -76,6 +80,8 @@ namespace Spin {
 		BWO, // bitwise or
 		BWX, // bitwise xor
 		RET, // return
+		PRN, // print
+		NLN, // new line
 		HLT, // halt
 	};
 

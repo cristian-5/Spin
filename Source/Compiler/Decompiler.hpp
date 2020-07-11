@@ -1,5 +1,5 @@
 
-#include "../Common/Header.hpp"
+#include "../Common/Interface.hpp"
 
 #ifndef SPIN_DECOMPILER_HPP
 #define SPIN_DECOMPILER_HPP
@@ -25,7 +25,9 @@ namespace Spin {
 			purple,
 			pink,
 			gray,
+			sky,
 			acqua,
+			peach,
 		};
 
 		static void aloneOP(String o, Colour c, String h);

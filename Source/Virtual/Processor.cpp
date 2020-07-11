@@ -25,6 +25,7 @@
 
 #define DefineBinaryTable(A) const Dictionary<Types, Processor::Process> Processor::A
 #define DefineUnaryTable(A) const Dictionary<Type, Processor::Mutation> Processor::A
+#define DefineImmutableTable(A) const Dictionary<Type, Processor::Immutable> Processor::A
 
 #define binaryCase(T)                       \
 	b = stack.pop();                        \
@@ -38,11 +39,15 @@
 	stack.push(                             \
 		T.find(ip.as.type) -> second(a)     \
 	)
+#define immutableCase(T)                    \
+	a = stack.pop();                        \
+	T.find(ip.as.type) -> second(a)
 
 #define symmetric(A) compose(A, A)
 
 #define makeBinaryFrom(L) [] (Value l, Value r) -> Value L
 #define makeUnaryFrom(L) [] (Value r) -> Value L
+#define makeImmutableFrom(L) [] (Value r) L
 
 namespace Spin {
 
@@ -575,6 +580,17 @@ namespace Spin {
 		{      Type::RealType, makeUnaryFrom({ return { .real = - r.real }; }) },
 		{ Type::ImaginaryType, makeUnaryFrom({ return { .real = - r.real }; }) },
 	};
+	DefineImmutableTable(print) = {
+		// Basic Types:
+		{   Type::BooleanType, makeImmutableFrom({ OStream << (r.boolean ? "true" : "false"); }) },
+		{ Type::CharacterType, makeImmutableFrom({ OStream << (Character)r.byte; }) },
+		{      Type::ByteType, makeImmutableFrom({ OStream << hexadecimal << (Int64)r.byte << decimal; }) },
+		{   Type::IntegerType, makeImmutableFrom({ OStream << r.integer; }) },
+		{      Type::RealType, makeImmutableFrom({ OStream << r.real; }) },
+		{ Type::ImaginaryType, makeImmutableFrom({ OStream << r.real; }) },
+		// Basic Objects:
+		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)); }) },
+	};
 
 	DefineBinaryTable(inequality) = { };
 	DefineBinaryTable(equality) = { };
@@ -612,6 +628,7 @@ namespace Spin {
 				case OPCode::PSF: stack.push({ .boolean = false }); break;
 				case OPCode::PSI: stack.push({ .real = infinity }); break;
 				case OPCode::PSU: stack.push({ .real = undefined }); break;
+				case OPCode::POP: stack.decrease(); break;
 				case OPCode::EQL: binaryCase(equality); break;
 				case OPCode::NEQ: binaryCase(inequality); break;
 				case OPCode::GRT: binaryCase(major); break;
@@ -637,14 +654,12 @@ namespace Spin {
 				case OPCode::BWO: binaryCase(bitwiseOR); break;
 				case OPCode::BWX: binaryCase(bitwiseXOR); break;
 				case OPCode::RET: break;
+				case OPCode::PRN: immutableCase(print); break;
+				case OPCode::NLN: OStream << endLine; break;
 				case OPCode::HLT: break; // TODO: set 'return;'.
 				default: break; // TODO: Exception.
 			}
 		}
-		while (!stack.isEmpty()) {
-			std::cout << "    " << (Int64)stack.pop().integer << std::endl;
-		}
-		std::cout << std::endl;
 		// Free:
 		stack.clear();
 		freeLiterals(program);
@@ -660,7 +675,6 @@ namespace Spin {
 		}
 		program -> objects.clear();
 	}
-
 	void Processor::freeObjects() {
 		for (auto & object : objects) {
 			switch (object.second) {

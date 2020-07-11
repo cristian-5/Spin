@@ -18,19 +18,19 @@ rule link
 
 # Virtual Processor
 
-build      Build/Token.o: compile ../Source/Token/Token.cpp | $header $token
-build      Build/Lexer.o: compile ../Source/Lexer/Lexer.cpp | $header $token
+build      Build/Token.o: compile ../Source/Token/Token.cpp         | $header $token
+build      Build/Lexer.o: compile ../Source/Lexer/Lexer.cpp         | $header $token
 
-build    Build/Manager.o: compile ../Source/Manager/Manager.cpp | $header
+build    Build/Manager.o: compile ../Source/Manager/Manager.cpp     | $header
 
-build      Build/Regex.o: compile ../Source/Utility/Regex.cpp | $header
-build  Build/Converter.o: compile ../Source/Utility/Converter.cpp | $header
+build      Build/Regex.o: compile ../Source/Utility/Regex.cpp       | $header
+build  Build/Converter.o: compile ../Source/Utility/Converter.cpp   | $header
 
-build    Build/Program.o: compile ../Source/Compiler/Program.cpp | $header $program $token
-build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp | $header $stack $program $token
-build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $header $program
+build    Build/Program.o: compile ../Source/Compiler/Program.cpp    | $header $program $token
+build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp   | $header $stack $program $token
+build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $interface $header $program
 
-build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp | $header $stack $program
+build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp   | $interface $header $stack $program
 
 # Main:
 

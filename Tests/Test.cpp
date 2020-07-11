@@ -29,7 +29,7 @@ using namespace std;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String * input = new String("!true && false");
+	String * input = new String("print 3 * 4;");
 
 	auto lexer = Lexer::self();
 
