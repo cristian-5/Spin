@@ -23,6 +23,7 @@
 
 #include <limits>
 
+#define DefineCastTable(A) const Dictionary<Types, Processor::Mutation> Processor::A
 #define DefineBinaryTable(A) const Dictionary<Types, Processor::Process> Processor::A
 #define DefineUnaryTable(A) const Dictionary<Type, Processor::Mutation> Processor::A
 #define DefineImmutableTable(A) const Dictionary<Type, Processor::Immutable> Processor::A
@@ -47,6 +48,7 @@
 
 #define makeBinaryFrom(L) [] (Value l, Value r) -> Value L
 #define makeUnaryFrom(L) [] (Value r) -> Value L
+#define makeCastFrom(L) [] (Value c) -> Value L
 #define makeImmutableFrom(L) [] (Value r) L
 
 namespace Spin {
@@ -55,6 +57,53 @@ namespace Spin {
 	const Real Processor::undefined = std::numeric_limits<double>::quiet_NaN();
 
 	Array<Pair<Pointer, Type>> Processor::objects = { };
+
+	// Attention! Has to be read from l to r: ((r)l).
+	//            It will always return type of r.
+	DefineCastTable(cast) = {
+		// Basic Types:
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeCastFrom({ return c; })
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeCastFrom({ return { .integer = (Int64)c.byte }; })
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeCastFrom({ return c; })
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeCastFrom({ return { .integer = (Int64)c.byte }; })
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeCastFrom({ return { .byte = (Byte)c.integer }; })
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeCastFrom({ return { .byte = (Byte)c.integer }; })
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeCastFrom({ return { .real = (Real)c.integer }; })
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeCastFrom({ return { .integer = (Int64)c.real }; })
+		},
+		// Basic Objects:
+		{
+			compose(Type::CharacterType, Type::StringType),
+			makeCastFrom({
+				String * string = new String(1, (Character)c.byte);
+				objects.push_back({ string, Type::StringType });
+				return { .pointer = string };
+			})
+		},
+	};
 
 	DefineBinaryTable(addition) = {
 		// Basic Types:
@@ -140,7 +189,7 @@ namespace Spin {
 		{
 			compose(Type::StringType, Type::StringType),
 			makeBinaryFrom({
-				const Pointer string = new String(
+				String * string = new String(
 					(*((String *)(l.pointer))) +
 					(*((String *)(r.pointer)))
 				);
@@ -609,6 +658,9 @@ namespace Spin {
 			switch (ip.code) {
 				case OPCode::RST: break;
 				case OPCode::CNS: stack.push(ip.as.value); break;
+				case OPCode::GLB: globals.push_back(ip.as.value); break;
+				case OPCode::GGB: stack.push(globals[ip.as.index]); break;
+				case OPCode::SGB: globals[ip.as.index] = stack.top(); break;
 				case OPCode::ADD: binaryCase(addition); break;
 				case OPCode::SUB: binaryCase(subtraction); break;
 				case OPCode::MUL: binaryCase(multiplication); break;
@@ -654,6 +706,10 @@ namespace Spin {
 				case OPCode::BWO: binaryCase(bitwiseOR); break;
 				case OPCode::BWX: binaryCase(bitwiseXOR); break;
 				case OPCode::RET: break;
+				case OPCode::CST: 
+					a = stack.pop();
+					stack.push(cast.find(ip.as.types) -> second(a));
+				break;
 				case OPCode::PRN: immutableCase(print); break;
 				case OPCode::NLN: OStream << endLine; break;
 				case OPCode::HLT: break; // TODO: set 'return;'.

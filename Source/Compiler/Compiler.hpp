@@ -52,10 +52,16 @@ namespace Spin {
 		CodeUnit * currentUnit = nullptr;
 		Array<Token> * tokens = nullptr;
 
+		Dictionary<String, Pair<Type, UInt32>> globals;
+		UInt32 globalIndex = 0;
+
 		Stack<Type> typeStack;
+		Stack<Boolean> assignmentStack;
 
 		static const Dictionary<Unary, Type> prefix;
 		static const Dictionary<Binary, Type> infix;
+
+		static const Dictionary<Types, Boolean> implicitCast;
 
 		static consteval Unary compose(Token::Type token, Type type) {
 			return (Unary)(((Unary) token << 8) | type);
@@ -90,6 +96,9 @@ namespace Spin {
 		void expression();
 		void statement();
 		void declaration();
+		void variable();
+		void identifier();
+
 		void grouping();
 		void binary();
 		void unary();
@@ -106,6 +115,7 @@ namespace Spin {
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
 		inline void emitObject(Pointer ptr, Type type);
+		inline void emitGlobal(Value value = { .integer = 0 });
 
 		void emitReturn();
 		void emitHalt();

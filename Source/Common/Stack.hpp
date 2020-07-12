@@ -71,8 +71,7 @@ namespace Spin {
 
 	template <typename Type>
 	Type Stack<Type>::pop() {
-		count -= 1;
-		return stack[count];
+		return stack[--count];
 	}
 
 	template <typename Type>

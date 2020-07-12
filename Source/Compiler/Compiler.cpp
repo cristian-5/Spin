@@ -23,6 +23,8 @@
 
 #include "../Utility/Converter.hpp"
 
+#define rethrow(A) try { A; } catch (Program::Error & e) { throw; }
+
 namespace Spin {
 
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
@@ -36,6 +38,8 @@ namespace Spin {
 		{ Token::Type::slash, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::modulus, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::star, { nullptr, & Compiler::binary, Precedence::factor } },
+
+		{ Token::Type::symbol, { & Compiler::identifier, nullptr, Precedence::none } },
 
 		{ Token::Type::AND, { nullptr, & Compiler::binary, Precedence::logicAND } },
 		{ Token::Type::OR, { nullptr, & Compiler::binary, Precedence::logicOR } },
@@ -166,6 +170,20 @@ namespace Spin {
 		{ compose(Token::Type::modulus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 	};
 
+	const Dictionary<Types, Boolean> Compiler::implicitCast = {
+		// Basic Types:
+		{ compose(Type::CharacterType, Type::ByteType), false },
+		{ compose(Type::CharacterType, Type::IntegerType), true },
+		{ compose(Type::ByteType, Type::CharacterType), false },
+		{ compose(Type::ByteType, Type::IntegerType), true },
+		{ compose(Type::IntegerType, Type::CharacterType), true },
+		{ compose(Type::IntegerType, Type::ByteType), true },
+		{ compose(Type::IntegerType, Type::RealType), true },
+		{ compose(Type::RealType, Type::IntegerType), true },
+		// Basic Objects:
+		{ compose(Type::CharacterType, Type::StringType), true },
+	};
+
 	void Compiler::booleanLiteral() {
 		if (previous.lexeme[0] == 't') {
 			emitOperation(OPCode::PST);
@@ -229,34 +247,146 @@ namespace Spin {
 	}
 
 	void Compiler::expression() {
-		try { parsePrecedence(Precedence::assignment); }
-		catch (Program::Error & e) { throw; }
+		rethrow(parsePrecedence(Precedence::assignment));
 	}
 	void Compiler::statement() {
 		if (match(Token::Type::printKeywork)) {
-			try { printStatement(); }
-			catch (Program::Error & e) { throw; }
+			rethrow(printStatement());
 		} else {
-			try { expressionStatement(); }
-			catch (Program::Error & e) { throw; }
+			rethrow(expressionStatement());
 		}
 	}
 	void Compiler::declaration() {
-		try { statement(); }
-		catch (Program::Error & e) { throw; }
+		if (match(Token::Type::basicType)) {
+			rethrow(variable());
+		} else rethrow(statement());
 	}
+	void Compiler::variable() {
+		Type typeA = Converter::stringToType(previous.lexeme);
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		const String id = previous.lexeme;
+		if (globals.find(id) != globals.end()) {
+			throw Program::Error(
+				currentUnit,
+				"Variable redefinition! The identifier '" +
+				id + "' was already declared with type '" +
+				Converter::typeToString(globals.at(id).first) +
+				"' in the current global scope!",
+				previous, ErrorCode::lgc
+			);
+		}
+		globals.insert({ id, { typeA, globalIndex++ } });
+		if (match(Token::Type::equal)) {
+			const Token token = previous;
+			rethrow(expression());
+			Type typeB = typeStack.pop();
+			if (typeA != typeB) {
+				// Since we're working with B -> A:
+				auto casting = implicitCast.find(
+					runtimeCompose(typeB, typeA)
+				);
+				if (casting == implicitCast.end()) {
+					throw Program::Error(
+						currentUnit,
+						"Assignment operator '=' doesn't support implicit cast of '" +
+						Converter::typeToString(typeB) + "' in '" +
+						Converter::typeToString(typeA) + "'!",
+						token, ErrorCode::lgc
+					);
+				}
+				// If needed produce a CAST:
+				if (casting -> second) {
+					emitOperation({
+						OPCode::CST,
+						{ .types = runtimeCompose(typeB, typeA) }
+					});
+				}
+			}
+			emitGlobal();
+			emitOperation({
+				OPCode::SGB,
+				{ .index = (globals.size() - 1) }
+			});
+		} else {
+			switch (typeA) {
+				case   Type::BooleanType: emitGlobal({ .boolean = 0 }); break;
+				case Type::CharacterType: 
+				case      Type::ByteType: emitGlobal({ .byte = 0 }); break;
+				case   Type::IntegerType: emitGlobal({ .integer = 0 }); break;
+				case      Type::RealType:
+				case Type::ImaginaryType: emitGlobal({ .real = 0.0 }); break;
+				case    Type::StringType: {
+					const Pointer ptr = new String();
+					emitObject(ptr, Type::StringType);
+					emitGlobal({ .pointer = ptr });
+				} break;
+				default: emitGlobal({ .integer = 0 }); break;
+			}
+		}
+		rethrow(consume(Token::Type::semicolon, ";"));
+	}
+	void Compiler::identifier() {
+		auto search = globals.find(previous.lexeme);
+		if (search == globals.end()) {
+			throw Program::Error(
+				currentUnit,
+				"Unexpected identifier '" +
+				previous.lexeme + "'!",
+				previous, ErrorCode::lgc
+			);
+		}
+		Type typeA = search -> second.first;
+		const Boolean canAssign = assignmentStack.top();
+		if (canAssign && match(Token::Type::equal)) {
+			const Token token = previous;
+			rethrow(expression());
+			Type typeB = typeStack.pop();
+			if (typeA != typeB) {
+				// Since we're working with B -> A:
+				auto casting = implicitCast.find(
+					runtimeCompose(typeB, typeA)
+				);
+				if (casting == implicitCast.end()) {
+					throw Program::Error(
+						currentUnit,
+						"Assignment operator '=' doesn't support implicit cast of '" +
+						Converter::typeToString(typeB) + "' in '" +
+						Converter::typeToString(typeA) + "'!",
+						token, ErrorCode::lgc
+					);
+				}
+				// If needed produce a CAST:
+				if (casting -> second) {
+					emitOperation({
+						OPCode::CST,
+						{ .types = runtimeCompose(typeB, typeA) }
+					});
+				}
+			}
+			emitOperation({
+				OPCode::SGB,
+				{ .index = search -> second.second }
+			});
+		} else {
+			emitOperation({
+				OPCode::GGB,
+				{ .index = search -> second.second }
+			});
+		}
+		typeStack.push(typeA);
+	}
+
 	void Compiler::grouping() {
-		try {
+		rethrow(
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
-		} catch (Program::Error & e) { throw; }
+		);
 	}
 	void Compiler::binary() {
 		const Token token = previous;
 		ParseRule rule = getRule(token.type);
 		Type typeA = typeStack.pop();
-		try { parsePrecedence((Precedence)(rule.precedence + 1)); }
-		catch (Program::Error & e) { throw; }
+		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
 		Type typeB = typeStack.pop();
 		const Types types = runtimeCompose(typeA, typeB);
 		auto search = infix.find(
@@ -292,8 +422,7 @@ namespace Spin {
 	}
 	void Compiler::unary() {
 		const Token token = previous;
-		try { parsePrecedence(Precedence::unary); }
-		catch (Program::Error & e) { throw; }
+		rethrow(parsePrecedence(Precedence::unary));
 		Type type = typeStack.pop();
 		auto search = prefix.find(
 			runtimeCompose(token.type, type)
@@ -316,18 +445,18 @@ namespace Spin {
 	}
 
 	void Compiler::expressionStatement() {
-		try {
+		rethrow(
 			expression();
 			consume(Token::Type::semicolon, ";");
-		} catch (Program::Error & e) { throw; }
+		);
 		emitOperation(OPCode::POP);
 	}
 	void Compiler::printStatement() {
 		const Token token = previous;
-		try {
+		rethrow(
 			expression();
 			consume(Token::Type::semicolon, ";");
-		} catch (Program::Error & e) { throw; }
+		);
 		Type type = typeStack.pop();
 		if (type > Type::StringType) {
 			throw Program::Error(
@@ -351,14 +480,23 @@ namespace Spin {
 				current, ErrorCode::syx
 			);
 		}
-		try { (this ->* prefixRule)(); }
-		catch (Program::Error & e) { throw; }
+		Boolean canAssign = (precedence <= Precedence::assignment);
+		assignmentStack.push(canAssign);
+		rethrow((this ->* prefixRule)());
 		while (precedence <= getRule(current.type).precedence) {
 			advance();
 			ParseFunction infixRule = getRule(previous.type).infix;
-			try { (this ->* infixRule)(); }
-			catch (Program::Error & e) { throw; }
+			rethrow((this ->* infixRule)());
 		}
+		if (canAssign && match(Token::Type::equal)) {
+			throw Program::Error(
+				currentUnit,
+				"Found invalid assignment target '" +
+				previous.lexeme + "'!",
+				previous, ErrorCode::lgc
+			);
+		}
+		assignmentStack.decrease();
 	}
 
 	Compiler::ParseRule Compiler::getRule(Token::Type token) {
@@ -407,6 +545,12 @@ namespace Spin {
 	inline void Compiler::emitObject(Pointer ptr, Type type) {
 		program -> objects.push_back({ ptr, type });
 	}
+	inline void Compiler::emitGlobal(Value value) {
+		program -> instructions.insert(
+			program -> instructions.begin(),
+			{ OPCode::GLB, { .value = value } }
+		);
+	}
 
 	void Compiler::emitReturn() {
 		emitOperation(OPCode::RET);
@@ -423,12 +567,19 @@ namespace Spin {
 		if (!tokens) return nullptr;
 		program = new Program();
 
-		try {
+		rethrow(
 			advance();
 			consume(Token::Type::beginFile, "Begin File");
 			while (!match(Token::Type::endFile)) declaration();
 			emitHalt();
-		} catch (Program::Error & e) { throw; }
+		);
+
+		// Reset Globals:
+		globals.clear();
+		globalIndex = 0;
+
+		// Reset Assignment Stack:
+		assignmentStack.clear();
 
 		return program;
 	}

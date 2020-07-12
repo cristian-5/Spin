@@ -40,15 +40,15 @@ namespace Spin {
 		"\x1B[38;5;250m",  // gray
 		"\x1B[38;5;14m",   // sky
 		"\x1B[38;5;30m",   // acqua
-		"\x1B[38;5;210m",   // peach
+		"\x1B[38;5;211m",  // peach
 	};
 
 	void Decompiler::aloneOP(String o, Colour c, String h) {
 		OStream << "    " << colours[c] << o << reset
-				<< "                " << colours[Colour::gray]
+				<< "                        " << colours[Colour::gray]
 				<< "! " << h << reset << endLine;
 	}
-	void Decompiler::constOP(String o, Int64 i, Colour c, String h) {
+	void Decompiler::constOP(String o, Int64 i, Colour c) {
 		OStream << "    " << colours[c] << o << reset
 				<< "    " << colours[Colour::acqua]
 				<< upperCase << hexadecimal << i << reset << endLine;
@@ -62,7 +62,7 @@ namespace Spin {
 				<< "    " << colours[w] << resolve(a)
 				<< reset << ", " << colours[k]
 				<< resolve(b) << reset
-				<< "    " << colours[Colour::gray]
+				<< "            " << colours[Colour::gray]
 				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::unaryOP(String o, Type x, Colour c, String h) {
@@ -70,7 +70,7 @@ namespace Spin {
 		OStream << "    " << colours[c] << o << reset
 				<< "    " << colours[a]
 				<< resolve(x) << reset
-				<< "         " << colours[Colour::gray]
+				<< "                 " << colours[Colour::gray]
 				<< "! " << h << reset << endLine;
 	}
 
@@ -97,7 +97,10 @@ namespace Spin {
 	void Decompiler::decompile(ByteCode byte) {
 		switch (byte.code) {
 			case OPCode::RST: aloneOP("RST", Colour::yellow, "rest"); break;
-			case OPCode::CNS: constOP("CNS", byte.as.value.integer, Colour::green, "push constant"); break;
+			case OPCode::CNS: constOP("CNS", byte.as.value.integer, Colour::green); break;
+			case OPCode::GLB: constOP("GLB", byte.as.value.integer, Colour::green); break;
+			case OPCode::GGB: constOP("GGB", byte.as.index, Colour::blue); break;
+			case OPCode::SGB: constOP("SGB", byte.as.index, Colour::blue); break;
 			case OPCode::ADD: typesOP("ADD", byte.as.types, Colour::blue, "addition"); break;
 			case OPCode::SUB: typesOP("SUB", byte.as.types, Colour::blue, "subtraction"); break;
 			case OPCode::MUL: typesOP("MUL", byte.as.types, Colour::blue, "multiplication"); break;
@@ -122,7 +125,8 @@ namespace Spin {
 			case OPCode::BWA: typesOP("BWA", byte.as.types, Colour::blue, "bitwise and"); break;
 			case OPCode::BWO: typesOP("BWO", byte.as.types, Colour::blue, "bitwise or"); break;
 			case OPCode::BWX: typesOP("BWX", byte.as.types, Colour::blue, "bitwise xor"); break;
-			case OPCode::RET: aloneOP("RET", Colour::orange, "return"); break;
+			case OPCode::RET: aloneOP("RET", Colour::red, "return"); break;
+			case OPCode::CST: typesOP("CST", byte.as.types, Colour::orange, "cast"); break;
 			case OPCode::PRN: unaryOP("PRN", byte.as.type, Colour::peach, "print"); break;
 			case OPCode::NLN: aloneOP("NLN", Colour::peach, "new line"); break;
 			case OPCode::HLT: aloneOP("HLT", Colour::red, "halt"); break;

@@ -21,6 +21,7 @@
 #ifndef SPIN_CONVERTER_CPP
 #define SPIN_CONVERTER_CPP
 
+#include <unordered_map>
 #include <cmath>
 #include <sstream>
 
@@ -124,6 +125,20 @@ namespace Spin {
 			case Type::VoidType: return "Void";
 			default: return "Unknown";
 		}
+	}
+	Type Converter::stringToType(String & s) {
+		static Dictionary<String, Type> types = {
+			{ "Boolean", Type::BooleanType },
+			{ "Character", Type::CharacterType },
+			{ "Byte", Type::ByteType },
+			{ "Integer", Type::IntegerType },
+			{ "Real", Type::RealType },
+			{ "Imaginary", Type::ImaginaryType },
+			{ "Complex", Type::ComplexType },
+		};
+		auto search = types.find(s);
+		if (search == types.end()) return Type::VoidType;
+		return search -> second;
 	}
 	Boolean Converter::stringToBoolean(String & s) {
 		return s == "true";

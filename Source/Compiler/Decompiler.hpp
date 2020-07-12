@@ -31,7 +31,7 @@ namespace Spin {
 		};
 
 		static void aloneOP(String o, Colour c, String h);
-		static void constOP(String o, Int64 i, Colour c, String h);
+		static void constOP(String o, Int64 i, Colour c);
 		static void typesOP(String o, Types x, Colour c, String h);
 		static void unaryOP(String o, Type x, Colour c, String h);
 		

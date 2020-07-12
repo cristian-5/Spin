@@ -28,6 +28,7 @@ namespace Spin {
 		public:
 		Converter() = delete;
 		static String typeToString(Type & t);
+		static Type stringToType(String & s);
 		static Boolean stringToBoolean(String & s);
 		static Int64 stringToInteger(String & s);
 		static Real stringToReal(String & s);

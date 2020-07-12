@@ -25,11 +25,9 @@
 
 using namespace Spin;
 
-using namespace std;
-
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String * input = new String("print 3 * 4;");
+	String * input = new String("Integer x = 6 + 7; print x; x = 10; print x; Real y = 0.8; print y; y = 5.5; x = y; print x;");
 
 	auto lexer = Lexer::self();
 
@@ -46,7 +44,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	Program * program = nullptr;
 	try { program = compiler -> compile(code); }
 	catch (Program::Error & error) {
-		cout << "Error: " << error.getMessage() << endl;
+		OStream << "Error: " << error.getMessage() << endLine;
 		return ExitCodes::failure;
 	}
 
@@ -56,7 +54,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	try { processor -> run(program); }
 	catch (Program::Error & error) {
-		cout << "Error: " << error.getMessage() << endl;
+		OStream << "Error: " << error.getMessage() << endLine;
 		return ExitCodes::failure;
 	}
 

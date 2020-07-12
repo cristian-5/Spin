@@ -21,6 +21,7 @@ namespace Spin {
 		Array<ByteCode> instructions;
 
 		Stack<Value> stack;
+		Array<Value> globals;
 
 		Processor() = default;
 		~Processor() = default;
@@ -28,6 +29,8 @@ namespace Spin {
 		typedef Value (* Process)(Value, Value);
 		typedef Value (* Mutation)(Value);
 		typedef void (* Immutable)(Value);
+
+		static const Dictionary<Types, Mutation> cast;
 
 		static const Dictionary<Types, Process> addition;
 		static const Dictionary<Types, Process> subtraction;

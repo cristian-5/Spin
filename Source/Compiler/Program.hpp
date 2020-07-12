@@ -24,7 +24,7 @@ namespace Spin {
 	};
 
 	enum ErrorCode : UInt8 {
-		flm, lxr, ppr, syx, typ, evl
+		flm, lxr, ppr, syx, typ, lgc, evl
 	};
 
 	// Never change the order of types
@@ -55,6 +55,9 @@ namespace Spin {
 	enum OPCode : UInt8 {
 		RST, // rest
 		CNS, // constant
+		GLB, // global definition
+		GGB, // get global
+		SGB, // set global
 		ADD, // addition
 		SUB, // subtract
 		MUL, // multiply
@@ -80,6 +83,7 @@ namespace Spin {
 		BWO, // bitwise or
 		BWX, // bitwise xor
 		RET, // return
+		CST, // casting
 		PRN, // print
 		NLN, // new line
 		HLT, // halt
@@ -98,6 +102,7 @@ namespace Spin {
 	struct ByteCode {
 		OPCode code = OPCode::RST;
 		union {
+			SizeType index;
 			Value value;
 			Type type;
 			Types types;
