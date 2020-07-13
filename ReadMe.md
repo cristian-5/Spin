@@ -47,7 +47,7 @@ Complex c = a * b - (3.5 + 6i);
 Boolean condition = false;
 Byte raw = 0xFF;
 raw = ~raw; // bitwise inversion.
-String hello = "number " + 10 + '!';
+String hello = "number " + '!';
 Character exclam = hello[10];
 ```
 
