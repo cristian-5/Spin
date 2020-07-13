@@ -34,7 +34,7 @@ More examples can be found in the [Examples](Examples/) folder.
 ``` java
 Integer a = 3 + 2 * 7 - 5;
 Integer conversions = 0b10; // binary.
-conversions = 0xAB24 * 0o5; // hex + oct.
+conversions = 0xAB24 * 0o5; // hex * oct.
 Real c = 7.7;
 Imaginary i = - 7i;
 Complex b = 34.6 + 12i + c;
