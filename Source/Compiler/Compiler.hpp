@@ -16,7 +16,7 @@ using Unary = UInt16;
 using Binary = UInt32;
 
 namespace Spin {
-	
+
 	enum Precedence : UInt8 {
 		none,
 		assignment,
@@ -124,6 +124,7 @@ namespace Spin {
 
 		void expressionStatement();
 		void printStatement();
+		void ifStatement();
 
 		SizeType resolve(String & name, Local & local);
 
@@ -137,6 +138,8 @@ namespace Spin {
 		inline void emitOperation(OPCode code);
 		inline void emitObject(Pointer ptr, Type type);
 		inline void emitGlobal(Value value = { .integer = 0 });
+		inline SizeType emitJMP(OPCode code);
+		inline void patchJMP(SizeType jmp);
 		inline void beginScope();
 		inline void endScope();
 

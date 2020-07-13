@@ -53,13 +53,17 @@ namespace Spin {
 	};
 
 	enum OPCode : UInt8 {
+
 		RST, // rest
+
 		CNS, // constant
+
 		GLB, // global definition
 		GGB, // get global
 		SGB, // set global
 		GLC, // get local
 		SLC, // set local
+
 		ADD, // addition
 		SUB, // subtract
 		MUL, // multiply
@@ -67,27 +71,38 @@ namespace Spin {
 		MOD, // modulus
 		NEG, // negate
 		INV, // bitwise inversion
+
 		PST, // push true
 		PSF, // push false
 		PSI, // push infinity
 		PSU, // push undefined
 		POP, // pop
+
+		JMP, // jump
+		JIF, // jump if false
+
 		EQL, // equal
 		NEQ, // not equal
 		GRT, // great
 		LSS, // less
 		GEQ, // great equal
 		LEQ, // less equal
+
 		NOT, // boolean not
 		AND, // boolean and
 		ORR, // boolean or
+
 		BWA, // bitwise and
 		BWO, // bitwise or
 		BWX, // bitwise xor
+
 		RET, // return
+
 		CST, // casting
+
 		PRN, // print
 		NLN, // new line
+
 		HLT, // halt
 	};
 

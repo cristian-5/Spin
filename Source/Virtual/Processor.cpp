@@ -32,17 +32,17 @@
 	b = stack.pop();                        \
 	a = stack.pop();                        \
 	stack.push(                             \
-		T.find(ip.as.types) -> second(a, b) \
+		T.find(data.as.types) -> second(a, b) \
 	)
 
 #define unaryCase(T)                        \
 	a = stack.pop();                        \
 	stack.push(                             \
-		T.find(ip.as.type) -> second(a)     \
+		T.find(data.as.type) -> second(a)     \
 	)
 #define immutableCase(T)                    \
 	a = stack.pop();                        \
-	T.find(ip.as.type) -> second(a)
+	T.find(data.as.type) -> second(a)
 
 #define symmetric(A) compose(A, A)
 
@@ -654,15 +654,17 @@ namespace Spin {
 		instructions = program -> instructions;
 		// Main:
 		Value a, b;
-		for (ByteCode ip : instructions) {
-			switch (ip.code) {
+		const SizeType count = instructions.size();
+		for (SizeType ip = 0; ip < count; ip += 1) {
+			const ByteCode data = instructions[ip];
+			switch (data.code) {
 				case OPCode::RST: break;
-				case OPCode::CNS: stack.push(ip.as.value); break;
-				case OPCode::GLB: globals.push_back(ip.as.value); break;
-				case OPCode::GGB: stack.push(globals[ip.as.index]); break;
-				case OPCode::SGB: globals[ip.as.index] = stack.top(); break;
-				case OPCode::GLC: stack.push(stack.at(ip.as.index)); break;
-				case OPCode::SLC: stack.edit(ip.as.index, stack.top()); break;
+				case OPCode::CNS: stack.push(data.as.value); break;
+				case OPCode::GLB: globals.push_back(data.as.value); break;
+				case OPCode::GGB: stack.push(globals[data.as.index]); break;
+				case OPCode::SGB: globals[data.as.index] = stack.top(); break;
+				case OPCode::GLC: stack.push(stack.at(data.as.index)); break;
+				case OPCode::SLC: stack.edit(data.as.index, stack.top()); break;
 				case OPCode::ADD: binaryCase(addition); break;
 				case OPCode::SUB: binaryCase(subtraction); break;
 				case OPCode::MUL: binaryCase(multiplication); break;
@@ -670,7 +672,7 @@ namespace Spin {
 				case OPCode::MOD: break;
 				case OPCode::NEG: unaryCase(negation); break;
 				case OPCode::INV:
-					if (ip.as.type == Type::IntegerType) {
+					if (data.as.type == Type::IntegerType) {
 						a = stack.pop();
 						stack.push({ .integer = ~ a.integer });
 					} else {
@@ -683,17 +685,15 @@ namespace Spin {
 				case OPCode::PSI: stack.push({ .real = infinity }); break;
 				case OPCode::PSU: stack.push({ .real = undefined }); break;
 				case OPCode::POP: stack.decrease(); break;
+				case OPCode::JMP: ip += data.as.index; break;
+				case OPCode::JIF: if (!stack.top().boolean) ip += data.as.index; break;
 				case OPCode::EQL: binaryCase(equality); break;
 				case OPCode::NEQ: binaryCase(inequality); break;
 				case OPCode::GRT: binaryCase(major); break;
 				case OPCode::GEQ: binaryCase(majorEqual); break;
 				case OPCode::LSS: binaryCase(minor); break;
 				case OPCode::LEQ: binaryCase(minorEqual); break;
-				case OPCode::NOT:
-					if (ip.as.type == Type::BooleanType) {
-						stack.push({ .boolean = !(stack.pop().boolean) });
-					} else stack.push({ .boolean = !(stack.pop().integer) });
-				break;
+				case OPCode::NOT: stack.push({ .boolean = !(stack.pop().boolean) }); break;
 				case OPCode::AND:
 					b = stack.pop();
 					a = stack.pop();
@@ -710,7 +710,7 @@ namespace Spin {
 				case OPCode::RET: break;
 				case OPCode::CST: 
 					a = stack.pop();
-					stack.push(cast.find(ip.as.types) -> second(a));
+					stack.push(cast.find(data.as.types) -> second(a));
 				break;
 				case OPCode::PRN: immutableCase(print); break;
 				case OPCode::NLN: OStream << endLine; break;

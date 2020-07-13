@@ -64,7 +64,6 @@ namespace Spin {
 	};
 
 	const Dictionary<Unary, Type> Compiler::prefix = {
-		{ compose(Token::Type::exclamationMark, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::exclamationMark, Type::BooleanType), Type::BooleanType },
 		{ compose(Token::Type::minus, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::ByteType), Type::IntegerType },
@@ -252,7 +251,9 @@ namespace Spin {
 		rethrow(parsePrecedence(Precedence::assignment));
 	}
 	void Compiler::statement() {
-		if (match(Token::Type::printKeywork)) {
+		if (match(Token::ifKeyword)) {
+			rethrow(ifStatement());
+		} else if (match(Token::Type::printKeywork)) {
 			rethrow(printStatement());
 		} else if (match(Token::Type::openBrace)) {
 			beginScope();
@@ -547,6 +548,29 @@ namespace Spin {
 		emitOperation({ OPCode::PRN, { .type = type } });
 		emitOperation(OPCode::NLN);
 	}
+	void Compiler::ifStatement() {
+		const Token token = previous;
+		rethrow(
+			consume(Token::Type::openParenthesis, "(");
+			expression();
+			consume(Token::Type::closeParenthesis, ")");
+		);
+		if (typeStack.pop() != BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Boolean expression inside 'if' condition!",
+				token, ErrorCode::lgc
+			);
+		}
+		const SizeType thenJMP = emitJMP(OPCode::JIF);
+		emitOperation(OPCode::POP);
+		rethrow(statement());
+		const SizeType elseJMP = emitJMP(OPCode::JMP);
+		patchJMP(thenJMP);
+		emitOperation(OPCode::POP);
+		if (match(Token::Type::elseKeyword)) rethrow(statement());
+		patchJMP(elseJMP);
+	}
 
 	SizeType Compiler::resolve(String & name, Local & local) {
 		// Resolve local variable:
@@ -647,6 +671,15 @@ namespace Spin {
 			program -> instructions.begin(),
 			{ OPCode::GLB, { .value = value } }
 		);
+	}
+	inline SizeType Compiler::emitJMP(OPCode code) {
+		const SizeType count = program -> instructions.size();
+		emitOperation(code);
+		return count;
+	}
+	inline void Compiler::patchJMP(SizeType jmp) {
+		const SizeType jump = (program -> instructions.size() - jmp);
+		program -> instructions[jmp].as.index = jump - 1;
 	}
 	inline void Compiler::beginScope() {
 		scopeDepth += 1;

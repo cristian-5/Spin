@@ -115,6 +115,8 @@ namespace Spin {
 			case OPCode::PSI: aloneOP("PSI", Colour::yellow, "push infinity"); break;
 			case OPCode::PSU: aloneOP("PSU", Colour::yellow, "push undefined"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
+			case OPCode::JMP: constOP("JMP", byte.as.index, Colour::red); break;
+			case OPCode::JIF: constOP("JIF", byte.as.index, Colour::red); break;
 			case OPCode::EQL: typesOP("EQL", byte.as.types, Colour::orange, "equal"); break;
 			case OPCode::NEQ: typesOP("NEQ", byte.as.types, Colour::orange, "not equal"); break;
 			case OPCode::GRT: typesOP("GRT", byte.as.types, Colour::orange, "great"); break;
