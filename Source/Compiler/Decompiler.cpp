@@ -101,6 +101,8 @@ namespace Spin {
 			case OPCode::GLB: constOP("GLB", byte.as.value.integer, Colour::green); break;
 			case OPCode::GGB: constOP("GGB", byte.as.index, Colour::blue); break;
 			case OPCode::SGB: constOP("SGB", byte.as.index, Colour::blue); break;
+			case OPCode::GLC: constOP("GLC", byte.as.index, Colour::blue); break;
+			case OPCode::SLC: constOP("SLC", byte.as.index, Colour::blue); break;
 			case OPCode::ADD: typesOP("ADD", byte.as.types, Colour::blue, "addition"); break;
 			case OPCode::SUB: typesOP("SUB", byte.as.types, Colour::blue, "subtraction"); break;
 			case OPCode::MUL: typesOP("MUL", byte.as.types, Colour::blue, "multiplication"); break;

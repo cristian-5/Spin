@@ -43,6 +43,22 @@ namespace Spin {
 			Precedence precedence = Precedence::none;
 		};
 
+		struct Local {
+			String name;
+			SizeType depth = 0;
+			Type type;
+			Boolean ready = false;
+		};
+
+		struct Global {
+			SizeType index;
+			Type type;
+			Boolean ready = false;
+		};
+
+		Array<Local> locals;
+		SizeType scopeDepth = 0;
+
 		static const Dictionary<Token::Type, ParseRule> rules;
 
 		Program * program = nullptr;
@@ -52,7 +68,7 @@ namespace Spin {
 		CodeUnit * currentUnit = nullptr;
 		Array<Token> * tokens = nullptr;
 
-		Dictionary<String, Pair<Type, UInt32>> globals;
+		Dictionary<String, Global> globals;
 		UInt32 globalIndex = 0;
 
 		Stack<Type> typeStack;
@@ -97,7 +113,10 @@ namespace Spin {
 		void statement();
 		void declaration();
 		void variable();
+		void local();
+		void global();
 		void identifier();
+		void block();
 
 		void grouping();
 		void binary();
@@ -105,6 +124,8 @@ namespace Spin {
 
 		void expressionStatement();
 		void printStatement();
+
+		SizeType resolve(String & name, Local & local);
 
 		void parsePrecedence(Precedence precedence);
 
@@ -116,12 +137,15 @@ namespace Spin {
 		inline void emitOperation(OPCode code);
 		inline void emitObject(Pointer ptr, Type type);
 		inline void emitGlobal(Value value = { .integer = 0 });
+		inline void beginScope();
+		inline void endScope();
 
 		void emitReturn();
 		void emitHalt();
 
-		Compiler() = default;
-		~Compiler() = default;
+		void reset();
+
+		Compiler() = default; ~Compiler() = default;
 
 		public:
 

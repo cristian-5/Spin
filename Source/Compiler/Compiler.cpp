@@ -51,6 +51,8 @@ namespace Spin {
 		{ Token::Type::charLiteral, { & Compiler::characterLiteral, nullptr, Precedence::none } },
 		{ Token::Type::boolLiteral, { & Compiler::booleanLiteral, nullptr, Precedence::none } },
 
+		{ Token::Type::realIdiom, { & Compiler::realIdioms, nullptr, Precedence::none } },
+
 		{ Token::Type::inequality, { nullptr, & Compiler::binary, Precedence::equality } },
 		{ Token::Type::equality, { nullptr, & Compiler::binary, Precedence::equality } },
 
@@ -252,9 +254,11 @@ namespace Spin {
 	void Compiler::statement() {
 		if (match(Token::Type::printKeywork)) {
 			rethrow(printStatement());
-		} else {
-			rethrow(expressionStatement());
-		}
+		} else if (match(Token::Type::openBrace)) {
+			beginScope();
+			rethrow(block());
+			endScope();
+		} else rethrow(expressionStatement());
 	}
 	void Compiler::declaration() {
 		if (match(Token::Type::basicType)) {
@@ -262,20 +266,18 @@ namespace Spin {
 		} else rethrow(statement());
 	}
 	void Compiler::variable() {
+
 		Type typeA = Converter::stringToType(previous.lexeme);
 		rethrow(consume(Token::Type::symbol, "identifier"));
 		const String id = previous.lexeme;
-		if (globals.find(id) != globals.end()) {
-			throw Program::Error(
-				currentUnit,
-				"Variable redefinition! The identifier '" +
-				id + "' was already declared with type '" +
-				Converter::typeToString(globals.at(id).first) +
-				"' in the current global scope!",
-				previous, ErrorCode::lgc
-			);
-		}
-		globals.insert({ id, { typeA, globalIndex++ } });
+
+		typeStack.push(typeA);
+
+		if (scopeDepth) local();
+		else global();
+
+		typeStack.decrease();
+
 		if (match(Token::Type::equal)) {
 			const Token token = previous;
 			rethrow(expression());
@@ -302,40 +304,115 @@ namespace Spin {
 					});
 				}
 			}
+		} else {
+			switch (typeA) {
+				case   Type::BooleanType: emitOperation(OPCode::PSF); break;
+				case Type::CharacterType: 
+				case      Type::ByteType: emitOperation({
+					OPCode::CNS, { .value = { .byte = 0 } }
+				}); break;
+				case   Type::IntegerType: emitOperation({
+					OPCode::CNS, { .value = { .integer = 0 } }
+				}); break;
+				case      Type::RealType:
+				case Type::ImaginaryType: emitOperation({
+					OPCode::CNS, { .value = { .real = 0.0 } }
+				}); break;
+				case    Type::StringType: {
+					const Pointer ptr = new String();
+					emitObject(ptr, Type::StringType);
+					emitOperation({
+						OPCode::CNS, { .value = { .pointer = ptr } }
+					});
+				} break;
+				default: emitOperation({
+					OPCode::CNS, { .value = { .integer = 0 } }
+				}); break;
+			}
+		}
+	
+		// If the scope is 0, we need to emitGlobal
+		// but if it's a local it will already be
+		// on the stack frame.
+		if (!scopeDepth) {
 			emitGlobal();
 			emitOperation({
 				OPCode::SGB,
 				{ .index = (globals.size() - 1) }
 			});
+			emitOperation(OPCode::POP);
+			globals[id].ready = true;
 		} else {
-			switch (typeA) {
-				case   Type::BooleanType: emitGlobal({ .boolean = 0 }); break;
-				case Type::CharacterType: 
-				case      Type::ByteType: emitGlobal({ .byte = 0 }); break;
-				case   Type::IntegerType: emitGlobal({ .integer = 0 }); break;
-				case      Type::RealType:
-				case Type::ImaginaryType: emitGlobal({ .real = 0.0 }); break;
-				case    Type::StringType: {
-					const Pointer ptr = new String();
-					emitObject(ptr, Type::StringType);
-					emitGlobal({ .pointer = ptr });
-				} break;
-				default: emitGlobal({ .integer = 0 }); break;
-			}
+			// Locals sentinel:
+			locals[locals.size() - 1].ready = true;
 		}
+
 		rethrow(consume(Token::Type::semicolon, ";"));
 	}
-	void Compiler::identifier() {
-		auto search = globals.find(previous.lexeme);
-		if (search == globals.end()) {
+	void Compiler::local() {
+		const String name = previous.lexeme;
+		for (Local local : locals) {
+			if (local.ready && local.depth < scopeDepth) {
+				break;
+			}
+			if (local.name == name) {
+				throw Program::Error(
+					currentUnit,
+					"Variable redefinition! The identifier '" +
+					name + "' was already declared in the current scope!",
+					previous, ErrorCode::lgc
+				);
+			}
+		}
+		locals.push_back({ name, scopeDepth, typeStack.top(), false });
+	}
+	void Compiler::global() {
+		const String id = previous.lexeme;
+		if (globals.find(id) != globals.end()) {
 			throw Program::Error(
 				currentUnit,
-				"Unexpected identifier '" +
-				previous.lexeme + "'!",
+				"Variable redefinition! The identifier '" +
+				id + "' was already declared with type '" +
+				Converter::typeToString(globals.at(id).type) +
+				"' in the current global scope!",
 				previous, ErrorCode::lgc
 			);
 		}
-		Type typeA = search -> second.first;
+		globals.insert({ id, { globalIndex++, typeStack.top(), false } });
+	}
+
+	void Compiler::identifier() {
+		OPCode GET, SET;
+		Local local;
+		SizeType argument;
+		rethrow(argument = resolve(previous.lexeme, local));
+		Type typeA = local.type;
+		if (argument != -1) {
+			GET = OPCode::GLC;
+			SET = OPCode::SLC;
+		} else {
+			GET = OPCode::GGB;
+			SET = OPCode::SGB;
+			auto search = globals.find(previous.lexeme);
+			if (search == globals.end()) {
+				throw Program::Error(
+					currentUnit,
+					"Unexpected identifier '" +
+					previous.lexeme + "'!",
+					previous, ErrorCode::lgc
+				);
+			}
+			if (!(search -> second.ready)) {
+				throw Program::Error(
+					currentUnit,
+					"Cannot access local variable '" + previous.lexeme +
+					"' in it's own definition statement!",
+					previous, ErrorCode::lgc
+				);
+			}
+			typeA = search -> second.type;
+			argument = search -> second.index;
+		}
 		const Boolean canAssign = assignmentStack.top();
 		if (canAssign && match(Token::Type::equal)) {
 			const Token token = previous;
@@ -363,17 +440,18 @@ namespace Spin {
 					});
 				}
 			}
-			emitOperation({
-				OPCode::SGB,
-				{ .index = search -> second.second }
-			});
+			emitOperation({ SET, { .index = (UInt64)argument } });
 		} else {
-			emitOperation({
-				OPCode::GGB,
-				{ .index = search -> second.second }
-			});
+			emitOperation({ GET, { .index = (UInt64)argument } });
 		}
 		typeStack.push(typeA);
+	}
+	void Compiler::block() {
+		while (!check(Token::Type::closeBrace) &&
+			   !check(Token::Type::endFile)) {
+			declaration();
+		}
+		rethrow(consume(Token::Type::closeBrace, "}"));
 	}
 
 	void Compiler::grouping() {
@@ -470,6 +548,25 @@ namespace Spin {
 		emitOperation(OPCode::NLN);
 	}
 
+	SizeType Compiler::resolve(String & name, Local & local) {
+		// Resolve local variable:
+		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
+			if (locals[i].name == name) {
+				if (!locals[i].ready) {
+					throw Program::Error(
+						currentUnit,
+						"Cannot access local variable '" + locals[i].name +
+						"' in it's own definition statement!",
+						previous, ErrorCode::lgc
+					);
+				}
+				local = locals[i];
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	void Compiler::parsePrecedence(Precedence precedence) {
 		advance();
 		ParseFunction prefixRule = getRule(previous.type).prefix;
@@ -551,12 +648,35 @@ namespace Spin {
 			{ OPCode::GLB, { .value = value } }
 		);
 	}
+	inline void Compiler::beginScope() {
+		scopeDepth += 1;
+	}
+	inline void Compiler::endScope() {
+		scopeDepth -= 1;
+		// TODO: Add a POP with operand to pop n values.
+		while (locals.size() > 0 &&
+			   locals[locals.size() - 1].depth > scopeDepth) {
+			emitOperation(OPCode::POP);
+			locals.pop_back();
+		}
+	}
 
 	void Compiler::emitReturn() {
 		emitOperation(OPCode::RET);
 	}
 	void Compiler::emitHalt() {
 		emitOperation(OPCode::HLT);
+	}
+
+	void Compiler::reset() {
+		// Reset Globals:
+		globals.clear();
+		globalIndex = 0;
+		// Reset Assignment Stack:
+		assignmentStack.clear();
+		// Reset Locals:
+		locals.clear();
+		scopeDepth = 0;
 	}
 
 	Program * Compiler::compile(SourceCode * source) {
@@ -567,6 +687,8 @@ namespace Spin {
 		if (!tokens) return nullptr;
 		program = new Program();
 
+		reset();
+
 		rethrow(
 			advance();
 			consume(Token::Type::beginFile, "Begin File");
@@ -574,16 +696,13 @@ namespace Spin {
 			emitHalt();
 		);
 
-		// Reset Globals:
-		globals.clear();
-		globalIndex = 0;
-
-		// Reset Assignment Stack:
-		assignmentStack.clear();
+		reset();
 
 		return program;
 	}
 
 }
+
+#undef rethrow
 
 #endif

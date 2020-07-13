@@ -23,8 +23,8 @@ build      Build/Lexer.o: compile ../Source/Lexer/Lexer.cpp         | $header $t
 
 build    Build/Manager.o: compile ../Source/Manager/Manager.cpp     | $header
 
-build      Build/Regex.o: compile ../Source/Utility/Regex.cpp       | $header
 build  Build/Converter.o: compile ../Source/Utility/Converter.cpp   | $header
+build      Build/Regex.o: compile ../Source/Utility/Regex.cpp       | $header
 
 build    Build/Program.o: compile ../Source/Compiler/Program.cpp    | $header $program $token
 build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp   | $header $stack $program $token
@@ -38,4 +38,4 @@ build Build/Test.o: compile Test.cpp | $interface $header $program $token
 
 # Link:
 
-build Test: link Build/Test.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Regex.o Build/Converter.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o
+build Test: link Build/Test.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o

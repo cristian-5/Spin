@@ -23,6 +23,9 @@ namespace Spin {
 		Stack();
 		~Stack();
 
+		Type at(SizeType index);
+		void edit(SizeType index, Type node);
+
 		void push(Type node);
 
 		Type top();
@@ -55,6 +58,16 @@ namespace Spin {
 		std::copy(stack, stack + count, pointer);
 		delete [] stack;
 		stack = pointer;
+	}
+
+	template <typename Type>
+	Type Stack<Type>::at(SizeType index) {
+		return stack[index];
+	}
+
+	template <typename Type>
+	void Stack<Type>::edit(SizeType index, Type node) {
+		stack[index] = node;
 	}
 
 	template <typename Type>

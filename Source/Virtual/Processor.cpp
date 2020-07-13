@@ -661,6 +661,8 @@ namespace Spin {
 				case OPCode::GLB: globals.push_back(ip.as.value); break;
 				case OPCode::GGB: stack.push(globals[ip.as.index]); break;
 				case OPCode::SGB: globals[ip.as.index] = stack.top(); break;
+				case OPCode::GLC: stack.push(stack.at(ip.as.index)); break;
+				case OPCode::SLC: stack.edit(ip.as.index, stack.top()); break;
 				case OPCode::ADD: binaryCase(addition); break;
 				case OPCode::SUB: binaryCase(subtraction); break;
 				case OPCode::MUL: binaryCase(multiplication); break;
@@ -742,5 +744,19 @@ namespace Spin {
 	}
 
 }
+
+
+#undef DefineCastTable
+#undef DefineBinaryTable
+#undef DefineUnaryTable
+#undef DefineImmutableTable
+#undef binaryCase
+#undef unaryCase
+#undef immutableCase
+#undef symmetric
+#undef makeBinaryFrom
+#undef makeUnaryFrom
+#undef makeCastFrom
+#undef makeImmutableFrom
 
 #endif

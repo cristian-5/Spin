@@ -58,6 +58,8 @@ namespace Spin {
 		GLB, // global definition
 		GGB, // get global
 		SGB, // set global
+		GLC, // get local
+		SLC, // set local
 		ADD, // addition
 		SUB, // subtract
 		MUL, // multiply

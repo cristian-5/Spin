@@ -27,7 +27,7 @@ using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String * input = new String("Integer x = 6 + 7; print x; x = 10; print x; Real y = 0.8; print y; y = 5.5; x = y; print x;");
+	String * input = new String("print 5;");
 
 	auto lexer = Lexer::self();
 
