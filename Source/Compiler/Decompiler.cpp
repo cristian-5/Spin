@@ -126,7 +126,7 @@ namespace Spin {
 			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;
 			case OPCode::JMB: jmptoOP("JMB", byte.as.index, "jump backwards"); break;
 			case OPCode::JIF: jmptoOP("JIF", byte.as.index, "jump if false"); break;
-			case OPCode::JAF: jmptoOP("JAF", byte.as.index, "jump if false, no pop"); break;
+			case OPCode::JAF: jmptoOP("JAF", byte.as.index, "jump if false, avoid pop"); break;
 			case OPCode::EQL: typesOP("EQL", byte.as.types, Colour::orange, "equal"); break;
 			case OPCode::NEQ: typesOP("NEQ", byte.as.types, Colour::orange, "not equal"); break;
 			case OPCode::GRT: typesOP("GRT", byte.as.types, Colour::orange, "great"); break;
@@ -134,8 +134,6 @@ namespace Spin {
 			case OPCode::LSS: typesOP("LSS", byte.as.types, Colour::orange, "less"); break;
 			case OPCode::LEQ: typesOP("LEQ", byte.as.types, Colour::orange, "less equal"); break;
 			case OPCode::NOT: aloneOP("NOT", Colour::yellow, "logic not"); break;
-			case OPCode::AND: aloneOP("AND", Colour::yellow, "logic and"); break;
-			case OPCode::ORR: aloneOP("ORR", Colour::yellow, "logic or"); break;
 			case OPCode::BWA: typesOP("BWA", byte.as.types, Colour::blue, "bitwise and"); break;
 			case OPCode::BWO: typesOP("BWO", byte.as.types, Colour::blue, "bitwise or"); break;
 			case OPCode::BWX: typesOP("BWX", byte.as.types, Colour::blue, "bitwise xor"); break;

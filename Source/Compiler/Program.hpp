@@ -81,7 +81,7 @@ namespace Spin {
 		JMP, // jump
 		JMB, // jump backwards
 		JIF, // jump if false
-		JAF, // jump if false, no pop
+		JAF, // jump if false, avoid pop
 
 		EQL, // equal
 		NEQ, // not equal
@@ -91,8 +91,6 @@ namespace Spin {
 		LEQ, // less equal
 
 		NOT, // boolean not
-		AND, // boolean and
-		ORR, // boolean or
 
 		BWA, // bitwise and
 		BWO, // bitwise or

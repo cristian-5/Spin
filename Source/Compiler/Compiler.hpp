@@ -22,6 +22,9 @@ namespace Spin {
 		assignment,
 		logicOR,
 		logicAND,
+		bitwiseOR,
+		bitwiseXOR,
+		bitwiseAND,
 		equality,
 		comparison,
 		term,
@@ -117,6 +120,9 @@ namespace Spin {
 		void global();
 		void identifier();
 		void block();
+
+		void logicAND();
+		void logicOR();
 
 		void grouping();
 		void binary();

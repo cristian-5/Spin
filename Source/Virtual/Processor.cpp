@@ -696,16 +696,6 @@ namespace Spin {
 				case OPCode::LSS: binaryCase(minor); break;
 				case OPCode::LEQ: binaryCase(minorEqual); break;
 				case OPCode::NOT: stack.push({ .boolean = !(stack.pop().boolean) }); break;
-				case OPCode::AND:
-					b = stack.pop();
-					a = stack.pop();
-					stack.push({ .boolean = a.boolean && b.boolean });
-				break;
-				case OPCode::ORR:
-					b = stack.pop();
-					a = stack.pop();
-					stack.push({ .boolean = a.boolean || b.boolean });
-				break;
 				case OPCode::BWA: binaryCase(bitwiseAND); break;
 				case OPCode::BWO: binaryCase(bitwiseOR); break;
 				case OPCode::BWX: binaryCase(bitwiseXOR); break;

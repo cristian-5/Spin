@@ -41,8 +41,12 @@ namespace Spin {
 
 		{ Token::Type::symbol, { & Compiler::identifier, nullptr, Precedence::none } },
 
-		{ Token::Type::AND, { nullptr, & Compiler::binary, Precedence::logicAND } },
-		{ Token::Type::OR, { nullptr, & Compiler::binary, Precedence::logicOR } },
+		{ Token::Type::ampersand, { nullptr, & Compiler::binary, Precedence::bitwiseAND } },
+		{ Token::Type::pipe, { nullptr, & Compiler::binary, Precedence::bitwiseOR } },
+		{ Token::Type::dollar, { nullptr, & Compiler::binary, Precedence::bitwiseXOR } },
+
+		{ Token::Type::AND, { nullptr, & Compiler::logicAND, Precedence::logicAND } },
+		{ Token::Type::OR, { nullptr, & Compiler::logicOR, Precedence::logicOR } },
 
 		{ Token::Type::intLiteral, { & Compiler::integerLiteral, nullptr, Precedence::none } },
 		{ Token::Type::realLiteral, { & Compiler::realLiteral, nullptr, Precedence::none } },
@@ -79,9 +83,6 @@ namespace Spin {
 		{ compose(Token::Type::tilde, Type::ByteType), Type::ByteType },
 	};
 	const Dictionary<Binary, Type> Compiler::infix = {
-		// # B # ------------------------------------------------------------- # Composing Short Circuit #
-		{ compose(Token::Type::AND, Type::BooleanType, Type::BooleanType), Type::BooleanType },
-		{ compose(Token::Type::OR, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		// # & # ------------------------------------------------------------- # Composing Bitwise AND #
 		{ compose(Token::Type::ampersand, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::ampersand, Type::ByteType, Type::ByteType), Type::ByteType },
@@ -455,6 +456,23 @@ namespace Spin {
 		rethrow(consume(Token::Type::closeBrace, "}"));
 	}
 
+	void Compiler::logicAND() {
+		const Token token = previous;
+		const Type typeA = typeStack.pop();
+		const SizeType endJMP = emitJMP(OPCode::JAF);
+		emitOperation(OPCode::POP);
+		rethrow(parsePrecedence(Precedence::logicAND));
+		patchJMP(endJMP);
+	}
+	void Compiler::logicOR() {
+		const SizeType elseJMP = emitJMP(OPCode::JAF);
+		const SizeType endJMP = emitJMP(OPCode::JMP);
+		patchJMP(elseJMP);
+		emitOperation(OPCode::POP);
+		rethrow(parsePrecedence(Precedence::logicOR));
+		patchJMP(endJMP);
+	}
+
 	void Compiler::grouping() {
 		rethrow(
 			expression();
@@ -493,8 +511,6 @@ namespace Spin {
 			case Token::Type::minorEqual: emitOperation({ OPCode::LEQ, { .types = types } }); break;
 			case  Token::Type::ampersand: emitOperation({ OPCode::BWA, { .types = types } }); break;
 			case       Token::Type::pipe: emitOperation({ OPCode::BWO, { .types = types } }); break;
-			case        Token::Type::AND: emitOperation(OPCode::AND); break;
-			case               Token::OR: emitOperation(OPCode::ORR); break;
 			default: break;
 		}
 		typeStack.push(search -> second);
