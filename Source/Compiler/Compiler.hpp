@@ -131,6 +131,7 @@ namespace Spin {
 		void expressionStatement();
 		void printStatement();
 		void ifStatement();
+		void whileStatement();
 
 		SizeType resolve(String & name, Local & local);
 

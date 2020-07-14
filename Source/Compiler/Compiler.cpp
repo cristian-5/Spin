@@ -256,6 +256,8 @@ namespace Spin {
 			rethrow(ifStatement());
 		} else if (match(Token::Type::printKeywork)) {
 			rethrow(printStatement());
+		} else if (match(Token::Type::whileKeyword)) {
+			rethrow(whileStatement());
 		} else if (match(Token::Type::openBrace)) {
 			beginScope();
 			rethrow(block());
@@ -458,18 +460,40 @@ namespace Spin {
 
 	void Compiler::logicAND() {
 		const Token token = previous;
-		const Type typeA = typeStack.pop();
+		Type typeA = typeStack.pop();
 		const SizeType endJMP = emitJMP(OPCode::JAF);
 		emitOperation(OPCode::POP);
 		rethrow(parsePrecedence(Precedence::logicAND));
+		Type typeB = typeStack.pop();
+		if (typeA != Type::BooleanType || typeB != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Binary operator '&&' doesn't support operands of type '" +
+				Converter::typeToString(typeA) + "' and '" +
+				Converter::typeToString(typeB) + "'!",
+				token, ErrorCode::typ
+			);
+		}
 		patchJMP(endJMP);
 	}
 	void Compiler::logicOR() {
+		const Token token = previous;
+		Type typeA = typeStack.pop();
 		const SizeType elseJMP = emitJMP(OPCode::JAF);
 		const SizeType endJMP = emitJMP(OPCode::JMP);
 		patchJMP(elseJMP);
 		emitOperation(OPCode::POP);
 		rethrow(parsePrecedence(Precedence::logicOR));
+		Type typeB = typeStack.pop();
+		if (typeA != Type::BooleanType || typeB != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Binary operator '||' doesn't support operands of type '" +
+				Converter::typeToString(typeA) + "' and '" +
+				Converter::typeToString(typeB) + "'!",
+				token, ErrorCode::typ
+			);
+		}
 		patchJMP(endJMP);
 	}
 
@@ -584,6 +608,14 @@ namespace Spin {
 		patchJMP(thenJMP);
 		if (match(Token::Type::elseKeyword)) rethrow(statement());
 		patchJMP(elseJMP);
+	}
+	void Compiler::whileStatement() {
+		const Token token = previous;
+		rethrow(
+			consume(Token::Type::openParenthesis, "(");
+			expression();
+			consume(Token::Type::closeParenthesis, ")");
+		);
 	}
 
 	SizeType Compiler::resolve(String & name, Local & local) {
