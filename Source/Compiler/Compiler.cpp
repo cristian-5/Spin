@@ -563,11 +563,9 @@ namespace Spin {
 			);
 		}
 		const SizeType thenJMP = emitJMP(OPCode::JIF);
-		emitOperation(OPCode::POP);
 		rethrow(statement());
 		const SizeType elseJMP = emitJMP(OPCode::JMP);
 		patchJMP(thenJMP);
-		emitOperation(OPCode::POP);
 		if (match(Token::Type::elseKeyword)) rethrow(statement());
 		patchJMP(elseJMP);
 	}

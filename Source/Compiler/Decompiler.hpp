@@ -34,6 +34,7 @@ namespace Spin {
 		static void constOP(String o, Int64 i, Colour c);
 		static void typesOP(String o, Types x, Colour c, String h);
 		static void unaryOP(String o, Type x, Colour c, String h);
+		static void jmptoOP(String o, SizeType x, String h);
 		
 		static String resolve(Type type);
 

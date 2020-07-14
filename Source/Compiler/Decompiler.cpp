@@ -73,6 +73,14 @@ namespace Spin {
 				<< "                 " << colours[Colour::gray]
 				<< "! " << h << reset << endLine;
 	}
+	void Decompiler::jmptoOP(String o, SizeType x, String h) {
+		OStream << "    " << colours[Colour::red] << o << reset
+				<< "    " << colours[Colour::acqua]
+				<< upperCase << hexadecimal
+				<< padding(16) << x << reset
+				<< "    " << colours[Colour::gray]
+				<< "! " << h << reset << endLine;
+	}
 
 	String Decompiler::resolve(Type type) {
 		switch (type) {
@@ -115,8 +123,10 @@ namespace Spin {
 			case OPCode::PSI: aloneOP("PSI", Colour::yellow, "push infinity"); break;
 			case OPCode::PSU: aloneOP("PSU", Colour::yellow, "push undefined"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
-			case OPCode::JMP: constOP("JMP", byte.as.index, Colour::red); break;
-			case OPCode::JIF: constOP("JIF", byte.as.index, Colour::red); break;
+			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;
+			case OPCode::JMB: jmptoOP("JMB", byte.as.index, "jump backwards"); break;
+			case OPCode::JIF: jmptoOP("JIF", byte.as.index, "jump if false"); break;
+			case OPCode::JAF: jmptoOP("JAF", byte.as.index, "jump if false, no pop"); break;
 			case OPCode::EQL: typesOP("EQL", byte.as.types, Colour::orange, "equal"); break;
 			case OPCode::NEQ: typesOP("NEQ", byte.as.types, Colour::orange, "not equal"); break;
 			case OPCode::GRT: typesOP("GRT", byte.as.types, Colour::orange, "great"); break;

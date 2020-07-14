@@ -686,7 +686,9 @@ namespace Spin {
 				case OPCode::PSU: stack.push({ .real = undefined }); break;
 				case OPCode::POP: stack.decrease(); break;
 				case OPCode::JMP: ip += data.as.index; break;
-				case OPCode::JIF: if (!stack.top().boolean) ip += data.as.index; break;
+				case OPCode::JMB: ip -= data.as.index; break;
+				case OPCode::JIF: if (!stack.pop().boolean) ip += data.as.index; break;
+				case OPCode::JAF: if (!stack.top().boolean) ip += data.as.index; break;
 				case OPCode::EQL: binaryCase(equality); break;
 				case OPCode::NEQ: binaryCase(inequality); break;
 				case OPCode::GRT: binaryCase(major); break;

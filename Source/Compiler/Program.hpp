@@ -79,7 +79,9 @@ namespace Spin {
 		POP, // pop
 
 		JMP, // jump
+		JMB, // jump backwards
 		JIF, // jump if false
+		JAF, // jump if false, no pop
 
 		EQL, // equal
 		NEQ, // not equal
