@@ -28,19 +28,19 @@
 namespace Spin {
 
 	const String Decompiler::colours[] = {
-		"\x1B[38;5;160m",  // red
-		"\x1B[38;5;220m",  // yellow
-		"\x1B[38;5;15m",   // white
-		"\x1B[38;5;0m",    // black
-		"\x1B[38;5;202m",  // orange
-		"\x1B[38;5;33m",   // blue
-		"\x1B[38;5;34m",   // green
-		"\x1B[38;5;164m",   // purple
-		"\x1B[38;5;207m",  // pink
-		"\x1B[38;5;250m",  // gray
-		"\x1B[38;5;14m",   // sky
-		"\x1B[38;5;30m",   // acqua
-		"\x1B[38;5;211m",  // peach
+		   [Decompiler::Colour::red] = { "\x1B[38;5;160m" },
+		[Decompiler::Colour::yellow] = { "\x1B[38;5;220m" },
+		 [Decompiler::Colour::white] = { "\x1B[38;5;15m" },
+		 [Decompiler::Colour::black] = { "\x1B[38;5;0m" },
+		[Decompiler::Colour::orange] = { "\x1B[38;5;202m" },
+		  [Decompiler::Colour::blue] = { "\x1B[38;5;33m" },
+		 [Decompiler::Colour::green] = { "\x1B[38;5;34m" },
+		[Decompiler::Colour::purple] = { "\x1B[38;5;164m" },
+		  [Decompiler::Colour::pink] = { "\x1B[38;5;207m" },
+		  [Decompiler::Colour::gray] = { "\x1B[38;5;250m" },
+		   [Decompiler::Colour::sky] = { "\x1B[38;5;14m" },
+		 [Decompiler::Colour::acqua] = { "\x1B[38;5;30m" },
+		 [Decompiler::Colour::peach] = { "\x1B[38;5;211m" },
 	};
 
 	void Decompiler::aloneOP(String o, Colour c, String h) {
