@@ -134,6 +134,7 @@ namespace Spin {
 		void ifStatement();
 		void whileStatement();
 		void untilStatement();
+		void swapStatement();
 
 		SizeType resolve(String & name, Local & local);
 

@@ -1179,7 +1179,7 @@ namespace Spin {
 		for (SizeType ip = 0; ip < count; ip += 1) {
 			const ByteCode data = instructions[ip];
 			switch (data.code) {
-				case OPCode::RST: break;
+				case OPCode::RST: continue;
 				case OPCode::CNS: stack.push(data.as.value); break;
 				case OPCode::GLB: globals.push_back(data.as.value); break;
 				case OPCode::GGB: stack.push(globals[data.as.index]); break;

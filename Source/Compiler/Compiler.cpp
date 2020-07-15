@@ -354,6 +354,8 @@ namespace Spin {
 			rethrow(whileStatement());
 		} else if (match(Token::Type::untilKeyword)) {
 			rethrow(untilStatement());
+		} else if (match(Token::Type::swapKeyword)) {
+			rethrow(swapStatement());
 		} else if (match(Token::Type::openBrace)) {
 			beginScope();
 			rethrow(block());
@@ -799,6 +801,55 @@ namespace Spin {
 		rethrow(statement());
 		emitJMB(loopStart);
 		patchJMP(exitJMP);
+	}
+	void Compiler::swapStatement() {
+		const Token token = previous;
+		rethrow(consume(Token::Type::openParenthesis, "("));
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		Token varA = previous;
+		rethrow(
+			consume(Token::Type::colon, ":");
+			consume(Token::Type::symbol, "identifier");
+		);
+		Token varB = previous;
+		Local localA, localB;
+		SizeType argumentA = resolve(varA.lexeme, localA);
+		SizeType argumentB = resolve(varB.lexeme, localB);
+		if (argumentA == - 1) {
+			throw Program::Error(
+				currentUnit,
+				"Cannot access local variable '" + varA.lexeme +
+				"'!",
+				previous, ErrorCode::lgc
+			);
+		}
+		if (argumentB == - 1) {
+			throw Program::Error(
+				currentUnit,
+				"Cannot access local variable '" + varA.lexeme +
+				"'!",
+				previous, ErrorCode::lgc
+			);
+		}
+		if (localA.type != localB.type) {
+			throw Program::Error(
+				currentUnit,
+				"Swap statement doesn't support values of non matching types '" +
+				Converter::typeToString(localA.type) + "' and '" +
+				Converter::typeToString(localB.type) + "'!",
+				token, ErrorCode::typ
+			);
+		}
+		emitOperation({ OPCode::GLC, { .index = argumentA } });
+		emitOperation({ OPCode::GLC, { .index = argumentB } });
+		emitOperation({ OPCode::SLC, { .index = argumentA } });
+		emitOperation(OPCode::POP);
+		emitOperation({ OPCode::SLC, { .index = argumentB } });
+		emitOperation(OPCode::POP);
+		rethrow(
+			consume(Token::Type::closeParenthesis, ")");
+			consume(Token::Type::semicolon, ";");
+		);
 	}
 
 	SizeType Compiler::resolve(String & name, Local & local) {
