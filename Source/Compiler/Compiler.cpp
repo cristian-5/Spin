@@ -346,21 +346,21 @@ namespace Spin {
 		rethrow(parsePrecedence(Precedence::assignment));
 	}
 	void Compiler::statement() {
-		if (match(Token::ifKeyword)) {
-			rethrow(ifStatement());
-		} else if (match(Token::Type::printKeywork)) {
-			rethrow(printStatement());
-		} else if (match(Token::Type::whileKeyword)) {
-			rethrow(whileStatement());
-		} else if (match(Token::Type::untilKeyword)) {
-			rethrow(untilStatement());
-		} else if (match(Token::Type::swapKeyword)) {
-			rethrow(swapStatement());
-		} else if (match(Token::Type::openBrace)) {
-			beginScope();
-			rethrow(block());
-			endScope();
-		} else rethrow(expressionStatement());
+		switch (current.type) {
+			case       Token::ifKeyword: advance(); ifStatement(); break;
+			case    Token::printKeywork: advance(); printStatement(); break;
+			case    Token::whileKeyword: advance(); whileStatement(); break;
+			case    Token::untilKeyword: advance(); untilStatement(); break;
+			case    Token::breakKeyword: advance(); breakStatement(); break;
+			case Token::continueKeyword: advance(); continueStatement(); break;
+			case     Token::swapKeyword: advance(); swapStatement(); break;
+			case       Token::openBrace: advance();
+				beginScope();
+				rethrow(block());
+				endScope();
+			break;
+			default: rethrow(expressionStatement());
+		}
 	}
 	void Compiler::declaration() {
 		if (match(Token::Type::basicType)) {
@@ -802,6 +802,12 @@ namespace Spin {
 		emitJMB(loopStart);
 		patchJMP(exitJMP);
 	}
+	void Compiler::breakStatement() {
+
+	}
+	void Compiler::continueStatement() {
+
+	}
 	void Compiler::swapStatement() {
 		const Token token = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
@@ -840,12 +846,9 @@ namespace Spin {
 				token, ErrorCode::typ
 			);
 		}
-		emitOperation({ OPCode::GLC, { .index = argumentA } });
-		emitOperation({ OPCode::GLC, { .index = argumentB } });
-		emitOperation({ OPCode::SLC, { .index = argumentA } });
-		emitOperation(OPCode::POP);
-		emitOperation({ OPCode::SLC, { .index = argumentB } });
-		emitOperation(OPCode::POP);
+		emitOperation({ OPCode::CNS, { .index = argumentA } });
+		emitOperation({ OPCode::CNS, { .index = argumentB } });
+		emitOperation(OPCode::SWP);
 		rethrow(
 			consume(Token::Type::closeParenthesis, ")");
 			consume(Token::Type::semicolon, ";");

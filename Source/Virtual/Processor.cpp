@@ -1186,6 +1186,14 @@ namespace Spin {
 				case OPCode::SGB: globals[data.as.index] = stack.top(); break;
 				case OPCode::GLC: stack.push(stack.at(data.as.index)); break;
 				case OPCode::SLC: stack.edit(data.as.index, stack.top()); break;
+				case OPCode::SWP:
+					b = stack.pop();
+					a = stack.pop();
+					stack.push(stack.at((SizeType)a.integer));
+					stack.push(stack.at((SizeType)b.integer));
+					stack.edit((SizeType)a.integer, stack.pop());
+					stack.edit((SizeType)b.integer, stack.pop());
+				break;
 				case OPCode::ADD: binaryCase(addition); break;
 				case OPCode::SUB: binaryCase(subtraction); break;
 				case OPCode::MUL: binaryCase(multiplication); break;

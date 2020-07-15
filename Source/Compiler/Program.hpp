@@ -65,6 +65,8 @@ namespace Spin {
 		GLC, // get local
 		SLC, // set local
 
+		SWP, // swap
+
 		ADD, // addition
 		SUB, // subtract
 		MUL, // multiply
