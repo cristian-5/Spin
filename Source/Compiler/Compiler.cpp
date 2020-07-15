@@ -350,6 +350,8 @@ namespace Spin {
 			rethrow(printStatement());
 		} else if (match(Token::Type::whileKeyword)) {
 			rethrow(whileStatement());
+		} else if (match(Token::Type::untilKeyword)) {
+			rethrow(untilStatement());
 		} else if (match(Token::Type::openBrace)) {
 			beginScope();
 			rethrow(block());
@@ -733,6 +735,26 @@ namespace Spin {
 			);
 		}
 		const SizeType exitJMP = emitJMP(OPCode::JIF);
+		rethrow(statement());
+		emitJMB(loopStart);
+		patchJMP(exitJMP);
+	}
+	void Compiler::untilStatement() {
+		const SizeType loopStart = program -> instructions.size();
+		const Token token = previous;
+		rethrow(
+			consume(Token::Type::openParenthesis, "(");
+			expression();
+			consume(Token::Type::closeParenthesis, ")");
+		);
+		if (typeStack.pop() != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Boolean expression inside 'while' condition!",
+				token, ErrorCode::lgc
+			);
+		}
+		const SizeType exitJMP = emitJMP(OPCode::JIT);
 		rethrow(statement());
 		emitJMB(loopStart);
 		patchJMP(exitJMP);

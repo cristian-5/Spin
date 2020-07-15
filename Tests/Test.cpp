@@ -27,7 +27,7 @@ using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String * input = new String("Integer x = 6; while (x < 10) x = x + 1; print x;");
+	String * input = new String("Integer x = 1; until (x != 10) x = x + 1; print x;");
 
 	auto lexer = Lexer::self();
 

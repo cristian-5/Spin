@@ -127,6 +127,8 @@ namespace Spin {
 			case OPCode::JMB: jmptoOP("JMB", byte.as.index, "jump backwards"); break;
 			case OPCode::JIF: jmptoOP("JIF", byte.as.index, "jump if false"); break;
 			case OPCode::JAF: jmptoOP("JAF", byte.as.index, "jump if false, avoid pop"); break;
+			case OPCode::JIT: jmptoOP("JIT", byte.as.index, "jump if true"); break;
+			case OPCode::JAT: jmptoOP("JAT", byte.as.index, "jump if true, avoid pop"); break;
 			case OPCode::EQL: typesOP("EQL", byte.as.types, Colour::orange, "equal"); break;
 			case OPCode::NEQ: typesOP("NEQ", byte.as.types, Colour::orange, "not equal"); break;
 			case OPCode::GRT: typesOP("GRT", byte.as.types, Colour::orange, "great"); break;

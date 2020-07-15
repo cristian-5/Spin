@@ -83,6 +83,8 @@ namespace Spin {
 		JMB, // jump backwards
 		JIF, // jump if false
 		JAF, // jump if false, avoid pop
+		JIT, // jump if true
+		JAT, // jump if true, avoid pop
 
 		EQL, // equal
 		NEQ, // not equal
