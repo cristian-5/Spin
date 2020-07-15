@@ -846,6 +846,14 @@ namespace Spin {
 				token, ErrorCode::typ
 			);
 		}
+		if (localA.type > Type::StringType) {
+			throw Program::Error(
+				currentUnit,
+				"Swap statement doesn't support '" +
+				Converter::typeToString(localA.type) + "' types!",
+				token, ErrorCode::typ
+			);
+		}
 		emitOperation({ OPCode::CNS, { .index = argumentA } });
 		emitOperation({ OPCode::CNS, { .index = argumentB } });
 		emitOperation(OPCode::SWP);
