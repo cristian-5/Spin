@@ -9,6 +9,7 @@
 #include "../Token/Token.hpp"
 
 #include <vector>
+#include <unordered_map>
 
 namespace Spin {
 
@@ -149,6 +150,7 @@ namespace Spin {
 		Program() = default;
 		Array<ByteCode> instructions;
 		Array<Pair<Pointer, Type>> objects;
+		Dictionary<SizeType, Program::Error> errors;
 	};
 
 	class SourceCode {

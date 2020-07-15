@@ -141,10 +141,12 @@ namespace Spin {
 		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);
+		inline void emitException(Program::Error error);
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
 		inline void emitObject(Pointer ptr, Type type);
 		inline void emitGlobal(Value value = { .integer = 0 });
+		inline void emitJMB(SizeType jmb);
 		inline SizeType emitJMP(OPCode code);
 		inline void patchJMP(SizeType jmp);
 		inline void beginScope();

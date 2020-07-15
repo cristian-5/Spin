@@ -28,20 +28,35 @@
 #define DefineUnaryTable(A) const Dictionary<Type, Processor::Mutation> Processor::A
 #define DefineImmutableTable(A) const Dictionary<Type, Processor::Immutable> Processor::A
 
-#define binaryCase(T)                       \
-	b = stack.pop();                        \
-	a = stack.pop();                        \
-	stack.push(                             \
+#define binaryCase(T)                         \
+	b = stack.pop();                          \
+	a = stack.pop();                          \
+	stack.push(                               \
 		T.find(data.as.types) -> second(a, b) \
 	)
 
-#define unaryCase(T)                        \
-	a = stack.pop();                        \
-	stack.push(                             \
-		T.find(data.as.type) -> second(a)     \
+#define binaryExceptionCase(T)                    \
+	b = stack.pop();                              \
+	a = stack.pop();                              \
+	try {                                         \
+		stack.push(                               \
+			T.find(data.as.types) -> second(a, b) \
+		);                                        \
+	} catch (Exception & e) {                     \
+		auto search = program -> errors.find(ip); \
+		if (search != program -> errors.end()) {  \
+			throw search -> second;               \
+		} else return;                            \
+	}
+
+#define unaryCase(T)                      \
+	a = stack.pop();                      \
+	stack.push(                           \
+		T.find(data.as.type) -> second(a) \
 	)
-#define immutableCase(T)                    \
-	a = stack.pop();                        \
+
+#define immutableCase(T)              \
+	a = stack.pop();                  \
 	T.find(data.as.type) -> second(a)
 
 #define symmetric(A) compose(A, A)
@@ -641,13 +656,519 @@ namespace Spin {
 		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)); }) },
 	};
 
-	DefineBinaryTable(inequality) = { };
-	DefineBinaryTable(equality) = { };
+	DefineBinaryTable(inequality) = {
+		// Basic Types:
+		{
+			compose(Type::BooleanType, Type::BooleanType),
+			makeBinaryFrom({
+				return { .boolean = (l.boolean != r.boolean) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte != r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte != r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) != r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte != r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte != r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) != r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer != ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return{ .boolean = (l.integer != ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer != r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (((Real)l.integer) != r.real) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.real != ((Real)r.integer)) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (l.real != r.real) };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .boolean = (l.real != r.real) };
+			})
+		},
+		// Basic Objects:
+		{
+			compose(Type::StringType, Type::StringType),
+			makeBinaryFrom({
+				return { .boolean = ((*((String *)l.pointer)) != (*(String *)r.pointer)) };
+			})
+		},
+	};
+	DefineBinaryTable(equality) = {
+		// Basic Types:
+		{
+			compose(Type::BooleanType, Type::BooleanType),
+			makeBinaryFrom({
+				return { .boolean = (l.boolean == r.boolean) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte == r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte == r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) == r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte == r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte == r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) == r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer == ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return{ .boolean = (l.integer == ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer == r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (((Real)l.integer) == r.real) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.real == ((Real)r.integer)) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (l.real == r.real) };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .boolean = (l.real == r.real) };
+			})
+		},
+		// Basic Objects:
+		{
+			compose(Type::StringType, Type::StringType),
+			makeBinaryFrom({
+				return { .boolean = ((*((String *)l.pointer)) == (*(String *)r.pointer)) };
+			})
+		},
+	};
 
-	DefineBinaryTable(major) = { };
-	DefineBinaryTable(majorEqual) = { };
-	DefineBinaryTable(minor) = { };
-	DefineBinaryTable(minorEqual) = { };
+	DefineBinaryTable(major) = {
+		// Basic Types:
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte > r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte > r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) > r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte > r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte > r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) > r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer > ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return{ .boolean = (l.integer > ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer > r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (((Real)l.integer) > r.real) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.real > ((Real)r.integer)) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (l.real > r.real) };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .boolean = (l.real > r.real) };
+			})
+		},
+	};
+	DefineBinaryTable(majorEqual) = {
+		// Basic Types:
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte >= r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte >= r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) >= r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte >= r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte >= r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) >= r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer >= ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return{ .boolean = (l.integer >= ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer >= r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (((Real)l.integer) >= r.real) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.real >= ((Real)r.integer)) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (l.real >= r.real) };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .boolean = (l.real >= r.real) };
+			})
+		},
+	};
+	DefineBinaryTable(minor) = {
+		// Basic Types:
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte < r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte < r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) < r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte < r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte < r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) < r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer < ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return{ .boolean = (l.integer < ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer < r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (((Real)l.integer) < r.real) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.real < ((Real)r.integer)) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (l.real < r.real) };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .boolean = (l.real < r.real) };
+			})
+		},
+	};
+	DefineBinaryTable(minorEqual) = {
+		// Basic Types:
+		{
+			compose(Type::CharacterType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte <= r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte <= r.byte) };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) <= r.integer) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte <= r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::ByteType),
+			makeBinaryFrom({
+				return { .boolean = (l.byte <= r.byte) };
+			})
+		},
+		{
+			compose(Type::ByteType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (((Int64)l.byte) <= r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::CharacterType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer <= ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ByteType),
+			makeBinaryFrom({
+				return{ .boolean = (l.integer <= ((Int64)r.byte)) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.integer <= r.integer) };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (((Real)l.integer) <= r.real) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::IntegerType),
+			makeBinaryFrom({
+				return { .boolean = (l.real <= ((Real)r.integer)) };
+			})
+		},
+		{
+			compose(Type::RealType, Type::RealType),
+			makeBinaryFrom({
+				return { .boolean = (l.real <= r.real) };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ImaginaryType),
+			makeBinaryFrom({
+				return { .boolean = (l.real <= r.real) };
+			})
+		},
+	};
 
 	void Processor::run(Program * program) {
 		if (!program) return;
@@ -668,8 +1189,8 @@ namespace Spin {
 				case OPCode::ADD: binaryCase(addition); break;
 				case OPCode::SUB: binaryCase(subtraction); break;
 				case OPCode::MUL: binaryCase(multiplication); break;
-				case OPCode::DIV: break;
-				case OPCode::MOD: break;
+				case OPCode::DIV: binaryExceptionCase(division); break;
+				case OPCode::MOD: binaryExceptionCase(modulus); break;
 				case OPCode::NEG: unaryCase(negation); break;
 				case OPCode::INV:
 					if (data.as.type == Type::IntegerType) {

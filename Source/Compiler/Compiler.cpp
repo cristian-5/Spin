@@ -170,6 +170,98 @@ namespace Spin {
 		{ compose(Token::Type::modulus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::modulus, Type::IntegerType, Type::ByteType), Type::IntegerType },
 		{ compose(Token::Type::modulus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		// # == # ------------------------------------------------------------- # Composing Comparison #
+		{ compose(Token::Type::equality, Type::BooleanType, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::CharacterType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::CharacterType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::CharacterType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::ByteType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::IntegerType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::IntegerType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::RealType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::RealType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::StringType, Type::StringType), Type::BooleanType },
+		// # != # ------------------------------------------------------------- # Composing Comparison #
+		{ compose(Token::Type::inequality, Type::BooleanType, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::CharacterType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::CharacterType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::CharacterType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::ByteType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::IntegerType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::IntegerType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::RealType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::RealType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::StringType, Type::StringType), Type::BooleanType },
+		// # < # ------------------------------------------------------------- # Composing Comparison #
+		{ compose(Token::Type::minor, Type::BooleanType, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::CharacterType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::CharacterType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::CharacterType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::ByteType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::IntegerType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::IntegerType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::RealType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::RealType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		// # <= # ------------------------------------------------------------- # Composing Comparison #
+		{ compose(Token::Type::minorEqual, Type::BooleanType, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::CharacterType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::CharacterType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::CharacterType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::ByteType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::RealType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::RealType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		// # > # ------------------------------------------------------------- # Composing Comparison #
+		{ compose(Token::Type::major, Type::BooleanType, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::CharacterType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::CharacterType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::CharacterType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::ByteType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::IntegerType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::IntegerType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::RealType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::RealType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		// # >= # ------------------------------------------------------------- # Composing Comparison #
+		{ compose(Token::Type::majorEqual, Type::BooleanType, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::CharacterType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::CharacterType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::CharacterType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::ByteType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::CharacterType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::RealType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::RealType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
 	};
 
 	const Dictionary<Types, Boolean> Compiler::implicitCast = {
@@ -345,6 +437,7 @@ namespace Spin {
 				{ .index = (globals.size() - 1) }
 			});
 			emitOperation(OPCode::POP);
+			// Globals sentinel:
 			globals[id].ready = true;
 		} else {
 			// Locals sentinel:
@@ -526,7 +619,22 @@ namespace Spin {
 			case  Token::Type::plus: emitOperation({ OPCode::ADD, { .types = types } }); break;
 			case Token::Type::minus: emitOperation({ OPCode::SUB, { .types = types } }); break;
 			case  Token::Type::star: emitOperation({ OPCode::MUL, { .types = types } }); break;
-			case Token::Type::slash: emitOperation({ OPCode::DIV, { .types = types } }); break;
+			case Token::Type::slash:
+				emitOperation({ OPCode::DIV, { .types = types } });
+				emitException(Program::Error(
+					currentUnit,
+					"Binary operator '/' threw division by zero!",
+					token, ErrorCode::evl
+				));
+			break;
+			case Token::Type::modulus:
+				emitOperation({ OPCode::DIV, { .types = types } });
+				emitException(Program::Error(
+					currentUnit,
+					"Binary operator '%' threw division by zero!",
+					token, ErrorCode::evl
+				));
+			break;
 			case   Token::Type::equality: emitOperation({ OPCode::EQL, { .types = types } }); break;
 			case Token::Type::inequality: emitOperation({ OPCode::NEQ, { .types = types } }); break;
 			case      Token::Type::major: emitOperation({ OPCode::GRT, { .types = types } }); break;
@@ -595,7 +703,7 @@ namespace Spin {
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
-		if (typeStack.pop() != BooleanType) {
+		if (typeStack.pop() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside 'if' condition!",
@@ -610,12 +718,24 @@ namespace Spin {
 		patchJMP(elseJMP);
 	}
 	void Compiler::whileStatement() {
+		const SizeType loopStart = program -> instructions.size();
 		const Token token = previous;
 		rethrow(
 			consume(Token::Type::openParenthesis, "(");
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
+		if (typeStack.pop() != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Boolean expression inside 'while' condition!",
+				token, ErrorCode::lgc
+			);
+		}
+		const SizeType exitJMP = emitJMP(OPCode::JIF);
+		rethrow(statement());
+		emitJMB(loopStart);
+		patchJMP(exitJMP);
 	}
 
 	SizeType Compiler::resolve(String & name, Local & local) {
@@ -701,6 +821,12 @@ namespace Spin {
 			ErrorCode::syx
 		);
 	}
+	inline void Compiler::emitException(Program::Error error) {
+		program -> errors.insert({
+			program -> instructions.size() - 1,
+			error
+		});
+	}
 	inline void Compiler::emitOperation(ByteCode code) {
 		program -> instructions.push_back(code);
 	}
@@ -713,10 +839,13 @@ namespace Spin {
 		program -> objects.push_back({ ptr, type });
 	}
 	inline void Compiler::emitGlobal(Value value) {
-		program -> instructions.insert(
-			program -> instructions.begin(),
+		program -> instructions.push_back(
 			{ OPCode::GLB, { .value = value } }
 		);
+	}
+	inline void Compiler::emitJMB(SizeType jmb) {
+		jmb = program -> instructions.size() - jmb + 1;
+		emitOperation({ OPCode::JMB, { .index = jmb } });
 	}
 	inline SizeType Compiler::emitJMP(OPCode code) {
 		const SizeType count = program -> instructions.size();
