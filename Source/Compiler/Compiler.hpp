@@ -125,6 +125,7 @@ namespace Spin {
 		void logicOR();
 
 		void grouping();
+		void ternary();
 		void binary();
 		void unary();
 

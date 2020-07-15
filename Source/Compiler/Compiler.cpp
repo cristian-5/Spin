@@ -31,6 +31,8 @@ namespace Spin {
 	
 		{ Token::Type::openParenthesis, { & Compiler::grouping, nullptr, Precedence::none } },
 
+		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
+
 		{ Token::Type::exclamationMark, { & Compiler::unary, nullptr, Precedence::none } },
 		{ Token::Type::tilde, { & Compiler::unary, nullptr, Precedence::term } },
 		{ Token::Type::minus, { & Compiler::unary, & Compiler::binary, Precedence::term } },
@@ -597,6 +599,45 @@ namespace Spin {
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
+	}
+	void Compiler::ternary() {
+		Token token = previous;
+		ParseRule rule = getRule(token.type);
+		if (typeStack.pop() != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Boolean expression inside ternary condition!",
+				token, ErrorCode::lgc
+			);
+		}
+		const SizeType thenJMP = emitJMP(OPCode::JIF);
+		// Then Condition:
+		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
+		Type typeA = typeStack.pop();
+		// End then.
+		const SizeType elseJMP = emitJMP(OPCode::JMP);
+		patchJMP(thenJMP);
+
+		rethrow(consume(Token::Type::colon, ":"));
+		token = previous;
+
+		// Else Condition:
+		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
+		Type typeB = typeStack.pop();
+		// End else.
+		patchJMP(elseJMP);
+
+		if (typeA != typeB) {
+			throw Program::Error(
+				currentUnit,
+				"Ternary operator ' ? : ' doesn't support operands of non matching types '" +
+				Converter::typeToString(typeA) + "' and '" +
+				Converter::typeToString(typeB) + "'!",
+				token, ErrorCode::typ
+			);
+		}
+
+		typeStack.push(typeA);
 	}
 	void Compiler::binary() {
 		const Token token = previous;
