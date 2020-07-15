@@ -1,5 +1,5 @@
 
-#include "Header.hpp"
+#include "../Common/Header.hpp"
 
 #ifndef SPIN_STACK_PURE
 #define SPIN_STACK_PURE

@@ -5,7 +5,8 @@ cppVersion = -std=c++2a
 
 header = ../Source/Common/Header.hpp
 interface = ../Source/Common/interface.hpp
-stack = ../Source/Common/Stack.hpp
+
+stack = ../Source/Utility/Stack.hpp
 
 token = ../Source/Token/Token.hpp
 program = ../Source/Compiler/Program.hpp

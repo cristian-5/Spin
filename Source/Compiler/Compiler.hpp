@@ -10,7 +10,7 @@
 
 #include "Program.hpp"
 
-#include "../Common/Stack.hpp"
+#include "../Utility/Stack.hpp"
 
 using Unary = UInt16;
 using Binary = UInt32;

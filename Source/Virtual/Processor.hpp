@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../Common/Stack.hpp"
+#include "../Utility/Stack.hpp"
 #include "../Compiler/Program.hpp"
 
 namespace Spin {
