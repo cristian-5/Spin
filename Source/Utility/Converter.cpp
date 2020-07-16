@@ -33,6 +33,8 @@
 // IMPROVE: Benchmark the converter class and find a better way than
 //          regexes for the base check. Ask Andrea to do that for u.
 
+using StringStream = std::stringstream;
+
 namespace Spin {
 
 	inline Boolean Converter::checkBase(Regex base, String & s) {
@@ -287,28 +289,20 @@ namespace Spin {
 		// Package constructor avoids an array copy:
 		return String(buffer + size, 20 - size);
 	}
-
-	String Converter::realToGroupedString(Real a) {
-		StringStream stream;
-		stream << a;
-		String result = stream.str();
-		if (result[0] == '-') result.insert(1, 1, ' ');
-		else result = "+ " + result;
-		return result;
-	}
-	String Converter::imaginaryToGroupedString(Real a) {
-		StringStream stream;
-		stream << a;
-		String result = stream.str();
-		if (result[0] == '-') result.insert(1, 1, ' ');
-		else result = "+ " + result;
-		result.push_back('i');
-		return result;
+	String Converter::imaginaryToString(Real a) {
+		String imaginary;
+		if (isinf(a)) imaginary += (a < 0 ? "- (infinity)i" : "(infinity)i");
+		else if (isnan(a)) imaginary += "(undefined)i";
+		else imaginary += (a < 0 ? "- " + std::to_string(- a) : std::to_string(a));
+		imaginary.push_back('i');
+		return imaginary;
 	}
 	String Converter::realToString(Real a) {
-		StringStream result;
-		result << a;
-		return result.str();
+		String real;
+		if (isinf(a)) real += (a < 0 ? "- infinity" : "infinity");
+		else if (isnan(a)) real += "undefined";
+		else real += (a < 0 ? "- " + std::to_string(- a) : std::to_string(a));
+		return real;
 	}
 
 }

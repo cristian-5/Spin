@@ -4,8 +4,6 @@
 #ifndef SPIN_PROGRAM_HPP
 #define SPIN_PROGRAM_HPP
 
-#include "../Common/Exception.hpp"
-
 #include "../Token/Token.hpp"
 
 #include <vector>
@@ -40,8 +38,8 @@ namespace Spin {
 		RealType,
 		ImaginaryType,
 
-		StringType,
 		ComplexType,
+		StringType,
 
 		ArrayType,
 		VectorType,

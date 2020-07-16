@@ -23,6 +23,9 @@
 
 #include <limits>
 
+#include "../Utility/Converter.hpp"
+#include "../Types/Complex.hpp"
+
 #define DefineCastTable(A) const Dictionary<Types, Processor::Mutation> Processor::A
 #define DefineBinaryTable(A) const Dictionary<Types, Processor::Process> Processor::A
 #define DefineUnaryTable(A) const Dictionary<Type, Processor::Mutation> Processor::A
@@ -110,6 +113,48 @@ namespace Spin {
 			makeCastFrom({ return { .integer = (Int64)c.real }; })
 		},
 		// Basic Objects:
+		{
+			compose(Type::IntegerType, Type::ComplexType),
+			makeCastFrom({
+				Complex * complex = new Complex((Real)c.integer, 0.0);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ComplexType),
+			makeCastFrom({
+				Complex * complex = new Complex(c.real, 0.0);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ComplexType),
+			makeCastFrom({
+				Complex * complex = new Complex(0.0, c.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::IntegerType),
+			makeCastFrom({
+				return { .integer = (Int64)(((Complex *)c.pointer) -> a) };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::RealType),
+			makeCastFrom({
+				return { .real = (((Complex *)c.pointer) -> a) };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ImaginaryType),
+			makeCastFrom({
+				return { .real = (((Complex *)c.pointer) -> b) };
+			})
+		},
 		{
 			compose(Type::CharacterType, Type::StringType),
 			makeCastFrom({
@@ -202,6 +247,121 @@ namespace Spin {
 		},
 		// Basic Objects:
 		{
+			compose(Type::IntegerType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = new Complex((Real)l.integer, r.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					(complex -> a) + (Real)l.integer,
+					(complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(l.real, r.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					(complex -> a) + l.real,
+					(complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::IntegerType),
+			makeBinaryFrom({
+				Complex * complex = new Complex((Real)r.integer, l.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::RealType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(r.real, l.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					(complex -> a),
+					(complex -> b) + l.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::IntegerType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) + (Real)r.integer,
+					(complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::RealType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) + r.real,
+					(complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a),
+					(complex -> b) + r.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(
+					*((Complex *)l.pointer) +
+					*((Complex *)r.pointer)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
 			compose(Type::StringType, Type::StringType),
 			makeBinaryFrom({
 				String * string = new String(
@@ -214,6 +374,7 @@ namespace Spin {
 		},
 	};
 	DefineBinaryTable(subtraction) = {
+		// Basic Types:
 		{
 			compose(Type::CharacterType, Type::CharacterType),
 			makeBinaryFrom({
@@ -292,8 +453,125 @@ namespace Spin {
 				return { .real = l.real - r.real };
 			})
 		},
+		// Basic Objects:
+		{
+			compose(Type::IntegerType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = new Complex((Real)l.integer, - r.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::IntegerType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					(Real)l.integer - (complex -> a),
+					- (complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(l.real, - r.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					l.real - (complex -> a),
+					- (complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::IntegerType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(-((Real)r.integer), l.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::RealType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(- r.real, l.real);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					- (complex -> a),
+					l.real - (complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::IntegerType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) - (Real)r.integer,
+					(complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::RealType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) - r.real,
+					(complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a),
+					(complex -> b) - r.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(
+					*((Complex *)l.pointer) -
+					*((Complex *)r.pointer)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
 	};
 	DefineBinaryTable(multiplication) = {
+		// Basic Types:
 		{
 			compose(Type::CharacterType, Type::CharacterType),
 			makeBinaryFrom({
@@ -396,8 +674,93 @@ namespace Spin {
 				return { .real = l.real * r.real };
 			})
 		},
+		// Basic Objects:
+		{
+			compose(Type::IntegerType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					(complex -> a) * (Real)l.integer,
+					(complex -> b) * (Real)l.integer
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					(complex -> a) * l.real,
+					(complex -> b) * l.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					- ((complex -> b) * l.real),
+					(complex -> a) * l.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::IntegerType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) * (Real)r.integer,
+					(complex -> b) * (Real)r.integer
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::RealType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) * r.real,
+					(complex -> b) * r.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					- ((complex -> b) * r.real),
+					(complex -> a) * r.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(
+					*((Complex *)l.pointer) *
+					*((Complex *)r.pointer)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
 	};
 	DefineBinaryTable(division) = {
+		// Basic Types:
 		{
 			compose(Type::CharacterType, Type::CharacterType),
 			makeBinaryFrom({
@@ -507,6 +870,93 @@ namespace Spin {
 			compose(Type::ImaginaryType, Type::ImaginaryType),
 			makeBinaryFrom({
 				return { .real = l.real / r.real };
+			})
+		},
+		// Basic Objects:
+		{
+			compose(Type::IntegerType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				l.real = ((Real)l.integer) / (complex -> getNormalised());
+				complex = new Complex(
+					l.real * (complex -> a),
+					l.real * (- (complex -> b))
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::RealType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				l.real /= (complex -> getNormalised());
+				complex = new Complex(
+					l.real * (complex -> a),
+					l.real * (- (complex -> b))
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ImaginaryType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				l.real /= (complex -> getNormalised());
+				complex = new Complex(
+					(complex -> b) * l.real,
+					(complex -> a) * l.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::IntegerType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) / (Real)r.integer,
+					(complex -> b) / (Real)r.integer
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::RealType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> a) / r.real,
+					(complex -> b) / r.real
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ImaginaryType),
+			makeBinaryFrom({
+				Complex * complex = (Complex *)l.pointer;
+				complex = new Complex(
+					(complex -> b) / r.real,
+					- ((complex -> a) / r.real)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
+		{
+			compose(Type::ComplexType, Type::ComplexType),
+			makeBinaryFrom({
+				Complex * complex = new Complex(
+					*((Complex *)l.pointer) /
+					*((Complex *)r.pointer)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
 			})
 		},
 	};
@@ -643,6 +1093,18 @@ namespace Spin {
 		{   Type::IntegerType, makeUnaryFrom({ return { .integer = - r.integer }; }) },
 		{      Type::RealType, makeUnaryFrom({ return { .real = - r.real }; }) },
 		{ Type::ImaginaryType, makeUnaryFrom({ return { .real = - r.real }; }) },
+		{
+			Type::ComplexType,
+			makeUnaryFrom({
+				Complex * complex = (Complex *)r.pointer;
+				complex = new Complex(
+					- (complex -> a),
+					- (complex -> b)
+				);
+				objects.push_back({ complex, Type::ComplexType });
+				return { .pointer = complex };
+			})
+		},
 	};
 	DefineImmutableTable(print) = {
 		// Basic Types:
@@ -650,9 +1112,10 @@ namespace Spin {
 		{ Type::CharacterType, makeImmutableFrom({ OStream << (Character)r.byte; }) },
 		{      Type::ByteType, makeImmutableFrom({ OStream << hexadecimal << (Int64)r.byte << decimal; }) },
 		{   Type::IntegerType, makeImmutableFrom({ OStream << r.integer; }) },
-		{      Type::RealType, makeImmutableFrom({ OStream << r.real; }) },
-		{ Type::ImaginaryType, makeImmutableFrom({ OStream << r.real; }) },
+		{      Type::RealType, makeImmutableFrom({ OStream << Converter::realToString(r.real); }) },
+		{ Type::ImaginaryType, makeImmutableFrom({ OStream << Converter::realToString(r.real); }) },
 		// Basic Objects:
+		{   Type::ComplexType, makeImmutableFrom({ OStream << ((Complex *)r.pointer) -> toString(); }) },
 		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)); }) },
 	};
 
@@ -1267,7 +1730,6 @@ namespace Spin {
 	}
 
 }
-
 
 #undef DefineCastTable
 #undef DefineBinaryTable

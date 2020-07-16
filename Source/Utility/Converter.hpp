@@ -9,7 +9,6 @@
 #include "../Compiler/Program.hpp"
 
 using Regex = std::regex;
-using StringStream = std::stringstream;
 
 namespace Spin {
 
@@ -36,9 +35,7 @@ namespace Spin {
 		static String escapeString(String & s);
 		static Character escapeChar(String & s);
 		static String integerToString(Int64 & i);
-		// IMPROVE: please, get rid of this:
-		static String realToGroupedString(Real a);
-		static String imaginaryToGroupedString(Real a);
+		static String imaginaryToString(Real a);
 		static String realToString(Real a);
 	};
 

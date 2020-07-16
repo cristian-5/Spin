@@ -31,13 +31,8 @@
 
 	#define Array std::vector
 	#define Dictionary std::unordered_map
-
-	#define InitialiserList std::initializer_list
-
 	#define Pair std::pair
 
-	#define Lambda std::function
-
-	#define DynamicCast dynamic_cast
+	class Exception { };
 
 #endif

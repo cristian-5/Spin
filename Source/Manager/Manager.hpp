@@ -7,8 +7,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "../Common/Exception.hpp"
-
 using StringStream = std::stringstream;
 using IFStream = std::ifstream;
 using OFStream = std::ofstream;

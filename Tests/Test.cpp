@@ -27,7 +27,7 @@ using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String * input = new String("{ Integer x = 5; Integer y = 9; print x; print y; swap(x:y); print x; print y; }");
+	String * input = new String("{ print (- 2.2i - 4.2) / (- 4.5i + 5); }");
 
 	auto lexer = Lexer::self();
 

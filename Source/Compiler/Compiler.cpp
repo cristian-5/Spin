@@ -22,6 +22,7 @@
 #define SPIN_COMPILER_CPP
 
 #include "../Utility/Converter.hpp"
+#include "../Types/Complex.hpp"
 
 #define rethrow(A) try { A; } catch (Program::Error & e) { throw; }
 
@@ -76,11 +77,13 @@ namespace Spin {
 		{ compose(Token::Type::minus, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::RealType), Type::RealType },
 		{ compose(Token::Type::minus, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::minus, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::plus, Type::ByteType), Type::ByteType },
 		{ compose(Token::Type::plus, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::RealType), Type::RealType },
 		{ compose(Token::Type::plus, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::plus, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::tilde, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::tilde, Type::ByteType), Type::ByteType },
 	};
@@ -111,6 +114,19 @@ namespace Spin {
 		{ compose(Token::Type::plus, Type::RealType, Type::IntegerType), Type::RealType },
 		{ compose(Token::Type::plus, Type::RealType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::plus, Type::ImaginaryType, Type::ImaginaryType), Type::ImaginaryType },
+
+		{ compose(Token::Type::plus, Type::IntegerType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::IntegerType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::RealType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::RealType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ImaginaryType, Type::IntegerType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ImaginaryType, Type::RealType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ComplexType, Type::IntegerType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ComplexType, Type::RealType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ComplexType, Type::ComplexType), Type::ComplexType },
+
 		{ compose(Token::Type::plus, Type::StringType, Type::StringType), Type::StringType },
 		// # - # ------------------------------------------------------------- # Composing Subtraction #
 		{ compose(Token::Type::minus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
@@ -126,6 +142,18 @@ namespace Spin {
 		{ compose(Token::Type::minus, Type::RealType, Type::IntegerType), Type::RealType },
 		{ compose(Token::Type::minus, Type::RealType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::minus, Type::ImaginaryType, Type::ImaginaryType), Type::ImaginaryType },
+
+		{ compose(Token::Type::minus, Type::IntegerType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::IntegerType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::RealType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::RealType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ImaginaryType, Type::IntegerType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ImaginaryType, Type::RealType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ComplexType, Type::IntegerType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ComplexType, Type::RealType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ComplexType, Type::ComplexType), Type::ComplexType },
 		// # * # ------------------------------------------------------------- # Composing Multiplication #
 		{ compose(Token::Type::star, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::CharacterType, Type::ByteType), Type::IntegerType },
@@ -144,6 +172,14 @@ namespace Spin {
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::IntegerType), Type::ImaginaryType },
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::RealType), Type::ImaginaryType },
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::ImaginaryType), Type::RealType },
+
+		{ compose(Token::Type::star, Type::IntegerType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::star, Type::RealType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::star, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::star, Type::ComplexType, Type::IntegerType), Type::ComplexType },
+		{ compose(Token::Type::star, Type::ComplexType, Type::RealType), Type::ComplexType },
+		{ compose(Token::Type::star, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::star, Type::ComplexType, Type::ComplexType), Type::ComplexType },
 		// # / # ------------------------------------------------------------- # Composing Division #
 		{ compose(Token::Type::slash, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::CharacterType, Type::ByteType), Type::IntegerType },
@@ -162,6 +198,14 @@ namespace Spin {
 		{ compose(Token::Type::slash, Type::ImaginaryType, Type::IntegerType), Type::ImaginaryType },
 		{ compose(Token::Type::slash, Type::ImaginaryType, Type::RealType), Type::ImaginaryType },
 		{ compose(Token::Type::slash, Type::ImaginaryType, Type::ImaginaryType), Type::RealType },
+
+		{ compose(Token::Type::slash, Type::IntegerType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::slash, Type::RealType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::slash, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::slash, Type::ComplexType, Type::IntegerType), Type::ComplexType },
+		{ compose(Token::Type::slash, Type::ComplexType, Type::RealType), Type::ComplexType },
+		{ compose(Token::Type::slash, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::slash, Type::ComplexType, Type::ComplexType), Type::ComplexType },
 		// # % # ------------------------------------------------------------- # Composing Modulus #
 		{ compose(Token::Type::modulus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::modulus, Type::CharacterType, Type::ByteType), Type::IntegerType },
@@ -277,7 +321,13 @@ namespace Spin {
 		{ compose(Type::IntegerType, Type::RealType), true },
 		{ compose(Type::RealType, Type::IntegerType), true },
 		// Basic Objects:
+		{ compose(Type::IntegerType, Type::ComplexType), true },
+		{ compose(Type::RealType, Type::ComplexType), true },
+		{ compose(Type::ImaginaryType, Type::ComplexType), true },
 		{ compose(Type::CharacterType, Type::StringType), true },
+		{ compose(Type::ComplexType, Type::IntegerType), true },
+		{ compose(Type::ComplexType, Type::RealType), true },
+		{ compose(Type::ComplexType, Type::ImaginaryType), true },
 	};
 
 	void Compiler::booleanLiteral() {
@@ -420,6 +470,13 @@ namespace Spin {
 				case Type::ImaginaryType: emitOperation({
 					OPCode::CNS, { .value = { .real = 0.0 } }
 				}); break;
+				case   Type::ComplexType: {
+					const Pointer ptr = new Complex();
+					emitObject(ptr, Type::ComplexType);
+					emitOperation({
+						OPCode::CNS, { .value = { .pointer = ptr } }
+					});
+				} break;
 				case    Type::StringType: {
 					const Pointer ptr = new String();
 					emitObject(ptr, Type::StringType);
