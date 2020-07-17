@@ -821,6 +821,7 @@ namespace Spin {
 	}
 	void Compiler::whileStatement() {
 		const SizeType loopStart = program -> instructions.size();
+		cycleScopes.push(scopeDepth);
 		const Token token = previous;
 		rethrow(
 			consume(Token::Type::openParenthesis, "(");
@@ -838,9 +839,15 @@ namespace Spin {
 		rethrow(statement());
 		emitJMB(loopStart);
 		patchJMP(exitJMP);
+		cycleScopes.decrease();
+		while (!breakStack.isEmpty()) {
+			if (breakStack.top().scope <= scopeDepth) break;
+			patchJMP(breakStack.pop().line);
+		}
 	}
 	void Compiler::untilStatement() {
 		const SizeType loopStart = program -> instructions.size();
+		cycleScopes.push(scopeDepth);
 		const Token token = previous;
 		rethrow(
 			consume(Token::Type::openParenthesis, "(");
@@ -858,9 +865,33 @@ namespace Spin {
 		rethrow(statement());
 		emitJMB(loopStart);
 		patchJMP(exitJMP);
+		cycleScopes.decrease();
+		while (!breakStack.isEmpty()) {
+			if (breakStack.top().scope <= scopeDepth) break;
+			patchJMP(breakStack.pop().line);
+		}
 	}
 	void Compiler::breakStatement() {
-
+		const Token token = previous;
+		if (cycleScopes.isEmpty()) {
+			throw Program::Error(
+				currentUnit,
+				"Found unexpected 'break' statement ouside of a cycle!",
+				token, ErrorCode::lgc
+			);
+		}
+		rethrow(consume(Token::Type::semicolon, ";"));
+		const SizeType cycleScope = cycleScopes.top();
+		SizeType localCount = 0;
+		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
+			if (locals[i].depth <= cycleScope) break;
+			localCount += 1;
+		}
+		if (localCount > 0) {
+			emitOperation({ OPCode::DSK, { .index = localCount } });
+		}
+		const SizeType breakJMP = emitJMP(OPCode::JMP);
+		breakStack.push({ breakJMP, scopeDepth });
 	}
 	void Compiler::continueStatement() {
 
@@ -1043,12 +1074,14 @@ namespace Spin {
 	}
 	inline void Compiler::endScope() {
 		scopeDepth -= 1;
-		// TODO: Add a POP with operand to pop n values.
+		SizeType localCount = 0;
 		while (locals.size() > 0 &&
 			   locals[locals.size() - 1].depth > scopeDepth) {
-			emitOperation(OPCode::POP);
+			localCount += 1;
 			locals.pop_back();
 		}
+		if (!localCount) return;
+		emitOperation({ OPCode::DSK, { .index = localCount } });
 	}
 
 	void Compiler::emitReturn() {
@@ -1059,14 +1092,13 @@ namespace Spin {
 	}
 
 	void Compiler::reset() {
-		// Reset Globals:
 		globals.clear();
 		globalIndex = 0;
-		// Reset Assignment Stack:
 		assignmentStack.clear();
-		// Reset Locals:
 		locals.clear();
 		scopeDepth = 0;
+		cycleScopes.clear();
+		breakStack.clear();
 	}
 
 	Program * Compiler::compile(SourceCode * source) {

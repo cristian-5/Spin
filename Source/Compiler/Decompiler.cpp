@@ -124,6 +124,7 @@ namespace Spin {
 			case OPCode::PSI: aloneOP("PSI", Colour::yellow, "push infinity"); break;
 			case OPCode::PSU: aloneOP("PSU", Colour::yellow, "push undefined"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
+			case OPCode::DSK: constOP("DSK", byte.as.value.integer, Colour::yellow); break;
 			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;
 			case OPCode::JMB: jmptoOP("JMB", byte.as.index, "jump backwards"); break;
 			case OPCode::JIF: jmptoOP("JIF", byte.as.index, "jump if false"); break;

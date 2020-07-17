@@ -78,6 +78,7 @@ namespace Spin {
 		PSI, // push infinity
 		PSU, // push undefined
 		POP, // pop
+		DSK, // decrease stack
 
 		JMP, // jump
 		JMB, // jump backwards

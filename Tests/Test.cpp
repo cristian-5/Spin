@@ -18,6 +18,7 @@
 
 #include "../Source/Common/Interface.hpp"
 
+#include "../Source/Manager/Manager.hpp"
 #include "../Source/Lexer/Lexer.hpp"
 #include "../Source/Compiler/Compiler.hpp"
 #include "../Source/Compiler/Decompiler.hpp"
@@ -27,7 +28,7 @@ using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String * input = new String("{ print (- 2.2i - 4.2) / (- 4.5i + 5); }");
+	String * input = Manager::stringFromFile("Examples/Test.spin");
 
 	auto lexer = Lexer::self();
 

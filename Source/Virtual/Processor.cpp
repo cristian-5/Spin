@@ -1677,6 +1677,7 @@ namespace Spin {
 				case OPCode::PSI: stack.push({ .real = infinity }); break;
 				case OPCode::PSU: stack.push({ .real = undefined }); break;
 				case OPCode::POP: stack.decrease(); break;
+				case OPCode::DSK: stack.decrease(data.as.index); break;
 				case OPCode::JMP: ip += data.as.index; break;
 				case OPCode::JMB: ip -= data.as.index; break;
 				case OPCode::JIF: if (!stack.pop().boolean) ip += data.as.index; break;

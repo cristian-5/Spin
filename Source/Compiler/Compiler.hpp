@@ -52,11 +52,15 @@ namespace Spin {
 			Type type;
 			Boolean ready = false;
 		};
-
 		struct Global {
 			SizeType index;
 			Type type;
 			Boolean ready = false;
+		};
+
+		struct Break {
+			SizeType line = 0;
+			SizeType scope = 0;
 		};
 
 		Array<Local> locals;
@@ -76,6 +80,8 @@ namespace Spin {
 
 		Stack<Type> typeStack;
 		Stack<Boolean> assignmentStack;
+		Stack<SizeType> cycleScopes;
+		Stack<Break> breakStack;
 
 		static const Dictionary<Unary, Type> prefix;
 		static const Dictionary<Binary, Type> infix;

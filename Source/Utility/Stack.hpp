@@ -32,6 +32,7 @@ namespace Spin {
 		Type pop();
 
 		void decrease();
+		void decrease(SizeType number);
 
 		Boolean isEmpty();
 		SizeType size();
@@ -90,6 +91,11 @@ namespace Spin {
 	template <typename Type>
 	void Stack<Type>::decrease() {
 		count -= 1;
+	}
+
+	template <typename Type>
+	void Stack<Type>::decrease(SizeType number) {
+		count -= number;
 	}
 
 	template <typename Type>
