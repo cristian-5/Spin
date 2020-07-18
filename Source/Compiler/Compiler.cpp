@@ -818,7 +818,7 @@ namespace Spin {
 		patchJMP(elseJMP);
 	}
 	void Compiler::whileStatement() {
-		const SizeType loopStart = program -> instructions.size();
+		const SizeType loopStart = sourcePosition();
 		cycleScopes.push(scopeDepth);
 		const Token token = previous;
 		rethrow(
@@ -842,9 +842,15 @@ namespace Spin {
 			if (breakStack.top().scope <= scopeDepth) break;
 			patchJMP(breakStack.pop().line);
 		}
+		while (!continueStack.isEmpty()) {
+			if (continueStack.top().scope <= scopeDepth) break;
+			const SizeType pos = continueStack.pop().line;
+			patchOP(pos, OPCode::JMB);
+			patchJMB(pos, loopStart);
+		}
 	}
 	void Compiler::untilStatement() {
-		const SizeType loopStart = program -> instructions.size();
+		const SizeType loopStart = sourcePosition();
 		cycleScopes.push(scopeDepth);
 		const Token token = previous;
 		rethrow(
@@ -867,6 +873,12 @@ namespace Spin {
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;
 			patchJMP(breakStack.pop().line);
+		}
+		while (!continueStack.isEmpty()) {
+			if (continueStack.top().scope <= scopeDepth) break;
+			const SizeType pos = continueStack.pop().line;
+			patchOP(pos, OPCode::JMB);
+			patchJMB(pos, loopStart);
 		}
 	}
 	void Compiler::breakStatement() {
@@ -892,7 +904,28 @@ namespace Spin {
 		breakStack.push({ breakJMP, scopeDepth });
 	}
 	void Compiler::continueStatement() {
-
+		const Token token = previous;
+		if (cycleScopes.isEmpty()) {
+			throw Program::Error(
+				currentUnit,
+				"Found unexpected 'break' statement ouside of a cycle!",
+				token, ErrorCode::lgc
+			);
+		}
+		rethrow(consume(Token::Type::semicolon, ";"));
+		const SizeType cycleScope = cycleScopes.top();
+		SizeType localCount = 0;
+		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
+			if (locals[i].depth <= cycleScope) break;
+			localCount += 1;
+		}
+		if (localCount > 0) {
+			emitOperation({ OPCode::DSK, { .index = localCount } });
+		}
+		// We don't know yet if the jump is going to be
+		// JMB or JMP for a continue so we use a rest:
+		const SizeType continueJMP = emitRST();
+		continueStack.push({ continueJMP, scopeDepth });
 	}
 	void Compiler::swapStatement() {
 		const Token token = previous;
@@ -1033,6 +1066,9 @@ namespace Spin {
 			ErrorCode::syx
 		);
 	}
+	inline SizeType Compiler::sourcePosition() {
+		return program -> instructions.size();
+	}
 	inline void Compiler::emitException(Program::Error error) {
 		program -> errors.insert({
 			program -> instructions.size() - 1,
@@ -1056,17 +1092,24 @@ namespace Spin {
 		);
 	}
 	inline void Compiler::emitJMB(SizeType jmb) {
-		jmb = program -> instructions.size() - jmb + 1;
+		jmb = sourcePosition() - jmb + 1;
 		emitOperation({ OPCode::JMB, { .index = jmb } });
 	}
 	inline SizeType Compiler::emitJMP(OPCode code) {
-		const SizeType count = program -> instructions.size();
+		const SizeType count = sourcePosition();
 		emitOperation(code);
 		return count;
 	}
 	inline void Compiler::patchJMP(SizeType jmp) {
-		const SizeType jump = (program -> instructions.size() - jmp);
+		const SizeType jump = (sourcePosition() - jmp);
 		program -> instructions[jmp].as.index = jump - 1;
+	}
+	inline void Compiler::patchJMB(SizeType pos, SizeType jmb) {
+		jmb = pos - jmb + 1;
+		program -> instructions[pos].as.index = jmb;
+	}
+	inline void Compiler::patchOP(SizeType op, OPCode code) {
+		program -> instructions[op].code = code;
 	}
 	inline void Compiler::beginScope() {
 		scopeDepth += 1;
@@ -1083,10 +1126,15 @@ namespace Spin {
 		emitOperation({ OPCode::DSK, { .index = localCount } });
 	}
 
-	void Compiler::emitReturn() {
+	inline SizeType Compiler::emitRST() {
+		const SizeType count = sourcePosition();
+		emitOperation(OPCode::RST);
+		return count;
+	}
+	inline void Compiler::emitRET() {
 		emitOperation(OPCode::RET);
 	}
-	void Compiler::emitHalt() {
+	inline void Compiler::emitHLT() {
 		emitOperation(OPCode::HLT);
 	}
 
@@ -1114,7 +1162,7 @@ namespace Spin {
 			advance();
 			consume(Token::Type::beginFile, "Begin File");
 			while (!match(Token::Type::endFile)) declaration();
-			emitHalt();
+			emitHLT();
 		);
 
 		reset();

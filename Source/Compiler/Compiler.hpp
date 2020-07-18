@@ -58,7 +58,7 @@ namespace Spin {
 			Boolean ready = false;
 		};
 
-		struct Break {
+		struct Jump {
 			SizeType line = 0;
 			SizeType scope = 0;
 		};
@@ -81,7 +81,8 @@ namespace Spin {
 		Stack<Type> typeStack;
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
-		Stack<Break> breakStack;
+		Stack<Jump> breakStack;
+		Stack<Jump> continueStack;
 
 		static const Dictionary<Unary, Type> prefix;
 		static const Dictionary<Binary, Type> infix;
@@ -152,6 +153,7 @@ namespace Spin {
 		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);
+		inline SizeType sourcePosition();
 		inline void emitException(Program::Error error);
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
@@ -160,11 +162,14 @@ namespace Spin {
 		inline void emitJMB(SizeType jmb);
 		inline SizeType emitJMP(OPCode code);
 		inline void patchJMP(SizeType jmp);
+		inline void patchJMB(SizeType pos, SizeType jmb);
+		inline void patchOP(SizeType op, OPCode code);
 		inline void beginScope();
 		inline void endScope();
 
-		void emitReturn();
-		void emitHalt();
+		inline SizeType emitRST();
+		inline void emitRET();
+		inline void emitHLT();
 
 		void reset();
 
