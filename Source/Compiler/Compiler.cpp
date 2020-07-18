@@ -635,9 +635,7 @@ namespace Spin {
 	void Compiler::logicOR() {
 		const Token token = previous;
 		Type typeA = typeStack.pop();
-		const SizeType elseJMP = emitJMP(OPCode::JAF);
-		const SizeType endJMP = emitJMP(OPCode::JMP);
-		patchJMP(elseJMP);
+		const SizeType endJMP = emitJMP(OPCode::JAT);
 		emitOperation(OPCode::POP);
 		rethrow(parsePrecedence(Precedence::logicOR));
 		Type typeB = typeStack.pop();
@@ -988,12 +986,13 @@ namespace Spin {
 			ParseFunction infixRule = getRule(previous.type).infix;
 			rethrow((this ->* infixRule)());
 		}
+		const Token token = previous;
 		if (canAssign && match(Token::Type::equal)) {
 			throw Program::Error(
 				currentUnit,
 				"Found invalid assignment target '" +
-				previous.lexeme + "'!",
-				previous, ErrorCode::lgc
+				token.lexeme + "'!",
+				token, ErrorCode::lgc
 			);
 		}
 		assignmentStack.decrease();
