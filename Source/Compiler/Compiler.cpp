@@ -401,6 +401,9 @@ namespace Spin {
 			case    Token::printKeywork: advance(); printStatement(); break;
 			case    Token::whileKeyword: advance(); whileStatement(); break;
 			case    Token::untilKeyword: advance(); untilStatement(); break;
+			case       Token::doKeyword: advance(); doWhileStatement(); break;
+			case   Token::repeatKeyword: advance(); repeatUntilStatement(); break;
+			case     Token::loopKeyword: advance(); loopStatement(); break;
 			case    Token::breakKeyword: advance(); breakStatement(); break;
 			case Token::continueKeyword: advance(); continueStatement(); break;
 			case     Token::swapKeyword: advance(); swapStatement(); break;
@@ -861,7 +864,7 @@ namespace Spin {
 		if (typeStack.pop() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
-				"Expected Boolean expression inside 'while' condition!",
+				"Expected Boolean expression inside 'until' condition!",
 				token, ErrorCode::lgc
 			);
 		}
@@ -869,6 +872,95 @@ namespace Spin {
 		rethrow(statement());
 		emitJMB(loopStart);
 		patchJMP(exitJMP);
+		cycleScopes.decrease();
+		while (!breakStack.isEmpty()) {
+			if (breakStack.top().scope <= scopeDepth) break;
+			patchJMP(breakStack.pop().line);
+		}
+		while (!continueStack.isEmpty()) {
+			if (continueStack.top().scope <= scopeDepth) break;
+			const SizeType pos = continueStack.pop().line;
+			patchOP(pos, OPCode::JMB);
+			patchJMB(pos, loopStart);
+		}
+	}
+	void Compiler::doWhileStatement() {
+		const SizeType loopStart = sourcePosition();
+		cycleScopes.push(scopeDepth);
+		const Token token = previous;
+		rethrow(
+			statement();
+			consume(Token::Type::whileKeyword, "while");
+			consume(Token::Type::openParenthesis, "(");
+		);
+		while (!continueStack.isEmpty()) {
+			if (continueStack.top().scope <= scopeDepth) break;
+			const SizeType pos = continueStack.pop().line;
+			patchOP(pos, OPCode::JMP);
+			patchJMP(pos);
+		}
+		rethrow(
+			expression();
+			consume(Token::Type::closeParenthesis, ")");
+			consume(Token::Type::semicolon, ";");
+		);
+		if (typeStack.pop() != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Boolean expression inside 'do while' condition!",
+				token, ErrorCode::lgc
+			);
+		}
+		const SizeType exitJMP = emitJMP(OPCode::JIF);
+		emitJMB(loopStart);
+		patchJMP(exitJMP);
+		cycleScopes.decrease();
+		while (!breakStack.isEmpty()) {
+			if (breakStack.top().scope <= scopeDepth) break;
+			patchJMP(breakStack.pop().line);
+		}
+	}
+	void Compiler::repeatUntilStatement() {
+		const SizeType loopStart = sourcePosition();
+		cycleScopes.push(scopeDepth);
+		const Token token = previous;
+		rethrow(
+			statement();
+			consume(Token::Type::untilKeyword, "until");
+			consume(Token::Type::openParenthesis, "(");
+		);
+		while (!continueStack.isEmpty()) {
+			if (continueStack.top().scope <= scopeDepth) break;
+			const SizeType pos = continueStack.pop().line;
+			patchOP(pos, OPCode::JMP);
+			patchJMP(pos);
+		}
+		rethrow(
+			expression();
+			consume(Token::Type::closeParenthesis, ")");
+			consume(Token::Type::semicolon, ";");
+		);
+		if (typeStack.pop() != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Boolean expression inside 'repeat until' condition!",
+				token, ErrorCode::lgc
+			);
+		}
+		const SizeType exitJMP = emitJMP(OPCode::JIT);
+		emitJMB(loopStart);
+		patchJMP(exitJMP);
+		cycleScopes.decrease();
+		while (!breakStack.isEmpty()) {
+			if (breakStack.top().scope <= scopeDepth) break;
+			patchJMP(breakStack.pop().line);
+		}
+	}
+	void Compiler::loopStatement() {
+		const SizeType loopStart = sourcePosition();
+		cycleScopes.push(scopeDepth);
+		rethrow(statement());
+		emitJMB(loopStart);
 		cycleScopes.decrease();
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;

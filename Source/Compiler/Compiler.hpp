@@ -141,6 +141,9 @@ namespace Spin {
 		void ifStatement();
 		void whileStatement();
 		void untilStatement();
+		void doWhileStatement();
+		void repeatUntilStatement();
+		void loopStatement();
 		void breakStatement();
 		void continueStatement();
 		void swapStatement();
