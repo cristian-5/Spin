@@ -13,13 +13,15 @@ High level programming language for *research* in
 **Quantum Computing** built in *c++*.
 
 The **Virtual Machine** and the **Compiler** are
-being implemented right now.
+under development right now.
 We aim to create a powerful language.
 
-The quantum part of the language is currently
-under development, Dirac notation has been
-implemented in the interpreter, but the
-**VM** doesn't support them yet.
+The quantum part of the language is not ready yet,
+Dirac notation has been implemented in the lexer and
+preprocessor, but the **VM** doesn't support it yet.
+
+I'm speeding up the development process since this
+will be my thesis.
 
 ## A taste of spin
 
@@ -68,8 +70,8 @@ The documentation contains the language syntax specification.
 ## Code Contribution
 
 **Attention!** This project is currently under development and
-we only completed 20% of the total tasks. We are working on the
-*Virtual Machine*.
+we only completed 30% of the total tasks. We are working on the
+*Virtual Machine* and on the *Quantum System*.
 
 **New Contributors are WELCOME**, so if you're a skilled dev
 feel free to contact me for joining our team.
@@ -97,33 +99,3 @@ sure that our source will be successfully compiled with them.
 We recommend using *clang++* on **macOS** and **Linux**.
 
 The recommended version of *clang++* (**LLVM**) is 9.0.0.
-
-### Ninja macOS Compilation
-
-You can test the language with the following program:
-
-If you don't have the small *ninja* build system installed:
-
-``` bash
-brew install ninja
-```
-
-From the *Terminal* change the current directory to
-the Spin Source directory.
-Execute the following to compile using **clang++** (9.0.0):
-
-``` bash
-cd Source
-ninja
-```
-
-The ninja build system will compile
-and link everything for you.
-
-This creates a `Build` folder in the same directory
-and a `Spin` executable file; run the following
-command to execute it.
-
-``` bash
-./Spin
-```
