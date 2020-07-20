@@ -577,10 +577,57 @@ namespace Spin {
 			argument = search -> second.index;
 		}
 		const Boolean canAssign = assignmentStack.top();
-		if (canAssign && match(Token::Type::equal)) {
+		if (canAssign && matchAssignment()) {
+			// Takes care of operation assignments:
 			const Token token = previous;
+			OPCode o = OPCode::RST;
+			Token::Type t;
+			switch (token.type) {
+				case      Token::Type::plusEqual: o = OPCode::ADD; t = Token::Type::plus; break;
+				case     Token::Type::minusEqual: o = OPCode::SUB; t = Token::Type::minus;break;
+				case      Token::Type::pipeEqual: o = OPCode::BWO; t = Token::Type::pipe;break;
+				case      Token::Type::starEqual: o = OPCode::MUL; t = Token::Type::star; break;
+				case     Token::Type::slashEqual: o = OPCode::DIV; t = Token::Type::slash; break;
+				case Token::Type::ampersandEqual: o = OPCode::BWA; t = Token::Type::ampersand; break;
+				case   Token::Type::modulusEqual: o = OPCode::MOD; t = Token::Type::modulus; break;
+				case    Token::Type::dollarEqual: o = OPCode::BWX; t = Token::Type::dollar; break;
+				default: break;
+			}
+			// If we have an operation assignment:
+			if (o != OPCode::RST) {
+				// Get the item before mutation:
+				emitOperation({ GET, { .index = (UInt64)argument } });
+			}
 			rethrow(expression());
 			Type typeB = typeStack.pop();
+			// If we have an operation assignment:
+			if (o != OPCode::RST) {
+				const Types types = runtimeCompose(typeA, typeB);
+				auto search = infix.find(
+					runtimeCompose(t, typeA, typeB)
+				);
+				if (search == infix.end()) {
+					throw Program::Error(
+						currentUnit,
+						"Mutation assignment operator '" + token.lexeme +
+						"' doesn't support operands of type '" +
+						Converter::typeToString(typeA) + "' and '" +
+						Converter::typeToString(typeB) + "'!",
+						token, ErrorCode::typ
+					);
+				}
+				emitOperation({ o, { .types = types } });
+				// Emitting eventual exceptions for throwing operators.
+				if (o == OPCode::DIV || o == OPCode::MOD) {
+					emitException(Program::Error(
+						currentUnit,
+						"Mutation assignment operator '" + token.lexeme +
+						"' threw division by zero!",
+						token, ErrorCode::evl
+					));
+				}
+				typeB = search -> second;
+			}
 			if (typeA != typeB) {
 				// Since we're working with B -> A:
 				auto casting = implicitCast.find(
@@ -604,9 +651,7 @@ namespace Spin {
 				}
 			}
 			emitOperation({ SET, { .index = (UInt64)argument } });
-		} else {
-			emitOperation({ GET, { .index = (UInt64)argument } });
-		}
+		} else emitOperation({ GET, { .index = (UInt64)argument } });
 		typeStack.push(typeA);
 	}
 	void Compiler::block() {
@@ -1112,7 +1157,7 @@ namespace Spin {
 			rethrow((this ->* infixRule)());
 		}
 		const Token token = previous;
-		if (canAssign && match(Token::Type::equal)) {
+		if (canAssign && matchAssignment()) {
 			throw Program::Error(
 				currentUnit,
 				"Found invalid assignment target '" +
@@ -1135,6 +1180,17 @@ namespace Spin {
 		if (check(Token::Type::endFile)) return check(type);
 		if (!check(type)) return false;
 		advance(); return true;
+	}
+	inline Boolean Compiler::matchAssignment() {
+		return match(Token::Type::equal)          ||
+			   match(Token::Type::plusEqual)      ||
+			   match(Token::Type::minusEqual)     ||
+			   match(Token::Type::pipeEqual)      ||
+			   match(Token::Type::starEqual)      ||
+			   match(Token::Type::slashEqual)     ||
+			   match(Token::Type::ampersandEqual) ||
+			   match(Token::Type::modulusEqual)   ||
+			   match(Token::Type::dollarEqual);
 	}
 	inline Boolean Compiler::check(Token::Type type) {
 		return current.type == type;

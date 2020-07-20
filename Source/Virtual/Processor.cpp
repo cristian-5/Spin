@@ -38,19 +38,18 @@
 		T.find(data.as.types) -> second(a, b) \
 	)
 
-#define binaryExceptionCase(T)                    \
-	b = stack.pop();                              \
-	a = stack.pop();                              \
-	try {                                         \
-		stack.push(                               \
-			T.find(data.as.types) -> second(a, b) \
-		);                                        \
-	} catch (Exception & e) {                     \
-		auto search = program -> errors.find(ip); \
-		if (search != program -> errors.end()) {  \
-			throw search -> second;               \
-		} else return;                            \
-	}
+#define binaryExceptionCase(T)                     \
+	b = stack.pop();                               \
+	a = stack.pop();                               \
+	try {                                          \
+		a = T.find(data.as.types) -> second(a, b); \
+	} catch (Exception & e) {                      \
+		auto search = program -> errors.find(ip);  \
+		if (search != program -> errors.end()) {   \
+			throw search -> second;                \
+		} else return;                             \
+	}                                              \
+	stack.push(a);
 
 #define unaryCase(T)                      \
 	a = stack.pop();                      \

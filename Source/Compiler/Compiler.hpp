@@ -153,6 +153,7 @@ namespace Spin {
 		void parsePrecedence(Precedence precedence);
 
 		inline Boolean match(Token::Type type);
+		inline Boolean matchAssignment();
 		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);

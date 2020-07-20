@@ -56,7 +56,6 @@ namespace Spin {
 			starEqual,
 			slashEqual,
 			ampersandEqual,
-			hatEqual,
 			modulusEqual,
 			dollarEqual,
 			star,

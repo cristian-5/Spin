@@ -176,9 +176,7 @@ namespace Spin {
 						unknown.push_back('\x80');
 					}
 				} else unknown.push_back(c); break;
-			case '^':
-				if (match('=')) addToken("^=", Token::Type::hatEqual);
-				else addToken("^", Token::Type::hat); break;
+			case '^': addToken("^", Token::Type::hat); break;
 			case '?': addToken("?", Token::Type::questionMark); break;
 			case ' ': case '\r': case '\t': case '\n': break;
 			default: 
