@@ -1700,7 +1700,13 @@ namespace Spin {
 				break;
 				case OPCode::PRN: immutableCase(print); break;
 				case OPCode::NLN: OStream << endLine; break;
-				case OPCode::HLT: break; // TODO: set 'return;'.
+				case OPCode::HLT:
+					// Free:
+					stack.clear();
+					freeLiterals(program);
+					freeObjects();
+					return;
+				break;
 				default: break; // TODO: Exception.
 			}
 		}
