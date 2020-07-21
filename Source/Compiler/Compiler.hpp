@@ -144,6 +144,7 @@ namespace Spin {
 		void doWhileStatement();
 		void repeatUntilStatement();
 		void loopStatement();
+		void forStatement();
 		void breakStatement();
 		void continueStatement();
 		void swapStatement();
@@ -168,6 +169,8 @@ namespace Spin {
 		inline void patchJMP(SizeType jmp);
 		inline void patchJMB(SizeType pos, SizeType jmb);
 		inline void patchOP(SizeType op, OPCode code);
+		inline Array<ByteCode> cutCodes(SizeType cut);
+		inline void pasteCodes(Array<ByteCode> codes);
 		inline void beginScope();
 		inline void endScope();
 

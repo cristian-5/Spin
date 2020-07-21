@@ -399,6 +399,7 @@ namespace Spin {
 		switch (current.type) {
 			case       Token::ifKeyword: advance(); ifStatement(); break;
 			case    Token::printKeywork: advance(); printStatement(); break;
+			case      Token::forKeyword: advance(); forStatement(); break;
 			case    Token::whileKeyword: advance(); whileStatement(); break;
 			case    Token::untilKeyword: advance(); untilStatement(); break;
 			case       Token::doKeyword: advance(); doWhileStatement(); break;
@@ -1018,6 +1019,56 @@ namespace Spin {
 			patchJMB(pos, loopStart);
 		}
 	}
+	void Compiler::forStatement() {
+		beginScope();
+		cycleScopes.push(scopeDepth);
+		const Token token = previous;
+		rethrow(consume(Token::Type::openParenthesis, "("));
+		if (match(Token::Type::basicType)) {
+			rethrow(variable());
+			// Variable already consumes ';'.
+		} else {
+			rethrow(
+				expression();
+				emitOperation(OPCode::POP);
+				consume(Token::Type::semicolon, ";");
+			);
+			typeStack.decrease();
+		}
+		const SizeType loopStart = sourcePosition();
+		rethrow(expression());
+		rethrow(consume(Token::Type::semicolon, ";"));
+		if (typeStack.pop() != Type::BooleanType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Boolean expression inside 'for' condition!",
+				token, ErrorCode::lgc
+			);
+		}
+		const SizeType exitJMP = emitJMP(OPCode::JIF);
+		const SizeType cutExpression = sourcePosition();
+		rethrow(expression());
+		emitOperation(OPCode::POP);
+		typeStack.decrease();
+		rethrow(consume(Token::Type::closeParenthesis, ")"));
+		const Array<ByteCode> codes = cutCodes(cutExpression);
+		rethrow(statement()); // Body.
+		while (!continueStack.isEmpty()) {
+			if (continueStack.top().scope <= scopeDepth) break;
+			const SizeType pos = continueStack.pop().line;
+			patchOP(pos, OPCode::JMP);
+			patchJMP(pos);
+		}
+		pasteCodes(codes); // Increment.
+		emitJMB(loopStart);
+		patchJMP(exitJMP);
+		cycleScopes.decrease();
+		while (!breakStack.isEmpty()) {
+			if (breakStack.top().scope <= scopeDepth) break;
+			patchJMP(breakStack.pop().line);
+		}
+		endScope();
+	}
 	void Compiler::breakStatement() {
 		const Token token = previous;
 		if (cycleScopes.isEmpty()) {
@@ -1035,7 +1086,9 @@ namespace Spin {
 			localCount += 1;
 		}
 		if (localCount > 0) {
-			emitOperation({ OPCode::DSK, { .index = localCount } });
+			if (localCount == 1) {
+				emitOperation(OPCode::POP);
+			} else emitOperation({ OPCode::DSK, { .index = localCount } });
 		}
 		const SizeType breakJMP = emitJMP(OPCode::JMP);
 		breakStack.push({ breakJMP, scopeDepth });
@@ -1057,7 +1110,9 @@ namespace Spin {
 			localCount += 1;
 		}
 		if (localCount > 0) {
-			emitOperation({ OPCode::DSK, { .index = localCount } });
+			if (localCount == 1) {
+				emitOperation(OPCode::POP);
+			} else emitOperation({ OPCode::DSK, { .index = localCount } });
 		}
 		// We don't know yet if the jump is going to be
 		// JMB or JMP for a continue so we use a rest:
@@ -1259,6 +1314,24 @@ namespace Spin {
 	inline void Compiler::patchOP(SizeType op, OPCode code) {
 		program -> instructions[op].code = code;
 	}
+	inline Array<ByteCode> Compiler::cutCodes(SizeType cut) {
+		const SizeType position = sourcePosition();
+		if (cut >= position) return Array<ByteCode>();
+		Array<ByteCode> codes;
+		for (SizeType i = cut; i < position; i += 1) {
+			codes.push_back(program -> instructions.at(i));
+		}
+		program -> instructions.erase(
+			program -> instructions.begin() + cut,
+			program -> instructions.end()
+		);
+		return codes;
+	}
+	inline void Compiler::pasteCodes(Array<ByteCode> codes) {
+		for (ByteCode & code : codes) {
+			program -> instructions.push_back(code);
+		}
+	}
 	inline void Compiler::beginScope() {
 		scopeDepth += 1;
 	}
@@ -1271,7 +1344,9 @@ namespace Spin {
 			locals.pop_back();
 		}
 		if (!localCount) return;
-		emitOperation({ OPCode::DSK, { .index = localCount } });
+		if (localCount == 1) {
+			emitOperation(OPCode::POP);
+		} else emitOperation({ OPCode::DSK, { .index = localCount } });
 	}
 
 	inline SizeType Compiler::emitRST() {
@@ -1314,6 +1389,8 @@ namespace Spin {
 		);
 
 		reset();
+
+		program -> instructions.shrink_to_fit();
 
 		return program;
 	}
