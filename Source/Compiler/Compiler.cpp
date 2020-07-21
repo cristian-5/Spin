@@ -859,12 +859,23 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType thenJMP = emitJMP(OPCode::JIF);
+		const SizeType tempJMP = emitRST();
+		const SizeType cutPosition = sourcePosition();
 		rethrow(statement());
-		const SizeType elseJMP = emitJMP(OPCode::JMP);
-		patchJMP(thenJMP);
-		if (match(Token::Type::elseKeyword)) rethrow(statement());
-		patchJMP(elseJMP);
+		if (!match(Token::Type::elseKeyword)) {
+			// If statement with only then:
+			patchOP(tempJMP, OPCode::JIF);
+			patchJMP(tempJMP);
+		} else {
+			// If statement with then and else:
+			patchOP(tempJMP, OPCode::JIT);
+			Array<ByteCode> thenCodes = cutCodes(cutPosition);
+			rethrow(statement());
+			const SizeType endJMP = emitJMP(OPCode::JMP);
+			patchJMP(tempJMP);
+			pasteCodes(thenCodes);
+			patchJMP(endJMP);
+		}
 	}
 	void Compiler::whileStatement() {
 		const SizeType loopStart = sourcePosition();
