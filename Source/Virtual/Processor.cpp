@@ -1719,7 +1719,8 @@ namespace Spin {
 	void Processor::freeLiterals(Program * program) {
 		for (auto & object : program -> objects) {
 			switch (object.second) {
-				case Type::StringType: delete ((String *)object.first); break;
+				case Type::ComplexType: delete ((String *)object.first); break;
+				case  Type::StringType: delete ((Complex *)object.first); break;
 				default: break;
 			}
 		}
@@ -1728,7 +1729,8 @@ namespace Spin {
 	void Processor::freeObjects() {
 		for (auto & object : objects) {
 			switch (object.second) {
-				case Type::StringType: delete ((String *)object.first); break;
+				case Type::ComplexType: delete ((String *)object.first); break;
+				case  Type::StringType: delete ((String *)object.first); break;
 				default: break;
 			}
 		}
