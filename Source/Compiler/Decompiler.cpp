@@ -94,7 +94,6 @@ namespace Spin {
 			case Type::StringType: return "STR";
 			case Type::ArrayType: return "ARR";
 			case Type::VectorType: return "VEC";
-			case Type::RoutineType: return "RTN";
 			case Type::ClassType: return "DEF";
 			case Type::InstanceType: return "INS";
 			case Type::VoidType: return "VOD";

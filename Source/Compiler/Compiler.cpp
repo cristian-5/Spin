@@ -127,6 +127,8 @@ namespace Spin {
 		{ compose(Token::Type::plus, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::ComplexType, Type::ComplexType), Type::ComplexType },
 
+		{ compose(Token::Type::plus, Type::StringType, Type::CharacterType), Type::StringType },
+		{ compose(Token::Type::plus, Type::CharacterType, Type::StringType), Type::StringType },
 		{ compose(Token::Type::plus, Type::StringType, Type::StringType), Type::StringType },
 		// # - # ------------------------------------------------------------- # Composing Subtraction #
 		{ compose(Token::Type::minus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
@@ -596,14 +598,14 @@ namespace Spin {
 				case    Token::Type::dollarEqual: o = OPCode::BWX; t = Token::Type::dollar; break;
 				default: break;
 			}
-			// If we have an operation assignment:
+			// If we have an mutation assignment:
 			if (o != OPCode::RST) {
 				// Get the item before mutation:
 				emitOperation({ GET, { .index = (UInt64)argument } });
 			}
 			rethrow(expression());
 			Type typeB = typeStack.pop();
-			// If we have an operation assignment:
+			// If we have an mutation assignment:
 			if (o != OPCode::RST) {
 				const Types types = runtimeCompose(typeA, typeB);
 				auto search = infix.find(
@@ -1133,7 +1135,7 @@ namespace Spin {
 		continueStack.push({ continueJMP, scopeDepth });
 	}
 	void Compiler::procStatement() {
-
+		
 	}
 	void Compiler::funcStatement() {
 		

@@ -43,7 +43,7 @@ namespace Spin {
 
 		ArrayType,
 		VectorType,
-		RoutineType,
+
 		ClassType,
 		InstanceType,
 
@@ -132,7 +132,7 @@ namespace Spin {
 
 	class Program {
 		public:
-		class Error: Exception {
+		class Error : Exception {
 			private:
 			String file;
 			String message;

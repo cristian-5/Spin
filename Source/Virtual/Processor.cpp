@@ -361,6 +361,26 @@ namespace Spin {
 			})
 		},
 		{
+			compose(Type::StringType, Type::CharacterType),
+			makeBinaryFrom({
+				String * string = new String(*((String *)(l.pointer)));
+				string -> push_back((Character)r.byte);
+				objects.push_back({ string, Type::StringType });
+				return { .pointer = string };
+			})
+		},
+		{
+			compose(Type::CharacterType, Type::StringType),
+			makeBinaryFrom({
+				String * string = new String(
+					((Character)l.byte) +
+					(*((String *)(r.pointer)))
+				);
+				objects.push_back({ string, Type::StringType });
+				return { .pointer = string };
+			})
+		},
+		{
 			compose(Type::StringType, Type::StringType),
 			makeBinaryFrom({
 				String * string = new String(
