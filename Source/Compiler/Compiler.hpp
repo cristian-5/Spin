@@ -147,6 +147,8 @@ namespace Spin {
 		void forStatement();
 		void breakStatement();
 		void continueStatement();
+		void procStatement();
+		void funcStatement();
 		void swapStatement();
 
 		SizeType resolve(String & name, Local & local);

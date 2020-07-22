@@ -399,6 +399,8 @@ namespace Spin {
 		switch (current.type) {
 			case       Token::ifKeyword: advance(); ifStatement(); break;
 			case    Token::printKeywork: advance(); printStatement(); break;
+			case     Token::procKeyword: advance(); procStatement(); break;
+			case     Token::funcKeyword: advance(); funcStatement(); break;
 			case      Token::forKeyword: advance(); forStatement(); break;
 			case    Token::whileKeyword: advance(); whileStatement(); break;
 			case    Token::untilKeyword: advance(); untilStatement(); break;
@@ -1129,6 +1131,12 @@ namespace Spin {
 		// JMB or JMP for a continue so we use a rest:
 		const SizeType continueJMP = emitRST();
 		continueStack.push({ continueJMP, scopeDepth });
+	}
+	void Compiler::procStatement() {
+
+	}
+	void Compiler::funcStatement() {
+		
 	}
 	void Compiler::swapStatement() {
 		const Token token = previous;
