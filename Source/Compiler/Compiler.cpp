@@ -30,14 +30,15 @@ namespace Spin {
 
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
 	
-		{ Token::Type::openParenthesis, { & Compiler::grouping, nullptr, Precedence::none } },
+		{ Token::Type::openParenthesis, { & Compiler::grouping, & Compiler::call, Precedence::call } },
 
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
 
-		{ Token::Type::exclamationMark, { & Compiler::unary, nullptr, Precedence::none } },
-		{ Token::Type::tilde, { & Compiler::unary, nullptr, Precedence::term } },
-		{ Token::Type::minus, { & Compiler::unary, & Compiler::binary, Precedence::term } },
-		{ Token::Type::plus, { & Compiler::unary, & Compiler::binary, Precedence::term } },
+		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::term } },
+		{ Token::Type::exclamationMark, { & Compiler::prefix, nullptr, Precedence::none } },
+		{ Token::Type::tilde, { & Compiler::prefix, nullptr, Precedence::term } },
+		{ Token::Type::minus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
+		{ Token::Type::plus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
 		{ Token::Type::slash, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::modulus, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::star, { nullptr, & Compiler::binary, Precedence::factor } },
@@ -70,24 +71,7 @@ namespace Spin {
 
 	};
 
-	const Dictionary<Unary, Type> Compiler::prefix = {
-		{ compose(Token::Type::exclamationMark, Type::BooleanType), Type::BooleanType },
-		{ compose(Token::Type::minus, Type::CharacterType), Type::IntegerType },
-		{ compose(Token::Type::minus, Type::ByteType), Type::IntegerType },
-		{ compose(Token::Type::minus, Type::IntegerType), Type::IntegerType },
-		{ compose(Token::Type::minus, Type::RealType), Type::RealType },
-		{ compose(Token::Type::minus, Type::ImaginaryType), Type::ImaginaryType },
-		{ compose(Token::Type::minus, Type::ComplexType), Type::ComplexType },
-		{ compose(Token::Type::plus, Type::CharacterType), Type::CharacterType },
-		{ compose(Token::Type::plus, Type::ByteType), Type::ByteType },
-		{ compose(Token::Type::plus, Type::IntegerType), Type::IntegerType },
-		{ compose(Token::Type::plus, Type::RealType), Type::RealType },
-		{ compose(Token::Type::plus, Type::ImaginaryType), Type::ImaginaryType },
-		{ compose(Token::Type::plus, Type::ComplexType), Type::ComplexType },
-		{ compose(Token::Type::tilde, Type::IntegerType), Type::IntegerType },
-		{ compose(Token::Type::tilde, Type::ByteType), Type::ByteType },
-	};
-	const Dictionary<Binary, Type> Compiler::infix = {
+	const Dictionary<Binary, Type> Compiler::infixTable = {
 		// # & # ------------------------------------------------------------- # Composing Bitwise AND #
 		{ compose(Token::Type::ampersand, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::ampersand, Type::ByteType, Type::ByteType), Type::ByteType },
@@ -311,8 +295,27 @@ namespace Spin {
 		{ compose(Token::Type::majorEqual, Type::RealType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
 	};
-
-	const Dictionary<Types, Boolean> Compiler::implicitCast = {
+	const Dictionary<Unary, Type> Compiler::prefixTable = {
+		{ compose(Token::Type::exclamationMark, Type::BooleanType), Type::BooleanType },
+		{ compose(Token::Type::minus, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::RealType), Type::RealType },
+		{ compose(Token::Type::minus, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::minus, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::CharacterType), Type::CharacterType },
+		{ compose(Token::Type::plus, Type::ByteType), Type::ByteType },
+		{ compose(Token::Type::plus, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::RealType), Type::RealType },
+		{ compose(Token::Type::plus, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::plus, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::tilde, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::tilde, Type::ByteType), Type::ByteType },
+	};
+	const Dictionary<Unary, Type> Compiler::postfixTable = {
+		{ compose(Token::Type::conjugate, Type::ComplexType), Type::ComplexType },
+	};
+	const Dictionary<Types, Boolean> Compiler::castTable = {
 		// Basic Types:
 		{ compose(Type::CharacterType, Type::ByteType), false },
 		{ compose(Type::CharacterType, Type::IntegerType), true },
@@ -399,24 +402,26 @@ namespace Spin {
 	}
 	void Compiler::statement() {
 		switch (current.type) {
-			case       Token::ifKeyword: advance(); ifStatement(); break;
-			case    Token::printKeywork: advance(); printStatement(); break;
-			case     Token::procKeyword: advance(); procStatement(); break;
-			case     Token::funcKeyword: advance(); funcStatement(); break;
-			case      Token::forKeyword: advance(); forStatement(); break;
-			case    Token::whileKeyword: advance(); whileStatement(); break;
-			case    Token::untilKeyword: advance(); untilStatement(); break;
-			case       Token::doKeyword: advance(); doWhileStatement(); break;
-			case   Token::repeatKeyword: advance(); repeatUntilStatement(); break;
-			case     Token::loopKeyword: advance(); loopStatement(); break;
-			case    Token::breakKeyword: advance(); breakStatement(); break;
-			case Token::continueKeyword: advance(); continueStatement(); break;
-			case     Token::swapKeyword: advance(); swapStatement(); break;
-			case       Token::openBrace: advance();
+			case       Token::Type::ifKeyword: advance(); ifStatement(); break;
+			case    Token::Type::printKeywork: advance(); printStatement(); break;
+			case     Token::Type::procKeyword: advance(); procStatement(); break;
+			case     Token::Type::funcKeyword: advance(); funcStatement(); break;
+			case   Token::Type::returnKeyword: advance(); returnStatement(); break;
+			case      Token::Type::forKeyword: advance(); forStatement(); break;
+			case    Token::Type::whileKeyword: advance(); whileStatement(); break;
+			case    Token::Type::untilKeyword: advance(); untilStatement(); break;
+			case       Token::Type::doKeyword: advance(); doWhileStatement(); break;
+			case   Token::Type::repeatKeyword: advance(); repeatUntilStatement(); break;
+			case     Token::Type::loopKeyword: advance(); loopStatement(); break;
+			case    Token::Type::breakKeyword: advance(); breakStatement(); break;
+			case Token::Type::continueKeyword: advance(); continueStatement(); break;
+			case     Token::Type::swapKeyword: advance(); swapStatement(); break;
+			case       Token::Type::openBrace: advance();
 				beginScope();
 				rethrow(block());
 				endScope();
 			break;
+			case       Token::Type::semicolon: advance(); break;
 			default: rethrow(expressionStatement());
 		}
 	}
@@ -431,12 +436,11 @@ namespace Spin {
 		rethrow(consume(Token::Type::symbol, "identifier"));
 		const String id = previous.lexeme;
 
-		typeStack.push(typeA);
-
-		if (scopeDepth) local();
-		else global();
-
-		typeStack.decrease();
+		if (scopeDepth) {
+			rethrow(local(previous.lexeme, typeA));
+		} else {
+			rethrow(global(previous.lexeme, typeA));
+		}
 
 		if (match(Token::Type::equal)) {
 			const Token token = previous;
@@ -444,10 +448,10 @@ namespace Spin {
 			Type typeB = typeStack.pop();
 			if (typeA != typeB) {
 				// Since we're working with B -> A:
-				auto casting = implicitCast.find(
+				auto casting = castTable.find(
 					runtimeCompose(typeB, typeA)
 				);
-				if (casting == implicitCast.end()) {
+				if (casting == castTable.end()) {
 					throw Program::Error(
 						currentUnit,
 						"Assignment operator '=' doesn't support implicit cast of '" +
@@ -517,38 +521,6 @@ namespace Spin {
 
 		rethrow(consume(Token::Type::semicolon, ";"));
 	}
-	void Compiler::local() {
-		const String name = previous.lexeme;
-		for (Local local : locals) {
-			if (local.ready && local.depth < scopeDepth) {
-				break;
-			}
-			if (local.name == name) {
-				throw Program::Error(
-					currentUnit,
-					"Variable redefinition! The identifier '" +
-					name + "' was already declared in the current scope!",
-					previous, ErrorCode::lgc
-				);
-			}
-		}
-		locals.push_back({ name, scopeDepth, typeStack.top(), false });
-	}
-	void Compiler::global() {
-		const String id = previous.lexeme;
-		if (globals.find(id) != globals.end()) {
-			throw Program::Error(
-				currentUnit,
-				"Variable redefinition! The identifier '" +
-				id + "' was already declared with type '" +
-				Converter::typeToString(globals.at(id).type) +
-				"' in the current global scope!",
-				previous, ErrorCode::lgc
-			);
-		}
-		globals.insert({ id, { globalIndex++, typeStack.top(), false } });
-	}
-
 	void Compiler::identifier() {
 		OPCode GET, SET;
 		Local local;
@@ -608,10 +580,10 @@ namespace Spin {
 			// If we have an mutation assignment:
 			if (o != OPCode::RST) {
 				const Types types = runtimeCompose(typeA, typeB);
-				auto search = infix.find(
+				auto search = infixTable.find(
 					runtimeCompose(t, typeA, typeB)
 				);
-				if (search == infix.end()) {
+				if (search == infixTable.end()) {
 					throw Program::Error(
 						currentUnit,
 						"Mutation assignment operator '" + token.lexeme +
@@ -635,10 +607,10 @@ namespace Spin {
 			}
 			if (typeA != typeB) {
 				// Since we're working with B -> A:
-				auto casting = implicitCast.find(
+				auto casting = castTable.find(
 					runtimeCompose(typeB, typeA)
 				);
-				if (casting == implicitCast.end()) {
+				if (casting == castTable.end()) {
 					throw Program::Error(
 						currentUnit,
 						"Assignment operator '=' doesn't support implicit cast of '" +
@@ -665,6 +637,36 @@ namespace Spin {
 			declaration();
 		}
 		rethrow(consume(Token::Type::closeBrace, "}"));
+	}
+
+	void Compiler::local(String & name, Type type) {
+		for (Local local : locals) {
+			if (local.ready && local.depth < scopeDepth) {
+				break;
+			}
+			if (local.name == name) {
+				throw Program::Error(
+					currentUnit,
+					"Variable redefinition! The identifier '" +
+					name + "' was already declared in the current scope!",
+					previous, ErrorCode::lgc
+				);
+			}
+		}
+		locals.push_back({ name, scopeDepth, type, false });
+	}
+	void Compiler::global(String & name, Type type) {
+		if (globals.find(name) != globals.end()) {
+			throw Program::Error(
+				currentUnit,
+				"Variable redefinition! The identifier '" +
+				name + "' was already declared with type '" +
+				Converter::typeToString(globals.at(name).type) +
+				"' in the current global scope!",
+				previous, ErrorCode::lgc
+			);
+		}
+		globals.insert({ name, { globalIndex++, type, false } });
 	}
 
 	void Compiler::logicAND() {
@@ -710,6 +712,9 @@ namespace Spin {
 			consume(Token::Type::closeParenthesis, ")");
 		);
 	}
+	void Compiler::call() {
+		
+	}
 	void Compiler::ternary() {
 		Token token = previous;
 		ParseRule rule = getRule(token.type);
@@ -749,6 +754,26 @@ namespace Spin {
 
 		typeStack.push(typeA);
 	}
+	void Compiler::postfix() {
+		const Token token = previous;
+		Type type = typeStack.pop();
+		auto search = postfixTable.find(
+			runtimeCompose(token.type, type)
+		);
+		if (search == prefixTable.end()) {
+			throw Program::Error(
+				currentUnit,
+				"Unary operator '" + token.lexeme + "' doesn't support any operand of type '" +
+				Converter::typeToString(type) + "'!",
+				token, ErrorCode::typ
+			);
+		}
+		switch (token.type) {
+			case Token::Type::conjugate: emitOperation(OPCode::CCJ); break;
+			default: break;
+		}
+		typeStack.push(search -> second);
+	}
 	void Compiler::binary() {
 		const Token token = previous;
 		ParseRule rule = getRule(token.type);
@@ -756,10 +781,10 @@ namespace Spin {
 		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
 		Type typeB = typeStack.pop();
 		const Types types = runtimeCompose(typeA, typeB);
-		auto search = infix.find(
+		auto search = infixTable.find(
 			runtimeCompose(token.type, typeA, typeB)
 		);
-		if (search == infix.end()) {
+		if (search == infixTable.end()) {
 			throw Program::Error(
 				currentUnit,
 				"Binary operator '" + token.lexeme + "' doesn't support operands of type '" +
@@ -800,14 +825,14 @@ namespace Spin {
 		}
 		typeStack.push(search -> second);
 	}
-	void Compiler::unary() {
+	void Compiler::prefix() {
 		const Token token = previous;
 		rethrow(parsePrecedence(Precedence::unary));
 		Type type = typeStack.pop();
-		auto search = prefix.find(
+		auto search = prefixTable.find(
 			runtimeCompose(token.type, type)
 		);
-		if (search == prefix.end()) {
+		if (search == prefixTable.end()) {
 			throw Program::Error(
 				currentUnit,
 				"Unary operator '" + token.lexeme + "' doesn't support any operand of type '" +
@@ -829,6 +854,7 @@ namespace Spin {
 			expression();
 			consume(Token::Type::semicolon, ";");
 		);
+		typeStack.decrease();
 		emitOperation(OPCode::POP);
 	}
 	void Compiler::printStatement() {
@@ -1086,7 +1112,7 @@ namespace Spin {
 	}
 	void Compiler::breakStatement() {
 		const Token token = previous;
-		if (cycleScopes.isEmpty()) {
+		if (cycleScopes.isEmpty() || cycleScopes.top() == - 1) {
 			throw Program::Error(
 				currentUnit,
 				"Found unexpected 'break' statement ouside of a cycle!",
@@ -1094,23 +1120,13 @@ namespace Spin {
 			);
 		}
 		rethrow(consume(Token::Type::semicolon, ";"));
-		const SizeType cycleScope = cycleScopes.top();
-		SizeType localCount = 0;
-		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
-			if (locals[i].depth <= cycleScope) break;
-			localCount += 1;
-		}
-		if (localCount > 0) {
-			if (localCount == 1) {
-				emitOperation(OPCode::POP);
-			} else emitOperation({ OPCode::DSK, { .index = localCount } });
-		}
+		emitPOP(countLocals(cycleScopes.top()));
 		const SizeType breakJMP = emitJMP(OPCode::JMP);
 		breakStack.push({ breakJMP, scopeDepth });
 	}
 	void Compiler::continueStatement() {
 		const Token token = previous;
-		if (cycleScopes.isEmpty()) {
+		if (cycleScopes.isEmpty() || cycleScopes.top() == - 1) {
 			throw Program::Error(
 				currentUnit,
 				"Found unexpected 'break' statement ouside of a cycle!",
@@ -1118,27 +1134,86 @@ namespace Spin {
 			);
 		}
 		rethrow(consume(Token::Type::semicolon, ";"));
-		const SizeType cycleScope = cycleScopes.top();
-		SizeType localCount = 0;
-		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
-			if (locals[i].depth <= cycleScope) break;
-			localCount += 1;
-		}
-		if (localCount > 0) {
-			if (localCount == 1) {
-				emitOperation(OPCode::POP);
-			} else emitOperation({ OPCode::DSK, { .index = localCount } });
-		}
+		emitPOP(countLocals(cycleScopes.top()));
 		// We don't know yet if the jump is going to be
 		// JMB or JMP for a continue so we use a rest:
 		const SizeType continueJMP = emitRST();
 		continueStack.push({ continueJMP, scopeDepth });
 	}
 	void Compiler::procStatement() {
-		
+		const SizeType scope = scopeDepth;
+		beginVirtualScope();
+		cycleScopes.push(- 1);
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		const String id = previous.lexeme;
+		rethrow(consume(Token::Type::openParenthesis, "("));
+		Array<Type> types; String name;
+		if (!check(Token::Type::closeParenthesis)) {
+			do {
+				rethrow(consume(Token::Type::symbol, "identifier"));
+				name = previous.lexeme;
+				rethrow(consume(Token::Type::colon, ":"));
+				if (!match(Token::Type::basicType)) {
+					throw Program::Error(
+						currentUnit,
+						"Expected type in parameter declaration but found '" +
+						current.lexeme + "' instead!",
+						current, ErrorCode::lgc
+					);
+				}
+				// Notifying the compiler stack about the new variables:
+				const Type type = Converter::stringToType(previous.lexeme);
+				rethrow(local(name, type));
+				types.push_back(type);
+			} while (match(Token::Type::comma));
+		}
+		rethrow(consume(Token::Type::closeParenthesis, ")"));
+		rethrow(consume(Token::Type::openBrace, "{"));
+		Routine routine; routine.name = name;
+		routine.parameters = types; routine.scope = scope;
+		const SizeType routineIndex = routines.size();
+		// Notifying the return statements:
+		routineIndexes.push(routineIndex);
+		routines.push_back(routine);
+		// Moving the code in a temporary location to place
+		// it later after the whole code:
+		const SizeType cutPosition = sourcePosition();
+		rethrow(block());
+		emitPOP(countLocals(scope));
+		emitRET();
+		routines[routineIndex].code = cutCodes(cutPosition);
+		routineIndexes.decrease();
+		cycleScopes.decrease();
+		endVirtualScope();
 	}
 	void Compiler::funcStatement() {
 		
+	}
+	void Compiler::returnStatement() {
+		const Token token = previous;
+		if (routineIndexes.isEmpty()) {
+			throw Program::Error(
+				currentUnit,
+				"Found unexpected 'return' statement ouside of a function or procedure!",
+				token, ErrorCode::lgc
+			);
+		}
+		Routine routine = routines.at(routineIndexes.top());
+		if (match(Token::Type::semicolon)) {
+			// Procedure:
+			if (routine.returnType != Type::VoidType) {
+				throw Program::Error(
+					currentUnit,
+					"Return statement inside function scope must return a valid value!",
+					token, ErrorCode::lgc
+				);
+			}
+			emitPOP(countLocals(routine.scope));
+			emitRET();
+		} else {
+			// Function:
+			// expression, set routine.returns to true
+		}
 	}
 	void Compiler::swapStatement() {
 		const Token token = previous;
@@ -1290,6 +1365,19 @@ namespace Spin {
 			ErrorCode::syx
 		);
 	}
+	inline void Compiler::resolveRoutines() {
+		for (Routine routine : routines) {
+			pasteCodes(routine.code);
+		}
+	}
+	inline SizeType Compiler::countLocals(SizeType scope) {
+		SizeType localCount = 0;
+		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
+			if (locals[i].depth <= scope) break;
+			localCount += 1;
+		}
+		return localCount;
+	}
 	inline SizeType Compiler::sourcePosition() {
 		return program -> instructions.size();
 	}
@@ -1356,6 +1444,9 @@ namespace Spin {
 	inline void Compiler::beginScope() {
 		scopeDepth += 1;
 	}
+	inline void Compiler::beginVirtualScope() {
+		scopeDepth += 1;
+	}
 	inline void Compiler::endScope() {
 		scopeDepth -= 1;
 		SizeType localCount = 0;
@@ -1364,16 +1455,24 @@ namespace Spin {
 			localCount += 1;
 			locals.pop_back();
 		}
-		if (!localCount) return;
-		if (localCount == 1) {
-			emitOperation(OPCode::POP);
-		} else emitOperation({ OPCode::DSK, { .index = localCount } });
+		emitPOP(localCount);
 	}
-
+	inline void Compiler::endVirtualScope() {
+		scopeDepth -= 1;
+		while (locals.size() > 0 &&
+			   locals[locals.size() - 1].depth > scopeDepth) {
+			locals.pop_back();
+		}
+	}
 	inline SizeType Compiler::emitRST() {
 		const SizeType count = sourcePosition();
 		emitOperation(OPCode::RST);
 		return count;
+	}
+	inline void Compiler::emitPOP(SizeType n) {
+		if (!n) return;
+		if (n == 1) emitOperation(OPCode::POP);
+		else emitOperation({ OPCode::DSK, { .index = n } });
 	}
 	inline void Compiler::emitRET() {
 		emitOperation(OPCode::RET);
@@ -1407,6 +1506,7 @@ namespace Spin {
 			consume(Token::Type::beginFile, "Begin File");
 			while (!match(Token::Type::endFile)) declaration();
 			emitHLT();
+			resolveRoutines();
 		);
 
 		reset();

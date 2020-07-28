@@ -73,6 +73,10 @@ namespace Spin {
 		NEG, // negate
 		INV, // bitwise inversion
 
+		CCJ, // complex conjugate
+		VCJ, // vector conjugate
+		MCJ, // matrix conjugate
+
 		PST, // push true
 		PSF, // push false
 		PSI, // push infinity
@@ -100,6 +104,7 @@ namespace Spin {
 		BWO, // bitwise or
 		BWX, // bitwise xor
 
+		CAL, // call
 		RET, // return
 
 		CST, // casting

@@ -38,7 +38,7 @@ namespace Spin {
 
 		private:
 
-		typedef void (Compiler::*ParseFunction) ();
+		typedef void (Compiler::*ParseFunction)();
 
 		struct ParseRule {
 			ParseFunction prefix = nullptr;
@@ -63,6 +63,17 @@ namespace Spin {
 			SizeType scope = 0;
 		};
 
+		struct Routine {
+			String name;
+			Type returnType = Type::VoidType;
+			Array<Type> parameters;
+			Array<ByteCode> code;
+			Boolean returns = false;
+			SizeType scope;
+		};
+
+		Array<Routine> routines;
+
 		Array<Local> locals;
 		SizeType scopeDepth = 0;
 
@@ -81,13 +92,14 @@ namespace Spin {
 		Stack<Type> typeStack;
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
+		Stack<SizeType> routineIndexes;
 		Stack<Jump> breakStack;
 		Stack<Jump> continueStack;
 
-		static const Dictionary<Unary, Type> prefix;
-		static const Dictionary<Binary, Type> infix;
-
-		static const Dictionary<Types, Boolean> implicitCast;
+		static const Dictionary<Binary, Type> infixTable;
+		static const Dictionary<Unary, Type> prefixTable;
+		static const Dictionary<Unary, Type> postfixTable;
+		static const Dictionary<Types, Boolean> castTable;
 
 		static consteval Unary compose(Token::Type token, Type type) {
 			return (Unary)(((Unary) token << 8) | type);
@@ -123,18 +135,21 @@ namespace Spin {
 		void statement();
 		void declaration();
 		void variable();
-		void local();
-		void global();
 		void identifier();
 		void block();
+
+		void local(String & name, Type type);
+		void global(String & name, Type type);
 
 		void logicAND();
 		void logicOR();
 
 		void grouping();
+		void call();
 		void ternary();
+		void postfix();
 		void binary();
-		void unary();
+		void prefix();
 
 		void expressionStatement();
 		void printStatement();
@@ -149,6 +164,7 @@ namespace Spin {
 		void continueStatement();
 		void procStatement();
 		void funcStatement();
+		void returnStatement();
 		void swapStatement();
 
 		SizeType resolve(String & name, Local & local);
@@ -160,6 +176,8 @@ namespace Spin {
 		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);
+		inline void resolveRoutines();
+		inline SizeType countLocals(SizeType scope);
 		inline SizeType sourcePosition();
 		inline void emitException(Program::Error error);
 		inline void emitOperation(ByteCode code);
@@ -174,9 +192,11 @@ namespace Spin {
 		inline Array<ByteCode> cutCodes(SizeType cut);
 		inline void pasteCodes(Array<ByteCode> codes);
 		inline void beginScope();
+		inline void beginVirtualScope();
 		inline void endScope();
-
+		inline void endVirtualScope();
 		inline SizeType emitRST();
+		inline void emitPOP(SizeType n);
 		inline void emitRET();
 		inline void emitHLT();
 

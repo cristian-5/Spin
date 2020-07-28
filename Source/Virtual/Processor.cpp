@@ -1691,6 +1691,12 @@ namespace Spin {
 						stack.push({ .byte = (Byte)(~ a.byte) });
 					}
 				break;
+				case OPCode::CCJ:
+					a = stack.pop();
+					stack.push({ .pointer = new Complex(((Complex *)a.pointer) -> getConjugate()) });
+				break;
+				case OPCode::VCJ: break;
+				case OPCode::MCJ: break;
 				case OPCode::PST: stack.push({ .boolean = true }); break;
 				case OPCode::PSF: stack.push({ .boolean = false }); break;
 				case OPCode::PSI: stack.push({ .real = infinity }); break;
@@ -1713,7 +1719,8 @@ namespace Spin {
 				case OPCode::BWA: binaryCase(bitwiseAND); break;
 				case OPCode::BWO: binaryCase(bitwiseOR); break;
 				case OPCode::BWX: binaryCase(bitwiseXOR); break;
-				case OPCode::RET: break;
+				case OPCode::CAL: ip = data.as.index; call.push(ip); break;
+				case OPCode::RET: ip = call.pop(); break;
 				case OPCode::CST: 
 					a = stack.pop();
 					stack.push(cast.find(data.as.types) -> second(a));

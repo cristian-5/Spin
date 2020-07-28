@@ -118,6 +118,9 @@ namespace Spin {
 			case OPCode::MOD: typesOP("MOD", byte.as.types, Colour::blue, "modulus"); break;
 			case OPCode::NEG: unaryOP("NEG", byte.as.type, Colour::purple, "negation"); break;
 			case OPCode::INV: unaryOP("INV", byte.as.type, Colour::purple, "inversion"); break;
+			case OPCode::CCJ: aloneOP("CCJ", Colour::purple, "complex conjugate"); break;
+			case OPCode::VCJ: aloneOP("VCJ", Colour::purple, "vector conjugate"); break;
+			case OPCode::MCJ: aloneOP("VCJ", Colour::purple, "matrix conjugate"); break;
 			case OPCode::PST: aloneOP("PST", Colour::yellow, "push true"); break;
 			case OPCode::PSF: aloneOP("PSF", Colour::yellow, "push false"); break;
 			case OPCode::PSI: aloneOP("PSI", Colour::yellow, "push infinity"); break;
@@ -140,6 +143,7 @@ namespace Spin {
 			case OPCode::BWA: typesOP("BWA", byte.as.types, Colour::blue, "bitwise and"); break;
 			case OPCode::BWO: typesOP("BWO", byte.as.types, Colour::blue, "bitwise or"); break;
 			case OPCode::BWX: typesOP("BWX", byte.as.types, Colour::blue, "bitwise xor"); break;
+			case OPCode::CAL: jmptoOP("CAL", byte.as.index, "call"); break;
 			case OPCode::RET: aloneOP("RET", Colour::red, "return"); break;
 			case OPCode::CST: typesOP("CST", byte.as.types, Colour::orange, "cast"); break;
 			case OPCode::PRN: unaryOP("PRN", byte.as.type, Colour::peach, "print"); break;

@@ -21,6 +21,7 @@ namespace Spin {
 		Array<ByteCode> instructions;
 
 		Stack<Value> stack;
+		Stack<SizeType> call;
 		Array<Value> globals;
 
 		Processor() = default;
