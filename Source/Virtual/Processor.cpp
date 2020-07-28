@@ -1063,7 +1063,13 @@ namespace Spin {
 			makeBinaryFrom({
 				return { .byte = (Byte)(l.byte & r.byte) };
 			})
-		}
+		},
+		{
+			compose(Type::BooleanType, Type::BooleanType),
+			makeBinaryFrom({
+				return { .boolean = l.boolean && r.boolean };
+			})
+		},
 	};
 	DefineBinaryTable(bitwiseOR) = {
 		{
@@ -1083,7 +1089,13 @@ namespace Spin {
 			makeBinaryFrom({
 				return { .byte = (Byte)(l.byte | r.byte) };
 			})
-		}
+		},
+		{
+			compose(Type::BooleanType, Type::BooleanType),
+			makeBinaryFrom({
+				return { .boolean = l.boolean || r.boolean };
+			})
+		},
 	};
 	DefineBinaryTable(bitwiseXOR) = {
 		{

@@ -76,10 +76,12 @@ namespace Spin {
 		{ compose(Token::Type::ampersand, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::ampersand, Type::ByteType, Type::ByteType), Type::ByteType },
 		{ compose(Token::Type::ampersand, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::ampersand, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		// # | # ------------------------------------------------------------- # Composing Bitwise OR #
 		{ compose(Token::Type::pipe, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::pipe, Type::ByteType, Type::ByteType), Type::ByteType },
 		{ compose(Token::Type::pipe, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::pipe, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		// # $ # ------------------------------------------------------------- # Composing Bitwise XOR #
 		{ compose(Token::Type::dollar, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::dollarEqual, Type::ByteType, Type::ByteType), Type::ByteType },
