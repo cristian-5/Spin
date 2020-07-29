@@ -29,6 +29,9 @@ build      Build/Regex.o: compile ../Source/Utility/Regex.cpp       | $header
 
 build    Build/Complex.o: compile ../Source/Types/Complex.cpp       | $header
 
+build      Build/Wings.o: compile ../Source/Preprocessor/Wings.cpp  | $header $program $token
+
+build  Build/Libraries.o: compile ../Source/Compiler/Libraries.cpp  | $header
 build    Build/Program.o: compile ../Source/Compiler/Program.cpp    | $header $program $token
 build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp   | $header $stack $program $token
 build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $interface $header $program
@@ -41,4 +44,4 @@ build Build/Test.o: compile Test.cpp | $interface $header $program $token
 
 # Link:
 
-build Test: link Build/Test.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Complex.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o
+build Test: link Build/Test.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Complex.o Build/Wings.o Build/Libraries.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o

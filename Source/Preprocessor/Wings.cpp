@@ -25,6 +25,7 @@
 
 #include "../Manager/Manager.hpp"
 #include "../Lexer/Lexer.hpp"
+#include "../Compiler/Libraries.hpp"
 
 namespace Spin {
 
@@ -233,7 +234,7 @@ namespace Spin {
 		newTokens -> shrink_to_fit();
 		code -> tokens = newTokens;
 	}
-	Program * Wings::spread(String path) {
+	SourceCode * Wings::spread(String path) {
 
 		// Getting the main file:
 		String * file = nullptr;
@@ -296,7 +297,7 @@ namespace Spin {
 		// Delete wings but not their content:
 		delete wings;
 
-		return new Program(main, resolved, libs);
+		return new SourceCode(main, resolved, libs);
 
 	}
 

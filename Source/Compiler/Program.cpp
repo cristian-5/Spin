@@ -68,6 +68,8 @@ namespace Spin {
 			case ErrorCode::lxr: return "LXR";
 			case ErrorCode::ppr: return "PPR";
 			case ErrorCode::syx: return "SYX";
+			case ErrorCode::typ: return "TYP";
+			case ErrorCode::lgc: return "LGC";
 			case ErrorCode::evl: return "EVL";
 			default: return "UNK";
 		}

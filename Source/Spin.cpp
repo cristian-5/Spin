@@ -19,10 +19,9 @@
 #include "Common/Interface.hpp"
 
 #include "Manager/Manager.hpp"
-#include "Parser/Wings.hpp"
-#include "../Source/Aliases/Prototypes/SyntaxTree.hpp"
-#include "../Source/Aliases/Prototypes/Parser.hpp"
-#include "../Source/Aliases/Prototypes/Interpreter.hpp"
+#include "Preprocessor/Wings.hpp"
+#include "Compiler/Compiler.hpp"
+#include "Virtual/Processor.hpp"
 
 using namespace Spin;
 
@@ -74,35 +73,34 @@ Int32 main(Int32 argc, Character * argv[]) {
 		} break;
 	}
 
-	Parser * parser = Parser::self();
-	Interpreter * interpreter = Interpreter::self();
+	Compiler * compiler = Compiler::self();
+	Processor * processor = Processor::self();
 
+	SourceCode * code = nullptr;
 	Program * program = nullptr;
-	SyntaxTree * syntaxTree = nullptr;
 
 	try {
-		program = Wings::spread(main);
-		syntaxTree = parser -> parse(program);
-		interpreter -> evaluate(syntaxTree);
+		code = Wings::spread(main);
+		program = compiler -> compile(code);
+		processor -> run(program);
 	} catch (Program::Error & e) {
 		OStream << endLine << endLine << "% " << e.getErrorCode()
 				<< " Error on line " << e.getLine() << " of ['"
 				<< e.getFile() << "'] %" << endLine
 				<< e.getMessage() << endLine << endLine;
+		if (code) delete code;
 		if (program) delete program;
-		if (syntaxTree) delete syntaxTree;
 		return ExitCodes::failure;
 	} catch (Manager::BadFileException & b) {
 		OStream << endLine << endLine <<  "% PPR Catastrophic Event %"
 				<< endLine << "Couldn't open file ['"
 				<< b.getPath() << "']!" << endLine << endLine;
+		if (code) delete code;
 		if (program) delete program;
-		if (syntaxTree) delete syntaxTree;
 		return ExitCodes::failure;
 	}
 
-	delete program;
-	delete syntaxTree;
+	delete code; delete program;
 	
 	return ExitCodes::success;
 }

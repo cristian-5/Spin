@@ -4,8 +4,6 @@
 #ifndef SPIN_WINGS_HPP
 #define SPIN_WINGS_HPP
 
-#include "Exception.hpp"
-
 #include <vector>
 
 #include  "../Compiler/Program.hpp"
@@ -25,7 +23,7 @@ namespace Spin {
 		static void prototype(CodeUnit * code);
 		public:
 		Wings() = delete;
-		static Program * spread(String path);
+		static SourceCode * spread(String path);
 	};
 
 }

@@ -4,46 +4,45 @@
 cppFlags = -O3
 cppVersion = -std=c++2a
 
-rule build
-    command = clang++ -c $cppFlags -o $out $in $cppVersion
+header = ../Source/Common/Header.hpp
+interface = ../Source/Common/interface.hpp
+
+stack = ../Source/Utility/Stack.hpp
+
+token = ../Source/Token/Token.hpp
+program = ../Source/Compiler/Program.hpp
+
+rule compile
+    command = clang++ -g -c $cppFlags -o $out $in $cppVersion
 
 rule link
-    command = clang++ $cppFlags -o $out $in $cppVersion
+    command = clang++ $cppFlags -g -o $out $in $cppVersion
 
-# Dependencies:
+# Virtual Processor
 
-build      Build/Converter.o: build Interpreter/Converter.cpp
-build    Build/Environment.o: build Interpreter/Environment.cpp
-build    Build/Interpreter.o: build Interpreter/Interpreter.cpp
-build      Build/Libraries.o: build Interpreter/Libraries.cpp
-build      Build/Processor.o: build Interpreter/Processor.cpp
+build      Build/Token.o: compile ../Source/Token/Token.cpp         | $header $token
+build      Build/Lexer.o: compile ../Source/Lexer/Lexer.cpp         | $header $token
 
-build          Build/Regex.o: build Lexer/Regex.cpp
-build          Build/Lexer.o: build Lexer/Lexer.cpp
-build        Build/Manager.o: build Manager/Manager.cpp
+build    Build/Manager.o: compile ../Source/Manager/Manager.cpp     | $header
 
-build    Build/Expressions.o: build ASTree/Expressions.cpp
-build     Build/Statements.o: build ASTree/Statements.cpp
+build  Build/Converter.o: compile ../Source/Utility/Converter.cpp   | $header
+build      Build/Regex.o: compile ../Source/Utility/Regex.cpp       | $header
 
-build         Build/Parser.o: build Parser/Parser.cpp
-build        Build/Program.o: build Parser/Program.cpp
-build          Build/Wings.o: build Parser/Wings.cpp
+build    Build/Complex.o: compile ../Source/Types/Complex.cpp       | $header
 
-build          Build/Token.o: build Token/Token.cpp
+build      Build/Wings.o: compile ../Source/Preprocessor/Wings.cpp  | $header $program $token
 
-build          Build/Array.o: build Types/Array.cpp
-build          Build/Basic.o: build Types/Basic.cpp
-build          Build/Class.o: build Types/Class.cpp
-build        Build/Complex.o: build Types/Complex.cpp
-build         Build/Object.o: build Types/Object.cpp
-# build        Build/Qubit.o: build Types/Qubit.cpp | Aliases/Prototypes/Chaos.hpp
-build       Build/Routines.o: build Types/Routines.cpp
-build         Build/Vector.o: build Types/Vector.cpp
+build  Build/Libraries.o: compile ../Source/Compiler/Libraries.cpp  | $header
+build    Build/Program.o: compile ../Source/Compiler/Program.cpp    | $header $program $token
+build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp   | $header $stack $program $token
+build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $interface $header $program
+
+build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp   | $interface $header $stack $program
 
 # Main:
 
-build  Build/Spin.o: build Spin.cpp
+build Build/Spin.o: compile Spin.cpp | $interface $header $program $token
 
 # Link:
 
-build Spin: link Build/Spin.o Build/Converter.o Build/Environment.o Build/Interpreter.o Build/Libraries.o Build/Processor.o Build/Regex.o Build/Lexer.o Build/Manager.o Build/Expressions.o Build/Statements.o Build/Parser.o Build/Program.o Build/Wings.o Build/Token.o Build/Array.o Build/Basic.o Build/Class.o Build/Complex.o Build/Object.o Build/Routines.o Build/Vector.o
+build Spin: link Build/Spin.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Complex.o Build/Wings.o Build/Libraries.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o

@@ -19,7 +19,7 @@
 #include "../Source/Common/Interface.hpp"
 
 #include "../Source/Manager/Manager.hpp"
-#include "../Source/Lexer/Lexer.hpp"
+#include "../Source/Preprocessor/Wings.hpp"
 #include "../Source/Compiler/Compiler.hpp"
 #include "../Source/Compiler/Decompiler.hpp"
 #include "../Source/Virtual/Processor.hpp"
@@ -28,36 +28,35 @@ using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	String * input = Manager::stringFromFile("Examples/Test.spin");
+	Compiler * compiler = Compiler::self();
+	Processor * processor = Processor::self();
 
-	auto lexer = Lexer::self();
-
-	SourceCode * code = new SourceCode(
-		new CodeUnit(
-			lexer -> tokenise(input),
-			new String("Virtual File"),
-			input
-		),
-		nullptr, nullptr
-	);
-
-	auto compiler = Compiler::self();
+	SourceCode * code = nullptr;
 	Program * program = nullptr;
-	try { program = compiler -> compile(code); }
-	catch (Program::Error & error) {
-		OStream << "Error: " << error.getMessage() << endLine;
+
+	try {
+		code = Wings::spread("Examples/Test.spin");
+		program = compiler -> compile(code);
+		Decompiler::decompile(program -> instructions);
+		processor -> run(program);
+	} catch (Program::Error & e) {
+		OStream << endLine << endLine << "% " << e.getErrorCode()
+				<< " Error on line " << e.getLine() << " of ['"
+				<< e.getFile() << "'] %" << endLine
+				<< e.getMessage() << endLine << endLine;
+		if (code) delete code;
+		if (program) delete program;
+		return ExitCodes::failure;
+	} catch (Manager::BadFileException & b) {
+		OStream << endLine << endLine <<  "% PPR Catastrophic Event %"
+				<< endLine << "Couldn't open file ['"
+				<< b.getPath() << "']!" << endLine << endLine;
+		if (code) delete code;
+		if (program) delete program;
 		return ExitCodes::failure;
 	}
 
-	Decompiler::decompile(program -> instructions);
-
-	auto processor = Processor::self();
-
-	try { processor -> run(program); }
-	catch (Program::Error & error) {
-		OStream << "Error: " << error.getMessage() << endLine;
-		return ExitCodes::failure;
-	}
+	delete code; delete program;
 
 	return ExitCodes::success;
 }
