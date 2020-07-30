@@ -11,20 +11,6 @@
 
 namespace Spin {
 
-	class CodeUnit {
-		public:
-		Array<Token> * tokens;
-		String * name;
-		String * contents;
-		CodeUnit(Array<Token> * tokens,
-				 String * name,
-				 String * contents);
-		~CodeUnit();
-	};
-
-	enum ErrorCode : UInt8 {
-		flm, lxr, ppr, syx, typ, lgc, evl
-	};
 
 	// Never change the order of types
 	// since it's used for type check.
@@ -49,6 +35,33 @@ namespace Spin {
 
 		VoidType,
 
+	};
+
+	struct Parameter {
+		String name;
+		Type type;
+	};
+
+	struct Prototype {
+		String name;
+		Array<Parameter> parameters;
+		Type returnType = Type::VoidType;
+	};
+
+	class CodeUnit {
+		public:
+		Array<Token> * tokens;
+		String * name;
+		String * contents;
+		Array<Prototype> prototypes;
+		CodeUnit(Array<Token> * tokens,
+				 String * name,
+				 String * contents);
+		~CodeUnit();
+	};
+
+	enum ErrorCode : UInt8 {
+		flm, lxr, ppr, syx, typ, lgc, evl
 	};
 
 	enum OPCode : UInt8 {

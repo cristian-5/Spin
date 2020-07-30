@@ -46,6 +46,10 @@ namespace Spin {
 		return type >= Type::braketSymbol &&
 			   type <= Type::ketbraSymbol;
 	}
+	Boolean Token::isRoutineKeyword() const {
+		return type == Type::funcKeyword ||
+			   type == Type::procKeyword;
+	}
 
 }
 

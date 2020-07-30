@@ -147,6 +147,7 @@ namespace Spin {
 		Boolean isTypeBasicType() const;
 		Boolean isTypeType() const;
 		Boolean isTypeBraKet() const;
+		Boolean isRoutineKeyword() const;
 	};
 
 }
