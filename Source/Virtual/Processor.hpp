@@ -61,7 +61,6 @@ namespace Spin {
 		static const Real infinity;
 		static const Real undefined;
 
-		void freeLiterals(Program * program);
 		void freeObjects();
 
 		public:

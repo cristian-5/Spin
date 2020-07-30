@@ -30,6 +30,7 @@ namespace Spin {
 			peach,
 		};
 
+		static void tableOP(String o, String s);
 		static void aloneOP(String o, Colour c, String h);
 		static void constOP(String o, Int64 i, Colour c);
 		static void typesOP(String o, Types x, Colour c, String h);
@@ -42,8 +43,8 @@ namespace Spin {
 
 		Decompiler() = delete;
 
-		static void decompile(ByteCode byte);
-		static void decompile(Array<ByteCode> source);
+		static void decompile(Program * program, SizeType index);
+		static void decompile(Program * program);
 
 	};
 

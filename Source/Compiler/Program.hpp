@@ -56,6 +56,7 @@ namespace Spin {
 		RST, // rest
 
 		CNS, // constant
+		STR, // push string
 
 		GLB, // global definition
 		GGB, // get global
@@ -81,6 +82,8 @@ namespace Spin {
 		PSF, // push false
 		PSI, // push infinity
 		PSU, // push undefined
+		PEC, // push empty complex
+		PES, // push empty string
 		POP, // pop
 		DSK, // decrease stack
 
@@ -157,7 +160,7 @@ namespace Spin {
 		};
 		Program() = default;
 		Array<ByteCode> instructions;
-		Array<Pair<Pointer, Type>> objects;
+		Array<String> strings;
 		Dictionary<SizeType, Program::Error> errors;
 	};
 

@@ -358,11 +358,7 @@ namespace Spin {
 			1, previous.lexeme.length() - 2
 		);
 		literal = Converter::escapeString(literal);
-		const Pointer ptr = new String(literal);
-		emitOperation(
-			{ OPCode::CNS, { .value = { .pointer = ptr } } }
-		);
-		emitObject(ptr, Type::StringType);
+		emitString(literal);
 		typeStack.push(Type::StringType);
 	}
 	void Compiler::imaginaryLiteral() {
@@ -484,20 +480,8 @@ namespace Spin {
 				case Type::ImaginaryType: emitOperation({
 					OPCode::CNS, { .value = { .real = 0.0 } }
 				}); break;
-				case   Type::ComplexType: {
-					const Pointer ptr = new Complex();
-					emitObject(ptr, Type::ComplexType);
-					emitOperation({
-						OPCode::CNS, { .value = { .pointer = ptr } }
-					});
-				} break;
-				case    Type::StringType: {
-					const Pointer ptr = new String();
-					emitObject(ptr, Type::StringType);
-					emitOperation({
-						OPCode::CNS, { .value = { .pointer = ptr } }
-					});
-				} break;
+				case   Type::ComplexType: emitOperation(OPCode::PEC); break;
+				case    Type::StringType: emitOperation(OPCode::PES); break;
 				default: emitOperation({
 					OPCode::CNS, { .value = { .integer = 0 } }
 				}); break;
@@ -1397,8 +1381,20 @@ namespace Spin {
 			.value = { .integer = 0 } }
 		});
 	}
-	inline void Compiler::emitObject(Pointer ptr, Type type) {
-		program -> objects.push_back({ ptr, type });
+	inline void Compiler::emitString(String s) {
+		if (s.empty()) {
+			emitOperation(OPCode::PES);
+			return;
+		}
+		auto search = strings.find(s);
+		if (search != strings.end()) {
+			emitOperation({ OPCode::STR, { .index = search -> second } });
+			return;
+		}
+		const SizeType position = program -> strings.size();
+		strings.insert({ s, index });
+		program -> strings.push_back(s);
+		emitOperation({ OPCode::STR, { .index = position } });
 	}
 	inline void Compiler::emitGlobal(Value value) {
 		program -> instructions.push_back(
@@ -1491,6 +1487,8 @@ namespace Spin {
 		scopeDepth = 0;
 		cycleScopes.clear();
 		breakStack.clear();
+		routineIndexes.clear();
+		strings.clear();
 	}
 
 	Program * Compiler::compile(SourceCode * source) {
@@ -1514,6 +1512,7 @@ namespace Spin {
 		reset();
 
 		program -> instructions.shrink_to_fit();
+		program -> strings.shrink_to_fit();
 
 		return program;
 	}

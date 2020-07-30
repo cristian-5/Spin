@@ -43,6 +43,15 @@ namespace Spin {
 		 [Decompiler::Colour::peach] = { "\x1B[38;5;211m" },
 	};
 
+	void Decompiler::tableOP(String o, String s) {
+		if (s.length() > 16) {
+			s = "\"" + s.substr(0, 15) + "...\"";
+		} else {
+			s = "\"" + s + "\"";
+		}
+		OStream << "    " << colours[Colour::green] << o << reset
+				<< "    " << colours[Colour::acqua] << s << reset << endLine;
+	}
 	void Decompiler::aloneOP(String o, Colour c, String h) {
 		OStream << "    " << colours[c] << o << reset
 				<< "                        " << colours[Colour::gray]
@@ -101,10 +110,12 @@ namespace Spin {
 		}
 	}
 
-	void Decompiler::decompile(ByteCode byte) {
+	void Decompiler::decompile(Program * program, SizeType index) {
+		const ByteCode byte = program -> instructions.at(index);
 		switch (byte.code) {
 			case OPCode::RST: aloneOP("RST", Colour::yellow, "rest"); break;
 			case OPCode::CNS: constOP("CNS", byte.as.value.integer, Colour::green); break;
+			case OPCode::STR: tableOP("STR", program -> strings.at(byte.as.index)); break;
 			case OPCode::GLB: constOP("GLB", byte.as.value.integer, Colour::green); break;
 			case OPCode::GGB: constOP("GGB", byte.as.index, Colour::blue); break;
 			case OPCode::SGB: constOP("SGB", byte.as.index, Colour::blue); break;
@@ -125,6 +136,8 @@ namespace Spin {
 			case OPCode::PSF: aloneOP("PSF", Colour::yellow, "push false"); break;
 			case OPCode::PSI: aloneOP("PSI", Colour::yellow, "push infinity"); break;
 			case OPCode::PSU: aloneOP("PSU", Colour::yellow, "push undefined"); break;
+			case OPCode::PEC: aloneOP("PEC", Colour::yellow, "push empty Complex"); break;
+			case OPCode::PES: aloneOP("PES", Colour::yellow, "push empty String"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
 			case OPCode::DSK: constOP("DSK", byte.as.value.integer, Colour::yellow); break;
 			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;
@@ -153,9 +166,11 @@ namespace Spin {
 		}
 		OStream << decimal;
 	}
-	void Decompiler::decompile(Array<ByteCode> source) {
+	void Decompiler::decompile(Program * program) {
 		OStream << endLine;
-		for (auto & i : source) decompile(i);
+		for (SizeType i = 0; i < program -> instructions.size(); i += 1) {
+			decompile(program, i);
+		}
 		OStream << endLine;
 	}
 

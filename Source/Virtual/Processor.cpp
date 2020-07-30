@@ -1675,6 +1675,13 @@ namespace Spin {
 			switch (data.code) {
 				case OPCode::RST: continue;
 				case OPCode::CNS: stack.push(data.as.value); break;
+				case OPCode::STR:
+					stack.push({
+						.pointer = new String(program -> strings.at(
+							data.as.index
+						))
+					});
+				break;
 				case OPCode::GLB: globals.push_back(data.as.value); break;
 				case OPCode::GGB: stack.push(globals[data.as.index]); break;
 				case OPCode::SGB: globals[data.as.index] = stack.top(); break;
@@ -1713,6 +1720,8 @@ namespace Spin {
 				case OPCode::PSF: stack.push({ .boolean = false }); break;
 				case OPCode::PSI: stack.push({ .real = infinity }); break;
 				case OPCode::PSU: stack.push({ .real = undefined }); break;
+				case OPCode::PEC: stack.push({ .pointer = new Complex() }); break;
+				case OPCode::PES: stack.push({ .pointer = new String() }); break;
 				case OPCode::POP: stack.decrease(); break;
 				case OPCode::DSK: stack.decrease(data.as.index); break;
 				case OPCode::JMP: ip += data.as.index; break;
@@ -1742,7 +1751,6 @@ namespace Spin {
 				case OPCode::HLT:
 					// Free:
 					stack.clear();
-					freeLiterals(program);
 					freeObjects();
 					return;
 				break;
@@ -1751,20 +1759,9 @@ namespace Spin {
 		}
 		// Free:
 		stack.clear();
-		freeLiterals(program);
 		freeObjects();
 	}
 
-	void Processor::freeLiterals(Program * program) {
-		for (auto & object : program -> objects) {
-			switch (object.second) {
-				case Type::ComplexType: delete ((String *)object.first); break;
-				case  Type::StringType: delete ((Complex *)object.first); break;
-				default: break;
-			}
-		}
-		program -> objects.clear();
-	}
 	void Processor::freeObjects() {
 		for (auto & object : objects) {
 			switch (object.second) {

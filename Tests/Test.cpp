@@ -37,7 +37,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 	try {
 		code = Wings::spread("Examples/Test.spin");
 		program = compiler -> compile(code);
-		Decompiler::decompile(program -> instructions);
+		Decompiler::decompile(program);
 		processor -> run(program);
 	} catch (Program::Error & e) {
 		OStream << endLine << endLine << "% " << e.getErrorCode()

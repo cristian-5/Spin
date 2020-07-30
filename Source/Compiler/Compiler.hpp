@@ -96,6 +96,8 @@ namespace Spin {
 		Stack<Jump> breakStack;
 		Stack<Jump> continueStack;
 
+		Dictionary<String, SizeType> strings;
+
 		static const Dictionary<Binary, Type> infixTable;
 		static const Dictionary<Unary, Type> prefixTable;
 		static const Dictionary<Unary, Type> postfixTable;
@@ -182,7 +184,7 @@ namespace Spin {
 		inline void emitException(Program::Error error);
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
-		inline void emitObject(Pointer ptr, Type type);
+		inline void emitString(String s);
 		inline void emitGlobal(Value value = { .integer = 0 });
 		inline void emitJMB(SizeType jmb);
 		inline SizeType emitJMP(OPCode code);
