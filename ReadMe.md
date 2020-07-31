@@ -33,24 +33,24 @@ More examples can be found in the [Examples](Examples/) folder.
 
 ### Numeric Types
 
-``` java
-Integer a = 3 + 2 * 7 - 5;
-Integer conversions = 0b10; // binary.
-conversions = 0xAB24 * 0o5; // hex * oct.
-Real c = 7.7;
-Imaginary i = - 7i;
-Complex b = 34.6 + 12i + c;
-Complex c = a * b - (3.5 + 6i);
+``` swift
+var a: Integer = 3 + 2 * 7 - 5;
+var b: Integer = 0b10; // binary.
+b = 0xAB24 * 0o5474747; // hex * oct.
+var c: Real = 7.7;
+var i: Imaginary = - 7i;
+var d = 34.6 + 12i + c;
+var e: Complex = a * b - (3.5 + 6i);
 ```
 
 ### Minor Types
 
-``` java
-Boolean condition = false;
-Byte raw = 0xFF;
+``` swift
+var condition: Boolean = false;
+var raw: Byte = 0xFF;
 raw = ~raw; // bitwise inversion.
-String hello = "number " + '!';
-Character exclam = hello[10];
+var hello: String = "number " + '!';
+var exclam: Character = hello[10];
 ```
 
 ### Console Library

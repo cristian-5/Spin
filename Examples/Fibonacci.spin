@@ -6,6 +6,6 @@ func fib(n: Integer) -> Integer {
 	return fib(n - 1) + fib(n - 2);
 }
 
-for (Integer i = 0; i < 10; i += 1) {
+for (var i = 0; i < 10; i += 1) {
 	Console::writeLine(fib(i));
 }

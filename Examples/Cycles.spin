@@ -1,13 +1,13 @@
 
 import Console;
 
-for (Integer i = 0; i < 10; i += 1) {
+for (var i = 0; i < 10; i += 1) {
 	if (i == 6) continue;
 	if (i == 8) break;
 	Console::writeLine(i);
 }
 
-Integer y = 0;
+var y = 0;
 
 loop {
 	if (y == 4) break;
