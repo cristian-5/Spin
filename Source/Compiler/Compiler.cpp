@@ -1134,9 +1134,12 @@ namespace Spin {
 		cycleScopes.push(scopeDepth);
 		const Token token = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
-		if (match(Token::Type::basicType)) {
+		if (match(Token::Type::varKeyword)) {
 			rethrow(variable());
 			// Variable already consumes ';'.
+		} else if (match(Token::Type::conKeyword)) {
+			rethrow(constant());
+			// Constant already consumes ';'.
 		} else {
 			rethrow(
 				expression();
