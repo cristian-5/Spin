@@ -29,6 +29,8 @@ namespace Spin {
 		ArrayType,
 		VectorType,
 
+		RoutineType,
+
 		ClassType,
 		InstanceType,
 
@@ -45,6 +47,7 @@ namespace Spin {
 		String name;
 		Array<Parameter> parameters;
 		Type returnType = Type::VoidType;
+		SizeType address = - 1;
 	};
 
 	class CodeUnit {

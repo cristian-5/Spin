@@ -607,9 +607,21 @@ namespace Spin {
 		Local local;
 		SizeType argument;
 		rethrow(argument = resolve(previous.lexeme, local));
+		if (local.type == Type::RoutineType) {
+			if (current.type != Token::Type::openParenthesis) {
+				throw Program::Error(
+					currentUnit,
+					"Routine identifier '" +
+					previous.lexeme + "' requires call operator '()'!",
+					previous, ErrorCode::lgc
+				);
+			}
+			typeStack.push(Type::RoutineType);
+			return;
+		}
 		Type typeA = local.type;
 		const Token token = previous;
-		if (argument == -1) {
+		if (argument == - 1) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected identifier '" +
@@ -809,7 +821,44 @@ namespace Spin {
 		typeStack.push(typeA);
 	}
 	void Compiler::call() {
-		
+		if (typeStack.pop() != Type::RoutineType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected identifier before call operator '()'!",
+				previous, ErrorCode::lgc
+			);
+		}
+		Token token = tokens -> at(index - 3);
+		Array<Type> types;
+		if (!match(Token::Type::closeParenthesis)) {
+			do {
+				rethrow(expression());
+				types.push_back(typeStack.pop());
+			} while (match(Token::Type::comma));
+		}
+		SizeType prototypeIndex;
+		rethrow(prototypeIndex = locate(token.lexeme, types));
+		if (prototypeIndex == - 1) {
+			String eTypes;
+			for (Type & type : types) {
+				eTypes += Converter::typeToString(type) + ", ";
+			}
+			eTypes.pop_back();
+			eTypes.pop_back();
+			throw Program::Error(
+				currentUnit,
+				"No matching routine for call '" +
+				token.lexeme + "(" + eTypes + ")'!",
+				token, ErrorCode::typ
+			);
+		}
+		rethrow(consume(Token::Type::closeParenthesis, ")"));
+		callIndexes.push(emitCAL(prototypeIndex));
+		typeStack.push(
+			currentUnit -> prototypes.at(
+				prototypeIndex
+			).returnType
+		);
 	}
 	void Compiler::ternary() {
 		Token token = previous;
@@ -1245,6 +1294,7 @@ namespace Spin {
 		cycleScopes.push(- 1);
 		rethrow(consume(Token::Type::symbol, "identifier"));
 		const String id = previous.lexeme;
+		const Token routineToken = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
 		Array<Type> types; String name;
 		if (!check(Token::Type::closeParenthesis)) {
@@ -1274,24 +1324,48 @@ namespace Spin {
 							);
 						}
 					}
-					locals.push_back({ name, scopeDepth, type, false, false });
+					locals.push_back({ name, scopeDepth, type, true, false });
 				} catch (Program::Error & e) { throw; }
 				types.push_back(type);
 			} while (match(Token::Type::comma));
 		}
 		rethrow(consume(Token::Type::closeParenthesis, ")"));
 		rethrow(consume(Token::Type::openBrace, "{"));
-		Routine routine; routine.name = name;
+		Routine routine; routine.name = id;
 		routine.parameters = types; routine.scope = scope;
 		const SizeType routineIndex = routines.size();
 		// Notifying the return statements:
 		routineIndexes.push(routineIndex);
+		for (Routine & r : routines) {
+			if (r.name == id) {
+				if (r.parameters.size() == types.size()) {
+					Boolean found = true;
+					for (SizeType i = 0; i < types.size(); i += 1) {
+						if (r.parameters.at(i) != types.at(i)) {
+							found = false;
+							break;
+						}
+					}
+					if (found) {
+						throw Program::Error(
+							currentUnit,
+							"Routine redefinition! The routine '" +
+							routineToken.lexeme + "' has already been declared!",
+							routineToken, ErrorCode::lgc
+						);
+					}
+				}
+			}
+		}
 		routines.push_back(routine);
 		// Moving the code in a temporary location to place
 		// it later after the whole code:
 		const SizeType cutPosition = sourcePosition();
 		rethrow(block());
 		emitPOP(countLocals(scope));
+		// Return safety net:
+		// Pushing 0 because every <expression> returns something:
+		emitOperation({ OPCode::CNS, { .index = 0 } });
 		emitRET();
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
@@ -1321,6 +1395,8 @@ namespace Spin {
 				);
 			}
 			emitPOP(countLocals(routine.scope));
+			// Pushing 0 because every <expression> returns something:
+			emitOperation({ OPCode::CNS, { .index = 0 } });
 			emitRET();
 		} else {
 			// Function:
@@ -1382,6 +1458,26 @@ namespace Spin {
 		);
 	}
 
+	SizeType Compiler::locate(String & name, Array<Type> & types) {
+		const SizeType size = currentUnit -> prototypes.size();
+		for (SizeType i = 0; i < size; i += 1) {
+			Prototype & pro = currentUnit -> prototypes.at(i);
+			if (pro.name == name) {
+				if (types.size() != pro.parameters.size()) continue;
+				if (types.size() == 0) return i;
+				Boolean found = true;
+				for (SizeType i = 0; i < types.size(); i += 1) {
+					if (types.at(i) != pro.parameters[i].type) {
+						found = false;
+						break;
+					}
+				}
+				if (found) return i;
+			}
+		}
+		return - 1;
+	}
+
 	SizeType Compiler::resolve(String & name, Local & local) {
 		// Resolve local variable:
 		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
@@ -1395,10 +1491,10 @@ namespace Spin {
 					);
 				}
 				local = locals[i];
-				return i;
+				return i - numberOfRoutines;
 			}
 		}
-		return -1;
+		return - 1;
 	}
 
 	void Compiler::parsePrecedence(Precedence precedence) {
@@ -1477,15 +1573,43 @@ namespace Spin {
 			ErrorCode::syx
 		);
 	}
+	inline void Compiler::preparePrototypes() {
+		Local local;
+		for (Prototype & p : currentUnit -> prototypes) {
+			if (resolve(p.name, local) != - 1) continue;
+			locals.push_back({
+				p.name, 0, Type::RoutineType, true, true
+			});
+			numberOfRoutines += 1;
+		}
+	}
 	inline void Compiler::resolveRoutines() {
 		for (Routine routine : routines) {
+			const SizeType i = locate(
+				routine.name,
+				routine.parameters
+			);
+			if (i == - 1) continue;
+			currentUnit -> prototypes.at(i).address = sourcePosition() - 1;
 			pasteCodes(routine.code);
+		}
+	}
+	inline void Compiler::resolveCalls() {
+		while (!callIndexes.isEmpty()) {
+			// Instruction position:
+			const SizeType i = callIndexes.pop();
+			// Prototype position:
+			const SizeType p = program -> instructions.at(i).as.index;
+			// Routine address:
+			const SizeType a = currentUnit -> prototypes.at(p).address;
+			program -> instructions.at(i).as.index = a;
 		}
 	}
 	inline SizeType Compiler::countLocals(SizeType scope) {
 		SizeType localCount = 0;
 		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
-			if (locals[i].depth <= scope) break;
+			if (locals[i].depth <= scope ||
+				locals[i].depth == 0) break;
 			localCount += 1;
 		}
 		return localCount;
@@ -1588,6 +1712,11 @@ namespace Spin {
 		emitOperation(OPCode::RST);
 		return count;
 	}
+	inline SizeType Compiler::emitCAL(SizeType i) {
+		const SizeType count = sourcePosition();
+		emitOperation({ OPCode::CAL, { .index = i } });
+		return count;
+	}
 	inline void Compiler::emitPOP(SizeType n) {
 		if (!n) return;
 		if (n == 1) emitOperation(OPCode::POP);
@@ -1608,6 +1737,7 @@ namespace Spin {
 		breakStack.clear();
 		routineIndexes.clear();
 		strings.clear();
+		numberOfRoutines = 0;
 	}
 
 	Program * Compiler::compile(SourceCode * source) {
@@ -1623,12 +1753,19 @@ namespace Spin {
 		rethrow(
 			advance();
 			consume(Token::Type::beginFile, "Begin File");
+		);
+
+		preparePrototypes();
+
+		rethrow(
 			beginScope();
 			while (!match(Token::Type::endFile)) declaration();
 			endScope();
 			emitHLT();
-			resolveRoutines();
 		);
+
+		resolveRoutines();
+		resolveCalls();
 
 		reset();
 

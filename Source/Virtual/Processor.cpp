@@ -1739,8 +1739,8 @@ namespace Spin {
 				case OPCode::JMB: ip -= data.as.index; break;
 				case OPCode::JIF: if (!stack.pop().boolean) ip += data.as.index; break;
 				case OPCode::JAF: if (!stack.top().boolean) ip += data.as.index; break;
-				case OPCode::JIT: if (stack.pop().boolean) ip += data.as.index; break;
-				case OPCode::JAT: if (stack.top().boolean) ip += data.as.index; break;
+				case OPCode::JIT: if  (stack.pop().boolean) ip += data.as.index; break;
+				case OPCode::JAT: if  (stack.top().boolean) ip += data.as.index; break;
 				case OPCode::EQL: binaryCase(equality); break;
 				case OPCode::NEQ: binaryCase(inequality); break;
 				case OPCode::GRT: binaryCase(major); break;
@@ -1751,7 +1751,7 @@ namespace Spin {
 				case OPCode::BWA: binaryCase(bitwiseAND); break;
 				case OPCode::BWO: binaryCase(bitwiseOR); break;
 				case OPCode::BWX: binaryCase(bitwiseXOR); break;
-				case OPCode::CAL: ip = data.as.index; call.push(ip); break;
+				case OPCode::CAL: call.push(ip); ip = data.as.index; break;
 				case OPCode::RET: ip = call.pop(); break;
 				case OPCode::CST: 
 					a = stack.pop();

@@ -53,11 +53,6 @@ namespace Spin {
 			Boolean ready = false;
 			Boolean isConstant = false;
 		};
-		struct Global {
-			SizeType index;
-			Type type;
-			Boolean ready = false;
-		};
 
 		struct Jump {
 			SizeType line = 0;
@@ -75,6 +70,8 @@ namespace Spin {
 
 		Array<Routine> routines;
 
+		SizeType numberOfRoutines;
+
 		Array<Local> locals;
 		SizeType scopeDepth = 0;
 
@@ -91,6 +88,7 @@ namespace Spin {
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
 		Stack<SizeType> routineIndexes;
+		Stack<SizeType> callIndexes;
 		Stack<Jump> breakStack;
 		Stack<Jump> continueStack;
 
@@ -167,6 +165,7 @@ namespace Spin {
 		void returnStatement();
 		void swapStatement();
 
+		SizeType locate(String & name, Array<Type> & types);
 		SizeType resolve(String & name, Local & local);
 
 		void parsePrecedence(Precedence precedence);
@@ -176,7 +175,9 @@ namespace Spin {
 		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);
+		inline void preparePrototypes();
 		inline void resolveRoutines();
+		inline void resolveCalls();
 		inline SizeType countLocals(SizeType scope);
 		inline SizeType sourcePosition();
 		inline void emitException(Program::Error error);
@@ -195,6 +196,7 @@ namespace Spin {
 		inline void endScope();
 		inline void endVirtualScope();
 		inline SizeType emitRST();
+		inline SizeType emitCAL(SizeType i);
 		inline void emitPOP(SizeType n);
 		inline void emitRET();
 		inline void emitHLT();
