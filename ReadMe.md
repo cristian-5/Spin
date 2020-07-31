@@ -35,12 +35,13 @@ More examples can be found in the [Examples](Examples/) folder.
 
 ``` swift
 var a: Integer = 3 + 2 * 7 - 5;
-var b: Integer = 0b10; // binary.
-b = 0xAB24 * 0o5474747; // hex * oct.
+var b: Integer = 0b10; // binary
+b = 0xAB24 * 0o547474; // hex * oct
 var c: Real = 7.7;
 var i: Imaginary = - 7i;
 var d = 34.6 + 12i + c;
 var e: Complex = a * b - (3.5 + 6i);
+con pi = 3.14; // constant
 ```
 
 ### Minor Types
@@ -48,7 +49,7 @@ var e: Complex = a * b - (3.5 + 6i);
 ``` swift
 var condition: Boolean = false;
 var raw: Byte = 0xFF;
-raw = ~raw; // bitwise inversion.
+raw = ~raw; // bitwise inversion
 var hello: String = "number " + '!';
 var exclam: Character = hello[10];
 ```
