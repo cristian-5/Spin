@@ -34,7 +34,7 @@ namespace Spin {
 
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
 
-		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::term } },
+		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::factor } },
 		{ Token::Type::exclamationMark, { & Compiler::prefix, nullptr, Precedence::none } },
 		{ Token::Type::tilde, { & Compiler::prefix, nullptr, Precedence::term } },
 		{ Token::Type::minus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
