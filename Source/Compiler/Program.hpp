@@ -11,7 +11,6 @@
 
 namespace Spin {
 
-
 	// Never change the order of types
 	// since it's used for type check.
 
@@ -71,11 +70,8 @@ namespace Spin {
 		CNS, // constant
 		STR, // push string
 
-		GLB, // global definition
-		GGB, // get global
-		SGB, // set global
-		GLC, // get local
-		SLC, // set local
+		GET, // get local
+		SET, // set local
 
 		SWP, // swap
 

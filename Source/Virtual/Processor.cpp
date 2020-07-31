@@ -1682,11 +1682,8 @@ namespace Spin {
 						))
 					});
 				break;
-				case OPCode::GLB: globals.push_back(data.as.value); break;
-				case OPCode::GGB: stack.push(globals[data.as.index]); break;
-				case OPCode::SGB: globals[data.as.index] = stack.top(); break;
-				case OPCode::GLC: stack.push(stack.at(data.as.index)); break;
-				case OPCode::SLC: stack.edit(data.as.index, stack.top()); break;
+				case OPCode::GET: stack.push(stack.at(data.as.index)); break;
+				case OPCode::SET: stack.edit(data.as.index, stack.top()); break;
 				case OPCode::SWP:
 					b = stack.pop();
 					a = stack.pop();

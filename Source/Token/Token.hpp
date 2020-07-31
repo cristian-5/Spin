@@ -94,6 +94,11 @@ namespace Spin {
 			openBrace,
 			closeBrace,
 
+			varKeyword,
+			conKeyword,
+			vecKeyword,
+			matKeyword,
+
 			ifKeyword,
 			elseKeyword,
 			swapKeyword,

@@ -25,6 +25,11 @@ namespace Spin {
 
 	const Dictionary<String, Token::Type> Lexer::reserved = {
 
+		{ "var", Token::Type::varKeyword },
+		{ "con", Token::Type::conKeyword },
+		{ "vec", Token::Type::vecKeyword },
+		{ "mat", Token::Type::matKeyword },
+
 		{ "if", Token::Type::ifKeyword },
 		{ "else", Token::Type::elseKeyword },
 		{ "swap", Token::Type::swapKeyword },

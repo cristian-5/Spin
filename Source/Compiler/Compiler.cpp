@@ -414,6 +414,7 @@ namespace Spin {
 			case    Token::Type::breakKeyword: advance(); breakStatement(); break;
 			case Token::Type::continueKeyword: advance(); continueStatement(); break;
 			case     Token::Type::swapKeyword: advance(); swapStatement(); break;
+			case     Token::Type::restKeyword: advance(); emitRST(); break;
 			case       Token::Type::openBrace: advance();
 				beginScope();
 				rethrow(block());
@@ -424,49 +425,73 @@ namespace Spin {
 		}
 	}
 	void Compiler::declaration() {
-		if (match(Token::Type::basicType)) {
-			rethrow(variable());
-		} else rethrow(statement());
+		switch (current.type) {
+			case Token::Type::varKeyword: advance(); variable(); break;
+			case Token::Type::conKeyword: advance(); break;
+			case Token::Type::vecKeyword: advance(); break;
+			case Token::Type::matKeyword: advance(); break;
+			default: rethrow(statement());
+		}
 	}
 	void Compiler::variable() {
 
-		Type typeA = Converter::stringToType(previous.lexeme);
 		rethrow(consume(Token::Type::symbol, "identifier"));
 		const String id = previous.lexeme;
+		Token token = previous;
 
-		if (scopeDepth) {
-			rethrow(local(previous.lexeme, typeA));
-		} else {
-			rethrow(global(previous.lexeme, typeA));
+		for (Local local : locals) {
+			if (local.ready && local.depth < scopeDepth) break;
+			if (local.name == id) {
+				throw Program::Error(
+					currentUnit,
+					"Variable redefinition! The identifier '" +
+					id + "' was already declared in the current scope!",
+					previous, ErrorCode::lgc
+				);
+			}
+		}
+		locals.push_back({ id, scopeDepth, Type::VoidType, false });
+
+		Boolean hasType = false;
+
+		Type typeA, typeB;
+
+		if (match(Token::Type::colon)) {
+			hasType = true;
+			rethrow(consume(Token::Type::basicType, "Type"));
+			typeA = Converter::stringToType(previous.lexeme);
 		}
 
 		if (match(Token::Type::equal)) {
-			const Token token = previous;
-			rethrow(expression());
-			Type typeB = typeStack.pop();
-			if (typeA != typeB) {
-				// Since we're working with B -> A:
-				auto casting = castTable.find(
-					runtimeCompose(typeB, typeA)
-				);
-				if (casting == castTable.end()) {
-					throw Program::Error(
-						currentUnit,
-						"Assignment operator '=' doesn't support implicit cast of '" +
-						Converter::typeToString(typeB) + "' in '" +
-						Converter::typeToString(typeA) + "'!",
-						token, ErrorCode::lgc
+			if (hasType) {
+				token = previous;
+				rethrow(expression());
+				Type typeB = typeStack.pop();
+				if (typeA != typeB) {
+					// Since we're working with B -> A (A = B):
+					auto casting = castTable.find(
+						runtimeCompose(typeB, typeA)
 					);
-				}
-				// If needed produce a CAST:
-				if (casting -> second) {
-					emitOperation({
-						OPCode::CST,
-						{ .types = runtimeCompose(typeB, typeA) }
-					});
+					if (casting == castTable.end()) {
+						throw Program::Error(
+							currentUnit,
+							"Assignment operator '=' doesn't support implicit cast of '" +
+							Converter::typeToString(typeB) + "' in '" +
+							Converter::typeToString(typeA) + "'!",
+							token, ErrorCode::lgc
+						);
+					}
+					// If needed produce a CAST:
+					if (casting -> second) {
+						emitOperation({
+							OPCode::CST,
+							{ .types = runtimeCompose(typeB, typeA) }
+						});
+					}
 				}
 			}
-		} else {
+		} else if (hasType) {
+			// Has type specification but no assignment:
 			switch (typeA) {
 				case   Type::BooleanType: emitOperation(OPCode::PSF); break;
 				case Type::CharacterType: 
@@ -486,58 +511,34 @@ namespace Spin {
 					OPCode::CNS, { .value = { .integer = 0 } }
 				}); break;
 			}
-		}
-	
-		// If the scope is 0, we need to emitGlobal
-		// but if it's a local it will already be
-		// on the stack frame.
-		if (!scopeDepth) {
-			emitGlobal();
-			emitOperation({
-				OPCode::SGB,
-				{ .index = (globals.size() - 1) }
-			});
-			emitOperation(OPCode::POP);
-			// Globals sentinel:
-			globals[id].ready = true;
 		} else {
-			// Locals sentinel:
-			locals[locals.size() - 1].ready = true;
+			// Has no type specification and no assignment:
+			throw Program::Error(
+				currentUnit,
+				"Non initialised variable needs type specification!",
+				token, ErrorCode::lgc
+			);
 		}
+
+		// Locals sentinel:
+		locals[locals.size() - 1].ready = true;
+		// Type addition:
+		locals[locals.size() - 1].type = typeA;
 
 		rethrow(consume(Token::Type::semicolon, ";"));
 	}
 	void Compiler::identifier() {
-		OPCode GET, SET;
 		Local local;
 		SizeType argument;
 		rethrow(argument = resolve(previous.lexeme, local));
 		Type typeA = local.type;
-		if (argument != -1) {
-			GET = OPCode::GLC;
-			SET = OPCode::SLC;
-		} else {
-			GET = OPCode::GGB;
-			SET = OPCode::SGB;
-			auto search = globals.find(previous.lexeme);
-			if (search == globals.end()) {
-				throw Program::Error(
-					currentUnit,
-					"Unexpected identifier '" +
-					previous.lexeme + "'!",
-					previous, ErrorCode::lgc
-				);
-			}
-			if (!(search -> second.ready)) {
-				throw Program::Error(
-					currentUnit,
-					"Cannot access local variable '" + previous.lexeme +
-					"' in it's own definition statement!",
-					previous, ErrorCode::lgc
-				);
-			}
-			typeA = search -> second.type;
-			argument = search -> second.index;
+		if (argument == -1) {
+			throw Program::Error(
+				currentUnit,
+				"Unexpected identifier '" +
+				previous.lexeme + "'!",
+				previous, ErrorCode::lgc
+			);
 		}
 		const Boolean canAssign = assignmentStack.top();
 		if (canAssign && matchAssignment()) {
@@ -559,7 +560,7 @@ namespace Spin {
 			// If we have an mutation assignment:
 			if (o != OPCode::RST) {
 				// Get the item before mutation:
-				emitOperation({ GET, { .index = (UInt64)argument } });
+				emitOperation({ OPCode::GET, { .index = (UInt64)argument } });
 			}
 			rethrow(expression());
 			Type typeB = typeStack.pop();
@@ -592,7 +593,7 @@ namespace Spin {
 				typeB = search -> second;
 			}
 			if (typeA != typeB) {
-				// Since we're working with B -> A:
+				// Since we're working with B -> A (A = B):
 				auto casting = castTable.find(
 					runtimeCompose(typeB, typeA)
 				);
@@ -613,8 +614,8 @@ namespace Spin {
 					});
 				}
 			}
-			emitOperation({ SET, { .index = (UInt64)argument } });
-		} else emitOperation({ GET, { .index = (UInt64)argument } });
+			emitOperation({ OPCode::SET, { .index = (UInt64)argument } });
+		} else emitOperation({ OPCode::GET, { .index = (UInt64)argument } });
 		typeStack.push(typeA);
 	}
 	void Compiler::block() {
@@ -623,36 +624,6 @@ namespace Spin {
 			declaration();
 		}
 		rethrow(consume(Token::Type::closeBrace, "}"));
-	}
-
-	void Compiler::local(String & name, Type type) {
-		for (Local local : locals) {
-			if (local.ready && local.depth < scopeDepth) {
-				break;
-			}
-			if (local.name == name) {
-				throw Program::Error(
-					currentUnit,
-					"Variable redefinition! The identifier '" +
-					name + "' was already declared in the current scope!",
-					previous, ErrorCode::lgc
-				);
-			}
-		}
-		locals.push_back({ name, scopeDepth, type, false });
-	}
-	void Compiler::global(String & name, Type type) {
-		if (globals.find(name) != globals.end()) {
-			throw Program::Error(
-				currentUnit,
-				"Variable redefinition! The identifier '" +
-				name + "' was already declared with type '" +
-				Converter::typeToString(globals.at(name).type) +
-				"' in the current global scope!",
-				previous, ErrorCode::lgc
-			);
-		}
-		globals.insert({ name, { globalIndex++, type, false } });
 	}
 
 	void Compiler::logicAND() {
@@ -1149,7 +1120,20 @@ namespace Spin {
 				}
 				// Notifying the compiler stack about the new variables:
 				const Type type = Converter::stringToType(previous.lexeme);
-				rethrow(local(name, type));
+				try {
+					for (Local local : locals) {
+						if (local.ready && local.depth < scopeDepth) break;
+						if (local.name == name) {
+							throw Program::Error(
+								currentUnit,
+								"Variable redefinition! The identifier '" +
+								name + "' was already declared in the current scope!",
+								previous, ErrorCode::lgc
+							);
+						}
+					}
+					locals.push_back({ name, scopeDepth, type, false });
+				} catch (Program::Error & e) { throw; }
 				types.push_back(type);
 			} while (match(Token::Type::comma));
 		}
@@ -1396,11 +1380,6 @@ namespace Spin {
 		program -> strings.push_back(s);
 		emitOperation({ OPCode::STR, { .index = position } });
 	}
-	inline void Compiler::emitGlobal(Value value) {
-		program -> instructions.push_back(
-			{ OPCode::GLB, { .value = value } }
-		);
-	}
 	inline void Compiler::emitJMB(SizeType jmb) {
 		jmb = sourcePosition() - jmb + 1;
 		emitOperation({ OPCode::JMB, { .index = jmb } });
@@ -1480,8 +1459,6 @@ namespace Spin {
 	}
 
 	void Compiler::reset() {
-		globals.clear();
-		globalIndex = 0;
 		assignmentStack.clear();
 		locals.clear();
 		scopeDepth = 0;
@@ -1504,7 +1481,9 @@ namespace Spin {
 		rethrow(
 			advance();
 			consume(Token::Type::beginFile, "Begin File");
+			beginScope();
 			while (!match(Token::Type::endFile)) declaration();
+			endScope();
 			emitHLT();
 			resolveRoutines();
 		);

@@ -86,9 +86,6 @@ namespace Spin {
 		CodeUnit * currentUnit = nullptr;
 		Array<Token> * tokens = nullptr;
 
-		Dictionary<String, Global> globals;
-		UInt32 globalIndex = 0;
-
 		Stack<Type> typeStack;
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
@@ -140,9 +137,6 @@ namespace Spin {
 		void identifier();
 		void block();
 
-		void local(String & name, Type type);
-		void global(String & name, Type type);
-
 		void logicAND();
 		void logicOR();
 
@@ -185,7 +179,6 @@ namespace Spin {
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
 		inline void emitString(String s);
-		inline void emitGlobal(Value value = { .integer = 0 });
 		inline void emitJMB(SizeType jmb);
 		inline SizeType emitJMP(OPCode code);
 		inline void patchJMP(SizeType jmp);

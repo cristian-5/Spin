@@ -22,7 +22,6 @@ namespace Spin {
 
 		Stack<Value> stack;
 		Stack<SizeType> call;
-		Array<Value> globals;
 
 		Processor() = default;
 		~Processor() = default;
