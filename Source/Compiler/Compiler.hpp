@@ -51,6 +51,7 @@ namespace Spin {
 			SizeType depth = 0;
 			Type type;
 			Boolean ready = false;
+			Boolean isConstant = false;
 		};
 		struct Global {
 			SizeType index;
@@ -134,6 +135,7 @@ namespace Spin {
 		void statement();
 		void declaration();
 		void variable();
+		void constant();
 		void identifier();
 		void block();
 

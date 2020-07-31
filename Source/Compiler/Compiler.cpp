@@ -429,7 +429,7 @@ namespace Spin {
 	void Compiler::declaration() {
 		switch (current.type) {
 			case Token::Type::varKeyword: advance(); variable(); break;
-			case Token::Type::conKeyword: advance(); break;
+			case Token::Type::conKeyword: advance(); constant(); break;
 			case Token::Type::vecKeyword: advance(); break;
 			case Token::Type::matKeyword: advance(); break;
 			default: rethrow(statement());
@@ -448,11 +448,11 @@ namespace Spin {
 					currentUnit,
 					"Variable redefinition! The identifier '" +
 					id + "' was already declared in the current scope!",
-					previous, ErrorCode::lgc
+					token, ErrorCode::lgc
 				);
 			}
 		}
-		locals.push_back({ id, scopeDepth, Type::VoidType, false });
+		locals.push_back({ id, scopeDepth, Type::VoidType, false, false });
 
 		Boolean hasType = false;
 
@@ -465,10 +465,10 @@ namespace Spin {
 		}
 
 		if (match(Token::Type::equal)) {
+			token = previous;
+			rethrow(expression());
+			Type typeB = typeStack.pop();
 			if (hasType) {
-				token = previous;
-				rethrow(expression());
-				Type typeB = typeStack.pop();
 				if (typeA != typeB) {
 					// Since we're working with B -> A (A = B):
 					auto casting = castTable.find(
@@ -491,7 +491,7 @@ namespace Spin {
 						});
 					}
 				}
-			}
+			} else typeA = typeB;
 		} else if (hasType) {
 			// Has type specification but no assignment:
 			switch (typeA) {
@@ -529,21 +529,102 @@ namespace Spin {
 
 		rethrow(consume(Token::Type::semicolon, ";"));
 	}
+	void Compiler::constant() {
+
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		const String id = previous.lexeme;
+		Token token = previous;
+
+		for (Local local : locals) {
+			if (local.ready && local.depth < scopeDepth) break;
+			if (local.name == id) {
+				throw Program::Error(
+					currentUnit,
+					"Constant redefinition! The identifier '" +
+					id + "' was already declared in the current scope!",
+					token, ErrorCode::lgc
+				);
+			}
+		}
+		locals.push_back({ id, scopeDepth, Type::VoidType, false, true });
+
+		Boolean hasType = false;
+
+		Type typeA, typeB;
+
+		if (match(Token::Type::colon)) {
+			hasType = true;
+			rethrow(consume(Token::Type::basicType, "Type"));
+			typeA = Converter::stringToType(previous.lexeme);
+		}
+
+		if (match(Token::Type::equal)) {
+			token = previous;
+			rethrow(expression());
+			Type typeB = typeStack.pop();
+			if (hasType) {
+				if (typeA != typeB) {
+					// Since we're working with B -> A (A = B):
+					auto casting = castTable.find(
+						runtimeCompose(typeB, typeA)
+					);
+					if (casting == castTable.end()) {
+						throw Program::Error(
+							currentUnit,
+							"Assignment operator '=' doesn't support implicit cast of '" +
+							Converter::typeToString(typeB) + "' in '" +
+							Converter::typeToString(typeA) + "'!",
+							token, ErrorCode::lgc
+						);
+					}
+					// If needed produce a CAST:
+					if (casting -> second) {
+						emitOperation({
+							OPCode::CST,
+							{ .types = runtimeCompose(typeB, typeA) }
+						});
+					}
+				}
+			} else typeA = typeB;
+		} else {
+			// Has no assignment:
+			throw Program::Error(
+				currentUnit,
+				"Constant requires inline initialisation!",
+				token, ErrorCode::lgc
+			);
+		}
+
+		// Locals sentinel:
+		locals[locals.size() - 1].ready = true;
+		// Type addition:
+		locals[locals.size() - 1].type = typeA;
+
+		rethrow(consume(Token::Type::semicolon, ";"));
+	}
 	void Compiler::identifier() {
 		Local local;
 		SizeType argument;
 		rethrow(argument = resolve(previous.lexeme, local));
 		Type typeA = local.type;
+		const Token token = previous;
 		if (argument == -1) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected identifier '" +
-				previous.lexeme + "'!",
-				previous, ErrorCode::lgc
+				token.lexeme + "'!",
+				token, ErrorCode::lgc
 			);
 		}
 		const Boolean canAssign = assignmentStack.top();
 		if (canAssign && matchAssignment()) {
+			if (local.isConstant) {
+				throw Program::Error(
+					currentUnit,
+					"Invalid assignment of constant '" + token.lexeme + "'!",
+					token, ErrorCode::lgc
+				);
+			}
 			// Takes care of operation assignments:
 			const Token token = previous;
 			OPCode o = OPCode::RST;
@@ -1163,7 +1244,7 @@ namespace Spin {
 							);
 						}
 					}
-					locals.push_back({ name, scopeDepth, type, false });
+					locals.push_back({ name, scopeDepth, type, false, false });
 				} catch (Program::Error & e) { throw; }
 				types.push_back(type);
 			} while (match(Token::Type::comma));
