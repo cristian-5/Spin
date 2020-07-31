@@ -1707,6 +1707,20 @@ namespace Spin {
 						stack.push({ .byte = (Byte)(~ a.byte) });
 					}
 				break;
+				case OPCode::SSC:
+					b = stack.pop();
+					a = stack.pop();
+					if (b.integer < 0 ||
+						b.integer > (((String *)a.pointer) -> size()) - 1) {
+						auto search = program -> errors.find(ip);
+						if (search != program -> errors.end()) {
+							throw search -> second;
+						}
+					}
+					stack.push({
+						.byte = (Byte)((String *)a.pointer) -> at(b.integer)
+					});
+				break;
 				case OPCode::CCJ:
 					a = stack.pop();
 					stack.push({ .pointer = new Complex(((Complex *)a.pointer) -> getConjugate()) });

@@ -143,6 +143,7 @@ namespace Spin {
 		void logicOR();
 
 		void grouping();
+		void subscription();
 		void cast();
 		void call();
 		void ternary();

@@ -126,6 +126,7 @@ namespace Spin {
 			case OPCode::MOD: typesOP("MOD", byte.as.types, Colour::blue, "modulus"); break;
 			case OPCode::NEG: unaryOP("NEG", byte.as.type, Colour::purple, "negation"); break;
 			case OPCode::INV: unaryOP("INV", byte.as.type, Colour::purple, "inversion"); break;
+			case OPCode::SSC: aloneOP("SSC", Colour::purple, "string subscription"); break;
 			case OPCode::CCJ: aloneOP("CCJ", Colour::purple, "complex conjugate"); break;
 			case OPCode::VCJ: aloneOP("VCJ", Colour::purple, "vector conjugate"); break;
 			case OPCode::MCJ: aloneOP("VCJ", Colour::purple, "matrix conjugate"); break;

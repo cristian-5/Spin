@@ -31,6 +31,7 @@ namespace Spin {
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
 	
 		{ Token::Type::openParenthesis, { & Compiler::grouping, & Compiler::call, Precedence::call } },
+		{ Token::Type::openBracket, { nullptr, & Compiler::subscription, Precedence::call } },
 
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
 
@@ -751,6 +752,32 @@ namespace Spin {
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
+	}
+	void Compiler::subscription() {
+		const Token token = previous;
+		if (typeStack.pop() != Type::StringType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected String expression before subscription '[ ]' operator!",
+				token, ErrorCode::lgc
+			);
+		}
+		rethrow(expression());
+		if (typeStack.pop() != Type::IntegerType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Integer expression in subscription '[ ]' operator!",
+				token, ErrorCode::lgc
+			);
+		}
+		emitOperation(OPCode::SSC);
+		emitException(Program::Error(
+			currentUnit,
+			"Subscription operator '[ ]' threw index out of range!",
+			token, ErrorCode::evl
+		));
+		rethrow(consume(Token::Type::closeBracket, "]"));
+		typeStack.push(Type::CharacterType);
 	}
 	void Compiler::cast() {
 		const Token token = previous;

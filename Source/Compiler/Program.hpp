@@ -82,6 +82,7 @@ namespace Spin {
 		MOD, // modulus
 		NEG, // negate
 		INV, // bitwise inversion
+		SSC, // string subscription
 
 		CCJ, // complex conjugate
 		VCJ, // vector conjugate
