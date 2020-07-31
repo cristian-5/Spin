@@ -141,6 +141,7 @@ namespace Spin {
 		void logicOR();
 
 		void grouping();
+		void cast();
 		void call();
 		void ternary();
 		void postfix();

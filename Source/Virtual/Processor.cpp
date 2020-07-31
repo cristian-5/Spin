@@ -1144,7 +1144,7 @@ namespace Spin {
 		{      Type::ByteType, makeImmutableFrom({ OStream << hexadecimal << (Int64)r.byte << decimal; }) },
 		{   Type::IntegerType, makeImmutableFrom({ OStream << r.integer; }) },
 		{      Type::RealType, makeImmutableFrom({ OStream << Converter::realToString(r.real); }) },
-		{ Type::ImaginaryType, makeImmutableFrom({ OStream << Converter::realToString(r.real); }) },
+		{ Type::ImaginaryType, makeImmutableFrom({ OStream << Converter::imaginaryToString(r.real); }) },
 		// Basic Objects:
 		{   Type::ComplexType, makeImmutableFrom({ OStream << ((Complex *)r.pointer) -> toString(); }) },
 		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)); }) },

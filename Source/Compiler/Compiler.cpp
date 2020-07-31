@@ -34,7 +34,9 @@ namespace Spin {
 
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
 
-		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::factor } },
+		{ Token::Type::colon, { nullptr, & Compiler::cast, Precedence::term } },
+
+		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::call } },
 		{ Token::Type::exclamationMark, { & Compiler::prefix, nullptr, Precedence::none } },
 		{ Token::Type::tilde, { & Compiler::prefix, nullptr, Precedence::term } },
 		{ Token::Type::minus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
@@ -668,6 +670,35 @@ namespace Spin {
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
+	}
+	void Compiler::cast() {
+		const Token token = previous;
+		Type typeB = typeStack.pop();
+		rethrow(consume(Token::Type::basicType, "Type"));
+		Type typeA = Converter::stringToType(previous.lexeme);
+		if (typeA != typeB) {
+			// Since we're working with B -> A (B : A):
+			auto casting = castTable.find(
+				runtimeCompose(typeB, typeA)
+			);
+			if (casting == castTable.end()) {
+				throw Program::Error(
+					currentUnit,
+					"Explicit cast operator ':' doesn't support conversion from '" +
+					Converter::typeToString(typeB) + "' to '" +
+					Converter::typeToString(typeA) + "'!",
+					token, ErrorCode::lgc
+				);
+			}
+			// If needed produce a CAST:
+			if (casting -> second) {
+				emitOperation({
+					OPCode::CST,
+					{ .types = runtimeCompose(typeB, typeA) }
+				});
+			}
+		}
+		typeStack.push(typeA);
 	}
 	void Compiler::call() {
 		
