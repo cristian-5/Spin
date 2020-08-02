@@ -1,6 +1,7 @@
 
 # Commands:
 
+cppFlags = -O3
 cppVersion = -std=c++2a
 
 header = ../Source/Common/Header.hpp
@@ -12,10 +13,10 @@ token = ../Source/Token/Token.hpp
 program = ../Source/Compiler/Program.hpp
 
 rule compile
-    command = clang++ -g -c -o $out $in $cppVersion
+    command = clang++ -g -c -o $out $in $cppVersion $cppFlags
 
 rule link
-    command = clang++ -g -o $out $in $cppVersion
+    command = clang++ -g -o $out $in $cppVersion $cppFlags
 
 # Virtual Processor
 
@@ -38,10 +39,12 @@ build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $interface
 
 build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp   | $interface $header $stack $program
 
+build  Build/Benchmark.o: compile Benchmark/Benchmark.cpp           | $header
+
 # Main:
 
 build Build/Test.o: compile Test.cpp | $interface $header $program $token
 
 # Link:
 
-build Test: link Build/Test.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Complex.o Build/Wings.o Build/Libraries.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o
+build Test: link Build/Test.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Complex.o Build/Wings.o Build/Libraries.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o Build/Benchmark.o

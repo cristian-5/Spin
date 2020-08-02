@@ -70,12 +70,18 @@ namespace Spin {
 
 		RST, // rest
 
-		CNS, // constant
+		PSH, // push constant
 		STR, // push string
 
 		GET, // get local
 		SET, // set local
 
+		SSF, // set stack frame
+		GLF, // get local from stack frame
+		SLF, // set local from stack frame
+
+		CTP, // copy temporary
+		LTP, // load temporary
 		SWP, // swap
 
 		ADD, // addition
@@ -125,7 +131,8 @@ namespace Spin {
 
 		CST, // casting
 
-		PRN, // print
+		PRT, // print
+		PRL, // print line
 		NLN, // new line
 
 		HLT, // halt

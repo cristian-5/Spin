@@ -52,6 +52,7 @@ namespace Spin {
 			Type type;
 			Boolean ready = false;
 			Boolean isConstant = false;
+			Boolean isStack = false;
 		};
 
 		struct Jump {
@@ -88,7 +89,6 @@ namespace Spin {
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
 		Stack<SizeType> routineIndexes;
-		Stack<SizeType> callIndexes;
 		Stack<Jump> breakStack;
 		Stack<Jump> continueStack;
 
@@ -196,7 +196,7 @@ namespace Spin {
 		inline void endScope();
 		inline void endVirtualScope();
 		inline SizeType emitRST();
-		inline SizeType emitCAL(SizeType i);
+		inline void emitCAL(SizeType i);
 		inline void emitPOP(SizeType n);
 		inline void emitRET();
 		inline void emitHLT();

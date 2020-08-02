@@ -18,10 +18,10 @@ namespace Spin {
 		private:
 
 		static Array<Pair<Pointer, Type>> objects;
-		Array<ByteCode> instructions;
 
 		Stack<Value> stack;
 		Stack<SizeType> call;
+		Stack<SizeType> frame;
 
 		Processor() = default;
 		~Processor() = default;
@@ -40,6 +40,7 @@ namespace Spin {
 
 		static const Dictionary<Type, Mutation> negation;
 		static const Dictionary<Type, Immutable> print;
+		static const Dictionary<Type, Immutable> printLine;
 
 		static const Dictionary<Types, Process> bitwiseAND;
 		static const Dictionary<Types, Process> bitwiseOR;

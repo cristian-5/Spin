@@ -24,10 +24,11 @@ namespace Spin {
 			green,
 			purple,
 			pink,
-			gray,
+			grey,
 			sky,
 			acqua,
 			peach,
+			dark,
 		};
 
 		static void tableOP(String o, String s);
@@ -36,6 +37,8 @@ namespace Spin {
 		static void typesOP(String o, Types x, Colour c, String h);
 		static void unaryOP(String o, Type x, Colour c, String h);
 		static void jmptoOP(String o, SizeType x, String h);
+
+		static void rest_OP();
 		
 		static String resolve(Type type);
 

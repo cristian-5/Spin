@@ -37,10 +37,11 @@ namespace Spin {
 		 [Decompiler::Colour::green] = { "\x1B[38;5;34m" },
 		[Decompiler::Colour::purple] = { "\x1B[38;5;164m" },
 		  [Decompiler::Colour::pink] = { "\x1B[38;5;207m" },
-		  [Decompiler::Colour::gray] = { "\x1B[38;5;250m" },
+		  [Decompiler::Colour::grey] = { "\x1B[38;5;250m" },
 		   [Decompiler::Colour::sky] = { "\x1B[38;5;14m" },
 		 [Decompiler::Colour::acqua] = { "\x1B[38;5;30m" },
 		 [Decompiler::Colour::peach] = { "\x1B[38;5;211m" },
+		  [Decompiler::Colour::dark] = { "\x1B[38;5;242m" },
 	};
 
 	void Decompiler::tableOP(String o, String s) {
@@ -54,7 +55,7 @@ namespace Spin {
 	}
 	void Decompiler::aloneOP(String o, Colour c, String h) {
 		OStream << "    " << colours[c] << o << reset
-				<< "                        " << colours[Colour::gray]
+				<< "                        " << colours[Colour::grey]
 				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::constOP(String o, Int64 i, Colour c) {
@@ -71,7 +72,7 @@ namespace Spin {
 				<< "    " << colours[w] << resolve(a)
 				<< reset << ", " << colours[k]
 				<< resolve(b) << reset
-				<< "            " << colours[Colour::gray]
+				<< "            " << colours[Colour::grey]
 				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::unaryOP(String o, Type x, Colour c, String h) {
@@ -79,7 +80,7 @@ namespace Spin {
 		OStream << "    " << colours[c] << o << reset
 				<< "    " << colours[a]
 				<< resolve(x) << reset
-				<< "                 " << colours[Colour::gray]
+				<< "                 " << colours[Colour::grey]
 				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::jmptoOP(String o, SizeType x, String h) {
@@ -87,8 +88,14 @@ namespace Spin {
 				<< "    " << colours[Colour::acqua]
 				<< upperCase << hexadecimal
 				<< padding(16) << x << reset
-				<< "    " << colours[Colour::gray]
+				<< "    " << colours[Colour::grey]
 				<< "! " << h << reset << endLine;
+	}
+
+	void Decompiler::rest_OP() {
+		OStream << "    " << colours[Colour::grey]
+				<< "RST    -------------------------------------"
+				<< reset << endLine;
 	}
 
 	String Decompiler::resolve(Type type) {
@@ -112,12 +119,19 @@ namespace Spin {
 
 	void Decompiler::decompile(Program * program, SizeType index) {
 		const ByteCode byte = program -> instructions.at(index);
+		OStream << colours[Colour::dark] << upperCase
+				<< hexadecimal << padding(8) << index;
 		switch (byte.code) {
-			case OPCode::RST: aloneOP("RST", Colour::yellow, "rest"); break;
-			case OPCode::CNS: constOP("CNS", byte.as.value.integer, Colour::green); break;
+			case OPCode::RST: rest_OP(); break;
+			case OPCode::PSH: constOP("PSH", byte.as.value.integer, Colour::green); break;
 			case OPCode::STR: tableOP("STR", program -> strings.at(byte.as.index)); break;
-			case OPCode::GET: constOP("GET", byte.as.index, Colour::blue); break;
-			case OPCode::SET: constOP("SET", byte.as.index, Colour::blue); break;
+			case OPCode::GET: constOP("GET", byte.as.index, Colour::purple); break;
+			case OPCode::SET: constOP("SET", byte.as.index, Colour::purple); break;
+			case OPCode::SSF: constOP("SSF", byte.as.index, Colour::purple); break;
+			case OPCode::GLF: constOP("GLF", byte.as.index, Colour::purple); break;
+			case OPCode::SLF: constOP("SLF", byte.as.index, Colour::purple); break;
+			case OPCode::CTP: aloneOP("CTP", Colour::blue, "copy temporary"); break;
+			case OPCode::LTP: aloneOP("LTP", Colour::blue, "load temporary"); break;
 			case OPCode::SWP: aloneOP("SWP", Colour::blue, "swap"); break;
 			case OPCode::ADD: typesOP("ADD", byte.as.types, Colour::blue, "addition"); break;
 			case OPCode::SUB: typesOP("SUB", byte.as.types, Colour::blue, "subtraction"); break;
@@ -130,12 +144,12 @@ namespace Spin {
 			case OPCode::CCJ: aloneOP("CCJ", Colour::purple, "complex conjugate"); break;
 			case OPCode::VCJ: aloneOP("VCJ", Colour::purple, "vector conjugate"); break;
 			case OPCode::MCJ: aloneOP("VCJ", Colour::purple, "matrix conjugate"); break;
-			case OPCode::PST: aloneOP("PST", Colour::yellow, "push true"); break;
-			case OPCode::PSF: aloneOP("PSF", Colour::yellow, "push false"); break;
-			case OPCode::PSI: aloneOP("PSI", Colour::yellow, "push infinity"); break;
-			case OPCode::PSU: aloneOP("PSU", Colour::yellow, "push undefined"); break;
-			case OPCode::PEC: aloneOP("PEC", Colour::yellow, "push empty Complex"); break;
-			case OPCode::PES: aloneOP("PES", Colour::yellow, "push empty String"); break;
+			case OPCode::PST: aloneOP("PST", Colour::green, "push true"); break;
+			case OPCode::PSF: aloneOP("PSF", Colour::green, "push false"); break;
+			case OPCode::PSI: aloneOP("PSI", Colour::green, "push infinity"); break;
+			case OPCode::PSU: aloneOP("PSU", Colour::green, "push undefined"); break;
+			case OPCode::PEC: aloneOP("PEC", Colour::green, "push empty Complex"); break;
+			case OPCode::PES: aloneOP("PES", Colour::green, "push empty String"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
 			case OPCode::DSK: constOP("DSK", byte.as.value.integer, Colour::yellow); break;
 			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;
@@ -157,7 +171,8 @@ namespace Spin {
 			case OPCode::CAL: jmptoOP("CAL", byte.as.index, "call"); break;
 			case OPCode::RET: aloneOP("RET", Colour::red, "return"); break;
 			case OPCode::CST: typesOP("CST", byte.as.types, Colour::orange, "cast"); break;
-			case OPCode::PRN: unaryOP("PRN", byte.as.type, Colour::peach, "print"); break;
+			case OPCode::PRT: unaryOP("PRN", byte.as.type, Colour::peach, "print"); break;
+			case OPCode::PRL: unaryOP("PRL", byte.as.type, Colour::peach, "print line"); break;
 			case OPCode::NLN: aloneOP("NLN", Colour::peach, "new line"); break;
 			case OPCode::HLT: aloneOP("HLT", Colour::red, "halt"); break;
 			default: break;

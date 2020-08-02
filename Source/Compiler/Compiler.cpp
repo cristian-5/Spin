@@ -35,7 +35,7 @@ namespace Spin {
 
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
 
-		{ Token::Type::colon, { nullptr, & Compiler::cast, Precedence::term } },
+		{ Token::Type::colon, { nullptr, & Compiler::cast, Precedence::assignment } },
 
 		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::call } },
 		{ Token::Type::exclamationMark, { & Compiler::prefix, nullptr, Precedence::none } },
@@ -352,7 +352,7 @@ namespace Spin {
 		);
 		Character literal = Converter::escapeChar(lexeme);
 		emitOperation(
-			{ OPCode::CNS, { .value = { .byte = ((Byte)(literal)) } } }
+			{ OPCode::PSH, { .value = { .byte = ((Byte)(literal)) } } }
 		);
 		typeStack.push(Type::CharacterType);
 	}
@@ -369,7 +369,7 @@ namespace Spin {
 			previous.lexeme
 		);
 		emitOperation(
-			{ OPCode::CNS, { .value = { .real = literal } } }
+			{ OPCode::PSH, { .value = { .real = literal } } }
 		);
 		typeStack.push(Type::ImaginaryType);
 	}
@@ -378,7 +378,7 @@ namespace Spin {
 			previous.lexeme
 		);
 		emitOperation(
-			{ OPCode::CNS, { .value = { .real = literal } } }
+			{ OPCode::PSH, { .value = { .real = literal } } }
 		);
 		typeStack.push(Type::RealType);
 	}
@@ -393,7 +393,7 @@ namespace Spin {
 			previous.lexeme
 		);
 		emitOperation(
-			{ OPCode::CNS, { .value = { .integer = literal } } }
+			{ OPCode::PSH, { .value = { .integer = literal } } }
 		);
 		typeStack.push(Type::IntegerType);
 	}
@@ -453,7 +453,11 @@ namespace Spin {
 				);
 			}
 		}
-		locals.push_back({ id, scopeDepth, Type::VoidType, false, false });
+		// If we are compiling stuff inside a routine, the
+		// value of its index will be at the top of the
+		// stack, making it not empty:
+		const Boolean isInRoutine = !routineIndexes.isEmpty();
+		locals.push_back({ id, scopeDepth, Type::VoidType, false, false, isInRoutine });
 
 		Boolean hasType = false;
 
@@ -499,19 +503,19 @@ namespace Spin {
 				case   Type::BooleanType: emitOperation(OPCode::PSF); break;
 				case Type::CharacterType: 
 				case      Type::ByteType: emitOperation({
-					OPCode::CNS, { .value = { .byte = 0 } }
+					OPCode::PSH, { .value = { .byte = 0 } }
 				}); break;
 				case   Type::IntegerType: emitOperation({
-					OPCode::CNS, { .value = { .integer = 0 } }
+					OPCode::PSH, { .value = { .integer = 0 } }
 				}); break;
 				case      Type::RealType:
 				case Type::ImaginaryType: emitOperation({
-					OPCode::CNS, { .value = { .real = 0.0 } }
+					OPCode::PSH, { .value = { .real = 0.0 } }
 				}); break;
 				case   Type::ComplexType: emitOperation(OPCode::PEC); break;
 				case    Type::StringType: emitOperation(OPCode::PES); break;
 				default: emitOperation({
-					OPCode::CNS, { .value = { .integer = 0 } }
+					OPCode::PSH, { .value = { .integer = 0 } }
 				}); break;
 			}
 		} else {
@@ -547,6 +551,10 @@ namespace Spin {
 				);
 			}
 		}
+		// If we are compiling stuff inside a routine, the
+		// value of its index will be at the top of the
+		// stack, making it not empty:
+		const Boolean isInRoutine = !routineIndexes.isEmpty();
 		locals.push_back({ id, scopeDepth, Type::VoidType, false, true });
 
 		Boolean hasType = false;
@@ -656,7 +664,10 @@ namespace Spin {
 			// If we have an mutation assignment:
 			if (o != OPCode::RST) {
 				// Get the item before mutation:
-				emitOperation({ OPCode::GET, { .index = (UInt64)argument } });
+				emitOperation({
+					(local.isStack ? OPCode::GLF : OPCode::GET),
+					{ .index = (UInt64)argument }
+				});
 			}
 			rethrow(expression());
 			Type typeB = typeStack.pop();
@@ -710,8 +721,16 @@ namespace Spin {
 					});
 				}
 			}
-			emitOperation({ OPCode::SET, { .index = (UInt64)argument } });
-		} else emitOperation({ OPCode::GET, { .index = (UInt64)argument } });
+			emitOperation({
+				(local.isStack ? OPCode::SLF : OPCode::SET),
+				{ .index = (UInt64)argument }
+			});
+		} else {
+			emitOperation({
+				(local.isStack ? OPCode::GLF : OPCode::GET),
+				{ .index = (UInt64)argument }
+			});
+		}
 		typeStack.push(typeA);
 	}
 	void Compiler::block() {
@@ -853,7 +872,10 @@ namespace Spin {
 			);
 		}
 		rethrow(consume(Token::Type::closeParenthesis, ")"));
-		callIndexes.push(emitCAL(prototypeIndex));
+		// Setting the stack frame to the current position,
+		// minus the number of arguments passed in input:
+		emitOperation({ OPCode::SSF, { .index = types.size() } });
+		emitCAL(prototypeIndex);
 		typeStack.push(
 			currentUnit -> prototypes.at(
 				prototypeIndex
@@ -1017,8 +1039,7 @@ namespace Spin {
 				token, ErrorCode::typ
 			);
 		}
-		emitOperation({ OPCode::PRN, { .type = type } });
-		emitOperation(OPCode::NLN);
+		emitOperation({ OPCode::PRL, { .type = type } });
 	}
 	void Compiler::ifStatement() {
 		const Token token = previous;
@@ -1324,13 +1345,15 @@ namespace Spin {
 							);
 						}
 					}
-					locals.push_back({ name, scopeDepth, type, true, false });
+					locals.push_back({ name, scopeDepth, type, true, false, true });
 				} catch (Program::Error & e) { throw; }
 				types.push_back(type);
 			} while (match(Token::Type::comma));
 		}
-		rethrow(consume(Token::Type::closeParenthesis, ")"));
-		rethrow(consume(Token::Type::openBrace, "{"));
+		rethrow(
+			consume(Token::Type::closeParenthesis, ")");
+			consume(Token::Type::openBrace, "{");
+		);
 		Routine routine; routine.name = id;
 		routine.parameters = types; routine.scope = scope;
 		const SizeType routineIndex = routines.size();
@@ -1365,7 +1388,7 @@ namespace Spin {
 		emitPOP(countLocals(scope));
 		// Return safety net:
 		// Pushing 0 because every <expression> returns something:
-		emitOperation({ OPCode::CNS, { .index = 0 } });
+		emitOperation({ OPCode::PSH, { .index = 0 } });
 		emitRET();
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
@@ -1373,7 +1396,119 @@ namespace Spin {
 		endVirtualScope();
 	}
 	void Compiler::funcStatement() {
-		
+		const SizeType scope = scopeDepth;
+		beginVirtualScope();
+		cycleScopes.push(- 1);
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		const String id = previous.lexeme;
+		const Token routineToken = previous;
+		rethrow(consume(Token::Type::openParenthesis, "("));
+		Array<Type> types; String name;
+		if (!check(Token::Type::closeParenthesis)) {
+			do {
+				rethrow(consume(Token::Type::symbol, "identifier"));
+				name = previous.lexeme;
+				rethrow(consume(Token::Type::colon, ":"));
+				if (!match(Token::Type::basicType)) {
+					throw Program::Error(
+						currentUnit,
+						"Expected type in parameter declaration but found '" +
+						current.lexeme + "' instead!",
+						current, ErrorCode::lgc
+					);
+				}
+				// Notifying the compiler stack about the new variables:
+				const Type type = Converter::stringToType(previous.lexeme);
+				try {
+					for (Local local : locals) {
+						if (local.ready && local.depth < scopeDepth) break;
+						if (local.name == name) {
+							throw Program::Error(
+								currentUnit,
+								"Variable redefinition! The identifier '" +
+								name + "' was already declared in the current scope!",
+								previous, ErrorCode::lgc
+							);
+						}
+					}
+					locals.push_back({ name, scopeDepth, type, true, false, true });
+				} catch (Program::Error & e) { throw; }
+				types.push_back(type);
+			} while (match(Token::Type::comma));
+		}
+		rethrow(
+			consume(Token::Type::closeParenthesis, ")");
+			consume(Token::Type::arrow, "->");
+			consume(Token::Type::basicType, "Type");
+		);
+		const Type returnType = Converter::stringToType(previous.lexeme);
+		rethrow(consume(Token::Type::openBrace, "{"));
+		Routine routine; routine.name = id;
+		routine.parameters = types; routine.scope = scope;
+		routine.returnType = returnType;
+		const SizeType routineIndex = routines.size();
+		// Notifying the return statements:
+		routineIndexes.push(routineIndex);
+		for (Routine & r : routines) {
+			if (r.name == id) {
+				if (r.parameters.size() == types.size()) {
+					Boolean found = true;
+					for (SizeType i = 0; i < types.size(); i += 1) {
+						if (r.parameters.at(i) != types.at(i)) {
+							found = false;
+							break;
+						}
+					}
+					if (found) {
+						throw Program::Error(
+							currentUnit,
+							"Routine redefinition! The routine '" +
+							routineToken.lexeme + "' has already been declared!",
+							routineToken, ErrorCode::lgc
+						);
+					}
+				}
+			}
+		}
+		routines.push_back(routine);
+		// Moving the code in a temporary location to place
+		// it later after the whole code:
+		const SizeType cutPosition = sourcePosition();
+		rethrow(block());
+		emitPOP(countLocals(scope));
+		if (!routines[routineIndex].returns) {
+			throw Program::Error(
+				currentUnit,
+				"Missing return statement in routine '" +
+				routineToken.lexeme + "'!",
+				routineToken, ErrorCode::lgc
+			);
+		}
+		// Return safety net:
+		switch (returnType) {
+			case   Type::BooleanType: emitOperation(OPCode::PSF); break;
+			case Type::CharacterType: 
+			case      Type::ByteType: emitOperation({
+				OPCode::PSH, { .value = { .byte = 0 } }
+			}); break;
+			case   Type::IntegerType: emitOperation({
+				OPCode::PSH, { .value = { .integer = 0 } }
+			}); break;
+			case      Type::RealType:
+			case Type::ImaginaryType: emitOperation({
+				OPCode::PSH, { .value = { .real = 0.0 } }
+			}); break;
+			case   Type::ComplexType: emitOperation(OPCode::PEC); break;
+			case    Type::StringType: emitOperation(OPCode::PES); break;
+			default: emitOperation({
+				OPCode::PSH, { .value = { .integer = 0 } }
+			}); break;
+		}
+		emitRET();
+		routines[routineIndex].code = cutCodes(cutPosition);
+		routineIndexes.decrease();
+		cycleScopes.decrease();
+		endVirtualScope();
 	}
 	void Compiler::returnStatement() {
 		const Token token = previous;
@@ -1384,7 +1519,8 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		Routine routine = routines.at(routineIndexes.top());
+		// Needs to be a reference for later usage:
+		Routine & routine = routines.at(routineIndexes.top());
 		if (match(Token::Type::semicolon)) {
 			// Procedure:
 			if (routine.returnType != Type::VoidType) {
@@ -1396,11 +1532,49 @@ namespace Spin {
 			}
 			emitPOP(countLocals(routine.scope));
 			// Pushing 0 because every <expression> returns something:
-			emitOperation({ OPCode::CNS, { .index = 0 } });
+			emitOperation({ OPCode::PSH, { .index = 0 } });
 			emitRET();
 		} else {
 			// Function:
-			// expression, set routine.returns to true
+			if (routine.returnType == Type::VoidType) {
+				throw Program::Error(
+					currentUnit,
+					"Return statement inside procedure scope should never return a value!",
+					token, ErrorCode::lgc
+				);
+			}
+			// Eventual expression casting:
+			Type typeA = routine.returnType;
+			rethrow(expression());
+			Type typeB = typeStack.pop();
+			if (typeA != typeB) {
+				// Since we're working with B -> A (return (A)(B);):
+				auto casting = castTable.find(
+					runtimeCompose(typeB, typeA)
+				);
+				if (casting == castTable.end()) {
+					throw Program::Error(
+						currentUnit,
+						"Implicit cast doesn't support conversion from '" +
+						Converter::typeToString(typeB) + "' to '" +
+						Converter::typeToString(typeA) + "'!",
+						token, ErrorCode::lgc
+					);
+				}
+				// If needed produce a CAST:
+				if (casting -> second) {
+					emitOperation({
+						OPCode::CST,
+						{ .types = runtimeCompose(typeB, typeA) }
+					});
+				}
+			}
+			routine.returns = true;
+			// Back up of the top of the stack before POP:
+			emitOperation(OPCode::CTP);
+			emitPOP(countLocals(routine.scope));
+			emitOperation(OPCode::LTP);
+			emitRET();
 		}
 	}
 	void Compiler::swapStatement() {
@@ -1449,8 +1623,8 @@ namespace Spin {
 				token, ErrorCode::typ
 			);
 		}
-		emitOperation({ OPCode::CNS, { .index = argumentA } });
-		emitOperation({ OPCode::CNS, { .index = argumentB } });
+		emitOperation({ OPCode::PSH, { .index = argumentA } });
+		emitOperation({ OPCode::PSH, { .index = argumentB } });
 		emitOperation(OPCode::SWP);
 		rethrow(
 			consume(Token::Type::closeParenthesis, ")");
@@ -1466,8 +1640,8 @@ namespace Spin {
 				if (types.size() != pro.parameters.size()) continue;
 				if (types.size() == 0) return i;
 				Boolean found = true;
-				for (SizeType i = 0; i < types.size(); i += 1) {
-					if (types.at(i) != pro.parameters[i].type) {
+				for (SizeType j = 0; j < types.size(); j += 1) {
+					if (types.at(j) != pro.parameters[j].type) {
 						found = false;
 						break;
 					}
@@ -1491,6 +1665,16 @@ namespace Spin {
 					);
 				}
 				local = locals[i];
+				if (local.isStack) {
+					const SizeType depth = routines.at(
+						routineIndexes.top()
+					).scope;
+					for (Int64 j = i - 1; j >= 0; j -= 1) {
+						if (locals[j].depth == depth) {
+							return i - j - numberOfRoutines;
+						}
+					}
+				}
 				return i - numberOfRoutines;
 			}
 		}
@@ -1578,7 +1762,7 @@ namespace Spin {
 		for (Prototype & p : currentUnit -> prototypes) {
 			if (resolve(p.name, local) != - 1) continue;
 			locals.push_back({
-				p.name, 0, Type::RoutineType, true, true
+				p.name, 0, Type::RoutineType, true, true, false
 			});
 			numberOfRoutines += 1;
 		}
@@ -1590,19 +1774,16 @@ namespace Spin {
 				routine.parameters
 			);
 			if (i == - 1) continue;
-			currentUnit -> prototypes.at(i).address = sourcePosition() - 1;
+			currentUnit -> prototypes.at(i).address = sourcePosition();
 			pasteCodes(routine.code);
 		}
 	}
 	inline void Compiler::resolveCalls() {
-		while (!callIndexes.isEmpty()) {
-			// Instruction position:
-			const SizeType i = callIndexes.pop();
-			// Prototype position:
-			const SizeType p = program -> instructions.at(i).as.index;
-			// Routine address:
-			const SizeType a = currentUnit -> prototypes.at(p).address;
-			program -> instructions.at(i).as.index = a;
+		for (ByteCode & byte : program -> instructions) {
+			if (byte.code != OPCode::CAL) continue;
+			byte.as.index = currentUnit -> prototypes.at(
+				byte.as.index
+			).address;
 		}
 	}
 	inline SizeType Compiler::countLocals(SizeType scope) {
@@ -1657,7 +1838,7 @@ namespace Spin {
 	}
 	inline void Compiler::patchJMP(SizeType jmp) {
 		const SizeType jump = (sourcePosition() - jmp);
-		program -> instructions[jmp].as.index = jump - 1;
+		program -> instructions[jmp].as.index = jump;
 	}
 	inline void Compiler::patchJMB(SizeType pos, SizeType jmb) {
 		jmb = pos - jmb + 1;
@@ -1712,10 +1893,8 @@ namespace Spin {
 		emitOperation(OPCode::RST);
 		return count;
 	}
-	inline SizeType Compiler::emitCAL(SizeType i) {
-		const SizeType count = sourcePosition();
+	inline void Compiler::emitCAL(SizeType i) {
 		emitOperation({ OPCode::CAL, { .index = i } });
-		return count;
 	}
 	inline void Compiler::emitPOP(SizeType n) {
 		if (!n) return;

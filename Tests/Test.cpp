@@ -40,7 +40,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		Decompiler::decompile(program);
 		processor -> run(program);
 	} catch (Program::Error & e) {
-		OStream << endLine << endLine << "% " << e.getErrorCode()
+		OStream << endLine << "% " << e.getErrorCode()
 				<< " Error on line " << e.getLine() << " of ['"
 				<< e.getFile() << "'] %" << endLine
 				<< e.getMessage() << endLine << endLine;
@@ -48,7 +48,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		if (program) delete program;
 		return ExitCodes::failure;
 	} catch (Manager::BadFileException & b) {
-		OStream << endLine << endLine <<  "% PPR Catastrophic Event %"
+		OStream << endLine <<  "% PPR Catastrophic Event %"
 				<< endLine << "Couldn't open file ['"
 				<< b.getPath() << "']!" << endLine << endLine;
 		if (code) delete code;

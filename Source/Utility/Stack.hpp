@@ -44,21 +44,22 @@ namespace Spin {
 	template <typename Type>
 	Stack<Type>::Stack() {
 		maxCount = 16;
-		stack = new Type[maxCount];
+		stack = (Type *) std::malloc(
+			maxCount * sizeof(Type)
+		);
 	}
 
 	template <typename Type>
 	Stack<Type>::~Stack() {
-		delete [] stack;
+		std::free(stack);
 	}
 
 	template <typename Type>
 	void Stack<Type>::increase() {
 		maxCount *= 1.5;
-		Type * pointer = new Type[maxCount];
-		std::copy(stack, stack + count, pointer);
-		delete [] stack;
-		stack = pointer;
+		stack = (Type *) std::realloc(
+			stack, maxCount * sizeof(Type)
+		);
 	}
 
 	template <typename Type>

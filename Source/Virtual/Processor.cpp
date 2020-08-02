@@ -26,6 +26,8 @@
 #include "../Utility/Converter.hpp"
 #include "../Types/Complex.hpp"
 
+#include "../../Tests/Benchmark/Benchmark.hpp"
+
 #define DefineCastTable(A) const Dictionary<Types, Processor::Mutation> Processor::A
 #define DefineBinaryTable(A) const Dictionary<Types, Processor::Process> Processor::A
 #define DefineUnaryTable(A) const Dictionary<Type, Processor::Mutation> Processor::A
@@ -1149,6 +1151,18 @@ namespace Spin {
 		{   Type::ComplexType, makeImmutableFrom({ OStream << ((Complex *)r.pointer) -> toString(); }) },
 		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)); }) },
 	};
+	DefineImmutableTable(printLine) = {
+		// Basic Types:
+		{   Type::BooleanType, makeImmutableFrom({ OStream << (r.boolean ? "true" : "false") << endLine; }) },
+		{ Type::CharacterType, makeImmutableFrom({ OStream << (Character)r.byte << endLine; }) },
+		{      Type::ByteType, makeImmutableFrom({ OStream << hexadecimal << (Int64)r.byte << decimal << endLine; }) },
+		{   Type::IntegerType, makeImmutableFrom({ OStream << r.integer << endLine; }) },
+		{      Type::RealType, makeImmutableFrom({ OStream << Converter::realToString(r.real) << endLine; }) },
+		{ Type::ImaginaryType, makeImmutableFrom({ OStream << Converter::imaginaryToString(r.real) << endLine; }) },
+		// Basic Objects:
+		{   Type::ComplexType, makeImmutableFrom({ OStream << ((Complex *)r.pointer) -> toString() << endLine; }) },
+		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)) << endLine; }) },
+	};
 
 	DefineBinaryTable(inequality) = {
 		// Basic Types:
@@ -1666,15 +1680,15 @@ namespace Spin {
 
 	void Processor::run(Program * program) {
 		if (!program) return;
-		instructions = program -> instructions;
 		// Main:
-		Value a, b;
-		const SizeType count = instructions.size();
-		for (SizeType ip = 0; ip < count; ip += 1) {
-			const ByteCode data = instructions[ip];
+		Value a, b, c;
+		SizeType base = 0, ip = 0;
+		const SizeType count = program -> instructions.size();
+		while (ip < count) {
+			const ByteCode data = program -> instructions[ip];
 			switch (data.code) {
-				case OPCode::RST: continue;
-				case OPCode::CNS: stack.push(data.as.value); break;
+				case OPCode::RST: break;
+				case OPCode::PSH: stack.push(data.as.value); break;
 				case OPCode::STR:
 					stack.push({
 						.pointer = new String(program -> strings.at(
@@ -1684,6 +1698,11 @@ namespace Spin {
 				break;
 				case OPCode::GET: stack.push(stack.at(data.as.index)); break;
 				case OPCode::SET: stack.edit(data.as.index, stack.top()); break;
+				case OPCode::SSF: frame.push(base); base = stack.size() - data.as.index; break;
+				case OPCode::GLF: stack.push(stack.at(base + data.as.index)); break;
+				case OPCode::SLF: stack.edit(base + data.as.index, stack.top()); break;
+				case OPCode::CTP: c = stack.pop(); break;
+				case OPCode::LTP: stack.push(c); break;
 				case OPCode::SWP:
 					b = stack.pop();
 					a = stack.pop();
@@ -1735,12 +1754,12 @@ namespace Spin {
 				case OPCode::PES: stack.push({ .pointer = new String() }); break;
 				case OPCode::POP: stack.decrease(); break;
 				case OPCode::DSK: stack.decrease(data.as.index); break;
-				case OPCode::JMP: ip += data.as.index; break;
-				case OPCode::JMB: ip -= data.as.index; break;
-				case OPCode::JIF: if (!stack.pop().boolean) ip += data.as.index; break;
-				case OPCode::JAF: if (!stack.top().boolean) ip += data.as.index; break;
-				case OPCode::JIT: if  (stack.pop().boolean) ip += data.as.index; break;
-				case OPCode::JAT: if  (stack.top().boolean) ip += data.as.index; break;
+				case OPCode::JMP: ip += data.as.index; continue;
+				case OPCode::JMB: ip -= data.as.index; continue;
+				case OPCode::JIF: if (!stack.pop().boolean) { ip += data.as.index; continue; } break;
+				case OPCode::JAF: if (!stack.top().boolean) { ip += data.as.index; continue; } break;
+				case OPCode::JIT: if  (stack.pop().boolean) { ip += data.as.index; continue; } break;
+				case OPCode::JAT: if  (stack.top().boolean) { ip += data.as.index; continue; } break;
 				case OPCode::EQL: binaryCase(equality); break;
 				case OPCode::NEQ: binaryCase(inequality); break;
 				case OPCode::GRT: binaryCase(major); break;
@@ -1751,13 +1770,14 @@ namespace Spin {
 				case OPCode::BWA: binaryCase(bitwiseAND); break;
 				case OPCode::BWO: binaryCase(bitwiseOR); break;
 				case OPCode::BWX: binaryCase(bitwiseXOR); break;
-				case OPCode::CAL: call.push(ip); ip = data.as.index; break;
-				case OPCode::RET: ip = call.pop(); break;
+				case OPCode::CAL: call.push(ip); ip = data.as.index; continue;
+				case OPCode::RET: base = frame.pop(); ip = call.pop(); break;
 				case OPCode::CST: 
 					a = stack.pop();
 					stack.push(cast.find(data.as.types) -> second(a));
 				break;
-				case OPCode::PRN: immutableCase(print); break;
+				case OPCode::PRT: immutableCase(print); break;
+				case OPCode::PRL: immutableCase(printLine); break;
 				case OPCode::NLN: OStream << endLine; break;
 				case OPCode::HLT:
 					// Free:
@@ -1767,6 +1787,7 @@ namespace Spin {
 				break;
 				default: break; // TODO: Exception.
 			}
+			ip += 1;
 		}
 		// Free:
 		stack.clear();
