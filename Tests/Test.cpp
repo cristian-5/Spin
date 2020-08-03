@@ -24,6 +24,8 @@
 #include "../Source/Compiler/Decompiler.hpp"
 #include "../Source/Virtual/Processor.hpp"
 
+#include "Benchmark/Benchmark.hpp"
+
 using namespace Spin;
 
 Int32 main(Int32 argc, Character * argv[]) {
@@ -38,7 +40,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 		code = Wings::spread("Examples/Test.spin");
 		program = compiler -> compile(code);
 		Decompiler::decompile(program);
+		Timer::start();
 		processor -> run(program);
+		Timer::stop();
 	} catch (Program::Error & e) {
 		OStream << endLine << "% " << e.getErrorCode()
 				<< " Error on line " << e.getLine() << " of ['"
@@ -55,6 +59,10 @@ Int32 main(Int32 argc, Character * argv[]) {
 		if (program) delete program;
 		return ExitCodes::failure;
 	}
+
+	OStream << endLine << "% BMK Benchmark Time %"
+			<< endLine << "Execution time: " << Timer::time
+			<< "ms." << endLine << endLine;
 
 	delete code; delete program;
 

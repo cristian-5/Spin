@@ -26,8 +26,6 @@
 #include "../Utility/Converter.hpp"
 #include "../Types/Complex.hpp"
 
-#include "../../Tests/Benchmark/Benchmark.hpp"
-
 #define DefineCastTable(A) const Dictionary<Types, Processor::Mutation> Processor::A
 #define DefineBinaryTable(A) const Dictionary<Types, Processor::Process> Processor::A
 #define DefineUnaryTable(A) const Dictionary<Type, Processor::Mutation> Processor::A
