@@ -26,1655 +26,19 @@
 #include "../Utility/Converter.hpp"
 #include "../Types/Complex.hpp"
 
-#define DefineCastTable(A) const Dictionary<Types, Processor::Mutation> Processor::A
-#define DefineBinaryTable(A) const Dictionary<Types, Processor::Process> Processor::A
-#define DefineUnaryTable(A) const Dictionary<Type, Processor::Mutation> Processor::A
-#define DefineImmutableTable(A) const Dictionary<Type, Processor::Immutable> Processor::A
-
-#define binaryCase(T)                         \
-	b = stack.pop();                          \
-	a = stack.pop();                          \
-	stack.push(                               \
-		T.find(data.as.types) -> second(a, b) \
-	)
-
-#define binaryExceptionCase(T)                     \
-	b = stack.pop();                               \
-	a = stack.pop();                               \
-	try {                                          \
-		a = T.find(data.as.types) -> second(a, b); \
-	} catch (Exception & e) {                      \
-		auto search = program -> errors.find(ip);  \
-		if (search != program -> errors.end()) {   \
-			throw search -> second;                \
-		} else return;                             \
-	}                                              \
-	stack.push(a);
-
-#define unaryCase(T)                      \
-	a = stack.pop();                      \
-	stack.push(                           \
-		T.find(data.as.type) -> second(a) \
-	)
-
-#define immutableCase(T)              \
-	a = stack.pop();                  \
-	T.find(data.as.type) -> second(a)
-
-#define symmetric(A) compose(A, A)
-
-#define makeBinaryFrom(L) [] (Value l, Value r) -> Value L
-#define makeUnaryFrom(L) [] (Value r) -> Value L
-#define makeCastFrom(L) [] (Value c) -> Value L
-#define makeImmutableFrom(L) [] (Value r) L
+#define throwError(IP) {                      \
+	auto search = program -> errors.find(IP); \
+	if (search != program -> errors.end()) {  \
+		throw search -> second;               \
+	} else return;                            \
+}
 
 namespace Spin {
 
 	const Real Processor::infinity = std::numeric_limits<double>::infinity();
 	const Real Processor::undefined = std::numeric_limits<double>::quiet_NaN();
 
-	Array<Pair<Pointer, Type>> Processor::objects = { };
-
-	// Attention! Has to be read from l to r: ((r)l).
-	//            It will always return type of r.
-	DefineCastTable(cast) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeCastFrom({ return c; })
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeCastFrom({ return { .integer = (Int64)c.byte }; })
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeCastFrom({ return c; })
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeCastFrom({ return { .integer = (Int64)c.byte }; })
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeCastFrom({ return { .byte = (Byte)c.integer }; })
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeCastFrom({ return { .byte = (Byte)c.integer }; })
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeCastFrom({ return { .real = (Real)c.integer }; })
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeCastFrom({ return { .integer = (Int64)c.real }; })
-		},
-		// Basic Objects:
-		{
-			compose(Type::IntegerType, Type::ComplexType),
-			makeCastFrom({
-				Complex * complex = new Complex((Real)c.integer, 0.0);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ComplexType),
-			makeCastFrom({
-				Complex * complex = new Complex(c.real, 0.0);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ComplexType),
-			makeCastFrom({
-				Complex * complex = new Complex(0.0, c.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::IntegerType),
-			makeCastFrom({
-				return { .integer = (Int64)(((Complex *)c.pointer) -> a) };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::RealType),
-			makeCastFrom({
-				return { .real = (((Complex *)c.pointer) -> a) };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ImaginaryType),
-			makeCastFrom({
-				return { .real = (((Complex *)c.pointer) -> b) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::StringType),
-			makeCastFrom({
-				String * string = new String(1, (Character)c.byte);
-				objects.push_back({ string, Type::StringType });
-				return { .pointer = string };
-			})
-		},
-	};
-
-	DefineBinaryTable(addition) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) + r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) + (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) + r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)(l.integer + (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)(l.integer + (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = l.integer + r.integer };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.integer + r.real };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .real = l.real + r.integer };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.real + r.real };
-			})
-		},	
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = l.real + r.real };
-			})
-		},
-		// Basic Objects:
-		{
-			compose(Type::IntegerType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = new Complex((Real)l.integer, r.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					(complex -> a) + (Real)l.integer,
-					(complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(l.real, r.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					(complex -> a) + l.real,
-					(complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::IntegerType),
-			makeBinaryFrom({
-				Complex * complex = new Complex((Real)r.integer, l.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::RealType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(r.real, l.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					(complex -> a),
-					(complex -> b) + l.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::IntegerType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) + (Real)r.integer,
-					(complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::RealType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) + r.real,
-					(complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a),
-					(complex -> b) + r.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(
-					*((Complex *)l.pointer) +
-					*((Complex *)r.pointer)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::StringType, Type::CharacterType),
-			makeBinaryFrom({
-				String * string = new String(*((String *)(l.pointer)));
-				string -> push_back((Character)r.byte);
-				objects.push_back({ string, Type::StringType });
-				return { .pointer = string };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::StringType),
-			makeBinaryFrom({
-				String * string = new String(
-					((Character)l.byte) +
-					(*((String *)(r.pointer)))
-				);
-				objects.push_back({ string, Type::StringType });
-				return { .pointer = string };
-			})
-		},
-		{
-			compose(Type::StringType, Type::StringType),
-			makeBinaryFrom({
-				String * string = new String(
-					(*((String *)(l.pointer))) +
-					(*((String *)(r.pointer)))
-				);
-				objects.push_back({ string, Type::StringType });
-				return { .pointer = string };
-			})
-		},
-	};
-	DefineBinaryTable(subtraction) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) - r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) - (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) - r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)(l.integer - (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)(l.integer - (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = l.integer - r.integer };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.integer - r.real };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .real = l.real - r.integer };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.real - r.real };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = l.real - r.real };
-			})
-		},
-		// Basic Objects:
-		{
-			compose(Type::IntegerType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = new Complex((Real)l.integer, - r.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					(Real)l.integer - (complex -> a),
-					- (complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(l.real, - r.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					l.real - (complex -> a),
-					- (complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::IntegerType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(-((Real)r.integer), l.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::RealType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(- r.real, l.real);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					- (complex -> a),
-					l.real - (complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::IntegerType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) - (Real)r.integer,
-					(complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::RealType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) - r.real,
-					(complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a),
-					(complex -> b) - r.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(
-					*((Complex *)l.pointer) -
-					*((Complex *)r.pointer)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-	};
-	DefineBinaryTable(multiplication) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) * (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) * (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) * r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) * (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) * (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = (Int64)((Int64)(l.byte) * r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .integer = (Int64)(l.integer * (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return { .integer = (Int64)(l.integer * (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = l.integer * r.integer };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.integer * r.real };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = l.integer * r.real };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .real = l.real * r.integer };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.real * r.real };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = l.real * r.real };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .real = l.real * r.integer };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.real * r.real };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = l.real * r.real };
-			})
-		},
-		// Basic Objects:
-		{
-			compose(Type::IntegerType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					(complex -> a) * (Real)l.integer,
-					(complex -> b) * (Real)l.integer
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					(complex -> a) * l.real,
-					(complex -> b) * l.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					- ((complex -> b) * l.real),
-					(complex -> a) * l.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::IntegerType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) * (Real)r.integer,
-					(complex -> b) * (Real)r.integer
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::RealType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) * r.real,
-					(complex -> b) * r.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					- ((complex -> b) * r.real),
-					(complex -> a) * r.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(
-					*((Complex *)l.pointer) *
-					*((Complex *)r.pointer)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-	};
-	DefineBinaryTable(division) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				if (!r.integer) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) / r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) / (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				if (!r.integer) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) / r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)(l.integer / (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)(l.integer / (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				if (!r.integer) throw Exception();
-				return { .integer = l.integer / r.integer };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = (Real)(l.integer) / r.real };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = (Real)(l.integer) / r.real };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .real = l.real / (Real)(r.integer) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.real / r.real };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = l.real / r.real };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .real = l.real / (Real)(r.integer) };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::RealType),
-			makeBinaryFrom({
-				return { .real = l.real / r.real };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .real = l.real / r.real };
-			})
-		},
-		// Basic Objects:
-		{
-			compose(Type::IntegerType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				l.real = ((Real)l.integer) / (complex -> getNormalised());
-				complex = new Complex(
-					l.real * (complex -> a),
-					l.real * (- (complex -> b))
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::RealType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				l.real /= (complex -> getNormalised());
-				complex = new Complex(
-					l.real * (complex -> a),
-					l.real * (- (complex -> b))
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				l.real /= (complex -> getNormalised());
-				complex = new Complex(
-					(complex -> b) * l.real,
-					(complex -> a) * l.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::IntegerType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) / (Real)r.integer,
-					(complex -> b) / (Real)r.integer
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::RealType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> a) / r.real,
-					(complex -> b) / r.real
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ImaginaryType),
-			makeBinaryFrom({
-				Complex * complex = (Complex *)l.pointer;
-				complex = new Complex(
-					(complex -> b) / r.real,
-					- ((complex -> a) / r.real)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-		{
-			compose(Type::ComplexType, Type::ComplexType),
-			makeBinaryFrom({
-				Complex * complex = new Complex(
-					*((Complex *)l.pointer) /
-					*((Complex *)r.pointer)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-	};
-	DefineBinaryTable(modulus) = {
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				if (!r.integer) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) % r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) % (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				if (!r.integer) throw Exception();
-				return { .integer = (Int64)((Int64)(l.byte) % r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)(l.integer % (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				if (!r.byte) throw Exception();
-				return { .integer = (Int64)(l.integer % (Int64)(r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				if (!r.integer) throw Exception();
-				return { .integer = l.integer % r.integer };
-			})
-		},
-	};
-
-	DefineBinaryTable(bitwiseAND) = {
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = l.integer & r.integer };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .byte = (Byte)(l.byte & r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .byte = (Byte)(l.byte & r.byte) };
-			})
-		},
-		{
-			compose(Type::BooleanType, Type::BooleanType),
-			makeBinaryFrom({
-				return { .boolean = l.boolean && r.boolean };
-			})
-		},
-	};
-	DefineBinaryTable(bitwiseOR) = {
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = l.integer | r.integer };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .byte = (Byte)(l.byte | r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .byte = (Byte)(l.byte | r.byte) };
-			})
-		},
-		{
-			compose(Type::BooleanType, Type::BooleanType),
-			makeBinaryFrom({
-				return { .boolean = l.boolean || r.boolean };
-			})
-		},
-	};
-	DefineBinaryTable(bitwiseXOR) = {
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .integer = l.integer ^ r.integer };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .byte = (Byte)(l.byte ^ r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .byte = (Byte)(l.byte ^ r.byte) };
-			})
-		},
-	};
-
-	DefineUnaryTable(negation) = {
-		{ Type::CharacterType, makeUnaryFrom({ return { .integer = - r.byte }; }) },
-		{      Type::ByteType, makeUnaryFrom({ return { .integer = - r.byte }; }) },
-		{   Type::IntegerType, makeUnaryFrom({ return { .integer = - r.integer }; }) },
-		{      Type::RealType, makeUnaryFrom({ return { .real = - r.real }; }) },
-		{ Type::ImaginaryType, makeUnaryFrom({ return { .real = - r.real }; }) },
-		{
-			Type::ComplexType,
-			makeUnaryFrom({
-				Complex * complex = (Complex *)r.pointer;
-				complex = new Complex(
-					- (complex -> a),
-					- (complex -> b)
-				);
-				objects.push_back({ complex, Type::ComplexType });
-				return { .pointer = complex };
-			})
-		},
-	};
-	DefineImmutableTable(print) = {
-		// Basic Types:
-		{   Type::BooleanType, makeImmutableFrom({ OStream << (r.boolean ? "true" : "false"); }) },
-		{ Type::CharacterType, makeImmutableFrom({ OStream << (Character)r.byte; }) },
-		{      Type::ByteType, makeImmutableFrom({ OStream << hexadecimal << (Int64)r.byte << decimal; }) },
-		{   Type::IntegerType, makeImmutableFrom({ OStream << r.integer; }) },
-		{      Type::RealType, makeImmutableFrom({ OStream << Converter::realToString(r.real); }) },
-		{ Type::ImaginaryType, makeImmutableFrom({ OStream << Converter::imaginaryToString(r.real); }) },
-		// Basic Objects:
-		{   Type::ComplexType, makeImmutableFrom({ OStream << ((Complex *)r.pointer) -> toString(); }) },
-		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)); }) },
-	};
-	DefineImmutableTable(printLine) = {
-		// Basic Types:
-		{   Type::BooleanType, makeImmutableFrom({ OStream << (r.boolean ? "true" : "false") << endLine; }) },
-		{ Type::CharacterType, makeImmutableFrom({ OStream << (Character)r.byte << endLine; }) },
-		{      Type::ByteType, makeImmutableFrom({ OStream << hexadecimal << (Int64)r.byte << decimal << endLine; }) },
-		{   Type::IntegerType, makeImmutableFrom({ OStream << r.integer << endLine; }) },
-		{      Type::RealType, makeImmutableFrom({ OStream << Converter::realToString(r.real) << endLine; }) },
-		{ Type::ImaginaryType, makeImmutableFrom({ OStream << Converter::imaginaryToString(r.real) << endLine; }) },
-		// Basic Objects:
-		{   Type::ComplexType, makeImmutableFrom({ OStream << ((Complex *)r.pointer) -> toString() << endLine; }) },
-		{    Type::StringType, makeImmutableFrom({ OStream << (*((String *)r.pointer)) << endLine; }) },
-	};
-
-	DefineBinaryTable(inequality) = {
-		// Basic Types:
-		{
-			compose(Type::BooleanType, Type::BooleanType),
-			makeBinaryFrom({
-				return { .boolean = (l.boolean != r.boolean) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte != r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte != r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) != r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte != r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte != r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) != r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer != ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return{ .boolean = (l.integer != ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer != r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (((Real)l.integer) != r.real) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.real != ((Real)r.integer)) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (l.real != r.real) };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .boolean = (l.real != r.real) };
-			})
-		},
-		// Basic Objects:
-		{
-			compose(Type::StringType, Type::StringType),
-			makeBinaryFrom({
-				return { .boolean = ((*((String *)l.pointer)) != (*(String *)r.pointer)) };
-			})
-		},
-	};
-	DefineBinaryTable(equality) = {
-		// Basic Types:
-		{
-			compose(Type::BooleanType, Type::BooleanType),
-			makeBinaryFrom({
-				return { .boolean = (l.boolean == r.boolean) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte == r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte == r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) == r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte == r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte == r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) == r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer == ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return{ .boolean = (l.integer == ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer == r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (((Real)l.integer) == r.real) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.real == ((Real)r.integer)) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (l.real == r.real) };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .boolean = (l.real == r.real) };
-			})
-		},
-		// Basic Objects:
-		{
-			compose(Type::StringType, Type::StringType),
-			makeBinaryFrom({
-				return { .boolean = ((*((String *)l.pointer)) == (*(String *)r.pointer)) };
-			})
-		},
-	};
-
-	DefineBinaryTable(major) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte > r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte > r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) > r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte > r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte > r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) > r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer > ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return{ .boolean = (l.integer > ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer > r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (((Real)l.integer) > r.real) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.real > ((Real)r.integer)) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (l.real > r.real) };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .boolean = (l.real > r.real) };
-			})
-		},
-	};
-	DefineBinaryTable(majorEqual) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte >= r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte >= r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) >= r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte >= r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte >= r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) >= r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer >= ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return{ .boolean = (l.integer >= ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer >= r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (((Real)l.integer) >= r.real) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.real >= ((Real)r.integer)) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (l.real >= r.real) };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .boolean = (l.real >= r.real) };
-			})
-		},
-	};
-	DefineBinaryTable(minor) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte < r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte < r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) < r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte < r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte < r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) < r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer < ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return{ .boolean = (l.integer < ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer < r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (((Real)l.integer) < r.real) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.real < ((Real)r.integer)) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (l.real < r.real) };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .boolean = (l.real < r.real) };
-			})
-		},
-	};
-	DefineBinaryTable(minorEqual) = {
-		// Basic Types:
-		{
-			compose(Type::CharacterType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte <= r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte <= r.byte) };
-			})
-		},
-		{
-			compose(Type::CharacterType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) <= r.integer) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte <= r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::ByteType),
-			makeBinaryFrom({
-				return { .boolean = (l.byte <= r.byte) };
-			})
-		},
-		{
-			compose(Type::ByteType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (((Int64)l.byte) <= r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::CharacterType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer <= ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::ByteType),
-			makeBinaryFrom({
-				return{ .boolean = (l.integer <= ((Int64)r.byte)) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.integer <= r.integer) };
-			})
-		},
-		{
-			compose(Type::IntegerType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (((Real)l.integer) <= r.real) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::IntegerType),
-			makeBinaryFrom({
-				return { .boolean = (l.real <= ((Real)r.integer)) };
-			})
-		},
-		{
-			compose(Type::RealType, Type::RealType),
-			makeBinaryFrom({
-				return { .boolean = (l.real <= r.real) };
-			})
-		},
-		{
-			compose(Type::ImaginaryType, Type::ImaginaryType),
-			makeBinaryFrom({
-				return { .boolean = (l.real <= r.real) };
-			})
-		},
-	};
+	Array<Pair<Pointer, Type>> Processor::objects;
 
 	void Processor::run(Program * program) {
 		if (!program) return;
@@ -1709,38 +73,563 @@ namespace Spin {
 					stack.edit((SizeType)a.integer, stack.pop());
 					stack.edit((SizeType)b.integer, stack.pop());
 				break;
-				case OPCode::ADD: binaryCase(addition); break;
-				case OPCode::SUB: binaryCase(subtraction); break;
-				case OPCode::MUL: binaryCase(multiplication); break;
-				case OPCode::DIV: binaryExceptionCase(division); break;
-				case OPCode::MOD: binaryExceptionCase(modulus); break;
-				case OPCode::NEG: unaryCase(negation); break;
+				case OPCode::ADD:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .integer = (Int64)((Int64)(a.byte) + (Int64)(b.byte)) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .integer = (Int64)((Int64)(a.byte) + b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .integer = (Int64)(a.integer + (Int64)(b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .integer = a.integer + b.integer });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .real = a.integer + b.real });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .real = a.real + b.integer });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .real = a.real + b.real });
+						break;
+						// Basic Objects:
+						case compose(Type::IntegerType, Type::ImaginaryType):
+							Complex * complex = new Complex((Real)a.integer, b.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::IntegerType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(complex -> a) + (Real)a.integer,
+								(complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::RealType, Type::ImaginaryType):
+							Complex * complex = new Complex(a.real, b.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::RealType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(complex -> a) + a.real,
+								(complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::IntegerType):
+							Complex * complex = new Complex((Real)b.integer, a.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::RealType):
+							Complex * complex = new Complex(b.real, a.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(complex -> a),
+								(complex -> b) + a.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::IntegerType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) + (Real)b.integer,
+								(complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::RealType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) + b.real,
+								(complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ImaginaryType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a),
+								(complex -> b) + b.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ComplexType):
+							Complex * complex = new Complex(
+								*((Complex *)a.pointer) +
+								*((Complex *)b.pointer)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::StringType, Type::CharacterType):
+							String * string = new String(*((String *)(a.pointer)));
+							string -> push_back((Character)b.byte);
+							objects.push_back({ string, Type::StringType });
+							stack.push({ .pointer = string });
+						break;
+						case compose(Type::CharacterType, Type::StringType):
+							String * string = new String(
+								((Character)a.byte) +
+								(*((String *)(b.pointer)))
+							);
+							objects.push_back({ string, Type::StringType });
+							stack.push({ .pointer = string });
+						break;
+						case compose(Type::StringType, Type::StringType):
+							String * string = new String(
+								(*((String *)(a.pointer))) +
+								(*((String *)(b.pointer)))
+							);
+							objects.push_back({ string, Type::StringType });
+							stack.push({ .pointer = string });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::SUB:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .integer = (Int64)((Int64)(a.byte) - (Int64)(b.byte)) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .integer = (Int64)((Int64)(a.byte) - b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .integer = (Int64)(a.integer - (Int64)(b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .integer = a.integer - b.integer });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .real = a.integer - b.real });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .real = a.real - b.integer });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .real = a.real - b.real });
+						break;
+						// Basic Objects:
+						case compose(Type::IntegerType, Type::ImaginaryType):
+							Complex * complex = new Complex((Real)a.integer, - b.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::IntegerType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(Real)a.integer - (complex -> a),
+								- (complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::RealType, Type::ImaginaryType):
+							Complex * complex = new Complex(a.real, - b.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::RealType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								a.real - (complex -> a),
+								- (complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::IntegerType):
+							Complex * complex = new Complex(-((Real)b.integer), a.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::RealType):
+							Complex * complex = new Complex(- b.real, a.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								- (complex -> a),
+								a.real - (complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::IntegerType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) - (Real)b.integer,
+								(complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::RealType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) - b.real,
+								(complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ImaginaryType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a),
+								(complex -> b) - b.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ComplexType):
+							Complex * complex = new Complex(
+								*((Complex *)a.pointer) -
+								*((Complex *)b.pointer)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::MUL:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .integer = (Int64)((Int64)(a.byte) * (Int64)(b.byte)) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .integer = (Int64)((Int64)(a.byte) * b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .integer = (Int64)(a.integer * (Int64)(b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .integer = a.integer * b.integer });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+						case compose(Type::IntegerType, Type::ImaginaryType):
+							stack.push({ .real = a.integer * b.real });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .real = a.real * b.integer });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::RealType, Type::ImaginaryType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .real = a.real * b.real });
+						break;
+						case compose(Type::ImaginaryType, Type::IntegerType):
+							stack.push({ .real = a.real * b.integer });
+						break;
+						case compose(Type::ImaginaryType, Type::RealType):
+							stack.push({ .real = a.real * b.real });
+						break;
+						// Basic Objects:
+						case compose(Type::IntegerType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(complex -> a) * (Real)a.integer,
+								(complex -> b) * (Real)a.integer
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::RealType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(complex -> a) * a.real,
+								(complex -> b) * a.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								- ((complex -> b) * a.real),
+								(complex -> a) * a.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::IntegerType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) * (Real)b.integer,
+								(complex -> b) * (Real)b.integer
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::RealType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) * b.real,
+								(complex -> b) * b.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ImaginaryType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								- ((complex -> b) * b.real),
+								(complex -> a) * b.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ComplexType):
+							Complex * complex = new Complex(
+								*((Complex *)a.pointer) *
+								*((Complex *)b.pointer)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::DIV:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) / (Int64)(b.byte)) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							if (!b.integer) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) / b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)(a.integer / (Int64)(b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							if (!b.integer) throwError(ip);
+							stack.push({ .integer = a.integer / b.integer });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .real = (Real)(a.integer) / b.real });
+						break;
+						case compose(Type::IntegerType, Type::ImaginaryType):
+							stack.push({ .real = (Real)(a.integer) / b.real });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .real = a.real / (Real)(b.integer) });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::RealType, Type::ImaginaryType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+						case compose(Type::ImaginaryType, Type::RealType):
+							stack.push({ .real = a.real / b.real });
+						break;
+						case compose(Type::ImaginaryType, Type::IntegerType):
+							stack.push({ .real = a.real / (Real)(b.integer) });
+						break;
+						// Basic Objects:
+						case compose(Type::IntegerType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							a.real = ((Real)a.integer) / (complex -> getNormalised());
+							complex = new Complex(
+								a.real * (complex -> a),
+								a.real * (- (complex -> b))
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::RealType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							a.real /= (complex -> getNormalised());
+							complex = new Complex(
+								a.real * (complex -> a),
+								a.real * (- (complex -> b))
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::ComplexType):
+							Complex * complex = (Complex *)b.pointer;
+							a.real /= (complex -> getNormalised());
+							complex = new Complex(
+								(complex -> b) * a.real,
+								(complex -> a) * a.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::IntegerType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) / (Real)b.integer,
+								(complex -> b) / (Real)b.integer
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::RealType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) / b.real,
+								(complex -> b) / b.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ImaginaryType):
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> b) / b.real,
+								- ((complex -> a) / b.real)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::ComplexType):
+							Complex * complex = new Complex(
+								*((Complex *)a.pointer) /
+								*((Complex *)b.pointer)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::MOD:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						case compose(Type::CharacterType, Type::CharacterType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
+						break;
+						case compose(Type::CharacterType, Type::ByteType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+							if (!b.integer) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) % b.integer) });
+						break;
+						case compose(Type::ByteType, Type::CharacterType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
+						break;
+						case compose(Type::ByteType, Type::ByteType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
+						break;
+						case compose(Type::ByteType, Type::IntegerType):
+							if (!b.integer) throwError(ip);
+							stack.push({ .integer = (Int64)((Int64)(a.byte) % b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)(a.integer % (Int64)(b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::ByteType):
+							if (!b.byte) throwError(ip);
+							stack.push({ .integer = (Int64)(a.integer % (Int64)(b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							if (!b.integer) throwError(ip);
+							stack.push({ .integer = a.integer % b.integer });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::NEG:
+					switch (data.as.type) {
+						case Type::CharacterType:
+						case      Type::ByteType: stack.push({ .integer = - stack.pop().byte }); break;
+						case   Type::IntegerType: stack.push({ .integer = - stack.pop().integer }); break;
+						case      Type::RealType:
+						case Type::ImaginaryType: stack.push({ .real = - stack.pop().real }); break;
+						case   Type::ComplexType:
+							Complex * complex = (Complex *)stack.pop().pointer;
+							complex = new Complex(
+								- (complex -> a),
+								- (complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						default: return;
+					}
+				break;
 				case OPCode::INV:
-					if (data.as.type == Type::IntegerType) {
-						a = stack.pop();
-						stack.push({ .integer = ~ a.integer });
-					} else {
-						a = stack.pop();
-						stack.push({ .byte = (Byte)(~ a.byte) });
+					switch (data.as.type) {
+						case Type::IntegerType: stack.push({ .integer = ~ stack.pop().integer });
+						case    Type::ByteType: stack.push({ .byte = ~ stack.pop().byte });
+						default: return;
 					}
 				break;
 				case OPCode::SSC:
 					b = stack.pop();
 					a = stack.pop();
 					if (b.integer < 0 ||
-						b.integer > (((String *)a.pointer) -> size()) - 1) {
-						auto search = program -> errors.find(ip);
-						if (search != program -> errors.end()) {
-							throw search -> second;
-						}
-					}
+						b.integer > (((String *)a.pointer) -> size()) - 1) throwError(ip);
 					stack.push({
 						.byte = (Byte)((String *)a.pointer) -> at(b.integer)
 					});
 				break;
 				case OPCode::CCJ:
-					a = stack.pop();
-					stack.push({ .pointer = new Complex(((Complex *)a.pointer) -> getConjugate()) });
+					stack.push({ .pointer = new Complex(((Complex *)stack.pop().pointer) -> getConjugate()) });
 				break;
 				case OPCode::VCJ: break;
 				case OPCode::MCJ: break;
@@ -1758,24 +647,387 @@ namespace Spin {
 				case OPCode::JAF: if (!stack.top().boolean) { ip += data.as.index; continue; } break;
 				case OPCode::JIT: if  (stack.pop().boolean) { ip += data.as.index; continue; } break;
 				case OPCode::JAT: if  (stack.top().boolean) { ip += data.as.index; continue; } break;
-				case OPCode::EQL: binaryCase(equality); break;
-				case OPCode::NEQ: binaryCase(inequality); break;
-				case OPCode::GRT: binaryCase(major); break;
-				case OPCode::GEQ: binaryCase(majorEqual); break;
-				case OPCode::LSS: binaryCase(minor); break;
-				case OPCode::LEQ: binaryCase(minorEqual); break;
+				case OPCode::EQL:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = (a.boolean == b.boolean) });
+						break;
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .boolean = (a.byte == b.byte) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .boolean = (((Int64)a.byte) == b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .boolean = (a.integer == ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .boolean = (a.integer == b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .boolean = (((Real)a.integer) == b.real) });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .boolean = (a.real == ((Real)b.integer)) });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .boolean = (a.real == b.real) });
+						break;
+						// Basic Objects:
+						case compose(Type::StringType, Type::StringType):
+							stack.push({ .boolean = ((*((String *)a.pointer)) == (*(String *)b.pointer)) });
+						break;
+						case compose(Type::ComplexType, Type::ComplexType):
+							stack.push({ .boolean = ((*((Complex *)a.pointer)) == (*(Complex *)b.pointer)) });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::NEQ:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = (a.boolean != b.boolean) });
+						break;
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .boolean = (a.byte != b.byte) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .boolean = (((Int64)a.byte) != b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .boolean = (a.integer != ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .boolean = (a.integer != b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .boolean = (((Real)a.integer) != b.real) });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .boolean = (a.real != ((Real)b.integer)) });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .boolean = (a.real != b.real) });
+						break;
+						// Basic Objects:
+						case compose(Type::StringType, Type::StringType):
+							stack.push({ .boolean = ((*((String *)a.pointer)) != (*(String *)b.pointer)) });
+						break;
+						case compose(Type::ComplexType, Type::ComplexType):
+							stack.push({ .boolean = ((*((Complex *)a.pointer)) != (*(Complex *)b.pointer)) });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::GRT:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .boolean = (a.byte > b.byte) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .boolean = (((Int64)a.byte) > b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .boolean = (a.integer > ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .boolean = (a.integer > b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .boolean = (((Real)a.integer) > b.real) });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .boolean = (a.real > ((Real)b.integer)) });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .boolean = (a.real > b.real) });
+						break;
+						// Basic Objects:
+						case compose(Type::StringType, Type::StringType):
+							stack.push({ .boolean = ((*((String *)a.pointer)) > (*(String *)b.pointer)) });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::GEQ:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .boolean = (a.byte >= b.byte) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .boolean = (((Int64)a.byte) >= b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .boolean = (a.integer >= ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .boolean = (a.integer >= b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .boolean = (((Real)a.integer) >= b.real) });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .boolean = (a.real >= ((Real)b.integer)) });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .boolean = (a.real >= b.real) });
+						break;
+						// Basic Objects:
+						case compose(Type::StringType, Type::StringType):
+							stack.push({ .boolean = ((*((String *)a.pointer)) >= (*(String *)b.pointer)) });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::LSS:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .boolean = (a.byte < b.byte) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .boolean = (((Int64)a.byte) < b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .boolean = (a.integer < ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .boolean = (a.integer < b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .boolean = (((Real)a.integer) < b.real) });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .boolean = (a.real < ((Real)b.integer)) });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .boolean = (a.real < b.real) });
+						break;
+						// Basic Objects:
+						case compose(Type::StringType, Type::StringType):
+							stack.push({ .boolean = ((*((String *)a.pointer)) < (*(String *)b.pointer)) });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::LEQ:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::CharacterType):
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType):
+						case compose(Type::ByteType, Type::ByteType):
+							stack.push({ .boolean = (a.byte <= b.byte) });
+						break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .boolean = (((Int64)a.byte) <= b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .boolean = (a.integer <= ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .boolean = (a.integer <= b.integer) });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .boolean = (((Real)a.integer) <= b.real) });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .boolean = (a.real <= ((Real)b.integer)) });
+						break;
+						case compose(Type::RealType, Type::RealType):
+						case compose(Type::ImaginaryType, Type::ImaginaryType):
+							stack.push({ .boolean = (a.real <= b.real) });
+						break;
+						// Basic Objects:
+						case compose(Type::StringType, Type::StringType):
+							stack.push({ .boolean = ((*((String *)a.pointer)) <= (*(String *)b.pointer)) });
+						break;
+						default: return;
+					}
+				break;
 				case OPCode::NOT: stack.push({ .boolean = !(stack.pop().boolean) }); break;
-				case OPCode::BWA: binaryCase(bitwiseAND); break;
-				case OPCode::BWO: binaryCase(bitwiseOR); break;
-				case OPCode::BWX: binaryCase(bitwiseXOR); break;
+				case OPCode::BWA:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .integer = a.integer & b.integer });
+						break;
+						case compose(Type::ByteType, Type::ByteType):
+						case compose(Type::CharacterType, Type::CharacterType):
+							stack.push({ .byte = (Byte)(a.byte & b.byte) });
+						break;
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = a.boolean && b.boolean });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::BWO:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .integer = a.integer | b.integer });
+						break;
+						case compose(Type::ByteType, Type::ByteType):
+						case compose(Type::CharacterType, Type::CharacterType):
+							stack.push({ .byte = (Byte)(a.byte | b.byte) });
+						break;
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = a.boolean || b.boolean });
+						break;
+						default: return;
+					}
+				break;
+				case OPCode::BWX:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.types) {
+						case compose(Type::IntegerType, Type::IntegerType):
+							stack.push({ .integer = a.integer ^ b.integer });
+						break;
+						case compose(Type::ByteType, Type::ByteType):
+						case compose(Type::CharacterType, Type::CharacterType):
+							stack.push({ .byte = (Byte)(a.byte ^ b.byte) });
+						break;
+						default: return;
+					}
+				break;
 				case OPCode::CAL: call.push(ip); ip = data.as.index; continue;
 				case OPCode::RET: base = frame.pop(); ip = call.pop(); break;
-				case OPCode::CST: 
-					a = stack.pop();
-					stack.push(cast.find(data.as.types) -> second(a));
+				case OPCode::CST:
+					// Attention! Has to be read from l to r: ((r)l).
+					//            It will always return type of r.
+					switch (data.as.types) {
+						// Basic Types:
+						case compose(Type::CharacterType, Type::ByteType):
+						case compose(Type::ByteType, Type::CharacterType): break;
+						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::IntegerType):
+							stack.push({ .integer = (Int64)stack.pop().byte });
+						break;
+						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::IntegerType, Type::ByteType):
+							stack.push({ .byte = (Byte)stack.pop().integer });
+						break;
+						case compose(Type::IntegerType, Type::RealType):
+							stack.push({ .real = (Real)stack.pop().integer });
+						break;
+						case compose(Type::RealType, Type::IntegerType):
+							stack.push({ .integer = (Int64)stack.pop().real });
+						break;
+						// Basic Objects:
+						case compose(Type::IntegerType, Type::ComplexType):
+							Complex * complex = new Complex((Real)stack.pop().integer, 0.0);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::RealType, Type::ComplexType):
+							Complex * complex = new Complex(stack.pop().real, 0.0);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ImaginaryType, Type::ComplexType):
+							Complex * complex = new Complex(0.0, stack.pop().real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						break;
+						case compose(Type::ComplexType, Type::IntegerType):
+							stack.push({ .integer = (Int64)(((Complex *)stack.pop().pointer) -> a) });
+						break;
+						case compose(Type::ComplexType, Type::RealType):
+							stack.push({ .real = (((Complex *)stack.pop().pointer) -> a) });
+						break;
+						case compose(Type::ComplexType, Type::ImaginaryType):
+							stack.push({ .real = (((Complex *)stack.pop().pointer) -> b) });
+						break;
+						case compose(Type::CharacterType, Type::StringType):
+							String * string = new String(1, (Character)stack.pop().byte);
+							objects.push_back({ string, Type::StringType });
+							stack.push({ .pointer = string });
+						break;
+						default: return;
+					}
 				break;
-				case OPCode::PRT: immutableCase(print); break;
-				case OPCode::PRL: immutableCase(printLine); break;
+				case OPCode::PRT:
+					switch (data.as.type) {
+						// Basic Types:
+						case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false"); break;
+						case Type::CharacterType: OStream << (Character)stack.pop().byte; break;
+						case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal; break;
+						case   Type::IntegerType: OStream << stack.pop().integer; break;
+						case      Type::RealType: OStream << Converter::realToString(stack.pop().real); break;
+						case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real); break;
+						// Basic Objects:
+						case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString(); break;
+						case    Type::StringType: OStream << (*((String *)stack.pop().pointer)); break;
+						default: return;
+					}
+				break;
+				case OPCode::PRL:
+					switch (data.as.type) {
+						// Basic Types:
+						case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false") << endLine; break;
+						case Type::CharacterType: OStream << (Character)stack.pop().byte << endLine; break;
+						case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal << endLine; break;
+						case   Type::IntegerType: OStream << stack.pop().integer << endLine; break;
+						case      Type::RealType: OStream << Converter::realToString(stack.pop().real) << endLine; break;
+						case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real) << endLine; break;
+						// Basic Objects:
+						case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString() << endLine; break;
+						case    Type::StringType: OStream << (*((String *)stack.pop().pointer)) << endLine; break;
+						default: return;
+					}
+				break;
 				case OPCode::NLN: OStream << endLine; break;
 				case OPCode::HLT:
 					// Free:
@@ -1805,17 +1057,6 @@ namespace Spin {
 
 }
 
-#undef DefineCastTable
-#undef DefineBinaryTable
-#undef DefineUnaryTable
-#undef DefineImmutableTable
-#undef binaryCase
-#undef unaryCase
-#undef immutableCase
-#undef symmetric
-#undef makeBinaryFrom
-#undef makeUnaryFrom
-#undef makeCastFrom
-#undef makeImmutableFrom
+#undef throwError
 
 #endif
