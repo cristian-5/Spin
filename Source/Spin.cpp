@@ -35,7 +35,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		case 0: {
 			OStream << endLine << "% Spin Catastrophic Event %"
 				<< endLine << "You forgot to specify the source file!"
-				<< endLine << "Type spin -h and we'll guide you through."
+				<< endLine << "Type spin -h and I'll guide you through."
 				<< endLine << endLine;
 			return ExitCodes::failure;
 		} break;
@@ -44,7 +44,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 			if (argument.length() == 0) {
 				OStream << endLine << "% Spin Catastrophic Event %"
 					<< endLine << "You forgot to specify the source file!"
-					<< endLine << "Type spin -h and we'll guide you through."
+					<< endLine << "Type spin -h and I'll guide you through."
 					<< endLine << endLine;
 				return ExitCodes::failure;
 			}
@@ -56,8 +56,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 				return ExitCodes::success;
 			} else if (argument == "-h" || argument == "--help") {
 				OStream << endLine << "% Spin help magician (it's helpful) %"
-						<< endLine << "  Usage: spin <File>"
-						<< endLine << "         <File>: should be the main file and"
+						<< endLine << "  Usage: spin <file>"
+						<< endLine << "         <file>: should be the main file and"
 						<< endLine << "                 it should end with '.spin'."
 						<< endLine << "  I told you it was helpful."
 						<< endLine << endLine;
@@ -67,7 +67,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		default: {
 			OStream << endLine << "% Spin Catastrophic Event (I'm not your maid!) %"
 				<< endLine << "You gave me too many arguments. Go parse them yourself!"
-				<< endLine << "Type spin -h and we'll guide you through."
+				<< endLine << "Type spin -h and I'll guide you through."
 				<< endLine << endLine;
 			return ExitCodes::failure;
 		} break;
