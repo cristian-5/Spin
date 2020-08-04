@@ -42,7 +42,7 @@ loop {
     if (condition) break;
 }
 
-for (Integer i = 0; i < 10; i += 1) {
+for (var i: Integer = 0; i < 10; i += 1) {
     /* < code > */
     if (condition) continue;
     /* < code > */

@@ -23,16 +23,16 @@ import Console;
 
 class A {
 
-    @shared Integer x = 6;
-    @hidden Integer y = 9;
+    @shared var x: Integer = 6;
+    @hidden var y: Integer = 9;
 
     @create proc A() {
         Console::writeLine("Running Constructor");
     }
 
     @public proc subProgram(a: Real, b: Integer) {
-        Integer i = 10;
-        Integer c = a + b;
+        var i: Integer = 10;
+        var c: Integer = a + b;
         c += i * a;
         self::x = c + self.y;
     }

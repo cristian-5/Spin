@@ -9,7 +9,7 @@ contain methods and properties.
 |--------------:|------------|:----------------:|
 |      **Byte** | 1 Byte   | Unsigned Integer |
 |   **Integer** | 8 Bytes  | Signed Integer   |
-| **Boolean** | 1 Byte | [Boolean Value](Types/Boolean.md) |
+|   **Boolean** | 1 Byte   | [Boolean Value](Types/Boolean.md) |
 | **Character** | 1 Byte   | Character        |
 |      **Real** | 8 Bytes  | Real Number      |
 | **Imaginary** | 8 Bytes  | Imaginary Number |

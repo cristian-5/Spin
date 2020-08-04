@@ -21,8 +21,8 @@ class Console {
 
 	@shared proc write(object: Any...);
 	@shared proc writeLine(object: Any...);
-	@shared func read(object: Any...) -> String;
-	@shared func readLine(object: Any...) -> String;
+	@shared func read(object: Any...): String;
+	@shared func readLine(object: Any...): String;
 
 	@shared proc setBackground(r: Byte, g: Byte, b: Byte);
 	@shared proc setBackground(c: Byte);
@@ -59,7 +59,7 @@ ending the current line.
 Console::writeLine("Hello world!");
 ```
 
-### @shared func read(object: Any...) -> String;
+### @shared func read(object: Any...): String;
 
 Writes object to the output buffer, without
 ending the current line. Then waits for user input,
@@ -68,10 +68,10 @@ returns the corresponding string.
 **object**: Can be any type of object.
 
 ``` swift
-String name = Console::read("Insert your name: ");
+var name = Console::read("Insert your name: ");
 ```
 
-### @shared func readLine(object: Any...) -> String;
+### @shared func readLine(object: Any...): String;
 
 Writes object to the output buffer,
 ending the current line. Then waits for user input,
@@ -80,7 +80,7 @@ returns the corresponding string.
 **object**: Can be any type of object.
 
 ``` swift
-String name = Console::readLine("Insert your name on the next line.");
+var name = Console::readLine("Insert your name on the next line.");
 ```
 
 ### @shared proc setBackground(r: Byte, g: Byte, b: Byte);

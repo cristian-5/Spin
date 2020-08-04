@@ -11,6 +11,8 @@ hopefully satisfy your hunger for knowledge.
 - [ControlFlow](ControlFlow.md)
 - [Functions](Functions.md)
 
+- [Virtual Processor](OPCodes.md)
+
 # Libraries
 
 Built in, ready to use libraries.

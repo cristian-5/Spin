@@ -6,9 +6,9 @@ manipulation of sequences of characters.
 
 ## Usage
 
-``` java
-String x = "Hello";
-String y = "My favourite number is " + 5;
+``` swift
+var x: String = "Hello";
+var y: String = "My favourite number is " + 5;
 ```
 
 ## Virtual Class Prototype
@@ -16,21 +16,21 @@ String y = "My favourite number is " + 5;
 ``` swift
 class String {
 
-	@secure Integer length = 0;
+	@secure var length: Integer = 0;
 
 	@public proc append(element: Any);
 
-	@public func contains(element: Character) -> Boolean;
-	@public func contains(sequence: String) -> Boolean;
+	@public func contains(element: Character): Boolean;
+	@public func contains(sequence: String): Boolean;
 
 	@public proc clear();
 
-	@public func ends(with: Character) -> Boolean;
-	@public func ends(with: String) -> Boolean;
+	@public func ends(with: Character): Boolean;
+	@public func ends(with: String): Boolean;
 
 	@public proc insert(element: Any, at: Integer);
 
-	@public func isEmpty() -> Boolean;
+	@public func isEmpty(): Boolean;
 
 	@public proc prepend(element: Any);
 
@@ -39,26 +39,26 @@ class String {
 
 	@public proc reverse();
 
-	@public func starts(with: Character) -> Boolean;
-	@public func starts(with: String) -> Boolean;
+	@public func starts(with: Character): Boolean;
+	@public func starts(with: String): Boolean;
 
-	@public func subString(from: Integer, to: Integer = length) -> String;
+	@public func subString(from: Integer, to: Integer = length): String;
 
-	@public func toLower() -> String;
-	@public func toTitle() -> String;
-	@public func toUpper() -> String;
-	@public func toWrong() -> String;
+	@public func toLower(): String;
+	@public func toTitle(): String;
+	@public func toUpper(): String;
+	@public func toWrong(): String;
 
 	@immune String empty = "";
 
-	@shared func from(Any) -> String;
+	@shared func from(Any): String;
 
-	@define func + (String, Any) -> String;
-	@define func + (Any, String) -> String;
+	@define func + (String, Any): String;
+	@define func + (Any, String): String;
 	@define proc += (Any);
-	@define func [] (Integer) -> Character;
+	@define func [] (Integer): Character;
 
-	@define func toString() -> String;
+	@define func toString(): String;
 
 }
 ```
@@ -68,8 +68,8 @@ class String {
 Read-only public property that contains the
 total number of characters in the String.
 
-``` java
-Integer length = "LONG STRING".length(); // length <- 11.
+``` swift
+var length = "LONG STRING".length(); // length <- 11.
 ```
 
 ### @public proc append(element: Any);
@@ -79,31 +79,31 @@ to the end of the String.
 
 **element**: The element to append.
 
-``` java
-String s = "Hello";
+``` swift
+var s = "Hello";
 s.append(" There!"; // s <- "Hello There!".
 ```
 
-### @public func contains(element: Character) -> Boolean;
+### @public func contains(element: Character): Boolean;
 
 Checks if the Character is present in the current String.
 
 **element**: The Character to look for.
 
-``` java
+``` swift
 if ("1234".contains('3')) {
 	/* Instructions */
 }
 ```
 
-### @public func contains(sequence: String) -> Boolean;
+### @public func contains(sequence: String): Boolean;
 
 Checks if the sequence of characters is present
 in the current String.
 
 **sequence**: The sequence to look for.
 
-``` java
+``` swift
 if ("1234".contains("23")) {
 	/* Instructions */
 }
@@ -113,32 +113,32 @@ if ("1234".contains("23")) {
 
 Sets the String to be empty (`""`).
 
-``` java
-String s = "I'm full!";
+``` swift
+var s = "I'm full!";
 s.empty(); // s <- "".
 ```
 
-### @public func ends(with: Character) -> Boolean;
+### @public func ends(with: Character): Boolean;
 
 Checks if the String ends with the specified Character.\
 If the String is empty it returns `false`.
 
 **with**: The Character to look for.
 
-``` java
-String s = "The pen is on the table!";
+``` swift
+var s = "The pen is on the table!";
 if (s.ends('!')) {
 	/* Instructions */
 }
 ```
 
-### @public func ends(with: String) -> Boolean;
+### @public func ends(with: String): Boolean;
 
 Checks if the String ends with the specified String.
 
 **with**: The String sequence to look for.
 
-``` java
+``` swift
 if ("1234".ends("34")) {
 	/* Instructions */
 }
@@ -152,18 +152,18 @@ at the specified position.
 **element**: The element to insert.\
 **at**: The specified position.
 
-``` java
-String s = "I U";
+``` swift
+var s = "I U";
 s.insert("<3 ", 2); // s <- "I <3 U".
 ```
 
-### @public func isEmpty() -> Boolean;
+### @public func isEmpty(): Boolean;
 
 Check if the String is empty.
 
-``` java
-String s = "I <3 U";
-Boolean heLovesMe = !s.isEmpty();
+``` swift
+var s = "I <3 U";
+var heLovesMe = !s.isEmpty();
 if (heLovesMe) {
 	s += " 2"; // s <- "I <3 U 2".
 }
@@ -176,8 +176,8 @@ to the start of the String.
 
 **element**: The element to prepend.
 
-``` java
-String s = "There!";
+``` swift
+var s = "There!";
 s.prepend("Hello "; // s <- "Hello There!".
 ```
 
@@ -189,8 +189,8 @@ index out of range exception.
 
 **at**: The specified position.
 
-``` java
-String s = "I don't need a semicolon;";
+``` swift
+var s = "I don't need a semicolon;";
 s.remove(s.length - 1); // s <- "I don't need a semicolon".
 ```
 
@@ -203,8 +203,8 @@ index out of range exception on one of the parameters.
 **from**: The start position (included).\
 **to**: The end position (included).
 
-``` java
-String s = "Hello terrible friend!";
+``` swift
+var s = "Hello terrible friend!";
 s.remove(6, 14); // s <- "Hello friend!".
 ```
 
@@ -212,38 +212,38 @@ s.remove(6, 14); // s <- "Hello friend!".
 
 Reverses the String, in place.
 
-``` java
-String s = "olleH";
+``` swift
+var s = "olleH";
 s.reverse(); // s <- "Hello".
 ```
 
-### @public func starts(with: Character) -> Boolean;
+### @public func starts(with: Character): Boolean;
 
 Checks if the String starts with the specified Character.\
 If the String is empty it returns `false`.
 
 **with**: The Character to look for.
 
-``` java
-String s = "The pen is on the table.";
+``` swift
+var s = "The pen is on the table.";
 if (s.starts('T')) {
 	/* Instructions */
 }
 ```
 
-### @public func starts(with: String) -> Boolean;
+### @public func starts(with: String): Boolean;
 
 Checks if the String starts with the specified String.
 
 **with**: The String sequence to look for.
 
-``` java
+``` swift
 if ("1234".starts("12")) {
 	/* Instructions */
 }
 ```
 
-### @public func subString(from: Integer, to: Integer = length) -> String;
+### @public func subString(from: Integer, to: Integer = length): String;
 
 Returns the sequence of characters at the specified range.\
 If the specified range is invalid it throws an
@@ -254,45 +254,45 @@ the lower bound to the end of the String.
 **from**: The start position (included).\
 **to**: The end position (included).
 
-``` java
-String s = "Hello terrible friend!";
-String howIsMyFriend = s.subString(6, 13); // s <- "terrible".
+``` swift
+var s = "Hello terrible friend!";
+var howIsMyFriend = s.subString(6, 13); // s <- "terrible".
 ```
 
-### @public func toLower() -> String;
+### @public func toLower(): String;
 
 Returns the String in lowercase.
 
-``` java
-String s = "UPPERCASE";
+``` swift
+var s = "UPPERCASE";
 s = s.toLower(); // s <- "uppercase".
 ```
 
-### @public func toTitle() -> String;
+### @public func toTitle(): String;
 
 Returns the String in titlecase.
 
-``` java
-String s = "very big title";
+``` swift
+var s = "very big title";
 s = s.toTitle(); // s <- "Very Big Title".
 ```
 
-### @public func toUpper() -> String;
+### @public func toUpper(): String;
 
 Returns the String in uppercase.
 
-``` java
-String s = "lowercase";
+``` swift
+var s = "lowercase";
 s = s.toUpper(); // s <- "LOWERCASE".
 ```
 
-### @public func toWrong() -> String;
+### @public func toWrong(): String;
 
 Returns the String in wrongcase.\
 It swaps the cases along the way.
 
-``` java
-String s = "lowerCase";
+``` swift
+var s = "lowerCase";
 s = s.toWrong(); // s <- "LOWERcASE".
 ```
 
@@ -300,17 +300,17 @@ s = s.toWrong(); // s <- "LOWERcASE".
 
 Read-only static property representing the empty String.
 
-``` java
-String empty = String::empty; // empty <- "".
+``` swift
+var empty = String::empty; // empty <- "".
 ```
 
-### @shared func from(Any) -> String;
+### @shared func from(Any): String;
 
 Forces a cast from an expression.
 
-``` java
-String fromInteger = String::from(10);
-String fromBoolean = String::from(false);
+``` swift
+var fromInteger = String::from(10);
+var fromBoolean = String::from(false);
 ```
 
 ## Operators
@@ -321,52 +321,52 @@ String fromBoolean = String::from(false);
 
 The **String** type allows the use of the following operators:
 
-### @define func + (String, Any) -> String;
+### @define func + (String, Any): String;
 
 Infix binary operator that returns the string resulting
 from the concatenation of the string values of the operands.
 
-``` java
-String x = "Agent " + 707; // x <- "Agent 707".
+``` swift
+var x = "Agent " + 707; // x <- "Agent 707".
 ```
 
-### @define func + (Any, String) -> String;
+### @define func + (Any, String): String;
 
 Infix binary operator that returns the string resulting
 from the concatenation of the string values of the operands.
 
-``` java
-String x = 3.5 + " seconds"; // x <- "3.5 seconds".
+``` swift
+var x = 3.5 + " seconds"; // x <- "3.5 seconds".
 ```
 
 ### @define proc += (Any);
 
 Infix binary operator that appends the operand to the String.
 
-``` java
-String x = "Hello";
+``` swift
+var x = "Hello";
 x += " There"; // x <- "Hello There".
 ```
 
-### @define func [] (Integer) -> Character;
+### @define func [] (Integer): Character;
 
 Subscript unary operator that returns the Character
 found in the specified position.\
 If the position is invalid it throws an index out
 of range exception.
 
-``` java
-Character c = "ABCD"[2]; // x <- 'C'.
+``` swift
+var c: Character = "ABCD"[2]; // x <- 'C'.
 ```
 
 ## Overrides
 
-### @define func toString() -> String;
+### @define func toString(): String;
 
 Gets the string representation of the value.
 
-``` java
+``` swift
 import Console;
-String value = "value";
+var value = "value";
 Console::writeLine(value.toString()); // prints "value".
 ```
