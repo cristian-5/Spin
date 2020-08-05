@@ -30,7 +30,7 @@
 	auto search = program -> errors.find(IP); \
 	if (search != program -> errors.end()) {  \
 		throw search -> second;               \
-	} else return;                            \
+	} else return { .integer = 0 };           \
 }
 
 namespace Spin {
@@ -40,8 +40,8 @@ namespace Spin {
 
 	Array<Pair<Pointer, Type>> Processor::objects;
 
-	void Processor::run(Program * program) {
-		if (!program) return;
+	Value Processor::evaluate(Program * program) {
+		if (!program) return { .integer = 0 };
 		// Main:
 		Value a, b, c;
 		SizeType base = 0, ip = 0;
@@ -106,12 +106,12 @@ namespace Spin {
 							stack.push({ .real = a.real + b.real });
 						break;
 						// Basic Objects:
-						case compose(Type::IntegerType, Type::ImaginaryType):
+						case compose(Type::IntegerType, Type::ImaginaryType): {
 							Complex * complex = new Complex((Real)a.integer, b.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::IntegerType, Type::ComplexType):
+						} break;
+						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								(complex -> a) + (Real)a.integer,
@@ -119,13 +119,13 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::RealType, Type::ImaginaryType):
+						} break;
+						case compose(Type::RealType, Type::ImaginaryType): {
 							Complex * complex = new Complex(a.real, b.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::RealType, Type::ComplexType):
+						} break;
+						case compose(Type::RealType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								(complex -> a) + a.real,
@@ -133,18 +133,18 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::IntegerType):
+						} break;
+						case compose(Type::ImaginaryType, Type::IntegerType): {
 							Complex * complex = new Complex((Real)b.integer, a.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::RealType):
+						} break;
+						case compose(Type::ImaginaryType, Type::RealType): {
 							Complex * complex = new Complex(b.real, a.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::ComplexType):
+						} break;
+						case compose(Type::ImaginaryType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								(complex -> a),
@@ -152,8 +152,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::IntegerType):
+						} break;
+						case compose(Type::ComplexType, Type::IntegerType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) + (Real)b.integer,
@@ -161,8 +161,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::RealType):
+						} break;
+						case compose(Type::ComplexType, Type::RealType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) + b.real,
@@ -170,8 +170,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ImaginaryType):
+						} break;
+						case compose(Type::ComplexType, Type::ImaginaryType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a),
@@ -179,38 +179,38 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ComplexType):
+						} break;
+						case compose(Type::ComplexType, Type::ComplexType): {
 							Complex * complex = new Complex(
 								*((Complex *)a.pointer) +
 								*((Complex *)b.pointer)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::StringType, Type::CharacterType):
+						} break;
+						case compose(Type::StringType, Type::CharacterType): {
 							String * string = new String(*((String *)(a.pointer)));
 							string -> push_back((Character)b.byte);
 							objects.push_back({ string, Type::StringType });
 							stack.push({ .pointer = string });
-						break;
-						case compose(Type::CharacterType, Type::StringType):
+						} break;
+						case compose(Type::CharacterType, Type::StringType): {
 							String * string = new String(
 								((Character)a.byte) +
 								(*((String *)(b.pointer)))
 							);
 							objects.push_back({ string, Type::StringType });
 							stack.push({ .pointer = string });
-						break;
-						case compose(Type::StringType, Type::StringType):
+						} break;
+						case compose(Type::StringType, Type::StringType): {
 							String * string = new String(
 								(*((String *)(a.pointer))) +
 								(*((String *)(b.pointer)))
 							);
 							objects.push_back({ string, Type::StringType });
 							stack.push({ .pointer = string });
-						break;
-						default: return;
+						} break;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::SUB:
@@ -246,12 +246,12 @@ namespace Spin {
 							stack.push({ .real = a.real - b.real });
 						break;
 						// Basic Objects:
-						case compose(Type::IntegerType, Type::ImaginaryType):
+						case compose(Type::IntegerType, Type::ImaginaryType): {
 							Complex * complex = new Complex((Real)a.integer, - b.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::IntegerType, Type::ComplexType):
+						} break;
+						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								(Real)a.integer - (complex -> a),
@@ -259,13 +259,13 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::RealType, Type::ImaginaryType):
+						} break;
+						case compose(Type::RealType, Type::ImaginaryType): {
 							Complex * complex = new Complex(a.real, - b.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::RealType, Type::ComplexType):
+						} break;
+						case compose(Type::RealType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								a.real - (complex -> a),
@@ -273,18 +273,18 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::IntegerType):
+						} break;
+						case compose(Type::ImaginaryType, Type::IntegerType): {
 							Complex * complex = new Complex(-((Real)b.integer), a.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::RealType):
+						} break;
+						case compose(Type::ImaginaryType, Type::RealType): {
 							Complex * complex = new Complex(- b.real, a.real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::ComplexType):
+						} break;
+						case compose(Type::ImaginaryType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								- (complex -> a),
@@ -292,8 +292,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::IntegerType):
+						} break;
+						case compose(Type::ComplexType, Type::IntegerType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) - (Real)b.integer,
@@ -301,8 +301,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::RealType):
+						} break;
+						case compose(Type::ComplexType, Type::RealType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) - b.real,
@@ -310,8 +310,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ImaginaryType):
+						} break;
+						case compose(Type::ComplexType, Type::ImaginaryType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a),
@@ -319,16 +319,16 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ComplexType):
+						} break;
+						case compose(Type::ComplexType, Type::ComplexType): {
 							Complex * complex = new Complex(
 								*((Complex *)a.pointer) -
 								*((Complex *)b.pointer)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						default: return;
+						} break;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::MUL:
@@ -372,7 +372,7 @@ namespace Spin {
 							stack.push({ .real = a.real * b.real });
 						break;
 						// Basic Objects:
-						case compose(Type::IntegerType, Type::ComplexType):
+						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								(complex -> a) * (Real)a.integer,
@@ -380,8 +380,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::RealType, Type::ComplexType):
+						} break;
+						case compose(Type::RealType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								(complex -> a) * a.real,
@@ -389,8 +389,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::ComplexType):
+						} break;
+						case compose(Type::ImaginaryType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
 								- ((complex -> b) * a.real),
@@ -398,8 +398,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::IntegerType):
+						} break;
+						case compose(Type::ComplexType, Type::IntegerType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) * (Real)b.integer,
@@ -407,8 +407,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::RealType):
+						} break;
+						case compose(Type::ComplexType, Type::RealType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) * b.real,
@@ -416,8 +416,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ImaginaryType):
+						} break;
+						case compose(Type::ComplexType, Type::ImaginaryType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								- ((complex -> b) * b.real),
@@ -425,16 +425,16 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ComplexType):
+						} break;
+						case compose(Type::ComplexType, Type::ComplexType): {
 							Complex * complex = new Complex(
 								*((Complex *)a.pointer) *
 								*((Complex *)b.pointer)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						default: return;
+						} break;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::DIV:
@@ -482,7 +482,7 @@ namespace Spin {
 							stack.push({ .real = a.real / (Real)(b.integer) });
 						break;
 						// Basic Objects:
-						case compose(Type::IntegerType, Type::ComplexType):
+						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							a.real = ((Real)a.integer) / (complex -> getNormalised());
 							complex = new Complex(
@@ -491,8 +491,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::RealType, Type::ComplexType):
+						} break;
+						case compose(Type::RealType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							a.real /= (complex -> getNormalised());
 							complex = new Complex(
@@ -501,8 +501,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::ComplexType):
+						} break;
+						case compose(Type::ImaginaryType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							a.real /= (complex -> getNormalised());
 							complex = new Complex(
@@ -511,8 +511,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::IntegerType):
+						} break;
+						case compose(Type::ComplexType, Type::IntegerType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) / (Real)b.integer,
@@ -520,8 +520,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::RealType):
+						} break;
+						case compose(Type::ComplexType, Type::RealType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> a) / b.real,
@@ -529,8 +529,8 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ImaginaryType):
+						} break;
+						case compose(Type::ComplexType, Type::ImaginaryType): {
 							Complex * complex = (Complex *)a.pointer;
 							complex = new Complex(
 								(complex -> b) / b.real,
@@ -538,16 +538,16 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::ComplexType):
+						} break;
+						case compose(Type::ComplexType, Type::ComplexType): {
 							Complex * complex = new Complex(
 								*((Complex *)a.pointer) /
 								*((Complex *)b.pointer)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						default: return;
+						} break;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::MOD:
@@ -590,7 +590,7 @@ namespace Spin {
 							if (!b.integer) throwError(ip);
 							stack.push({ .integer = a.integer % b.integer });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::NEG:
@@ -600,7 +600,7 @@ namespace Spin {
 						case   Type::IntegerType: stack.push({ .integer = - stack.pop().integer }); break;
 						case      Type::RealType:
 						case Type::ImaginaryType: stack.push({ .real = - stack.pop().real }); break;
-						case   Type::ComplexType:
+						case   Type::ComplexType: {
 							Complex * complex = (Complex *)stack.pop().pointer;
 							complex = new Complex(
 								- (complex -> a),
@@ -608,15 +608,15 @@ namespace Spin {
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						default: return;
+						} break;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::INV:
 					switch (data.as.type) {
-						case Type::IntegerType: stack.push({ .integer = ~ stack.pop().integer });
-						case    Type::ByteType: stack.push({ .byte = ~ stack.pop().byte });
-						default: return;
+						case Type::IntegerType: stack.push({ .integer = ~(stack.pop().integer) });
+						case    Type::ByteType: stack.push({ .byte = (Byte)(~(stack.pop().byte)) });
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::SSC:
@@ -689,7 +689,7 @@ namespace Spin {
 						case compose(Type::ComplexType, Type::ComplexType):
 							stack.push({ .boolean = ((*((Complex *)a.pointer)) == (*(Complex *)b.pointer)) });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::NEQ:
@@ -734,7 +734,7 @@ namespace Spin {
 						case compose(Type::ComplexType, Type::ComplexType):
 							stack.push({ .boolean = ((*((Complex *)a.pointer)) != (*(Complex *)b.pointer)) });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::GRT:
@@ -773,7 +773,7 @@ namespace Spin {
 						case compose(Type::StringType, Type::StringType):
 							stack.push({ .boolean = ((*((String *)a.pointer)) > (*(String *)b.pointer)) });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::GEQ:
@@ -812,7 +812,7 @@ namespace Spin {
 						case compose(Type::StringType, Type::StringType):
 							stack.push({ .boolean = ((*((String *)a.pointer)) >= (*(String *)b.pointer)) });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::LSS:
@@ -851,7 +851,7 @@ namespace Spin {
 						case compose(Type::StringType, Type::StringType):
 							stack.push({ .boolean = ((*((String *)a.pointer)) < (*(String *)b.pointer)) });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::LEQ:
@@ -890,7 +890,7 @@ namespace Spin {
 						case compose(Type::StringType, Type::StringType):
 							stack.push({ .boolean = ((*((String *)a.pointer)) <= (*(String *)b.pointer)) });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::NOT: stack.push({ .boolean = !(stack.pop().boolean) }); break;
@@ -908,7 +908,7 @@ namespace Spin {
 						case compose(Type::BooleanType, Type::BooleanType):
 							stack.push({ .boolean = a.boolean && b.boolean });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::BWO:
@@ -925,7 +925,7 @@ namespace Spin {
 						case compose(Type::BooleanType, Type::BooleanType):
 							stack.push({ .boolean = a.boolean || b.boolean });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::BWX:
@@ -939,7 +939,7 @@ namespace Spin {
 						case compose(Type::CharacterType, Type::CharacterType):
 							stack.push({ .byte = (Byte)(a.byte ^ b.byte) });
 						break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::CAL: call.push(ip); ip = data.as.index; continue;
@@ -966,36 +966,36 @@ namespace Spin {
 							stack.push({ .integer = (Int64)stack.pop().real });
 						break;
 						// Basic Objects:
-						case compose(Type::IntegerType, Type::ComplexType):
+						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = new Complex((Real)stack.pop().integer, 0.0);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::RealType, Type::ComplexType):
+						} break;
+						case compose(Type::RealType, Type::ComplexType): {
 							Complex * complex = new Complex(stack.pop().real, 0.0);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ImaginaryType, Type::ComplexType):
+						} break;
+						case compose(Type::ImaginaryType, Type::ComplexType): {
 							Complex * complex = new Complex(0.0, stack.pop().real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
-						break;
-						case compose(Type::ComplexType, Type::IntegerType):
+						} break;
+						case compose(Type::ComplexType, Type::IntegerType): {
 							stack.push({ .integer = (Int64)(((Complex *)stack.pop().pointer) -> a) });
-						break;
-						case compose(Type::ComplexType, Type::RealType):
+						} break;
+						case compose(Type::ComplexType, Type::RealType): {
 							stack.push({ .real = (((Complex *)stack.pop().pointer) -> a) });
-						break;
-						case compose(Type::ComplexType, Type::ImaginaryType):
+						} break;
+						case compose(Type::ComplexType, Type::ImaginaryType): {
 							stack.push({ .real = (((Complex *)stack.pop().pointer) -> b) });
-						break;
-						case compose(Type::CharacterType, Type::StringType):
+						} break;
+						case compose(Type::CharacterType, Type::StringType): {
 							String * string = new String(1, (Character)stack.pop().byte);
 							objects.push_back({ string, Type::StringType });
 							stack.push({ .pointer = string });
-						break;
-						default: return;
+						} break;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::PRT:
@@ -1010,7 +1010,7 @@ namespace Spin {
 						// Basic Objects:
 						case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString(); break;
 						case    Type::StringType: OStream << (*((String *)stack.pop().pointer)); break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::PRL:
@@ -1025,7 +1025,7 @@ namespace Spin {
 						// Basic Objects:
 						case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString() << endLine; break;
 						case    Type::StringType: OStream << (*((String *)stack.pop().pointer)) << endLine; break;
-						default: return;
+						default: return { .integer = 0 };
 					}
 				break;
 				case OPCode::NLN: OStream << endLine; break;
@@ -1033,15 +1033,26 @@ namespace Spin {
 					// Free:
 					stack.clear();
 					freeObjects();
-					return;
+					return { .integer = 0 };
 				break;
 				default: break; // TODO: Exception.
 			}
 			ip += 1;
 		}
-		// Free:
+		if (stack.isEmpty()) return { .integer = 0 };
+		return stack.pop();
+	}
+
+	void Processor::run(Program * program) {
+		evaluate(program);
 		stack.clear();
 		freeObjects();
+	}
+
+	Value Processor::fold(Array<ByteCode> code) {
+		Program * program = new Program();
+		program -> instructions = code;
+		return evaluate(program);
 	}
 
 	void Processor::freeObjects() {

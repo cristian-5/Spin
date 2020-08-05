@@ -170,6 +170,9 @@ namespace Spin {
 
 		void parsePrecedence(Precedence precedence);
 
+		void foldUnary();
+		void foldBinary();
+
 		inline Boolean match(Token::Type type);
 		inline Boolean matchAssignment();
 		inline Boolean check(Token::Type type);
@@ -206,6 +209,10 @@ namespace Spin {
 		Compiler() = default; ~Compiler() = default;
 
 		public:
+
+		// Settings:
+
+		Boolean folding = true;
 
 		Compiler(const Compiler &) = delete;
 		Compiler(Compiler &&) = delete;

@@ -23,6 +23,7 @@
 
 #include "../Utility/Converter.hpp"
 #include "../Types/Complex.hpp"
+#include "../Virtual/Processor.hpp"
 
 #define rethrow(A) try { A; } catch (Program::Error & e) { throw; }
 
@@ -940,6 +941,7 @@ namespace Spin {
 			default: break;
 		}
 		typeStack.push(search -> second);
+		foldUnary();
 	}
 	void Compiler::binary() {
 		const Token token = previous;
@@ -991,6 +993,7 @@ namespace Spin {
 			default: break;
 		}
 		typeStack.push(search -> second);
+		foldBinary();
 	}
 	void Compiler::prefix() {
 		const Token token = previous;
@@ -1014,6 +1017,7 @@ namespace Spin {
 			default: break;
 		}
 		typeStack.push(search -> second);
+		foldUnary();
 	}
 
 	void Compiler::expressionStatement() {
@@ -1709,6 +1713,73 @@ namespace Spin {
 			);
 		}
 		assignmentStack.decrease();
+	}
+
+	void Compiler::foldUnary() {
+		if (!folding) return;
+		const SizeType size = program -> instructions.size();
+		ByteCode op = program -> instructions.at(size - 2);
+		switch (op.code) {
+			case OPCode::PSH:
+			case OPCode::PST:
+			case OPCode::PSF: break;
+			default: return;
+		}
+		Array<ByteCode> codes;
+		codes.push_back(op);
+		op = program -> instructions.at(size - 1);
+		if (op.as.type > Type::ImaginaryType) return;
+		codes.push_back(op);
+		program -> instructions.pop_back();
+		program -> instructions.pop_back();
+		static Processor * processor = Processor::self();
+		emitOperation({
+			OPCode::PSH, { .value = processor -> fold(codes) }
+		});
+	}
+	void Compiler::foldBinary() {
+		if (!folding) return;
+		const SizeType size = program -> instructions.size();
+		Array<ByteCode> codes;
+		ByteCode op;
+		for (SizeType i = 3; i > 1; i -= 1) {
+			op = program -> instructions.at(size - i);
+			switch (op.code) {
+				case OPCode::PSH:
+				case OPCode::PST:
+				case OPCode::PSF: break;
+				default: return;
+			}
+			codes.push_back(op);
+		}
+		op = program -> instructions.at(size - 1);
+		switch (op.code) {
+			case OPCode::ADD:
+			case OPCode::SUB:
+			case OPCode::MUL:
+			case OPCode::BWA:
+			case OPCode::BWO:
+			case OPCode::BWX:
+			case OPCode::EQL:
+			case OPCode::NEQ:
+			case OPCode::GRT:
+			case OPCode::LSS:
+			case OPCode::GEQ:
+			case OPCode::LEQ: break;
+			default: return;
+		}
+		const Type typeA = (Type)(op.as.types >> 8);
+		const Type typeB = (Type)(op.as.types & 0xFF);
+		if (typeA > Type::ImaginaryType ||
+			typeB > Type::ImaginaryType) return;
+		codes.push_back(op);
+		program -> instructions.pop_back();
+		program -> instructions.pop_back();
+		program -> instructions.pop_back();
+		static Processor * processor = Processor::self();
+		emitOperation({
+			OPCode::PSH, { .value = processor -> fold(codes) }
+		});
 	}
 
 	Compiler::ParseRule Compiler::getRule(Token::Type token) {

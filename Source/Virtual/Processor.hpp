@@ -34,6 +34,8 @@ namespace Spin {
 
 		void freeObjects();
 
+		Value evaluate(Program * program);
+
 		public:
 
 		Processor(const Processor &) = delete;
@@ -46,6 +48,8 @@ namespace Spin {
 		}
 
 		void run(Program * program);
+
+		Value fold(Array<ByteCode> code);
 
 	};
 

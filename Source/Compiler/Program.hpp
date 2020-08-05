@@ -136,6 +136,7 @@ namespace Spin {
 		NLN, // new line
 
 		HLT, // halt
+
 	};
 
 	using Types = UInt16;
