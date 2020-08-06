@@ -12,8 +12,7 @@
 High level programming language for *research* in
 **Quantum Computing** built in *c++*.
 
-The **Virtual Machine** and the **Compiler** are
-under development right now.
+The **Virtual Machine** is almost ready.
 We aim to create a powerful language.
 
 The quantum part of the language is not ready yet,
@@ -71,8 +70,8 @@ The documentation contains the language syntax specification.
 ## Code Contribution
 
 **Attention!** This project is currently under development and
-we only completed 30% of the total tasks. We are working on the
-*Virtual Machine* and on the *Quantum System*.
+we only completed 70% of the total tasks. We are now working on
+the *Quantum System*.
 
 **New Contributors are WELCOME**, so if you're a skilled dev
 feel free to contact me for joining our team.
@@ -93,7 +92,7 @@ I drink it *every day* just before working on this project.
 This code is written in **c++2a** so don't try to build
 it using an *older version*.
 
-The **VM** must be compiled using *clang++*.
+The **VM** must be compiled using *clang++* and *ninja*.
 We don't cover support for *gcc* / *g++* and we don't make
 sure that our source will be successfully compiled with them.
 
