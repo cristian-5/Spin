@@ -38,6 +38,16 @@ namespace Spin {
 
 		public:
 
+		class Crash: Exception {
+			private:
+			SizeType address = 0;
+			ByteCode instruction;
+			public:
+			Crash(SizeType a, ByteCode b);
+			ByteCode getInstruction();
+			SizeType getAddress();
+		};
+
 		Processor(const Processor &) = delete;
 		Processor(Processor &&) = delete;
 		Processor & operator = (const Processor &) = delete;

@@ -26,14 +26,17 @@
 #include "../Utility/Converter.hpp"
 #include "../Types/Complex.hpp"
 
-#define throwError(IP) {                      \
-	auto search = program -> errors.find(IP); \
-	if (search != program -> errors.end()) {  \
-		throw search -> second;               \
-	} else return { .integer = 0 };           \
-}
-
 namespace Spin {
+
+	Processor::Crash::Crash(SizeType a, ByteCode b) {
+		address = a; instruction = b;
+	}
+	ByteCode Processor::Crash::getInstruction() {
+		return instruction;
+	}
+	SizeType Processor::Crash::getAddress() {
+		return address;
+	}
 
 	const Real Processor::infinity = std::numeric_limits<double>::infinity();
 	const Real Processor::undefined = std::numeric_limits<double>::quiet_NaN();
@@ -446,21 +449,21 @@ namespace Spin {
 						case compose(Type::CharacterType, Type::ByteType):
 						case compose(Type::ByteType, Type::CharacterType):
 						case compose(Type::ByteType, Type::ByteType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) / (Int64)(b.byte)) });
 						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
-							if (!b.integer) throwError(ip);
+							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) / b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)(a.integer / (Int64)(b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
-							if (!b.integer) throwError(ip);
+							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = a.integer / b.integer });
 						break;
 						case compose(Type::IntegerType, Type::RealType):
@@ -555,39 +558,39 @@ namespace Spin {
 					a = stack.pop();
 					switch (data.as.types) {
 						case compose(Type::CharacterType, Type::CharacterType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
 						break;
 						case compose(Type::CharacterType, Type::ByteType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
 						break;
 						case compose(Type::CharacterType, Type::IntegerType):
-							if (!b.integer) throwError(ip);
+							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) % b.integer) });
 						break;
 						case compose(Type::ByteType, Type::CharacterType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
 						break;
 						case compose(Type::ByteType, Type::ByteType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
 						break;
 						case compose(Type::ByteType, Type::IntegerType):
-							if (!b.integer) throwError(ip);
+							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) % b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::CharacterType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)(a.integer % (Int64)(b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::ByteType):
-							if (!b.byte) throwError(ip);
+							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)(a.integer % (Int64)(b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
-							if (!b.integer) throwError(ip);
+							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = a.integer % b.integer });
 						break;
 						default: return { .integer = 0 };
@@ -623,7 +626,7 @@ namespace Spin {
 					b = stack.pop();
 					a = stack.pop();
 					if (b.integer < 0 ||
-						b.integer > (((String *)a.pointer) -> size()) - 1) throwError(ip);
+						b.integer > (((String *)a.pointer) -> size()) - 1) throw Crash(ip, data);
 					stack.push({
 						.byte = (Byte)((String *)a.pointer) -> at(b.integer)
 					});
@@ -1044,7 +1047,8 @@ namespace Spin {
 	}
 
 	void Processor::run(Program * program) {
-		evaluate(program);
+		try { evaluate(program); }
+		catch (Processor::Crash & c) { throw; }
 		stack.clear();
 		freeObjects();
 	}
@@ -1052,7 +1056,8 @@ namespace Spin {
 	Value Processor::fold(Array<ByteCode> code) {
 		Program * program = new Program();
 		program -> instructions = code;
-		return evaluate(program);
+		try { return evaluate(program); }
+		catch (Processor::Crash & c) { throw; }
 	}
 
 	void Processor::freeObjects() {
@@ -1067,7 +1072,5 @@ namespace Spin {
 	}
 
 }
-
-#undef throwError
 
 #endif

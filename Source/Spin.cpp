@@ -91,6 +91,18 @@ Int32 main(Int32 argc, Character * argv[]) {
 		if (code) delete code;
 		if (program) delete program;
 		return ExitCodes::failure;
+	} catch (Processor::Crash & c) {
+		OStream << endLine << "% EVL Error on address [0x"
+				<< hexadecimal << padding(8) << c.getAddress()
+				<< "] %" << endLine << "Crash bytecode: "
+				<< hexadecimal << padding(2)
+				<< c.getInstruction().code << " "
+				<< hexadecimal << padding(16)
+				<< hexadecimal << c.getInstruction().as.index
+				<< endLine << endLine;
+		if (code) delete code;
+		if (program) delete program;
+		return ExitCodes::failure;
 	} catch (Manager::BadFileException & b) {
 		OStream << endLine << endLine <<  "% PPR Catastrophic Event %"
 				<< endLine << "Couldn't open file ['"

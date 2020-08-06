@@ -170,8 +170,8 @@ namespace Spin {
 
 		void parsePrecedence(Precedence precedence);
 
-		void foldUnary();
-		void foldBinary();
+		void foldUnary(Token token);
+		void foldBinary(Token token);
 
 		inline Boolean match(Token::Type type);
 		inline Boolean matchAssignment();

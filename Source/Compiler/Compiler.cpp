@@ -689,15 +689,6 @@ namespace Spin {
 					);
 				}
 				emitOperation({ o, { .types = types } });
-				// Emitting eventual exceptions for throwing operators.
-				if (o == OPCode::DIV || o == OPCode::MOD) {
-					emitException(Program::Error(
-						currentUnit,
-						"Mutation assignment operator '" + token.lexeme +
-						"' threw division by zero!",
-						token, ErrorCode::evl
-					));
-				}
 				typeB = search -> second;
 			}
 			if (typeA != typeB) {
@@ -803,11 +794,6 @@ namespace Spin {
 			);
 		}
 		emitOperation(OPCode::SSC);
-		emitException(Program::Error(
-			currentUnit,
-			"Subscription operator '[ ]' threw index out of range!",
-			token, ErrorCode::evl
-		));
 		rethrow(consume(Token::Type::closeBracket, "]"));
 		typeStack.push(Type::CharacterType);
 	}
@@ -941,7 +927,7 @@ namespace Spin {
 			default: break;
 		}
 		typeStack.push(search -> second);
-		foldUnary();
+		foldUnary(token);
 	}
 	void Compiler::binary() {
 		const Token token = previous;
@@ -966,22 +952,8 @@ namespace Spin {
 			case  Token::Type::plus: emitOperation({ OPCode::ADD, { .types = types } }); break;
 			case Token::Type::minus: emitOperation({ OPCode::SUB, { .types = types } }); break;
 			case  Token::Type::star: emitOperation({ OPCode::MUL, { .types = types } }); break;
-			case Token::Type::slash:
-				emitOperation({ OPCode::DIV, { .types = types } });
-				emitException(Program::Error(
-					currentUnit,
-					"Binary operator '/' threw division by zero!",
-					token, ErrorCode::evl
-				));
-			break;
-			case Token::Type::modulus:
-				emitOperation({ OPCode::DIV, { .types = types } });
-				emitException(Program::Error(
-					currentUnit,
-					"Binary operator '%' threw division by zero!",
-					token, ErrorCode::evl
-				));
-			break;
+			case Token::Type::slash: emitOperation({ OPCode::DIV, { .types = types } }); break;
+			case Token::Type::modulus: emitOperation({ OPCode::DIV, { .types = types } }); break;
 			case   Token::Type::equality: emitOperation({ OPCode::EQL, { .types = types } }); break;
 			case Token::Type::inequality: emitOperation({ OPCode::NEQ, { .types = types } }); break;
 			case      Token::Type::major: emitOperation({ OPCode::GRT, { .types = types } }); break;
@@ -993,7 +965,7 @@ namespace Spin {
 			default: break;
 		}
 		typeStack.push(search -> second);
-		foldBinary();
+		foldBinary(token);
 	}
 	void Compiler::prefix() {
 		const Token token = previous;
@@ -1017,7 +989,7 @@ namespace Spin {
 			default: break;
 		}
 		typeStack.push(search -> second);
-		foldUnary();
+		foldUnary(token);
 	}
 
 	void Compiler::expressionStatement() {
@@ -1715,7 +1687,7 @@ namespace Spin {
 		assignmentStack.decrease();
 	}
 
-	void Compiler::foldUnary() {
+	void Compiler::foldUnary(Token token) {
 		if (!folding) return;
 		const SizeType size = program -> instructions.size();
 		ByteCode op = program -> instructions.at(size - 2);
@@ -1732,12 +1704,19 @@ namespace Spin {
 		codes.push_back(op);
 		program -> instructions.pop_back();
 		program -> instructions.pop_back();
-		static Processor * processor = Processor::self();
-		emitOperation({
-			OPCode::PSH, { .value = processor -> fold(codes) }
-		});
+		Value v;
+		try { v = Processor::self() -> fold(codes); }
+		catch (Processor::Crash & c) {
+			throw Program::Error(
+				currentUnit,
+				"Detected invalid operation '" + token.lexeme +
+				"' that will cause a runtime crash!",
+				token, ErrorCode::evl
+			);
+		}
+		emitOperation({ OPCode::PSH, { .value = v } });
 	}
-	void Compiler::foldBinary() {
+	void Compiler::foldBinary(Token token) {
 		if (!folding) return;
 		const SizeType size = program -> instructions.size();
 		Array<ByteCode> codes;
@@ -1753,21 +1732,6 @@ namespace Spin {
 			codes.push_back(op);
 		}
 		op = program -> instructions.at(size - 1);
-		switch (op.code) {
-			case OPCode::ADD:
-			case OPCode::SUB:
-			case OPCode::MUL:
-			case OPCode::BWA:
-			case OPCode::BWO:
-			case OPCode::BWX:
-			case OPCode::EQL:
-			case OPCode::NEQ:
-			case OPCode::GRT:
-			case OPCode::LSS:
-			case OPCode::GEQ:
-			case OPCode::LEQ: break;
-			default: return;
-		}
 		const Type typeA = (Type)(op.as.types >> 8);
 		const Type typeB = (Type)(op.as.types & 0xFF);
 		if (typeA > Type::ImaginaryType ||
@@ -1776,10 +1740,17 @@ namespace Spin {
 		program -> instructions.pop_back();
 		program -> instructions.pop_back();
 		program -> instructions.pop_back();
-		static Processor * processor = Processor::self();
-		emitOperation({
-			OPCode::PSH, { .value = processor -> fold(codes) }
-		});
+		Value v;
+		try { v = Processor::self() -> fold(codes); }
+		catch (Processor::Crash & c) {
+			throw Program::Error(
+				currentUnit,
+				"Detected invalid operation '" + token.lexeme +
+				"' that will cause a runtime crash!",
+				token, ErrorCode::evl
+			);
+		}
+		emitOperation({ OPCode::PSH, { .value = v } });
 	}
 
 	Compiler::ParseRule Compiler::getRule(Token::Type token) {
@@ -1868,12 +1839,6 @@ namespace Spin {
 	}
 	inline SizeType Compiler::sourcePosition() {
 		return program -> instructions.size();
-	}
-	inline void Compiler::emitException(Program::Error error) {
-		program -> errors.insert({
-			program -> instructions.size() - 1,
-			error
-		});
 	}
 	inline void Compiler::emitOperation(ByteCode code) {
 		program -> instructions.push_back(code);

@@ -182,7 +182,6 @@ namespace Spin {
 		Program() = default;
 		Array<ByteCode> instructions;
 		Array<String> strings;
-		Dictionary<SizeType, Program::Error> errors;
 	};
 
 	class SourceCode {
