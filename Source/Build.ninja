@@ -7,6 +7,7 @@ cppVersion = -std=c++2a
 header = ../Source/Common/Header.hpp
 interface = ../Source/Common/interface.hpp
 
+serialiser = ../Source/Utility/Serialiser.hpp
 stack = ../Source/Utility/Stack.hpp
 
 token = ../Source/Token/Token.hpp
@@ -30,18 +31,18 @@ build      Build/Regex.o: compile ../Source/Utility/Regex.cpp       | $header
 
 build    Build/Complex.o: compile ../Source/Types/Complex.cpp       | $header
 
-build      Build/Wings.o: compile ../Source/Preprocessor/Wings.cpp  | $header $program $token
+build      Build/Wings.o: compile ../Source/Preprocessor/Wings.cpp  | $header $program $token $serialiser
 
 build  Build/Libraries.o: compile ../Source/Compiler/Libraries.cpp  | $header
-build    Build/Program.o: compile ../Source/Compiler/Program.cpp    | $header $program $token
-build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp   | $header $stack $program $token
-build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $interface $header $program
+build    Build/Program.o: compile ../Source/Compiler/Program.cpp    | $header $program $token $serialiser
+build   Build/Compiler.o: compile ../Source/Compiler/Compiler.cpp   | $header $stack $program $token $serialiser
+build Build/Decompiler.o: compile ../Source/Compiler/Decompiler.cpp | $interface $header $program $serialiser
 
-build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp   | $interface $header $stack $program
+build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp   | $interface $header $stack $program $serialiser
 
 # Main:
 
-build Build/Spin.o: compile Spin.cpp | $interface $header $program $token
+build Build/Spin.o: compile Spin.cpp | $interface $header $program $token $serialiser
 
 # Link:
 

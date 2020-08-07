@@ -274,7 +274,7 @@ namespace Spin {
 					code -> prototypes.push_back(prototype);
 					i -= 1; continue;
 				}
-				if (token(code, i) != Token::Type::arrow) { i -= 1; continue; }
+				if (token(code, i) != Token::Type::colon) { i -= 1; continue; }
 				i += 1;
 				if (token(code, i) != Token::Type::basicType) { i -= 1; continue; }
 				prototype.returnType = Converter::stringToType(

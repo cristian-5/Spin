@@ -21,6 +21,8 @@
 #ifndef SPIN_MANAGER_CPP
 #define SPIN_MANAGER_CPP
 
+#include <vector>
+
 namespace Spin {
 
 	Manager::BadAccessException::BadAccessException(const String & path): path(path) { }
@@ -47,18 +49,42 @@ namespace Spin {
 		return line;
 	}
 	String * Manager::stringFromFile(String path) {
-		IFStream file(path.c_str());
+		IFStream file(path);
 		StringStream buffer;
 		if (file.good()) buffer << file.rdbuf();
 		else throw BadFileException(path);
+		file.close();
 		return new String(buffer.str());
 	}
 	void Manager::createNewFile(String path, String content) {
-		OFStream file(path.c_str());
+		OFStream file(path);
 		try { file << content; }
 		catch (Exception & e) {
 			throw BadAccessException(path);
 		}
+		file.close();
+	}
+	void Manager::writeBuffer(String path, Buffer * buffer) {
+		if (!buffer) return;
+		OFStream file(path, std::ios_base::binary);
+		if (!file.good()) throw BadFileException(path);
+		Character * contents = reinterpret_cast<Character *>(
+			buffer -> data()
+		);
+		file.write(contents, buffer -> size());
+		file.close();
+	}
+	Buffer * Manager::readBuffer(String path) {
+		IFStream file(path, std::ios_base::binary | std::ios::ate);
+		if (!file.good()) throw BadFileException(path);
+		const std::streamsize size = file.tellg();
+		file.seekg(0, std::ios::beg);
+		Buffer * buffer = new Buffer(size);
+		if (!file.read((Character *)(buffer -> data()), size)) {
+			throw BadAccessException(path);
+		}
+		file.close();
+		return buffer;
 	}
 
 }

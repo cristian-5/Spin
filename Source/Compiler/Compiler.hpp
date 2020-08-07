@@ -183,7 +183,6 @@ namespace Spin {
 		inline void resolveCalls();
 		inline SizeType countLocals(SizeType scope);
 		inline SizeType sourcePosition();
-		inline void emitException(Program::Error error);
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
 		inline void emitString(String s);

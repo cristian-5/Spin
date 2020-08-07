@@ -33,6 +33,8 @@ namespace Spin {
 		static UInt64 getLine(String * input, SizeType cursor);
 		static String * stringFromFile(String path);
 		static void createNewFile(String path, String content = String());
+		static void writeBuffer(String path, Buffer * buffer);
+		static Buffer * readBuffer(String path);
 	};
 
 }

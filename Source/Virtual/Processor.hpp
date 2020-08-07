@@ -44,8 +44,8 @@ namespace Spin {
 			ByteCode instruction;
 			public:
 			Crash(SizeType a, ByteCode b);
-			ByteCode getInstruction();
-			SizeType getAddress();
+			ByteCode getInstruction() const;
+			SizeType getAddress() const;
 		};
 
 		Processor(const Processor &) = delete;

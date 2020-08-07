@@ -182,6 +182,8 @@ namespace Spin {
 		Program() = default;
 		Array<ByteCode> instructions;
 		Array<String> strings;
+		void serialise(String path) const;
+		static Program * from(String path);
 	};
 
 	class SourceCode {

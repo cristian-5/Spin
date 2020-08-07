@@ -1414,7 +1414,7 @@ namespace Spin {
 		}
 		rethrow(
 			consume(Token::Type::closeParenthesis, ")");
-			consume(Token::Type::arrow, "->");
+			consume(Token::Type::colon, ":");
 			consume(Token::Type::basicType, "Type");
 		);
 		const Type returnType = Converter::stringToType(previous.lexeme);

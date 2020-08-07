@@ -31,10 +31,10 @@ namespace Spin {
 	Processor::Crash::Crash(SizeType a, ByteCode b) {
 		address = a; instruction = b;
 	}
-	ByteCode Processor::Crash::getInstruction() {
+	ByteCode Processor::Crash::getInstruction() const {
 		return instruction;
 	}
-	SizeType Processor::Crash::getAddress() {
+	SizeType Processor::Crash::getAddress() const {
 		return address;
 	}
 

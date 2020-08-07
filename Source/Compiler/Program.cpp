@@ -19,8 +19,9 @@
 #include "Program.hpp"
 
 #ifndef SPIN_PROGRAM_CPP
-#define SPIN_PROGRAM_CPPxw
+#define SPIN_PROGRAM_CPP
 
+#include "../Utility/Serialiser.hpp"
 #include "../Manager/Manager.hpp"
 
 namespace Spin {
@@ -73,6 +74,152 @@ namespace Spin {
 			case ErrorCode::evl: return "EVL";
 			default: return "UNK";
 		}
+	}
+	void Program::serialise(String path) const {
+		Buffer * buffer = new Buffer();
+		Serialiser::write<UInt64>(buffer, strings.size());
+		for (String s : strings) {
+			Serialiser::write<String>(buffer, s);
+		}
+		Serialiser::write<UInt64>(buffer, instructions.size());
+		for (ByteCode byte : instructions) {
+			Serialiser::write<Byte>(buffer, byte.code);
+			switch (byte.code) {
+				case OPCode::PSH: case OPCode::STR:
+				case OPCode::GET: case OPCode::SET:
+				case OPCode::SSF: case OPCode::GLF:
+				case OPCode::SLF: case OPCode::SSC:
+				case OPCode::DSK: case OPCode::JMP:
+				case OPCode::JMB: case OPCode::JIF:
+				case OPCode::JAF: case OPCode::JIT:
+				case OPCode::JAT: case OPCode::CAL:
+					// 8 Bytes arguments:
+					Serialiser::write<UInt64>(buffer, byte.as.index);
+				break;
+				case OPCode::ADD: case OPCode::SUB:
+				case OPCode::MUL: case OPCode::DIV:
+				case OPCode::MOD: case OPCode::EQL:
+				case OPCode::NEQ: case OPCode::GRT:
+				case OPCode::LSS: case OPCode::GEQ:
+				case OPCode::LEQ: case OPCode::BWA:
+				case OPCode::BWO: case OPCode::BWX:
+				case OPCode::CST:
+					// 2 Bytes arguments (types):
+					Serialiser::write<UInt16>(buffer, byte.as.types);
+				break;
+				case OPCode::NEG:
+				case OPCode::INV:
+				case OPCode::PRT:
+				case OPCode::PRL:
+					// 1 Byte argument (type):
+					Serialiser::write<Byte>(buffer, byte.as.type);
+				break;
+				default: break;
+			}
+		}
+		try { Manager::writeBuffer(path, buffer); }
+		catch (Manager::BadFileException & b) {
+			delete buffer;
+			throw;
+		}
+		delete buffer;
+	}
+	Program * Program::from(String path) {
+		Program * program = new Program();
+		Buffer * buffer;
+		try { buffer = Manager::readBuffer(path); }
+		catch (Manager::BadFileException & b) {
+			delete program;
+			throw;
+		}
+		Serialiser::prepare();
+		SizeType size = 0;
+		try { size = Serialiser::read<UInt64>(buffer); }
+		catch (Serialiser::ReadingError & e) {
+			delete buffer;
+			delete program;
+			throw;
+		}
+		String s;
+		while (size > 0) {
+			try { s = Serialiser::read<String>(buffer); }
+			catch (Serialiser::ReadingError & e) {
+				delete buffer;
+				delete program;
+				throw;
+			}
+			program -> strings.push_back(s);
+			size -= 1;
+		}
+		try { size = Serialiser::read<UInt64>(buffer); }
+		catch (Serialiser::ReadingError & e) {
+			delete buffer;
+			delete program;
+			throw;
+		}
+		ByteCode byte;
+		while (size > 0) {
+			try {
+				byte.code = (OPCode)(Serialiser::read<Byte>(buffer));
+			} catch (Serialiser::ReadingError & e) {
+				delete buffer;
+				delete program;
+				throw;
+			}
+			switch (byte.code) {
+				case OPCode::PSH: case OPCode::STR:
+				case OPCode::GET: case OPCode::SET:
+				case OPCode::SSF: case OPCode::GLF:
+				case OPCode::SLF: case OPCode::SSC:
+				case OPCode::DSK: case OPCode::JMP:
+				case OPCode::JMB: case OPCode::JIF:
+				case OPCode::JAF: case OPCode::JIT:
+				case OPCode::JAT: case OPCode::CAL:
+					// 8 Bytes arguments:
+					try {
+						byte.as.index = Serialiser::read<UInt64>(buffer);
+					} catch (Serialiser::ReadingError & e) {
+						delete buffer;
+						delete program;
+						throw;
+					}
+				break;
+				case OPCode::ADD: case OPCode::SUB:
+				case OPCode::MUL: case OPCode::DIV:
+				case OPCode::MOD: case OPCode::EQL:
+				case OPCode::NEQ: case OPCode::GRT:
+				case OPCode::LSS: case OPCode::GEQ:
+				case OPCode::LEQ: case OPCode::BWA:
+				case OPCode::BWO: case OPCode::BWX:
+				case OPCode::CST:
+					// 2 Bytes arguments (types):
+					try {
+						byte.as.types = Serialiser::read<UInt16>(buffer);
+					} catch (Serialiser::ReadingError & e) {
+						delete buffer;
+						delete program;
+						throw;
+					}
+				break;
+				case OPCode::NEG:
+				case OPCode::INV:
+				case OPCode::PRT:
+				case OPCode::PRL:
+					// 1 Byte argument (type):
+					try {
+						byte.as.type = (Type)(Serialiser::read<Byte>(buffer));
+					} catch (Serialiser::ReadingError & e) {
+						delete buffer;
+						delete program;
+						throw;
+					}
+				break;
+				default: break;
+			}
+			program -> instructions.push_back(byte);
+			size -= 1;
+		}
+		return program;
 	}
 
 	SourceCode::SourceCode(CodeUnit * main, Array<CodeUnit *> * wings, Array<String> * libraries) {

@@ -29,6 +29,8 @@
 	using Character = char;
 	using Real = double;
 
+	using Buffer = std::vector<Byte>;
+
 	#define Array std::vector
 	#define Dictionary std::unordered_map
 	#define Pair std::pair
