@@ -42,12 +42,14 @@ namespace Spin {
 		
 		static String resolve(Type type);
 
+		static inline Boolean na = false;
+
 		public:
 
 		Decompiler() = delete;
 
 		static void decompile(Program * program, SizeType index);
-		static void decompile(Program * program);
+		static void decompile(Program * program, Boolean noAnsi = false);
 
 	};
 

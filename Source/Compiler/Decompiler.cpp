@@ -50,15 +50,31 @@ namespace Spin {
 		} else {
 			s = "\"" + s + "\"";
 		}
+		if (na) {
+			OStream << "    " << o << "    " << s << endLine;
+			return;
+		}
 		OStream << "    " << colours[Colour::green] << o << reset
 				<< "    " << colours[Colour::acqua] << s << reset << endLine;
 	}
 	void Decompiler::aloneOP(String o, Colour c, String h) {
+		if (na) {
+			OStream << "    " << o
+					<< "                        "
+					<< "! " << h << endLine;
+			return;
+		}
 		OStream << "    " << colours[c] << o << reset
 				<< "                        " << colours[Colour::grey]
 				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::constOP(String o, Int64 i, Colour c) {
+		if (na) {
+			OStream << "    " << o << "    "
+					<< upperCase << hexadecimal
+					<< i << endLine;
+			return;
+		}
 		OStream << "    " << colours[c] << o << reset
 				<< "    " << colours[Colour::acqua]
 				<< upperCase << hexadecimal << i << reset << endLine;
@@ -66,6 +82,13 @@ namespace Spin {
 	void Decompiler::typesOP(String o, Types x, Colour c, String h) {
 		Type a = (Type)((x & 0xFF00) >> 8);
 		Type b = (Type)(x & 0x00FF);
+		if (na) {
+			OStream << "    " << o
+				<< "    " << resolve(a) << ", "
+				<< resolve(b) << "            "
+				<< "! " << h << endLine;
+			return;
+		}
 		Colour w = (a <= Type::ImaginaryType ? Colour::orange : Colour::pink);
 		Colour k = (b <= Type::ImaginaryType ? Colour::orange : Colour::pink);
 		OStream << "    " << colours[c] << o << reset
@@ -77,6 +100,12 @@ namespace Spin {
 	}
 	void Decompiler::unaryOP(String o, Type x, Colour c, String h) {
 		Colour a = (x <= Type::ImaginaryType ? Colour::orange : Colour::pink);
+		if (na) {
+			OStream << "    " << o << "    "
+				<< resolve(x) << "                 "
+				<< "! " << h << endLine;
+			return;
+		}
 		OStream << "    " << colours[c] << o << reset
 				<< "    " << colours[a]
 				<< resolve(x) << reset
@@ -84,6 +113,13 @@ namespace Spin {
 				<< "! " << h << reset << endLine;
 	}
 	void Decompiler::jmptoOP(String o, SizeType x, String h) {
+		if (na) {
+			OStream << "    " << o << "    "
+				<< upperCase << hexadecimal
+				<< padding(16) << x
+				<< "    ! " << h << endLine;
+			return;
+		}
 		OStream << "    " << colours[Colour::red] << o << reset
 				<< "    " << colours[Colour::acqua]
 				<< upperCase << hexadecimal
@@ -93,6 +129,12 @@ namespace Spin {
 	}
 
 	void Decompiler::rest_OP() {
+		if (na) {
+			OStream << "    "
+					<< "RST    -------------------------------------"
+					<< endLine;
+			return;
+		}
 		OStream << "    " << colours[Colour::grey]
 				<< "RST    -------------------------------------"
 				<< reset << endLine;
@@ -119,8 +161,13 @@ namespace Spin {
 
 	void Decompiler::decompile(Program * program, SizeType index) {
 		const ByteCode byte = program -> instructions.at(index);
-		OStream << colours[Colour::dark] << upperCase
-				<< hexadecimal << padding(8) << index;
+		if (na) {
+			OStream << upperCase
+					<< hexadecimal << padding(8) << index;
+		} else {
+			OStream << colours[Colour::dark] << upperCase
+					<< hexadecimal << padding(8) << index;
+		}
 		switch (byte.code) {
 			case OPCode::RST: rest_OP(); break;
 			case OPCode::PSH: constOP("PSH", byte.as.value.integer, Colour::green); break;
@@ -179,8 +226,9 @@ namespace Spin {
 		}
 		OStream << decimal;
 	}
-	void Decompiler::decompile(Program * program) {
+	void Decompiler::decompile(Program * program, Boolean noAnsi) {
 		OStream << endLine;
+		na = noAnsi;
 		for (SizeType i = 0; i < program -> instructions.size(); i += 1) {
 			decompile(program, i);
 		}
@@ -188,5 +236,7 @@ namespace Spin {
 	}
 
 }
+
+#undef reset
 
 #endif

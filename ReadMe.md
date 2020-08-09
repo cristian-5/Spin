@@ -80,6 +80,29 @@ If you want to contribute you must follow these
 [Conventions](Conventions/) in order to keep the
 file structure organised and the code clean.
 
+## Usage / Help
+
+```
+% Spin help magician (it's helpful) %
+Usage:
+    spin <file>
+         Compiles and executes a file.
+    spin [-compile, -c] <file.spin> <file.sex>
+         Compiles a file into a binary.
+    spin [-decompile, -d] <file.sex>
+         Decompiles a binary file.
+    spin [-version, -v]
+         Shows the version number.
+    .... [-noAnsi, -n]
+         Disable ansi output.
+  <file>: should be the main file and
+          it should end with '.spin' or
+          '.sex' if it's a binary file.
+  <file.spin>: should be the source file.
+  <file.sex>:  should be the binary file.
+I told you it was helpful!
+```
+
 ## Donations
 
 **Donations** are *welcome*! Offer me a *cup of coffee* since

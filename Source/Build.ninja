@@ -9,6 +9,7 @@ interface = ../Source/Common/interface.hpp
 
 serialiser = ../Source/Utility/Serialiser.hpp
 stack = ../Source/Utility/Stack.hpp
+arguments = ../Source/Utility/Arguments.hpp
 
 token = ../Source/Token/Token.hpp
 program = ../Source/Compiler/Program.hpp
@@ -42,7 +43,7 @@ build  Build/Processor.o: compile ../Source/Virtual/Processor.cpp   | $interface
 
 # Main:
 
-build Build/Spin.o: compile Spin.cpp | $interface $header $program $token $serialiser
+build Build/Spin.o: compile Spin.cpp | $interface $header $program $token $serialiser $arguments
 
 # Link:
 

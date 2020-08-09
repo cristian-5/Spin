@@ -22,13 +22,6 @@ namespace Spin {
 			BadFileException(const String & path);
 			const String & getPath() const;
 		};
-		class BadAccessException: public Exception {
-			private:
-			const String path;
-			public:
-			BadAccessException(const String & path);
-			const String & getPath() const;
-		};
 		Manager() = delete;
 		static UInt64 getLine(String * input, SizeType cursor);
 		static String * stringFromFile(String path);

@@ -21,98 +21,296 @@
 #include "Manager/Manager.hpp"
 #include "Preprocessor/Wings.hpp"
 #include "Compiler/Compiler.hpp"
+#include "Compiler/Decompiler.hpp"
 #include "Virtual/Processor.hpp"
+#include "Utility/Serialiser.hpp"
+#include "Utility/Arguments.hpp"
+
+#define VERSION                          \
+	"\n% Spin programming language %"    \
+	"\nCurrent version: 3.0.0 beta.\n\n"
+
+#define ERROR_01                                     \
+	"\n% Spin catastrophic event %"                  \
+	"\nYou forgot to specify the source file!"       \
+	"\nType spin -h and I'll guide you through.\n\n"
+
+#define ERROR_02                                         \
+	"\n% Spin catastrophic event (I'm not your maid!) %" \
+	"\nYou gave me too many arguments! Are you insane?"  \
+	"\nType spin -h and I'll guide you through.\n\n"
+
+#define ERROR_03                                     \
+	"\n% Spin catastrophic event %"                  \
+	"\nNo viable option has been selected!"          \
+	"\nType spin -h and I'll guide you through.\n\n"
+
+#define ERROR_04                                     \
+	"\n% Spin catastrophic event %"                  \
+	"\nInput file has invalid extension!"    \
+	"\nType spin -h and I'll guide you through.\n\n"
 
 using namespace Spin;
+using namespace CommandLine;
+
+void printBadFile(Manager::BadFileException & b);
+void printProgramError(Program::Error & e);
+void printReadingError(Serialiser::ReadingError & r, String path);
+void printProcessorCrash(Processor::Crash & c);
+
+Int32 processCode(String path, Boolean noAnsi);
+Int32 compileCode(String source, String destination, Boolean noAnsi);
+Int32 decompileCode(String source, Boolean noAnsi);
 
 Int32 main(Int32 argc, Character * argv[]) {
 
-	argc -= 1; argv += 1;
+	Arguments::program = "Spin";
+	Arguments::strictMode = false;
 
-	String main;
-
-	switch (argc) {
-		case 0: {
-			OStream << endLine << "% Spin Catastrophic Event %"
-				<< endLine << "You forgot to specify the source file!"
+	Arguments::onHelp = [] () {
+		OStream << endLine << "% Spin help magician (it's helpful) %"
+				<< endLine << "Usage:"
+				<< endLine << "    spin <file>"
+				<< endLine << "         Compiles and executes a file."
+				<< endLine << "    spin [-compile, -c] <file.spin> <file.sex>"
+				<< endLine << "         Compiles a file into a binary."
+				<< endLine << "    spin [-decompile, -d] <file.sex>"
+				<< endLine << "         Decompiles a binary file."
+				<< endLine << "    spin [-version, -v]"
+				<< endLine << "         Shows the version number."
+				<< endLine << "    .... [-noAnsi, -n]"
+				<< endLine << "         Disable ansi output."
+				<< endLine << "  <file>: should be the main file and"
+				<< endLine << "          it should end with '.spin' or"
+				<< endLine << "          '.sex' if it's a binary file."
+				<< endLine << "  <file.spin>: should be the source file."
+				<< endLine << "  <file.sex>:  should be the binary file."
+				<< endLine << "I told you it was helpful!"
+				<< endLine << endLine;
+	};
+	Arguments::onUndefined = [] (String c, String s) {
+		OStream << endLine << "% Spin catastrophic event %"
+				<< endLine << "Command '" << c << "' is undefined!"
+				<< endLine << "Did you mean '" << s << "' instead?"
 				<< endLine << "Type spin -h and I'll guide you through."
 				<< endLine << endLine;
-			return ExitCodes::failure;
-		} break;
-		case 1: {
-			String argument = String(argv[0]);
-			if (argument.length() == 0) {
-				OStream << endLine << "% Spin Catastrophic Event %"
-					<< endLine << "You forgot to specify the source file!"
-					<< endLine << "Type spin -h and I'll guide you through."
-					<< endLine << endLine;
-				return ExitCodes::failure;
-			}
-			if (argument == "-v" || argument == "--version") {
-				OStream << endLine << "% Spin Version 3.0.0 %" << endLine
-						<< endLine << "Andrea, please don't break this."
-						<< endLine << "Seriously, if u break it u fix it!"
-						<< endLine << endLine;
-				return ExitCodes::success;
-			} else if (argument == "-h" || argument == "--help") {
-				OStream << endLine << "% Spin help magician (it's helpful) %"
-						<< endLine << "  Usage: spin <file>"
-						<< endLine << "         <file>: should be the main file and"
-						<< endLine << "                 it should end with '.spin'."
-						<< endLine << "  I told you it was helpful."
-						<< endLine << endLine;
-				return ExitCodes::success;
-			} else main = argument;
-		} break;
-		default: {
-			OStream << endLine << "% Spin Catastrophic Event (I'm not your maid!) %"
-				<< endLine << "You gave me too many arguments. Go parse them yourself!"
+	};
+	Arguments::onRedefinition = [] (String c) {
+		OStream << endLine << "% Spin catastrophic event %"
+				<< endLine << "Command '" << c << "' has already been defined!"
 				<< endLine << "Type spin -h and I'll guide you through."
 				<< endLine << endLine;
-			return ExitCodes::failure;
-		} break;
+	};
+	Arguments::onUnclear = [] (String c, SizeType s) {
+		OStream << endLine << "% Spin catastrophic event %"
+				<< endLine << "Command '" << c << "' needs at least " << s << " parameters!"
+				<< endLine << "Type spin -h and I'll guide you through."
+				<< endLine << endLine;
+	};
+	
+	Parameters::onExclusion = [] (String a, String b) {
+		OStream << endLine << "% Spin catastrophic event %"
+				<< endLine << "Command '" << a
+				<< "' is conflicting with command '" << b << "'!"
+				<< endLine << "Type spin -h and I'll guide you through."
+				<< endLine << endLine;
+	};
+
+	Arguments::options = {
+		{   "-compile", "-c", 2 },
+		{ "-decompile", "-d", 1 },
+		{   "-version", "-v" },
+		{    "-noAnsi", "-n" },
+	};
+
+	Parameters parameters = Arguments::parse(argc, argv);
+	if (Arguments::helpRaised) return ExitCodes::success;
+	if   (parameters.failed()) return ExitCodes::failure;
+
+	Boolean noAnsi = parameters["-noAnsi"].to<Boolean>();
+
+	if (parameters["-version"].to<Boolean>()) {
+		OStream << VERSION;
+		return ExitCodes::success;
 	}
 
-	Compiler * compiler = Compiler::self();
-	Processor * processor = Processor::self();
+	if (parameters.size() == 2) {
+		// Its either `spin file.spin`
+		//         or `spin file.sex`.
+		switch (parameters.sizeOfFree()) {
+			case 0:
+				OStream << ERROR_01;
+				return ExitCodes::failure;
+			break;
+			case 1: break;
+			default:
+				OStream << ERROR_02;
+				return ExitCodes::failure;
+			break;
+		}
+		return processCode(
+			parameters.freeParameters.at(0),
+			noAnsi
+		);
+	} else {
+		// Its either `spin -compile file.spin file.sex`
+		//         or `spin -decompile file.sex`
+		String selected = parameters.mutualExclusion({
+			"-compile", "-decompile"
+		});
+		if (parameters.exclusionFailed()) {
+			return ExitCodes::failure;
+		}
+		if (selected.empty()) {
+			OStream << ERROR_03;
+			return ExitCodes::failure;
+		}
+		if (parameters.sizeOfFree() != 0) {
+			OStream << ERROR_02;
+			return ExitCodes::failure;
+		}
+		switch (selected[1]) {
+			case 'c': {
+				Array<String> cP = parameters["-compile"].toVector<String>();
+				if (cP[0].ends_with(".spin")) {
+					return compileCode(cP[0], cP[1], noAnsi);
+				}
+				return compileCode(cP[1], cP[0], noAnsi);
+			} break;
+			case 'd': {
+				return decompileCode(
+					parameters["-decompile"].to<String>(),
+					noAnsi
+				);
+			} break;
+			case 'v':
+				OStream << VERSION;
+				return ExitCodes::success;
+			break;
+			default: return ExitCodes::failure; break;
+		}
+	}
+	
+	return ExitCodes::success;
+}
 
-	SourceCode * code = nullptr;
+void printBadFile(Manager::BadFileException & b) {
+	OStream << endLine <<  "% SYS Catastrophic Event %"
+			<< endLine << "Couldn't open or read file ['"
+			<< b.getPath() << "']!" << endLine << endLine;
+}
+void printProgramError(Program::Error & e) {
+	OStream << endLine << "% " << e.getErrorCode()
+			<< " Error on line " << e.getLine() << " of ['"
+			<< e.getFile() << "'] %" << endLine
+			<< e.getMessage() << endLine << endLine;
+}
+void printReadingError(Serialiser::ReadingError & r, String path) {
+	OStream << endLine <<  "% PPR Catastrophic Event %"
+			<< endLine << "Couldn't read invalid file ['"
+			<< path << "']!" << endLine << endLine;
+}
+void printProcessorCrash(Processor::Crash & c) {
+	OStream << endLine << "% EVL Error on address [0x"
+			<< hexadecimal << padding(8) << c.getAddress()
+			<< "] %" << endLine << "Crash bytecode: "
+			<< hexadecimal << padding(2)
+			<< c.getInstruction().code << " "
+			<< hexadecimal << padding(16)
+			<< hexadecimal << c.getInstruction().as.index
+			<< endLine << endLine;
+}
+
+Int32 processCode(String path, Boolean noAnsi) {
 	Program * program = nullptr;
-
-	try {
-		code = Wings::spread(main);
-		program = compiler -> compile(code);
-		processor -> run(program);
-	} catch (Program::Error & e) {
-		OStream << endLine << endLine << "% " << e.getErrorCode()
-				<< " Error on line " << e.getLine() << " of ['"
-				<< e.getFile() << "'] %" << endLine
-				<< e.getMessage() << endLine << endLine;
-		if (code) delete code;
+	if (path.ends_with(".spin")) {
+		Compiler * compiler = Compiler::self();
+		SourceCode * code = nullptr;
+		try {
+			code = Wings::spread(path);
+			program = compiler -> compile(code);
+		} catch (Program::Error & e) {
+			printProgramError(e);
+			if (code) delete code;
+			if (program) delete program;
+			return ExitCodes::failure;
+		} catch (Manager::BadFileException & b) {
+			printBadFile(b);
+			if (code) delete code;
+			if (program) delete program;
+			return ExitCodes::failure;
+		}
+		delete code;
+	} else if (path.ends_with(".sex")) {
+		try { program = Program::from(path); }
+		catch (Serialiser::ReadingError & r) {
+			printReadingError(r, path);
+			return ExitCodes::failure;
+		} catch (Manager::BadFileException & b) {
+			printBadFile(b);
+			return ExitCodes::failure;
+		}
+	} else {
+		OStream << ERROR_04;
+		return ExitCodes::failure;
+	}
+	Processor * processor = Processor::self();
+	try { processor -> run(program); }
+	catch (Processor::Crash & c) {
+		printProcessorCrash(c);
 		if (program) delete program;
 		return ExitCodes::failure;
-	} catch (Processor::Crash & c) {
-		OStream << endLine << "% EVL Error on address [0x"
-				<< hexadecimal << padding(8) << c.getAddress()
-				<< "] %" << endLine << "Crash bytecode: "
-				<< hexadecimal << padding(2)
-				<< c.getInstruction().code << " "
-				<< hexadecimal << padding(16)
-				<< hexadecimal << c.getInstruction().as.index
-				<< endLine << endLine;
+	}
+	delete program;
+	return ExitCodes::success;
+}
+Int32 compileCode(String source, String destination, Boolean noAnsi) {
+	if (!source.ends_with(".spin")) {
+		OStream << ERROR_04;
+		return ExitCodes::failure;
+	}
+	Compiler * compiler = Compiler::self();
+	SourceCode * code = nullptr;
+	Program * program = nullptr;
+	try {
+		code = Wings::spread(source);
+		program = compiler -> compile(code);
+		delete code; code = nullptr;
+		program -> serialise(destination);
+	} catch (Program::Error & e) {
+		printProgramError(e);
 		if (code) delete code;
 		if (program) delete program;
 		return ExitCodes::failure;
 	} catch (Manager::BadFileException & b) {
-		OStream << endLine << endLine <<  "% PPR Catastrophic Event %"
-				<< endLine << "Couldn't open file ['"
-				<< b.getPath() << "']!" << endLine << endLine;
+		printBadFile(b);
 		if (code) delete code;
 		if (program) delete program;
 		return ExitCodes::failure;
 	}
-
-	delete code; delete program;
-	
 	return ExitCodes::success;
 }
+Int32 decompileCode(String source, Boolean noAnsi) {
+	if (!source.ends_with(".sex")) {
+		OStream << ERROR_04;
+		return ExitCodes::failure;
+	}
+	Program * program = nullptr;
+	try { program = Program::from(source); }
+	catch (Manager::BadFileException & b) {
+		printBadFile(b);
+		return ExitCodes::failure;
+	} catch (Serialiser::ReadingError & r) {
+		printReadingError(r, source);
+		return ExitCodes::failure;
+	}
+	Decompiler::decompile(program, noAnsi);
+	delete program;
+	return ExitCodes::success;
+}
+
+#undef VERSION
+#undef ERROR_01
+#undef ERROR_02
+#undef ERROR_03
+#undef ERROR_04

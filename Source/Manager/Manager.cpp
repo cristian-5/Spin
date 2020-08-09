@@ -25,11 +25,6 @@
 
 namespace Spin {
 
-	Manager::BadAccessException::BadAccessException(const String & path): path(path) { }
-	const String & Manager::BadAccessException::getPath() const {
-		return path;
-	}
-
 	Manager::BadFileException::BadFileException(const String & path): path(path) { }
 	const String & Manager::BadFileException::getPath() const {
 		return path;
@@ -60,7 +55,7 @@ namespace Spin {
 		OFStream file(path);
 		try { file << content; }
 		catch (Exception & e) {
-			throw BadAccessException(path);
+			throw BadFileException(path);
 		}
 		file.close();
 	}
@@ -81,7 +76,7 @@ namespace Spin {
 		file.seekg(0, std::ios::beg);
 		Buffer * buffer = new Buffer(size);
 		if (!file.read((Character *)(buffer -> data()), size)) {
-			throw BadAccessException(path);
+			throw BadFileException(path);
 		}
 		file.close();
 		return buffer;
