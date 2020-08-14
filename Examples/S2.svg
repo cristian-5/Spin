@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="padding: 10 20; background: #fff;" height="155" width="600">
+	<style>
+		text { fill: #474747; font-family: Menlo, Monaco, monospace; font-size: 15; }
+		.keyword { fill: #00B196 !important; }
+		.specific { fill: #E40073 !important; }
+		.comment { fill: #6E6E6E !important; }
+		.dirac { fill: #0077E5 !important; }
+		.type { fill: #00A2D9 !important; }
+		.string { fill: #009FAB !important; }
+		.numeric { fill: #DC4600 !important; }
+		.literal { fill: #E62042 !important; }
+		.method { fill: #9B00C1 !important; }
+	</style>
+	<text x="0" y="25"><tspan class="specific">var</tspan> condition: <tspan class="type">Boolean</tspan> = <tspan class="literal">false</tspan>;</text>
+	<text x="0" y="50"><tspan class="specific">var</tspan> raw: <tspan class="type">Byte</tspan> = <tspan class="numeric">0xFF</tspan>;</text>
+	<text x="0" y="75">raw = ~raw; <tspan class="comment">// bitwise inversion</tspan></text>
+	<text x="0" y="100"><tspan class="specific">var</tspan> hello: <tspan class="type">String</tspan> = <tspan class="string">"number "</tspan> + <tspan class="string">'!'</tspan>;</text>
+	<text x="0" y="125"><tspan class="specific">var</tspan> exclam: <tspan class="type">Character</tspan> = hello[<tspan class="numeric">10</tspan>];</text>
+</svg>

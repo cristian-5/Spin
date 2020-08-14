@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="padding: 10 20; background: #fff;" height="230" width="600">
+	<style>
+		text { fill: #474747; font-family: Menlo, Monaco, monospace; font-size: 15; }
+		.keyword { fill: #00B196 !important; }
+		.specific { fill: #E40073 !important; }
+		.comment { fill: #6E6E6E !important; }
+		.dirac { fill: #0077E5 !important; }
+		.type { fill: #00A2D9 !important; }
+		.string { fill: #009FAB !important; }
+		.numeric { fill: #DC4600 !important; }
+		.literal { fill: #E62042 !important; }
+		.method { fill: #9B00C1 !important; }
+	</style>
+	<text x="0" y="25"><tspan class="specific">var</tspan> a: <tspan class="type">Integer</tspan> = <tspan class="numeric">3</tspan> + <tspan class="numeric">2</tspan> * <tspan class="numeric">7</tspan> - <tspan class="numeric">5</tspan>;</text>
+	<text x="0" y="50"><tspan class="specific">var</tspan> b: <tspan class="type">Integer</tspan> = <tspan class="numeric">0b10</tspan>; <tspan class="comment">// binary<tspan class="literal"></tspan></tspan></text>
+	<text x="0" y="75">b = <tspan class="numeric">0xAB24</tspan> * <tspan class="numeric">0o547474</tspan>; <tspan class="comment">// hex * oct<tspan class="literal"></tspan></tspan></text>
+	<text x="0" y="100"><tspan class="specific">var</tspan> c: <tspan class="type">Real</tspan> = <tspan class="numeric">7.7</tspan>;</text>
+	<text x="0" y="125"><tspan class="specific">var</tspan> i: <tspan class="type">Imaginary</tspan> = - <tspan class="numeric">7i</tspan>;</text>
+	<text x="0" y="150"><tspan class="specific">var</tspan> d = <tspan class="numeric">34.6</tspan> + <tspan class="numeric">12i</tspan> + c;</text>
+	<text x="0" y="175"><tspan class="specific">var</tspan> e: <tspan class="type">Complex</tspan> = a * b - (<tspan class="numeric">3.5</tspan> + <tspan class="numeric">6i</tspan>);</text>
+	<text x="0" y="200"><tspan class="specific">con</tspan> pi = <tspan class="numeric">3.14</tspan>; <tspan class="comment">// constant</tspan></text>
+</svg>

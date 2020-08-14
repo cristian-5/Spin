@@ -24,44 +24,17 @@ will be my thesis.
 
 ## A taste of spin
 
-**Attention!** These examples have only been conceptualised
-and we are still implementing them in the **VM**.\
-If you're looking for the Interpreter, contact me.
-
-More examples can be found in the [Examples](Examples/) folder.
+These snippets are here to give you a little background
+but if you feel lost when it comes to control flow of the
+program, just remember that statements work just like in *c++*.
 
 ### Numeric Types
 
-``` swift
-var a: Integer = 3 + 2 * 7 - 5;
-var b: Integer = 0b10; // binary
-b = 0xAB24 * 0o547474; // hex * oct
-var c: Real = 7.7;
-var i: Imaginary = - 7i;
-var d = 34.6 + 12i + c;
-var e: Complex = a * b - (3.5 + 6i);
-con pi = 3.14; // constant
-```
+![Snippet 1](Examples/S1.svg)
 
 ### Minor Types
 
-``` swift
-var condition: Boolean = false;
-var raw: Byte = 0xFF;
-raw = ~raw; // bitwise inversion
-var hello: String = "number " + '!';
-var exclam: Character = hello[10];
-```
-
-### Console Library
-
-Check out the full [**Console Documentation**](Documentation/Libraries/Console.md)
-
-``` swift
-import Console;
-
-Console::writeLine("I'm using Console!");
-```
+![Snippet 2](Examples/S2.svg)
 
 The documentation contains the language syntax specification.
 
