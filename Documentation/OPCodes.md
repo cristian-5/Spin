@@ -66,6 +66,10 @@ is consulted to find what exception to raise.
 |   BWA  |   types  | Bitwise and, of the last two values of the stack (considering types)    |
 |   BWO  |   types  | Bitwise or, of the last two values of the stack (considering types)     |
 |   BWX  |   types  | Bitwise xor, of the last two values of the stack (considering types)    |
+|   BSR  |   type   | Bitwise shift right (considering type)                                  |
+|   BSL  |   type   | Bitwise shift left (considering type)                                   |
+|   BRR  |   type   | Bitwise rotation right (considering type)                               |
+|   BRL  |   type   | Bitwise rotation left (considering type)                                |
 |   CAL  |   index  | Absolute jump at address index, with preservation of ip                 |
 |   RET  |          | Return to the preserved ip, stored with CAL, decrease stack frame       |
 |   CST  |   types  | Casting between the last two values on the stack (considering types)    |

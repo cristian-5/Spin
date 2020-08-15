@@ -125,6 +125,10 @@ namespace Spin {
 		BWA, // bitwise and
 		BWO, // bitwise or
 		BWX, // bitwise xor
+		BSR, // bitwise shift right
+		BSL, // bitwise shift left
+		BRR, // bitwise rotation right
+		BRL, // bitwise rotation left
 
 		CAL, // call
 		RET, // return

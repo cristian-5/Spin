@@ -27,6 +27,7 @@ namespace Spin {
 		bitwiseAND,
 		equality,
 		comparison,
+		shift,
 		term,
 		factor,
 		unary,

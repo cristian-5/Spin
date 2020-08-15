@@ -596,6 +596,74 @@ namespace Spin {
 						default: return { .integer = 0 };
 					}
 				break;
+				case OPCode::BSL:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.type) {
+						case Type::CharacterType:
+						case      Type::ByteType:
+							stack.push({ .byte = (Byte)(a.byte << (SizeType)b.integer) });
+						break;
+						case   Type::IntegerType:
+							stack.push({ .integer = (a.integer << (SizeType)b.integer) });
+						break;
+						default: return { .integer = 0 };
+					}
+				break;
+				case OPCode::BSR:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.type) {
+						case Type::CharacterType:
+						case      Type::ByteType:
+							stack.push({ .byte = (Byte)(a.byte >> (SizeType)b.integer) });
+						break;
+						case   Type::IntegerType:
+							stack.push({ .integer = (a.integer >> (SizeType)b.integer) });
+						break;
+						default: return { .integer = 0 };
+					}
+				break;
+				case OPCode::BRL:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.type) {
+						case Type::CharacterType:
+						case      Type::ByteType:
+							stack.push({ .byte = (Byte)(
+								a.byte << (SizeType)b.integer |
+								a.byte >> (8 - (SizeType)b.integer)
+							) });
+						break;
+						case   Type::IntegerType:
+							stack.push({ .integer = (
+								a.integer << (SizeType)b.integer |
+								a.integer >> (64 - (SizeType)b.integer)
+							) });
+						break;
+						default: return { .integer = 0 };
+					}
+				break;
+				case OPCode::BRR:
+					b = stack.pop();
+					a = stack.pop();
+					switch (data.as.type) {
+						case Type::CharacterType:
+						case      Type::ByteType:
+							stack.push({ .byte = (Byte)(
+								a.byte >> (SizeType)b.integer |
+								a.byte << (8 - (SizeType)b.integer)
+							) });
+						break;
+						case   Type::IntegerType:
+							stack.push({ .integer = (
+								a.integer >> (SizeType)b.integer |
+								a.integer << (64 - (SizeType)b.integer)
+							) });
+						break;
+						default: return { .integer = 0 };
+					}
+				break;
 				case OPCode::NEG:
 					switch (data.as.type) {
 						case Type::CharacterType:

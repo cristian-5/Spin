@@ -27,6 +27,16 @@
 
 #define rethrow(A) try { A; } catch (Program::Error & e) { throw; }
 
+/*ƒ
+
+var x: Lamda = ƒ(a: Integer, b: real): Real {
+	return a + b;
+};
+
+proc x(a: Lamda): Real { return a(); }
+
+x(ƒ() => { print a + b; }());*/
+
 namespace Spin {
 
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
@@ -37,6 +47,11 @@ namespace Spin {
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
 
 		{ Token::Type::colon, { nullptr, & Compiler::cast, Precedence::assignment } },
+
+		{ Token::Type::shiftL, { nullptr, & Compiler::binary, Precedence::shift } },
+		{ Token::Type::shiftR, { nullptr, & Compiler::binary, Precedence::shift } },
+		{ Token::Type::rotateL, { nullptr, & Compiler::binary, Precedence::shift } },
+		{ Token::Type::rotateR, { nullptr, & Compiler::binary, Precedence::shift } },
 
 		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::call } },
 		{ Token::Type::exclamationMark, { & Compiler::prefix, nullptr, Precedence::none } },
@@ -76,6 +91,22 @@ namespace Spin {
 	};
 
 	const Dictionary<Binary, Type> Compiler::infixTable = {
+		// # << # ------------------------------------------------------------- # Composing Bitwise Shift Left#
+		{ compose(Token::Type::shiftL, Type::CharacterType, Type::IntegerType), Type::CharacterType },
+		{ compose(Token::Type::shiftL, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::shiftL, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		// # >> # ------------------------------------------------------------- # Composing Bitwise Shift Right#
+		{ compose(Token::Type::shiftR, Type::CharacterType, Type::IntegerType), Type::CharacterType },
+		{ compose(Token::Type::shiftR, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::shiftR, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		// # <* # ------------------------------------------------------------- # Composing Bitwise Rotation Left #
+		{ compose(Token::Type::rotateL, Type::CharacterType, Type::IntegerType), Type::CharacterType },
+		{ compose(Token::Type::rotateL, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::rotateL, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		// # *> # ------------------------------------------------------------- # Composing Bitwise Rotation Right #
+		{ compose(Token::Type::rotateR, Type::CharacterType, Type::IntegerType), Type::CharacterType },
+		{ compose(Token::Type::rotateR, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::rotateR, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		// # & # ------------------------------------------------------------- # Composing Bitwise AND #
 		{ compose(Token::Type::ampersand, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::ampersand, Type::ByteType, Type::ByteType), Type::ByteType },
@@ -962,6 +993,10 @@ namespace Spin {
 			case Token::Type::minorEqual: emitOperation({ OPCode::LEQ, { .types = types } }); break;
 			case  Token::Type::ampersand: emitOperation({ OPCode::BWA, { .types = types } }); break;
 			case       Token::Type::pipe: emitOperation({ OPCode::BWO, { .types = types } }); break;
+			case     Token::Type::shiftL: emitOperation({ OPCode::BSL, { .type = typeA } }); break;
+			case     Token::Type::shiftR: emitOperation({ OPCode::BSR, { .type = typeA } }); break;
+			case    Token::Type::rotateL: emitOperation({ OPCode::BRL, { .type = typeA } }); break;
+			case    Token::Type::rotateR: emitOperation({ OPCode::BRR, { .type = typeA } }); break;
 			default: break;
 		}
 		typeStack.push(search -> second);

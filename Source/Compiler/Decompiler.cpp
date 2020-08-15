@@ -185,6 +185,10 @@ namespace Spin {
 			case OPCode::MUL: typesOP("MUL", byte.as.types, Colour::blue, "multiplication"); break;
 			case OPCode::DIV: typesOP("DIV", byte.as.types, Colour::blue, "division"); break;
 			case OPCode::MOD: typesOP("MOD", byte.as.types, Colour::blue, "modulus"); break;
+			case OPCode::BSL: unaryOP("BSL", byte.as.type, Colour::purple, "shift left"); break;
+			case OPCode::BSR: unaryOP("BSR", byte.as.type, Colour::purple, "shift right"); break;
+			case OPCode::BRL: unaryOP("BRL", byte.as.type, Colour::purple, "rotate left"); break;
+			case OPCode::BRR: unaryOP("BRR", byte.as.type, Colour::purple, "rotate right"); break;
 			case OPCode::NEG: unaryOP("NEG", byte.as.type, Colour::purple, "negation"); break;
 			case OPCode::INV: unaryOP("INV", byte.as.type, Colour::purple, "inversion"); break;
 			case OPCode::SSC: aloneOP("SSC", Colour::purple, "string subscription"); break;

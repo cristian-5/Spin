@@ -104,6 +104,7 @@ namespace Spin {
 				else addToken("-", Token::Type::minus); break;
 			case '*':
 				if (match('=')) addToken("*=", Token::Type::starEqual);
+				else if (match('>')) addToken("*>", Token::Type::rotateR);
 				else addToken("*", Token::Type::star); break;
 			case '/':
 				if (match('=')) {
@@ -128,6 +129,8 @@ namespace Spin {
 				} else addToken("/", Token::Type::slash); break;
 			case '<':
 				if (match('=')) addToken("<=", Token::Type::minorEqual);
+				else if (match('<')) addToken("<<", Token::Type::shiftL);
+				else if (match('*')) addToken("<*", Token::Type::rotateL);
 				else if (peek() == '0' || peek() == '1') {
 					scanBraLiteral();
 				} else if (isAlpha(peek())) {
@@ -135,7 +138,9 @@ namespace Spin {
 				} else addToken("<", Token::Type::minor); break;
 			case '>':
 				if (match('=')) addToken(">=", Token::Type::majorEqual);
-				else addToken(">", Token::Type::major); break;
+				else if (match('>')) {
+					addToken(">>", Token::Type::shiftR);
+				} else addToken(">", Token::Type::major); break;
 			case '[': addToken("[", Token::Type::openBracket); break;
 			case ']': addToken("]", Token::Type::closeBracket); break;
 			case ',': addToken(",", Token::Type::comma); break;
