@@ -1,13 +1,15 @@
 
-# Spin Language
+<div align="center">
+     <img src="Resources/Icons/Spin.png" height="200" width="200">
+</div>
 
-[![license](Badges/License.svg)](License)
-[![version](Badges/Version.svg)](ReadMe.md)
-[![language](Badges/Language.svg)](ReadMe.md)
-[![contributions](Badges/Contributions.svg)](ReadMe.md)
-[![donations](Badges/Donations.svg)](https://paypal.me/CristianAntonuccio)
+# Spin - Programming Language
 
-**Spin Programming Language**
+[![license](Resources/Badges/License.svg)](License)
+[![version](Resources/Badges/Version.svg)](ReadMe.md)
+[![language](Resources/Badges/Language.svg)](ReadMe.md)
+[![contributions](Resources/Badges/Contributions.svg)](ReadMe.md)
+[![donations](Resources/Badges/Donations.svg)](https://paypal.me/CristianAntonuccio)
 
 High level programming language for *research* in
 **Quantum Computing** built in *c++*.
@@ -81,7 +83,7 @@ I told you it was helpful!
 **Donations** are *welcome*! Offer me a *cup of coffee* since
 I drink it *every day* just before working on this project.
 
-[![donations](Badges/PayPal.svg)](https://paypal.me/CristianAntonuccio)
+[![donations](Resources/Badges/PayPal.svg)](https://paypal.me/CristianAntonuccio)
 
 ## Compilation
 
