@@ -1,17 +1,15 @@
 
 # Spin - Programming Language
 
-<div align="center">
-     <img src="Resources/Icons/Spin.png" height="200" width="200">
-</div>
-
-<br>
-
 [![license](Resources/Badges/License.svg)](License)
 [![version](Resources/Badges/Version.svg)](ReadMe.md)
 [![language](Resources/Badges/Language.svg)](ReadMe.md)
 [![contributions](Resources/Badges/Contributions.svg)](ReadMe.md)
 [![donations](Resources/Badges/Donations.svg)](https://paypal.me/CristianAntonuccio)
+
+<div align="center">
+     <img src="Resources/Icons/Spin.png" height="200" width="200">
+</div>
 
 High level programming language for *research* in
 **Quantum Computing** built in *c++*.
