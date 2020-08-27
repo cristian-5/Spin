@@ -1,9 +1,11 @@
 
+# Spin - Programming Language
+
 <div align="center">
      <img src="Resources/Icons/Spin.png" height="200" width="200">
 </div>
 
-# Spin - Programming Language
+<br>
 
 [![license](Resources/Badges/License.svg)](License)
 [![version](Resources/Badges/Version.svg)](ReadMe.md)
