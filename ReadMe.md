@@ -8,7 +8,7 @@
 [![donations](Resources/Badges/Donations.svg)](https://paypal.me/CristianAntonuccio)
 
 <div align="center">
-     <img src="Resources/Icons/Spin.png" height="200" width="200">
+	<img src="Resources/Icons/Spin.png" height="200" width="200">
 </div>
 
 High level programming language for *research* in
