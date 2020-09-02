@@ -111,6 +111,7 @@ namespace Spin {
 				case OPCode::BRL: case OPCode::BRR:
 				case OPCode::NEG: case OPCode::INV:
 				case OPCode::PRT: case OPCode::PRL:
+				case OPCode::TYP:
 					// 1 Byte argument (type):
 					Serialiser::write<Byte>(buffer, byte.as.type);
 				break;
@@ -205,6 +206,7 @@ namespace Spin {
 				case OPCode::BRL: case OPCode::BRR:
 				case OPCode::NEG: case OPCode::INV:
 				case OPCode::PRT: case OPCode::PRL:
+				case OPCode::TYP:
 					// 1 Byte argument (type):
 					try {
 						byte.as.type = (Type)(Serialiser::read<Byte>(buffer));

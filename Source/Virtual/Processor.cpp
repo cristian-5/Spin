@@ -46,7 +46,7 @@ namespace Spin {
 	Value Processor::evaluate(Program * program) {
 		if (!program) return { .integer = 0 };
 		// Main:
-		Value a, b, c;
+		Value a, b, c, l;
 		SizeType base = 0, ip = 0;
 		const SizeType count = program -> instructions.size();
 		while (ip < count) {
@@ -61,6 +61,17 @@ namespace Spin {
 						))
 					});
 				break;
+				case OPCode::TYP:
+					if (stack.pop().byte != (Byte)data.as.type) {
+						throw Crash(ip, data);
+					}
+				break;
+				case OPCode::LLA: l = stack.pop(); break;
+				case OPCode::LAM:
+					call.push(ip);
+					ip = (SizeType)(l.integer);
+					if (ip == 0) throw Crash(ip, data);
+				continue;
 				case OPCode::GET: stack.push(stack.at(data.as.index)); break;
 				case OPCode::SET: stack.edit(data.as.index, stack.top()); break;
 				case OPCode::SSF: frame.push(base); base = stack.size() - data.as.index; break;

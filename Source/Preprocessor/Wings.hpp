@@ -20,8 +20,6 @@ namespace Spin {
 		static Boolean isSpread(String wing, Array<CodeUnit *> * wings);
 		static void prepareWing(CodeUnit * code);
 		static void spreadWing(CodeUnit * code, Array<CodeUnit *> * resolved, Array<String> * libs);
-		static Token::Type token(CodeUnit * code, SizeType i);
-		static void prototype(CodeUnit * code);
 		public:
 		Wings() = delete;
 		static SourceCode * spread(String path);

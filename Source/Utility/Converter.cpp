@@ -124,6 +124,7 @@ namespace Spin {
 			case Type::RoutineType: return "Routine";
 			case Type::ClassType: return "Definition";
 			case Type::InstanceType: return "Instance";
+			case Type::LamdaType: return "Lamda";
 			case Type::VoidType: return "Void";
 			default: return "Unknown";
 		}
@@ -138,6 +139,7 @@ namespace Spin {
 			{ "Imaginary", Type::ImaginaryType },
 			{ "Complex", Type::ComplexType },
 			{ "String", Type::StringType },
+			{ "Lamda", Type::LamdaType },
 		};
 		auto search = types.find(s);
 		if (search == types.end()) return Type::VoidType;

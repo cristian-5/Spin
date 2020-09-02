@@ -11,6 +11,7 @@
 #include "Program.hpp"
 
 #include "../Utility/Stack.hpp"
+#include "../Utility/Converter.hpp"
 
 using Unary = UInt16;
 using Binary = UInt32;
@@ -47,10 +48,27 @@ namespace Spin {
 			Precedence precedence = Precedence::none;
 		};
 
+		class TypeNode {
+			public:
+			Type type = Type::VoidType;
+			String name;
+			TypeNode * next = nullptr;
+			TypeNode() = default;
+			TypeNode(Type t) { type = t; }
+			~TypeNode() { if (next) delete next; }
+			inline Boolean isContainer() { return next; }
+			inline String description() {
+				if (!next) return Converter::typeToString(type);
+				String desc = Converter::typeToString(type) + "<";
+				if (next) desc += next -> description() + ">";
+				return desc;
+			}
+		};
+
 		struct Local {
 			String name;
 			SizeType depth = 0;
-			Type type;
+			TypeNode * type = nullptr;
 			Boolean ready = false;
 			Boolean isConstant = false;
 			Boolean isStack = false;
@@ -63,16 +81,27 @@ namespace Spin {
 
 		struct Routine {
 			String name;
-			Type returnType = Type::VoidType;
-			Array<Type> parameters;
+			TypeNode * returnType = nullptr;
+			Array<TypeNode *> parameters;
 			Array<ByteCode> code;
 			Boolean returns = false;
 			SizeType scope;
+			SizeType prototypeIndex = - 1;
+		};
+
+		struct Parameter {
+			String name;
+			TypeNode * type = nullptr;
+		};
+
+		struct Prototype {
+			String name;
+			Array<Parameter> parameters;
+			TypeNode * returnType = nullptr;
+			SizeType address = - 1;
 		};
 
 		Array<Routine> routines;
-
-		SizeType numberOfRoutines;
 
 		Array<Local> locals;
 		SizeType scopeDepth = 0;
@@ -86,13 +115,16 @@ namespace Spin {
 		CodeUnit * currentUnit = nullptr;
 		Array<Token> * tokens = nullptr;
 
-		Stack<Type> typeStack;
+		Array<Prototype> prototypes;
+		Stack<TypeNode *> typeStack;
+		// Stack<Type> lamdaReturn;
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
 		Stack<SizeType> routineIndexes;
 		Stack<Jump> breakStack;
 		Stack<Jump> continueStack;
 
+		// Dictionary<SizeType, SizeType> lamdas;
 		Dictionary<String, SizeType> strings;
 
 		static const Dictionary<Binary, Type> infixTable;
@@ -122,6 +154,10 @@ namespace Spin {
 			return (Types)(((Types) a << 8) | b);
 		}
 
+		TypeNode * type();
+
+		void produceInitialiser(TypeNode * type);
+
 		void booleanLiteral();
 		void characterLiteral();
 		void stringLiteral();
@@ -142,9 +178,11 @@ namespace Spin {
 		void logicOR();
 
 		void grouping();
+		void functional();
 		void subscription();
 		void cast();
 		void call();
+		void lamda();
 		void ternary();
 		void postfix();
 		void binary();
@@ -166,7 +204,7 @@ namespace Spin {
 		void returnStatement();
 		void swapStatement();
 
-		SizeType locate(String & name, Array<Type> & types);
+		SizeType locate(String & name, Array<TypeNode *> & types);
 		SizeType resolve(String & name, Local & local);
 
 		void parsePrecedence(Precedence precedence);
@@ -174,11 +212,19 @@ namespace Spin {
 		void foldUnary(Token token);
 		void foldBinary(Token token);
 
+		inline void pushType(Type type);
+		inline void pushType(TypeNode * node);
+		inline Type popAbsoluteType();
+		inline void decreaseType();
+		inline TypeNode * popType();
+		inline TypeNode * topType();
+		inline Boolean match(TypeNode * a, TypeNode * b);
 		inline Boolean match(Token::Type type);
 		inline Boolean matchAssignment();
 		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);
+		inline void prototypeRoutine(Boolean function);
 		inline void preparePrototypes();
 		inline void resolveRoutines();
 		inline void resolveCalls();

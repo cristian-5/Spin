@@ -62,6 +62,7 @@ namespace Spin {
 		{ "Real", Token::Type::basicType },
 		{ "String", Token::Type::basicType },
 		{ "Vector", Token::Type::basicType },
+		{ "Lamda", Token::Type::basicType },
 
 		{ "false", Token::Type::boolLiteral },
 		{ "true", Token::Type::boolLiteral },
@@ -188,6 +189,9 @@ namespace Spin {
 				} else unknown.push_back(c); break;
 			case '^': addToken("^", Token::Type::hat); break;
 			case '?': addToken("?", Token::Type::questionMark); break;
+			case '\xC6': 
+				if (match('\x92')) addToken("ƒ", Token::Type::lamda);
+				else unknown.push_back(c); break;
 			case ' ': case '\r': case '\t': case '\n': break;
 			default: 
 				if (isDigit(c)) scanNumber();

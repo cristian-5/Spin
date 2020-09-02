@@ -25,7 +25,6 @@
 
 #include "../Manager/Manager.hpp"
 #include "../Lexer/Lexer.hpp"
-#include "../Utility/Converter.hpp"
 #include "../Compiler/Libraries.hpp"
 
 namespace Spin {
@@ -203,89 +202,11 @@ namespace Spin {
 				);
 			} catch (Program::Error & e) { throw; }
 		}
-		prototype(code);   // Run type classification.
 		prepareWing(code); // Delete empty tokens.
 		// Avoid empty code units:
 		if (code -> tokens -> size() <= 2) return;
 		// After resolution add code to 'resolved':
 		resolved -> push_back(code);
-	}
-	Token::Type Wings::token(CodeUnit * code, SizeType i) {
-		if (i >= code -> tokens -> size()) return Token::Type::endFile;
-		return code -> tokens -> at(i).type;
-	}
-	void Wings::prototype(CodeUnit * code) {
-		if (!code || !(code -> tokens)) return;
-		// Class prototyping:
-		SizeType tokenCount = (code -> tokens -> size()) - 1;
-		for (SizeType i = 0; i < tokenCount; i += 1) {
-			if (code -> tokens -> at(i).isTypeType()) {
-				i += 1;
-				Token token = code -> tokens -> at(i);
-				if (token.type == Token::Type::symbol) {
-					replace(code, Token::Type::symbol, token.lexeme, Token::Type::customType);
-				}
-			}
-		}
-		// Routine prototyping:
-		tokenCount = (code -> tokens -> size()) - 1;
-		for (SizeType i = 0; i < tokenCount; i += 1) {
-			if (code -> tokens -> at(i).isRoutineKeyword()) {
-				Boolean proc = (token(code, i) == Token::Type::procKeyword);
-				i += 1;
-				Prototype prototype;
-				if (token(code, i) != Token::Type::symbol) { i -= 1; continue; }
-				prototype.name = code -> tokens -> at(i).lexeme; i += 1;
-				if (token(code, i) != Token::Type::openParenthesis) { i -= 1; continue; }
-				i += 1;
-				Boolean broken = false;
-				if (token(code, i) != Token::Type::closeParenthesis) {
-					i -= 1;
-					do {
-						i += 1;
-						Parameter parameter;
-						if (token(code, i) != Token::Type::symbol) {
-							broken = true;
-							break;
-						}
-						parameter.name = code -> tokens -> at(i).lexeme;
-						i += 1;
-						if (token(code, i) != Token::Type::colon) {
-							broken = true;
-							break;
-						}
-						i += 1;
-						if (token(code, i) != Token::Type::basicType) {
-							broken = true;
-							break;
-						}
-						parameter.type = Converter::stringToType(
-							code -> tokens -> at(i).lexeme
-						);
-						i += 1;
-						prototype.parameters.push_back(parameter);
-					} while (token(code, i) == Token::Type::comma);
-					if (broken) { i -= 1; continue; }
-				}
-				if (token(code, i) != Token::Type::closeParenthesis) { i -= 1; continue; }
-				i += 1;
-				if (proc) {
-					if (token(code, i) != Token::Type::openBrace) { i -= 1; continue; }
-					code -> prototypes.push_back(prototype);
-					i -= 1; continue;
-				}
-				if (token(code, i) != Token::Type::colon) { i -= 1; continue; }
-				i += 1;
-				if (token(code, i) != Token::Type::basicType) { i -= 1; continue; }
-				prototype.returnType = Converter::stringToType(
-					code -> tokens -> at(i).lexeme
-				);
-				i += 1;
-				if (token(code, i) != Token::Type::openBrace) { i -= 1; continue; }
-				code -> prototypes.push_back(prototype);
-			}
-		}
-
 	}
 	void Wings::prepareWing(CodeUnit * code) {
 		if (!code || !(code -> tokens)) return;
@@ -346,7 +267,6 @@ namespace Spin {
 
 		// Main preparation:
 
-		prototype(main);   // Run type classification.
 		prepareWing(main); // Delete empty tokens.
 
 		// Wings classification:

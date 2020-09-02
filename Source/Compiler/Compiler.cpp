@@ -21,7 +21,6 @@
 #ifndef SPIN_COMPILER_CPP
 #define SPIN_COMPILER_CPP
 
-#include "../Utility/Converter.hpp"
 #include "../Types/Complex.hpp"
 #include "../Virtual/Processor.hpp"
 
@@ -29,13 +28,12 @@
 
 /*ƒ
 
-var x: Lamda = ƒ(a: Integer, b: real): Real {
-	return a + b;
+var x = ƒ(a: Integer, c: Real): Lamda {
+	if (c == 8) return z(4)();
+	return self(t, g);
 };
 
-proc x(a: Lamda): Real { return a(); }
-
-x(ƒ() => { print a + b; }());*/
+*/
 
 namespace Spin {
 
@@ -61,6 +59,8 @@ namespace Spin {
 		{ Token::Type::slash, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::modulus, { nullptr, & Compiler::binary, Precedence::factor } },
 		{ Token::Type::star, { nullptr, & Compiler::binary, Precedence::factor } },
+
+		{ Token::Type::lamda, { & Compiler::lamda, nullptr, Precedence::none } },
 
 		{ Token::Type::symbol, { & Compiler::identifier, nullptr, Precedence::none } },
 
@@ -372,11 +372,66 @@ namespace Spin {
 		{ compose(Type::ComplexType, Type::ImaginaryType), true },
 	};
 
+	Compiler::TypeNode * Compiler::type() {
+		if (match(Token::Type::basicType)) {
+			return new TypeNode(
+				Converter::stringToType(
+					previous.lexeme
+				)
+			);
+		}
+		if (match(Token::Type::openBracket)) {
+			TypeNode * node = new TypeNode(Type::ArrayType);
+			rethrow(
+				node -> next = type();
+				consume(Token::Type::closeBracket, "]");
+			);
+			return node;
+		}
+		throw Program::Error(
+			currentUnit,
+			"Expected 'type' but found '" + current.lexeme + "'!",
+			(current.type == Token::Type::endFile ? previous : current),
+			ErrorCode::syx
+		);
+	}
+
+	void Compiler::produceInitialiser(Compiler::TypeNode * type) {
+		if (!type -> isContainer()) {
+			switch (type -> type) {
+				case   Type::BooleanType: emitOperation(OPCode::PSF); break;
+				case Type::CharacterType: 
+				case      Type::ByteType: emitOperation({
+					OPCode::PSH, { .value = { .byte = 0 } }
+				}); break;
+				case   Type::IntegerType: emitOperation({
+					OPCode::PSH, { .value = { .integer = 0 } }
+				}); break;
+				case      Type::RealType:
+				case Type::ImaginaryType: emitOperation({
+					OPCode::PSH, { .value = { .real = 0.0 } }
+				}); break;
+				case   Type::ComplexType: emitOperation(OPCode::PEC); break;
+				case    Type::StringType: emitOperation(OPCode::PES); break;
+				/*case     Type::LamdaType:
+					emitOperation({ OPCode::PSH, { .index = 0 } });
+					lamdaReturn.push(Type::VoidType);
+				break;*/
+				default: emitOperation({
+					OPCode::PSH, { .value = { .integer = 0 } }
+				}); break;
+			}
+			return;
+		}
+		// TODO: I don't know how to initialise
+		//       an empty multidimensional array.
+	}
+
 	void Compiler::booleanLiteral() {
 		if (previous.lexeme[0] == 't') {
 			emitOperation(OPCode::PST);
 		} else emitOperation(OPCode::PSF);
-		typeStack.push(Type::BooleanType);
+		pushType(Type::BooleanType);
 	}
 	void Compiler::characterLiteral() {
 		String lexeme = previous.lexeme.substr(
@@ -386,7 +441,7 @@ namespace Spin {
 		emitOperation(
 			{ OPCode::PSH, { .value = { .byte = ((Byte)(literal)) } } }
 		);
-		typeStack.push(Type::CharacterType);
+		pushType(Type::CharacterType);
 	}
 	void Compiler::stringLiteral() {
 		String literal = previous.lexeme.substr(
@@ -394,7 +449,7 @@ namespace Spin {
 		);
 		literal = Converter::escapeString(literal);
 		emitString(literal);
-		typeStack.push(Type::StringType);
+		pushType(Type::StringType);
 	}
 	void Compiler::imaginaryLiteral() {
 		Real literal = Converter::stringToImaginary(
@@ -403,7 +458,7 @@ namespace Spin {
 		emitOperation(
 			{ OPCode::PSH, { .value = { .real = literal } } }
 		);
-		typeStack.push(Type::ImaginaryType);
+		pushType(Type::ImaginaryType);
 	}
 	void Compiler::realLiteral() {
 		Real literal = Converter::stringToReal(
@@ -412,13 +467,13 @@ namespace Spin {
 		emitOperation(
 			{ OPCode::PSH, { .value = { .real = literal } } }
 		);
-		typeStack.push(Type::RealType);
+		pushType(Type::RealType);
 	}
 	void Compiler::realIdioms() {
 		if (previous.lexeme[0] == 'i') {
 			emitOperation(OPCode::PSI);
 		} else emitOperation(OPCode::PSU);
-		typeStack.push(Type::RealType);
+		pushType(Type::RealType);
 	}
 	void Compiler::integerLiteral() {
 		Int64 literal = Converter::stringToInteger(
@@ -427,7 +482,7 @@ namespace Spin {
 		emitOperation(
 			{ OPCode::PSH, { .value = { .integer = literal } } }
 		);
-		typeStack.push(Type::IntegerType);
+		pushType(Type::IntegerType);
 	}
 
 	void Compiler::expression() {
@@ -489,69 +544,62 @@ namespace Spin {
 		// value of its index will be at the top of the
 		// stack, making it not empty:
 		const Boolean isInRoutine = !routineIndexes.isEmpty();
-		locals.push_back({ id, scopeDepth, Type::VoidType, false, false, isInRoutine });
+		locals.push_back({ id, scopeDepth, nullptr, false, false, isInRoutine });
 
 		Boolean hasType = false;
 
-		Type typeA, typeB;
+		TypeNode * typeA = nullptr;
+		TypeNode * typeB = nullptr;
 
 		if (match(Token::Type::colon)) {
 			hasType = true;
-			rethrow(consume(Token::Type::basicType, "Type"));
-			typeA = Converter::stringToType(previous.lexeme);
+			rethrow(typeA = type());
 		}
 
 		if (match(Token::Type::equal)) {
 			token = previous;
 			rethrow(expression());
-			Type typeB = typeStack.pop();
+			typeB = popType();
 			if (hasType) {
-				if (typeA != typeB) {
-					// Since we're working with B -> A (A = B):
-					auto casting = castTable.find(
-						runtimeCompose(typeB, typeA)
-					);
-					if (casting == castTable.end()) {
+				if (!match(typeA, typeB)) {
+					if (typeA -> isContainer() || typeB -> isContainer()) {
+						const String descA = typeA -> description();
+						const String descB = typeB -> description();
+						delete typeA;
+						delete typeB;
 						throw Program::Error(
 							currentUnit,
 							"Assignment operator '=' doesn't support implicit cast of '" +
-							Converter::typeToString(typeB) + "' in '" +
-							Converter::typeToString(typeA) + "'!",
+							descB + "' in '" + descA + "'!",
+							token, ErrorCode::lgc
+						);
+					}
+					const Types composed = runtimeCompose(typeB -> type, typeA -> type);
+					auto casting = castTable.find(composed);
+					if (casting == castTable.end()) {
+						const String descA = typeA -> description();
+						const String descB = typeB -> description();
+						delete typeA;
+						delete typeB;
+						throw Program::Error(
+							currentUnit,
+							"Assignment operator '=' doesn't support implicit cast of '" +
+							descB + "' in '" + descA + "'!",
 							token, ErrorCode::lgc
 						);
 					}
 					// If needed produce a CAST:
 					if (casting -> second) {
-						emitOperation({
-							OPCode::CST,
-							{ .types = runtimeCompose(typeB, typeA) }
-						});
+						emitOperation({ OPCode::CST, { .types = composed } });
 					}
 				}
+				delete typeB;
 			} else typeA = typeB;
 		} else if (hasType) {
-			// Has type specification but no assignment:
-			switch (typeA) {
-				case   Type::BooleanType: emitOperation(OPCode::PSF); break;
-				case Type::CharacterType: 
-				case      Type::ByteType: emitOperation({
-					OPCode::PSH, { .value = { .byte = 0 } }
-				}); break;
-				case   Type::IntegerType: emitOperation({
-					OPCode::PSH, { .value = { .integer = 0 } }
-				}); break;
-				case      Type::RealType:
-				case Type::ImaginaryType: emitOperation({
-					OPCode::PSH, { .value = { .real = 0.0 } }
-				}); break;
-				case   Type::ComplexType: emitOperation(OPCode::PEC); break;
-				case    Type::StringType: emitOperation(OPCode::PES); break;
-				default: emitOperation({
-					OPCode::PSH, { .value = { .integer = 0 } }
-				}); break;
-			}
+			produceInitialiser(typeA);
 		} else {
 			// Has no type specification and no assignment:
+			delete typeA;
 			throw Program::Error(
 				currentUnit,
 				"Non initialised variable needs type specification!",
@@ -587,43 +635,65 @@ namespace Spin {
 		// value of its index will be at the top of the
 		// stack, making it not empty:
 		const Boolean isInRoutine = !routineIndexes.isEmpty();
-		locals.push_back({ id, scopeDepth, Type::VoidType, false, true });
+		locals.push_back({ id, scopeDepth, nullptr, false, true, isInRoutine });
 
 		Boolean hasType = false;
 
-		Type typeA, typeB;
+		TypeNode * typeA = nullptr;
+		TypeNode * typeB = nullptr;
 
 		if (match(Token::Type::colon)) {
 			hasType = true;
-			rethrow(consume(Token::Type::basicType, "Type"));
-			typeA = Converter::stringToType(previous.lexeme);
+			rethrow(typeA = type());
+		}
+
+		if (typeA -> isContainer()) {
+			const String descA = typeA -> description();
+			delete typeA;
+			throw Program::Error(
+				currentUnit,
+				"Constant value doesn't support container type '" +
+				descA + "'!",
+				token, ErrorCode::lgc
+			);
 		}
 
 		if (match(Token::Type::equal)) {
 			token = previous;
 			rethrow(expression());
-			Type typeB = typeStack.pop();
+			typeB = popType();
 			if (hasType) {
-				if (typeA != typeB) {
-					// Since we're working with B -> A (A = B):
-					auto casting = castTable.find(
-						runtimeCompose(typeB, typeA)
+				if (typeB -> isContainer()) {
+					const String descA = typeA -> description();
+					const String descB = typeB -> description();
+					delete typeA;
+					delete typeB;
+					throw Program::Error(
+						currentUnit,
+						"Assignment operator '=' doesn't support implicit cast of '" +
+						descB + "' in '" + descA + "'!",
+						token, ErrorCode::lgc
 					);
+				}
+				if ((typeA -> type) != (typeB -> type)) {
+					// Since we're working with B -> A (A = B):
+					const Types composed = runtimeCompose(typeB -> type, typeA -> type);
+					auto casting = castTable.find(composed);
 					if (casting == castTable.end()) {
+						const String descA = typeA -> description();
+						const String descB = typeB -> description();
+						delete typeA;
+						delete typeB;
 						throw Program::Error(
 							currentUnit,
 							"Assignment operator '=' doesn't support implicit cast of '" +
-							Converter::typeToString(typeB) + "' in '" +
-							Converter::typeToString(typeA) + "'!",
+							descB + "' in '" + descA + "'!",
 							token, ErrorCode::lgc
 						);
 					}
 					// If needed produce a CAST:
 					if (casting -> second) {
-						emitOperation({
-							OPCode::CST,
-							{ .types = runtimeCompose(typeB, typeA) }
-						});
+						emitOperation({ OPCode::CST, { .types = composed } });
 					}
 				}
 			} else typeA = typeB;
@@ -647,7 +717,8 @@ namespace Spin {
 		Local local;
 		SizeType argument;
 		rethrow(argument = resolve(previous.lexeme, local));
-		if (local.type == Type::RoutineType) {
+		TypeNode * typeA = new TypeNode(* local.type);
+		if (typeA && (typeA -> type == Type::RoutineType)) {
 			if (current.type != Token::Type::openParenthesis) {
 				throw Program::Error(
 					currentUnit,
@@ -656,10 +727,9 @@ namespace Spin {
 					previous, ErrorCode::lgc
 				);
 			}
-			typeStack.push(Type::RoutineType);
+			pushType(Type::RoutineType);
 			return;
 		}
-		Type typeA = local.type;
 		const Token token = previous;
 		if (argument == - 1) {
 			throw Program::Error(
@@ -684,8 +754,8 @@ namespace Spin {
 			Token::Type t;
 			switch (token.type) {
 				case      Token::Type::plusEqual: o = OPCode::ADD; t = Token::Type::plus; break;
-				case     Token::Type::minusEqual: o = OPCode::SUB; t = Token::Type::minus;break;
-				case      Token::Type::pipeEqual: o = OPCode::BWO; t = Token::Type::pipe;break;
+				case     Token::Type::minusEqual: o = OPCode::SUB; t = Token::Type::minus; break;
+				case      Token::Type::pipeEqual: o = OPCode::BWO; t = Token::Type::pipe; break;
 				case      Token::Type::starEqual: o = OPCode::MUL; t = Token::Type::star; break;
 				case     Token::Type::slashEqual: o = OPCode::DIV; t = Token::Type::slash; break;
 				case Token::Type::ampersandEqual: o = OPCode::BWA; t = Token::Type::ampersand; break;
@@ -702,59 +772,76 @@ namespace Spin {
 				});
 			}
 			rethrow(expression());
-			Type typeB = typeStack.pop();
+			TypeNode * typeB = popType();
 			// If we have an mutation assignment:
 			if (o != OPCode::RST) {
-				const Types types = runtimeCompose(typeA, typeB);
-				auto search = infixTable.find(
-					runtimeCompose(t, typeA, typeB)
-				);
-				if (search == infixTable.end()) {
+				if (typeA -> isContainer() || typeB -> isContainer()) {
+					const String descA = typeA -> description();
+					const String descB = typeA -> description();
+					delete typeA;
+					delete typeB;
 					throw Program::Error(
 						currentUnit,
 						"Mutation assignment operator '" + token.lexeme +
 						"' doesn't support operands of type '" +
-						Converter::typeToString(typeA) + "' and '" +
-						Converter::typeToString(typeB) + "'!",
+						descA + "' and '" + descB + "'!",
+						token, ErrorCode::typ
+					);
+				}
+				const Types types = runtimeCompose(typeA -> type, typeB -> type);
+				auto search = infixTable.find(
+					runtimeCompose(t, typeA -> type, typeB -> type)
+				);
+				if (search == infixTable.end()) {
+					const String descA = typeA -> description();
+					const String descB = typeA -> description();
+					delete typeA;
+					delete typeB;
+					throw Program::Error(
+						currentUnit,
+						"Mutation assignment operator '" + token.lexeme +
+						"' doesn't support operands of type '" +
+						descA + "' and '" + descB + "'!",
 						token, ErrorCode::typ
 					);
 				}
 				emitOperation({ o, { .types = types } });
-				typeB = search -> second;
+				delete typeB;
+				typeB = new TypeNode(search -> second);
 			}
-			if (typeA != typeB) {
+			if (!match(typeA, typeB)) {
+				const Types composed = runtimeCompose(typeB -> type, typeA -> type);
 				// Since we're working with B -> A (A = B):
-				auto casting = castTable.find(
-					runtimeCompose(typeB, typeA)
-				);
+				auto casting = castTable.find(composed);
 				if (casting == castTable.end()) {
+					const String descA = typeA -> description();
+					const String descB = typeA -> description();
+					delete typeA;
+					delete typeB;
 					throw Program::Error(
 						currentUnit,
-						"Assignment operator '=' doesn't support implicit cast of '" +
-						Converter::typeToString(typeB) + "' in '" +
-						Converter::typeToString(typeA) + "'!",
+						"Operator '" + token.lexeme + "' doesn't support implicit cast of '" +
+						descB + "' in '" + descA + "'!",
 						token, ErrorCode::lgc
 					);
 				}
 				// If needed produce a CAST:
 				if (casting -> second) {
-					emitOperation({
-						OPCode::CST,
-						{ .types = runtimeCompose(typeB, typeA) }
-					});
+					emitOperation({ OPCode::CST, { .types = composed } });
 				}
 			}
 			emitOperation({
 				(local.isStack ? OPCode::SLF : OPCode::SET),
 				{ .index = (UInt64)argument }
 			});
+			delete typeB;
 		} else {
 			emitOperation({
 				(local.isStack ? OPCode::GLF : OPCode::GET),
 				{ .index = (UInt64)argument }
 			});
 		}
-		typeStack.push(typeA);
+		pushType(typeA);
 	}
 	void Compiler::block() {
 		while (!check(Token::Type::closeBrace) &&
@@ -766,11 +853,11 @@ namespace Spin {
 
 	void Compiler::logicAND() {
 		const Token token = previous;
-		Type typeA = typeStack.pop();
+		Type typeA = popAbsoluteType();
 		const SizeType endJMP = emitJMP(OPCode::JAF);
 		emitOperation(OPCode::POP);
 		rethrow(parsePrecedence(Precedence::logicAND));
-		Type typeB = typeStack.pop();
+		Type typeB = popAbsoluteType();
 		if (typeA != Type::BooleanType || typeB != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
@@ -784,11 +871,11 @@ namespace Spin {
 	}
 	void Compiler::logicOR() {
 		const Token token = previous;
-		Type typeA = typeStack.pop();
+		Type typeA = popAbsoluteType();
 		const SizeType endJMP = emitJMP(OPCode::JAT);
 		emitOperation(OPCode::POP);
 		rethrow(parsePrecedence(Precedence::logicOR));
-		Type typeB = typeStack.pop();
+		Type typeB = popAbsoluteType();
 		if (typeA != Type::BooleanType || typeB != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
@@ -807,9 +894,34 @@ namespace Spin {
 			consume(Token::Type::closeParenthesis, ")");
 		);
 	}
+	void Compiler::functional() {
+		/*if (typeStack.pop() != Type::LamdaType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected valid lamda function before call operator '()'!",
+				previous, ErrorCode::lgc
+			);
+		}
+		// Load the lambda address to later call:
+		emitOperation(OPCode::LLA);
+		Stack<Type> types;
+		if (!match(Token::Type::closeParenthesis)) {
+			do {
+				rethrow(expression());
+				types.push(typeStack.pop());
+			} while (match(Token::Type::comma));
+			rethrow(consume(Token::Type::closeParenthesis, ")"));
+		}
+		emitOperation({ OPCode::SSF, { .index = types.size() } });
+		while (!types.isEmpty()) {
+			emitOperation({ OPCode::PSH, { .type = types.pop() } });
+		}
+		emitOperation(OPCode::LAM);
+		pushType(lamdaReturn.pop());*/
+	}
 	void Compiler::subscription() {
 		const Token token = previous;
-		if (typeStack.pop() != Type::StringType) {
+		if (popAbsoluteType() != Type::StringType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected String expression before subscription '[ ]' operator!",
@@ -817,7 +929,7 @@ namespace Spin {
 			);
 		}
 		rethrow(expression());
-		if (typeStack.pop() != Type::IntegerType) {
+		if (popAbsoluteType() != Type::IntegerType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Integer expression in subscription '[ ]' operator!",
@@ -826,11 +938,11 @@ namespace Spin {
 		}
 		emitOperation(OPCode::SSC);
 		rethrow(consume(Token::Type::closeBracket, "]"));
-		typeStack.push(Type::CharacterType);
+		pushType(Type::CharacterType);
 	}
 	void Compiler::cast() {
 		const Token token = previous;
-		Type typeB = typeStack.pop();
+		Type typeB = popAbsoluteType();
 		rethrow(consume(Token::Type::basicType, "Type"));
 		Type typeA = Converter::stringToType(previous.lexeme);
 		if (typeA != typeB) {
@@ -855,10 +967,14 @@ namespace Spin {
 				});
 			}
 		}
-		typeStack.push(typeA);
+		pushType(typeA);
 	}
 	void Compiler::call() {
-		if (typeStack.pop() != Type::RoutineType) {
+		/*if (typeStack.top() == Type::LamdaType) {
+			functional();
+			return;
+		}*/
+		if (popAbsoluteType() != Type::RoutineType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected identifier before call operator '()'!",
@@ -866,19 +982,27 @@ namespace Spin {
 			);
 		}
 		Token token = tokens -> at(index - 3);
-		Array<Type> types;
+		Array<TypeNode *> types;
 		if (!match(Token::Type::closeParenthesis)) {
 			do {
 				rethrow(expression());
-				types.push_back(typeStack.pop());
+				types.push_back(popType());
 			} while (match(Token::Type::comma));
 		}
 		SizeType prototypeIndex;
 		rethrow(prototypeIndex = locate(token.lexeme, types));
 		if (prototypeIndex == - 1) {
+			if (types.empty()) {
+				throw Program::Error(
+					currentUnit,
+					"No matching routine for call '" +
+					token.lexeme + "()'!",
+					token, ErrorCode::typ
+				);
+			}
 			String eTypes;
-			for (Type & type : types) {
-				eTypes += Converter::typeToString(type) + ", ";
+			for (TypeNode * type : types) {
+				eTypes += type -> description() + ", ";
 			}
 			eTypes.pop_back();
 			eTypes.pop_back();
@@ -894,16 +1018,113 @@ namespace Spin {
 		// minus the number of arguments passed in input:
 		emitOperation({ OPCode::SSF, { .index = types.size() } });
 		emitCAL(prototypeIndex);
-		typeStack.push(
-			currentUnit -> prototypes.at(
-				prototypeIndex
-			).returnType
+		pushType(
+			new TypeNode(
+				* prototypes.at(prototypeIndex).returnType
+			)
 		);
+	}
+	void Compiler::lamda() {
+		/*Token token = previous;
+		const SizeType scope = scopeDepth;
+		beginVirtualScope();
+		cycleScopes.push(- 1);
+		rethrow(consume(Token::Type::openParenthesis, "("));
+		Array<Type> types; String name;
+		const SizeType cutPosition = sourcePosition();
+		if (!check(Token::Type::closeParenthesis)) {
+			do {
+				rethrow(consume(Token::Type::symbol, "identifier"));
+				name = previous.lexeme;
+				rethrow(consume(Token::Type::colon, ":"));
+				if (!match(Token::Type::basicType)) {
+					throw Program::Error(
+						currentUnit,
+						"Expected type in parameter declaration but found '" +
+						current.lexeme + "' instead!",
+						current, ErrorCode::lgc
+					);
+				}
+				// Notifying the compiler stack about the new variables:
+				const Type type = Converter::stringToType(previous.lexeme);
+				try {
+					for (Local local : locals) {
+						if (local.ready && local.depth < scopeDepth) break;
+						if (local.name == name) {
+							throw Program::Error(
+								currentUnit,
+								"Variable redefinition! The identifier '" +
+								name + "' was already declared in the current scope!",
+								previous, ErrorCode::lgc
+							);
+						}
+					}
+				} catch (Program::Error & e) { throw; }
+				locals.push_back({ name, scopeDepth, type, true, false, true });
+				emitOperation({ OPCode::TYP, { .type = type } });
+				types.push_back(type);
+			} while (match(Token::Type::comma));
+		}
+		rethrow(consume(Token::Type::closeParenthesis, ")"));
+		Type returnType = Type::VoidType;
+		if (match(Token::Type::colon)) {
+			rethrow(consume(Token::Type::basicType, "Type"));
+			returnType = Converter::stringToType(previous.lexeme);
+		}
+		rethrow(consume(Token::Type::openBrace, "{"));
+		Routine routine;
+		routine.parameters = types; routine.scope = scope;
+		routine.returnType = returnType;
+		const SizeType routineIndex = routines.size();
+		// Notifying the return statements:
+		routineIndexes.push(routineIndex);
+		routines.push_back(routine);
+		rethrow(block());
+		emitPOP(countLocals(scope));
+		if (!routines[routineIndex].returns &&
+			returnType != Type::VoidType) {
+			throw Program::Error(
+				currentUnit,
+				"Missing return statement in anonymous lamda!",
+				token, ErrorCode::lgc
+			);
+		}
+		// Return safety net:
+		switch (returnType) {
+			case   Type::BooleanType: emitOperation(OPCode::PSF); break;
+			case Type::CharacterType: 
+			case      Type::ByteType: emitOperation({
+				OPCode::PSH, { .value = { .byte = 0 } }
+			}); break;
+			case   Type::IntegerType: emitOperation({
+				OPCode::PSH, { .value = { .integer = 0 } }
+			}); break;
+			case      Type::RealType:
+			case Type::ImaginaryType: emitOperation({
+				OPCode::PSH, { .value = { .real = 0.0 } }
+			}); break;
+			case   Type::ComplexType: emitOperation(OPCode::PEC); break;
+			case    Type::StringType: emitOperation(OPCode::PES); break;
+			default: emitOperation({
+				OPCode::PSH, { .value = { .integer = 0 } }
+			}); break;
+		}
+		emitRET();
+		routines[routineIndex].code = cutCodes(cutPosition);
+		routineIndexes.decrease();
+		cycleScopes.decrease();
+		lamdas.insert({ routineIndex, sourcePosition() });
+		// Placeholder value, to be later replaced with
+		// the real lambda address in resolveRoutines().
+		emitOperation({ OPCode::PSH, { .index = 0 } });
+		endVirtualScope();
+		lamdaReturn.push(returnType);
+		pushType(Type::LamdaType);*/
 	}
 	void Compiler::ternary() {
 		Token token = previous;
 		ParseRule rule = getRule(token.type);
-		if (typeStack.pop() != Type::BooleanType) {
+		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside ternary condition!",
@@ -913,7 +1134,7 @@ namespace Spin {
 		const SizeType thenJMP = emitJMP(OPCode::JIF);
 		// Then Condition:
 		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
-		Type typeA = typeStack.pop();
+		TypeNode * typeA = popType();
 		// End then.
 		const SizeType elseJMP = emitJMP(OPCode::JMP);
 		patchJMP(thenJMP);
@@ -923,25 +1144,28 @@ namespace Spin {
 
 		// Else Condition:
 		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
-		Type typeB = typeStack.pop();
+		TypeNode * typeB = popType();
 		// End else.
 		patchJMP(elseJMP);
 
-		if (typeA != typeB) {
+		if (!match(typeA, typeB)) {
+			const String descA = typeA -> description();
+			const String descB = typeB -> description();
+			delete typeA;
+			delete typeB;
 			throw Program::Error(
 				currentUnit,
 				"Ternary operator ' ? : ' doesn't support operands of non matching types '" +
-				Converter::typeToString(typeA) + "' and '" +
-				Converter::typeToString(typeB) + "'!",
+				descA + "' and '" + descB + "'!",
 				token, ErrorCode::typ
 			);
 		}
-
-		typeStack.push(typeA);
+		delete typeB;
+		pushType(typeA);
 	}
 	void Compiler::postfix() {
 		const Token token = previous;
-		Type type = typeStack.pop();
+		Type type = popAbsoluteType();
 		auto search = postfixTable.find(
 			runtimeCompose(token.type, type)
 		);
@@ -957,15 +1181,15 @@ namespace Spin {
 			case Token::Type::conjugate: emitOperation(OPCode::CCJ); break;
 			default: break;
 		}
-		typeStack.push(search -> second);
+		pushType(search -> second);
 		foldUnary(token);
 	}
 	void Compiler::binary() {
 		const Token token = previous;
 		ParseRule rule = getRule(token.type);
-		Type typeA = typeStack.pop();
+		Type typeA = popAbsoluteType();
 		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
-		Type typeB = typeStack.pop();
+		Type typeB = popAbsoluteType();
 		const Types types = runtimeCompose(typeA, typeB);
 		auto search = infixTable.find(
 			runtimeCompose(token.type, typeA, typeB)
@@ -999,13 +1223,13 @@ namespace Spin {
 			case    Token::Type::rotateR: emitOperation({ OPCode::BRR, { .type = typeA } }); break;
 			default: break;
 		}
-		typeStack.push(search -> second);
+		pushType(search -> second);
 		foldBinary(token);
 	}
 	void Compiler::prefix() {
 		const Token token = previous;
 		rethrow(parsePrecedence(Precedence::unary));
-		Type type = typeStack.pop();
+		Type type = popAbsoluteType();
 		auto search = prefixTable.find(
 			runtimeCompose(token.type, type)
 		);
@@ -1023,7 +1247,7 @@ namespace Spin {
 			case Token::Type::tilde: emitOperation({ OPCode::INV, { .type = type } }); break;
 			default: break;
 		}
-		typeStack.push(search -> second);
+		pushType(search -> second);
 		foldUnary(token);
 	}
 
@@ -1032,7 +1256,7 @@ namespace Spin {
 			expression();
 			consume(Token::Type::semicolon, ";");
 		);
-		typeStack.decrease();
+		decreaseType();
 		emitOperation(OPCode::POP);
 	}
 	void Compiler::printStatement() {
@@ -1041,7 +1265,7 @@ namespace Spin {
 			expression();
 			consume(Token::Type::semicolon, ";");
 		);
-		Type type = typeStack.pop();
+		Type type = popAbsoluteType();
 		if (type > Type::StringType) {
 			throw Program::Error(
 				currentUnit,
@@ -1059,7 +1283,7 @@ namespace Spin {
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
-		if (typeStack.pop() != Type::BooleanType) {
+		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside 'if' condition!",
@@ -1093,7 +1317,7 @@ namespace Spin {
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
-		if (typeStack.pop() != Type::BooleanType) {
+		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside 'while' condition!",
@@ -1125,7 +1349,7 @@ namespace Spin {
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 		);
-		if (typeStack.pop() != Type::BooleanType) {
+		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside 'until' condition!",
@@ -1168,7 +1392,7 @@ namespace Spin {
 			consume(Token::Type::closeParenthesis, ")");
 			consume(Token::Type::semicolon, ";");
 		);
-		if (typeStack.pop() != Type::BooleanType) {
+		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside 'do while' condition!",
@@ -1204,7 +1428,7 @@ namespace Spin {
 			consume(Token::Type::closeParenthesis, ")");
 			consume(Token::Type::semicolon, ";");
 		);
-		if (typeStack.pop() != Type::BooleanType) {
+		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside 'repeat until' condition!",
@@ -1254,12 +1478,12 @@ namespace Spin {
 				emitOperation(OPCode::POP);
 				consume(Token::Type::semicolon, ";");
 			);
-			typeStack.decrease();
+			decreaseType();
 		}
 		const SizeType loopStart = sourcePosition();
 		rethrow(expression());
 		rethrow(consume(Token::Type::semicolon, ";"));
-		if (typeStack.pop() != Type::BooleanType) {
+		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected Boolean expression inside 'for' condition!",
@@ -1270,7 +1494,7 @@ namespace Spin {
 		const SizeType cutExpression = sourcePosition();
 		rethrow(expression());
 		emitOperation(OPCode::POP);
-		typeStack.decrease();
+		decreaseType();
 		rethrow(consume(Token::Type::closeParenthesis, ")"));
 		const Array<ByteCode> codes = cutCodes(cutExpression);
 		rethrow(statement()); // Body.
@@ -1328,22 +1552,16 @@ namespace Spin {
 		const String id = previous.lexeme;
 		const Token routineToken = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
-		Array<Type> types; String name;
+		Array<TypeNode *> types; String name;
 		if (!check(Token::Type::closeParenthesis)) {
 			do {
 				rethrow(consume(Token::Type::symbol, "identifier"));
 				name = previous.lexeme;
-				rethrow(consume(Token::Type::colon, ":"));
-				if (!match(Token::Type::basicType)) {
-					throw Program::Error(
-						currentUnit,
-						"Expected type in parameter declaration but found '" +
-						current.lexeme + "' instead!",
-						current, ErrorCode::lgc
-					);
-				}
-				// Notifying the compiler stack about the new variables:
-				const Type type = Converter::stringToType(previous.lexeme);
+				TypeNode * node;
+				rethrow(
+					consume(Token::Type::colon, ":");
+					node = type();
+				);
 				try {
 					for (Local local : locals) {
 						if (local.ready && local.depth < scopeDepth) break;
@@ -1356,9 +1574,9 @@ namespace Spin {
 							);
 						}
 					}
-					locals.push_back({ name, scopeDepth, type, true, false, true });
 				} catch (Program::Error & e) { throw; }
-				types.push_back(type);
+				locals.push_back({ name, scopeDepth, node, true, false, true });
+				types.push_back(node);
 			} while (match(Token::Type::comma));
 		}
 		rethrow(
@@ -1375,7 +1593,7 @@ namespace Spin {
 				if (r.parameters.size() == types.size()) {
 					Boolean found = true;
 					for (SizeType i = 0; i < types.size(); i += 1) {
-						if (r.parameters.at(i) != types.at(i)) {
+						if (!match(r.parameters.at(i), types.at(i))) {
 							found = false;
 							break;
 						}
@@ -1390,6 +1608,16 @@ namespace Spin {
 					}
 				}
 			}
+		}
+		// Linking prototype:
+		routine.prototypeIndex = locate(routine.name, types);
+		if (routine.prototypeIndex == - 1) {
+			throw Program::Error(
+				currentUnit,
+				"Invalid prototype for routine definition '" +
+				routineToken.lexeme + "'!",
+				routineToken, ErrorCode::lgc
+			);
 		}
 		routines.push_back(routine);
 		// Moving the code in a temporary location to place
@@ -1414,22 +1642,16 @@ namespace Spin {
 		const String id = previous.lexeme;
 		const Token routineToken = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
-		Array<Type> types; String name;
+		Array<TypeNode *> types; String name;
 		if (!check(Token::Type::closeParenthesis)) {
 			do {
 				rethrow(consume(Token::Type::symbol, "identifier"));
 				name = previous.lexeme;
-				rethrow(consume(Token::Type::colon, ":"));
-				if (!match(Token::Type::basicType)) {
-					throw Program::Error(
-						currentUnit,
-						"Expected type in parameter declaration but found '" +
-						current.lexeme + "' instead!",
-						current, ErrorCode::lgc
-					);
-				}
-				// Notifying the compiler stack about the new variables:
-				const Type type = Converter::stringToType(previous.lexeme);
+				TypeNode * node;
+				rethrow(
+					consume(Token::Type::colon, ":");
+					node = type();
+				);
 				try {
 					for (Local local : locals) {
 						if (local.ready && local.depth < scopeDepth) break;
@@ -1442,17 +1664,17 @@ namespace Spin {
 							);
 						}
 					}
-					locals.push_back({ name, scopeDepth, type, true, false, true });
 				} catch (Program::Error & e) { throw; }
-				types.push_back(type);
+				locals.push_back({ name, scopeDepth, node, true, false, true });
+				types.push_back(node);
 			} while (match(Token::Type::comma));
 		}
+		TypeNode * returnType;
 		rethrow(
 			consume(Token::Type::closeParenthesis, ")");
 			consume(Token::Type::colon, ":");
-			consume(Token::Type::basicType, "Type");
+			returnType = type();
 		);
-		const Type returnType = Converter::stringToType(previous.lexeme);
 		rethrow(consume(Token::Type::openBrace, "{"));
 		Routine routine; routine.name = id;
 		routine.parameters = types; routine.scope = scope;
@@ -1465,7 +1687,7 @@ namespace Spin {
 				if (r.parameters.size() == types.size()) {
 					Boolean found = true;
 					for (SizeType i = 0; i < types.size(); i += 1) {
-						if (r.parameters.at(i) != types.at(i)) {
+						if (!match(r.parameters.at(i), types.at(i))) {
 							found = false;
 							break;
 						}
@@ -1480,6 +1702,16 @@ namespace Spin {
 					}
 				}
 			}
+		}
+		// Linking prototype:
+		routine.prototypeIndex = locate(routine.name, types);
+		if (routine.prototypeIndex == - 1) {
+			throw Program::Error(
+				currentUnit,
+				"Invalid prototype for routine definition '" +
+				routineToken.lexeme + "'!",
+				routineToken, ErrorCode::lgc
+			);
 		}
 		routines.push_back(routine);
 		// Moving the code in a temporary location to place
@@ -1496,25 +1728,7 @@ namespace Spin {
 			);
 		}
 		// Return safety net:
-		switch (returnType) {
-			case   Type::BooleanType: emitOperation(OPCode::PSF); break;
-			case Type::CharacterType: 
-			case      Type::ByteType: emitOperation({
-				OPCode::PSH, { .value = { .byte = 0 } }
-			}); break;
-			case   Type::IntegerType: emitOperation({
-				OPCode::PSH, { .value = { .integer = 0 } }
-			}); break;
-			case      Type::RealType:
-			case Type::ImaginaryType: emitOperation({
-				OPCode::PSH, { .value = { .real = 0.0 } }
-			}); break;
-			case   Type::ComplexType: emitOperation(OPCode::PEC); break;
-			case    Type::StringType: emitOperation(OPCode::PES); break;
-			default: emitOperation({
-				OPCode::PSH, { .value = { .integer = 0 } }
-			}); break;
-		}
+		produceInitialiser(returnType);
 		emitRET();
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
@@ -1534,7 +1748,7 @@ namespace Spin {
 		Routine & routine = routines.at(routineIndexes.top());
 		if (match(Token::Type::semicolon)) {
 			// Procedure:
-			if (routine.returnType != Type::VoidType) {
+			if (routine.returnType -> type != Type::VoidType) {
 				throw Program::Error(
 					currentUnit,
 					"Return statement inside function scope must return a valid value!",
@@ -1547,7 +1761,7 @@ namespace Spin {
 			emitRET();
 		} else {
 			// Function:
-			if (routine.returnType == Type::VoidType) {
+			if (routine.returnType -> type == Type::VoidType) {
 				throw Program::Error(
 					currentUnit,
 					"Return statement inside procedure scope should never return a value!",
@@ -1555,29 +1769,25 @@ namespace Spin {
 				);
 			}
 			// Eventual expression casting:
-			Type typeA = routine.returnType;
+			TypeNode * typeA = routine.returnType;
 			rethrow(expression());
-			Type typeB = typeStack.pop();
-			if (typeA != typeB) {
+			TypeNode * typeB = popType();
+			if (!match(typeA, typeB)) {
 				// Since we're working with B -> A (return (A)(B);):
-				auto casting = castTable.find(
-					runtimeCompose(typeB, typeA)
-				);
+				const Types composed = runtimeCompose(typeB -> type, typeA -> type);
+				auto casting = castTable.find(composed);
 				if (casting == castTable.end()) {
 					throw Program::Error(
 						currentUnit,
 						"Implicit cast doesn't support conversion from '" +
-						Converter::typeToString(typeB) + "' to '" +
-						Converter::typeToString(typeA) + "'!",
+						typeB -> description() + "' to '" +
+						typeA -> description() + "'!",
 						token, ErrorCode::lgc
 					);
 				}
 				// If needed produce a CAST:
 				if (casting -> second) {
-					emitOperation({
-						OPCode::CST,
-						{ .types = runtimeCompose(typeB, typeA) }
-					});
+					emitOperation({ OPCode::CST, { .types = composed } });
 				}
 			}
 			routine.returns = true;
@@ -1617,20 +1827,20 @@ namespace Spin {
 				previous, ErrorCode::lgc
 			);
 		}
-		if (localA.type != localB.type) {
+		if (localA.type -> type != localB.type -> type) {
 			throw Program::Error(
 				currentUnit,
 				"Swap statement doesn't support values of non matching types '" +
-				Converter::typeToString(localA.type) + "' and '" +
-				Converter::typeToString(localB.type) + "'!",
+				Converter::typeToString(localA.type -> type) + "' and '" +
+				Converter::typeToString(localB.type -> type) + "'!",
 				token, ErrorCode::typ
 			);
 		}
-		if (localA.type > Type::StringType) {
+		if (localA.type -> type > Type::StringType) {
 			throw Program::Error(
 				currentUnit,
 				"Swap statement doesn't support '" +
-				Converter::typeToString(localA.type) + "' types!",
+				Converter::typeToString(localA.type -> type) + "' types!",
 				token, ErrorCode::typ
 			);
 		}
@@ -1643,16 +1853,16 @@ namespace Spin {
 		);
 	}
 
-	SizeType Compiler::locate(String & name, Array<Type> & types) {
-		const SizeType size = currentUnit -> prototypes.size();
+	SizeType Compiler::locate(String & name, Array<TypeNode *> & types) {
+		const SizeType size = prototypes.size();
 		for (SizeType i = 0; i < size; i += 1) {
-			Prototype & pro = currentUnit -> prototypes.at(i);
+			Prototype pro = prototypes.at(i);
 			if (pro.name == name) {
 				if (types.size() != pro.parameters.size()) continue;
 				if (types.size() == 0) return i;
 				Boolean found = true;
 				for (SizeType j = 0; j < types.size(); j += 1) {
-					if (types.at(j) != pro.parameters[j].type) {
+					if (!match(types.at(j), pro.parameters[j].type)) {
 						found = false;
 						break;
 					}
@@ -1662,7 +1872,6 @@ namespace Spin {
 		}
 		return - 1;
 	}
-
 	SizeType Compiler::resolve(String & name, Local & local) {
 		// Resolve local variable:
 		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
@@ -1677,16 +1886,16 @@ namespace Spin {
 				}
 				local = locals[i];
 				if (local.isStack) {
-					const SizeType depth = routines.at(
-						routineIndexes.top()
-					).scope;
-					for (Int64 j = i - 1; j >= 0; j -= 1) {
-						if (locals[j].depth == depth) {
-							return i - j - numberOfRoutines;
-						}
+					if (routineIndexes.isEmpty()) return - 1;
+					const Array<Parameter> & p = prototypes.at(
+						routines.at(routineIndexes.top()).prototypeIndex
+					).parameters;
+					for (SizeType j = 0; j < p.size(); j += 1) {
+						if (p[j].name == name) return j;
 					}
+					return - 1;
 				}
-				return i - numberOfRoutines;
+				return i - prototypes.size();
 			}
 		}
 		return - 1;
@@ -1796,6 +2005,40 @@ namespace Spin {
 		return search -> second;
 	}
 
+	inline void Compiler::pushType(Type type) {
+		typeStack.push(new TypeNode(type));
+	}
+	inline void Compiler::pushType(TypeNode * node) {
+		typeStack.push(node);
+	}
+	inline void Compiler::decreaseType() {
+		delete typeStack.pop();
+	}
+	inline Type Compiler::popAbsoluteType() {
+		TypeNode * node = typeStack.top();
+		Type type = node -> type;
+		decreaseType();
+		return type;
+	}
+	inline Compiler::TypeNode * Compiler::popType() {
+		if (typeStack.isEmpty()) return nullptr;
+		return typeStack.pop();
+	}
+	inline Compiler::TypeNode * Compiler::topType() {
+		if (typeStack.isEmpty()) return nullptr;
+		return typeStack.top();
+	}
+	inline Boolean Compiler::match(Compiler::TypeNode * a, Compiler::TypeNode * b) {
+		if (a -> isContainer() && b -> isContainer()) {
+			while (a && b) {
+				if ((a -> type) != (b -> type)) return false;
+				a = a -> next; b = b -> next;
+			}
+			if (!a && !b) return true;
+			return false;
+		}
+		return (a -> type) == (b -> type);
+	}
 	inline Boolean Compiler::match(Token::Type type) {
 		if (check(Token::Type::endFile)) return check(type);
 		if (!check(type)) return false;
@@ -1834,33 +2077,76 @@ namespace Spin {
 			ErrorCode::syx
 		);
 	}
-	inline void Compiler::preparePrototypes() {
+	inline void Compiler::prototypeRoutine(Boolean function) {
+		advance();
+		Prototype prototype;
+		try {
+			consume(Token::Type::symbol, "identifier");
+			prototype.name = previous.lexeme;
+			consume(Token::Type::openParenthesis, "(");
+			if (!check(Token::Type::closeParenthesis)) {
+				Parameter parameter;
+				do {
+					consume(Token::Type::symbol, "identifier");
+					parameter.name = previous.lexeme;
+					consume(Token::Type::colon, ":");
+					parameter.type = type();
+					prototype.parameters.push_back(parameter);
+				} while (match(Token::Type::comma));
+			}
+			consume(Token::Type::closeParenthesis, ")");
+			if (function) {
+				consume(Token::Type::colon, ":");
+				prototype.returnType = type();
+			} else prototype.returnType = new TypeNode(Type::VoidType);
+		} catch (Program::Error & e) { return; }
 		Local local;
-		for (Prototype & p : currentUnit -> prototypes) {
-			if (resolve(p.name, local) != - 1) continue;
-			locals.push_back({
-				p.name, 0, Type::RoutineType, true, true, false
-			});
-			numberOfRoutines += 1;
+		Array<TypeNode *> overloading;
+		for (Parameter p : prototype.parameters) {
+			overloading.push_back(p.type);
 		}
+		if (locate(prototype.name, overloading) != - 1) return;
+		locals.push_back({
+			prototype.name, 0, new TypeNode(Type::RoutineType), true, true, false
+		});
+		prototypes.push_back(prototype);
+	}
+	inline void Compiler::preparePrototypes() {
+		while (!match(Token::Type::endFile)) {
+			switch (current.type) {
+				case Token::Type::procKeyword: prototypeRoutine(false); break;
+				case Token::Type::funcKeyword: prototypeRoutine(true);  break;
+				default: break;
+			}
+			advance();
+		}
+		// Resetting the environment:
+		index = 1;
+		advance();
+		previous = tokens -> at(1);
 	}
 	inline void Compiler::resolveRoutines() {
-		for (Routine routine : routines) {
-			const SizeType i = locate(
+		const SizeType size = routines.size();
+		for (SizeType i = 0; i < size; i += 1) {
+			Routine routine = routines[i];
+			/*if (routine.name.length() == 0) {
+				program -> instructions.at(lamdas[i]).as.index = sourcePosition();
+				pasteCodes(routine.code);
+				continue;
+			}*/
+			const SizeType j = locate(
 				routine.name,
 				routine.parameters
 			);
-			if (i == - 1) continue;
-			currentUnit -> prototypes.at(i).address = sourcePosition();
+			if (j == - 1) continue;
+			prototypes.at(j).address = sourcePosition();
 			pasteCodes(routine.code);
 		}
 	}
 	inline void Compiler::resolveCalls() {
 		for (ByteCode & byte : program -> instructions) {
 			if (byte.code != OPCode::CAL) continue;
-			byte.as.index = currentUnit -> prototypes.at(
-				byte.as.index
-			).address;
+			byte.as.index = prototypes.at(byte.as.index).address;
 		}
 	}
 	inline SizeType Compiler::countLocals(SizeType scope) {
@@ -1980,6 +2266,7 @@ namespace Spin {
 	}
 
 	void Compiler::reset() {
+		index = 0;
 		assignmentStack.clear();
 		locals.clear();
 		scopeDepth = 0;
@@ -1987,7 +2274,9 @@ namespace Spin {
 		breakStack.clear();
 		routineIndexes.clear();
 		strings.clear();
-		numberOfRoutines = 0;
+		prototypes.clear();
+		// lamdas.clear();
+		// lamdaReturn.clear();
 	}
 
 	Program * Compiler::compile(SourceCode * source) {
@@ -1999,11 +2288,8 @@ namespace Spin {
 		program = new Program();
 
 		reset();
-
-		rethrow(
-			advance();
-			consume(Token::Type::beginFile, "Begin File");
-		);
+		advance();
+		rethrow(consume(Token::Type::beginFile, "Begin File"));
 
 		preparePrototypes();
 

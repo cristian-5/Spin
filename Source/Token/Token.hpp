@@ -85,6 +85,8 @@ namespace Spin {
 			tilde,
 			backslash,
 
+			lamda,
+
 			shiftR,
 			shiftL,
 			rotateR,

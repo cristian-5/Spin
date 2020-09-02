@@ -31,6 +31,8 @@ namespace Spin {
 
 		RoutineType,
 
+		LamdaType,
+
 		ClassType,
 		InstanceType,
 
@@ -38,24 +40,11 @@ namespace Spin {
 
 	};
 
-	struct Parameter {
-		String name;
-		Type type;
-	};
-
-	struct Prototype {
-		String name;
-		Array<Parameter> parameters;
-		Type returnType = Type::VoidType;
-		SizeType address = - 1;
-	};
-
 	class CodeUnit {
 		public:
 		Array<Token> * tokens;
 		String * name;
 		String * contents;
-		Array<Prototype> prototypes;
 		CodeUnit(Array<Token> * tokens,
 				 String * name,
 				 String * contents);
@@ -72,6 +61,10 @@ namespace Spin {
 
 		PSH, // push constant
 		STR, // push string
+
+		TYP, // type check
+		LLA, // load lambda address
+		LAM, // lamda call
 
 		GET, // get local
 		SET, // set local
