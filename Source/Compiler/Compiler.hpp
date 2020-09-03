@@ -51,7 +51,7 @@ namespace Spin {
 		class TypeNode {
 			public:
 			Type type = Type::VoidType;
-			String name;
+			void * data = nullptr;
 			TypeNode * next = nullptr;
 			TypeNode() = default;
 			TypeNode(Type t) { type = t; }
