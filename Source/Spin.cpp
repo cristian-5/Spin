@@ -58,8 +58,9 @@ void printProgramError(Program::Error & e);
 void printReadingError(Serialiser::ReadingError & r, String path);
 void printProcessorCrash(Processor::Crash & c);
 
-Int32 processCode(String path, Boolean noAnsi);
-Int32 compileCode(String source, String destination, Boolean noAnsi);
+Int32 processCode(String path, Boolean noAnsi, Compiler::Options options);
+Int32 compileCode(String source, String destination,
+				  Boolean noAnsi, Compiler::Options options);
 Int32 decompileCode(String source, Boolean noAnsi);
 
 Int32 main(Int32 argc, Character * argv[]) {
@@ -121,20 +122,31 @@ Int32 main(Int32 argc, Character * argv[]) {
 		{ "-decompile", "-d", 1 },
 		{   "-version", "-v" },
 		{    "-noAnsi", "-n" },
+		{ "-noFolding", "-f" },
+		{   "-sectors", "-s" },
 	};
 
 	Parameters parameters = Arguments::parse(argc, argv);
 	if (Arguments::helpRaised) return ExitCodes::success;
 	if   (parameters.failed()) return ExitCodes::failure;
 
-	Boolean noAnsi = parameters["-noAnsi"].to<Boolean>();
+	const Boolean noAnsi = parameters["-noAnsi"].to<Boolean>();
+
+	Compiler::Options options = {
+		parameters["-noFolding"].to<Boolean>(),
+		parameters["-sectors"].to<Boolean>()
+	};
 
 	if (parameters["-version"].to<Boolean>()) {
 		OStream << VERSION;
 		return ExitCodes::success;
 	}
 
-	if (parameters.size() == 2) {
+	parameters.removeOptionals({
+		"-version", "-noAnsi", "-noFolding", "-sectors"
+	});
+
+	if (parameters.size() == 0) {
 		// Its either `spin file.spin`
 		//         or `spin file.sex`.
 		switch (parameters.sizeOfFree()) {
@@ -150,7 +162,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 		}
 		return processCode(
 			parameters.freeParameters.at(0),
-			noAnsi
+			noAnsi, options
 		);
 	} else {
 		// Its either `spin -compile file.spin file.sex`
@@ -173,9 +185,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 			case 'c': {
 				Array<String> cP = parameters["-compile"].toVector<String>();
 				if (cP[0].ends_with(".spin")) {
-					return compileCode(cP[0], cP[1], noAnsi);
+					return compileCode(cP[0], cP[1], noAnsi, options);
 				}
-				return compileCode(cP[1], cP[0], noAnsi);
+				return compileCode(cP[1], cP[0], noAnsi, options);
 			} break;
 			case 'd': {
 				return decompileCode(
@@ -221,10 +233,11 @@ void printProcessorCrash(Processor::Crash & c) {
 			<< endLine << endLine;
 }
 
-Int32 processCode(String path, Boolean noAnsi) {
+Int32 processCode(String path, Boolean noAnsi, Compiler::Options options) {
 	Program * program = nullptr;
 	if (path.ends_with(".spin")) {
 		Compiler * compiler = Compiler::self();
+		compiler -> options = options;
 		SourceCode * code = nullptr;
 		try {
 			code = Wings::spread(path);
@@ -264,12 +277,14 @@ Int32 processCode(String path, Boolean noAnsi) {
 	delete program;
 	return ExitCodes::success;
 }
-Int32 compileCode(String source, String destination, Boolean noAnsi) {
+Int32 compileCode(String source, String destination,
+				  Boolean noAnsi, Compiler::Options options) {
 	if (!source.ends_with(".spin")) {
 		OStream << ERROR_04;
 		return ExitCodes::failure;
 	}
 	Compiler * compiler = Compiler::self();
+	compiler -> options = options;
 	SourceCode * code = nullptr;
 	Program * program = nullptr;
 	try {

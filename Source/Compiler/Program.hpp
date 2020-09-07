@@ -62,7 +62,6 @@ namespace Spin {
 		PSH, // push constant
 		STR, // push string
 
-		TYP, // type check
 		LLA, // load lambda address
 		LAM, // lamda call
 
@@ -96,6 +95,7 @@ namespace Spin {
 		PSU, // push undefined
 		PEC, // push empty complex
 		PES, // push empty string
+		PSA, // push empty array
 		POP, // pop
 		DSK, // decrease stack
 

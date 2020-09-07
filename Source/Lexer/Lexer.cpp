@@ -61,8 +61,6 @@ namespace Spin {
 		{ "Integer", Token::Type::basicType },
 		{ "Real", Token::Type::basicType },
 		{ "String", Token::Type::basicType },
-		{ "Vector", Token::Type::basicType },
-		{ "Lamda", Token::Type::basicType },
 
 		{ "false", Token::Type::boolLiteral },
 		{ "true", Token::Type::boolLiteral },

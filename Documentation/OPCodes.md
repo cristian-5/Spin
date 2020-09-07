@@ -23,6 +23,8 @@ is consulted to find what exception to raise.
 |   RST  |          | Rest for a cycle                                                        |
 |   PSH  |   value  | Push a value onto the stack                                             |
 |   STR  |   index  | Push the string at index position (string table) onto the stack         |
+|   LLA  |          | Copy the address on top of the stack inside the lamda register          |
+|   LAM  |          | Call the lamda at the addres specified by the lamda register            |
 |   GET  |   index  | Get the value (at position index) and push it                           |
 |   SET  |   index  | Set the value (at position index) with the value at stack top           |
 |   SSF  |   index  | Set the stack frame to start at current stack position - index          |
@@ -109,3 +111,10 @@ pointer) on top of the call stack (which is inaccessible for the user).\
 Before returning the user must always clear the variables and the parameters allocated
 on the stack until that point. When **RET** is hit, the processor will restore the stack
 frame, pop the last call *ip* and jump back.
+
+## Lamdas' calls and addresses:
+
+A lamda variable is just the address of a function in the bytecode. In order to call
+a lamda the user must load the address on top of the stack, then use the **LLA** instruction
+to load the address in the *lamda register* and call the lamda using the **LAM** instruction.
+Everything else works just like normal routines.

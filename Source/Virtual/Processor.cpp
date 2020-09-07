@@ -61,11 +61,6 @@ namespace Spin {
 						))
 					});
 				break;
-				case OPCode::TYP:
-					if (stack.pop().byte != (Byte)data.as.type) {
-						throw Crash(ip, data);
-					}
-				break;
 				case OPCode::LLA: l = stack.pop(); break;
 				case OPCode::LAM:
 					call.push(ip);

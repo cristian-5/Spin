@@ -1,7 +1,7 @@
 
 # Commands:
 
-cppFlags = -O3
+cppFlags = -O1
 cppVersion = -std=c++2a
 
 header = ../Source/Common/Header.hpp

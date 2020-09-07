@@ -18,7 +18,6 @@ namespace Spin {
 			basicType,
 			customType,
 			symbol,
-			identifier,
 
 			braketSymbol,
 			braSymbol,

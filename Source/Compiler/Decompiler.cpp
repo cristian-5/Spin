@@ -172,7 +172,6 @@ namespace Spin {
 			case OPCode::RST: rest_OP(); break;
 			case OPCode::PSH: constOP("PSH", byte.as.value.integer, Colour::green); break;
 			case OPCode::STR: tableOP("STR", program -> strings.at(byte.as.index)); break;
-			case OPCode::TYP: unaryOP("TYP", byte.as.type, Colour::red, "type check"); break;
 			case OPCode::LLA: aloneOP("LLA", Colour::red, "load lamda address"); break;
 			case OPCode::LAM: aloneOP("LAM", Colour::red, "lamda call"); break;
 			case OPCode::GET: constOP("GET", byte.as.index, Colour::purple); break;
@@ -204,6 +203,7 @@ namespace Spin {
 			case OPCode::PSU: aloneOP("PSU", Colour::green, "push undefined"); break;
 			case OPCode::PEC: aloneOP("PEC", Colour::green, "push empty Complex"); break;
 			case OPCode::PES: aloneOP("PES", Colour::green, "push empty String"); break;
+			case OPCode::PSA: aloneOP("PSA", Colour::green, "push empty Array"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
 			case OPCode::DSK: constOP("DSK", byte.as.value.integer, Colour::yellow); break;
 			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;

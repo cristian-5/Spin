@@ -101,7 +101,10 @@ namespace CommandLine {
 		typedef void (* ExclusionEvent)(String, String);
 		static ExclusionEvent onExclusion;
 		void add(String c, Parameter p);
+		void removeOptional(String o);
+		void removeOptionals(Array<String> o);
 		SizeType size() const;
+		SizeType parametersCount() const;
 		SizeType sizeOfFree() const;
 		String mutualExclusion(Array<String> c);
 		Parameter operator [] (String p);
@@ -425,8 +428,25 @@ namespace CommandLine {
 	void Parameters::add(String c, Parameter p) {
 		list[c] = p;
 	}
+	void Parameters::removeOptional(String o) {
+		list.erase(o);
+	}
+	void Parameters::removeOptionals(Array<String> o) {
+		for (String & s : o) list.erase(s);
+	}
 	SizeType Parameters::size() const {
 		return list.size();
+	}
+	SizeType Parameters::parametersCount() const {
+		SizeType count = 0;
+		for (auto & i : list) {
+			if (i.second.object == "true" ||
+				i.second.object == "false") {
+				continue;
+			}
+			count += 1;
+		}
+		return count;
 	}
 	SizeType Parameters::sizeOfFree() const {
 		return freeParameters.size();

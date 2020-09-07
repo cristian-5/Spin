@@ -388,6 +388,26 @@ namespace Spin {
 			);
 			return node;
 		}
+		if (match(Token::Type::lamda)) {
+			TypeNode * node = new TypeNode(Type::LamdaType);
+			rethrow(consume(Token::Type::openParenthesis, "("));
+			LamdaType * lamda = new LamdaType();
+			if (!check(Token::Type::closeParenthesis)) {
+				do {
+					TypeNode * parameter;
+					rethrow(parameter = type());
+					lamda -> parameters.push_back(parameter);
+				} while (match(Token::Type::comma));
+			}
+			rethrow(consume(Token::Type::closeParenthesis, ")"));
+			if (match(Token::Type::colon)) {
+				TypeNode * returnType;
+				rethrow(returnType = type());
+				lamda -> returnType = returnType;
+			} else lamda -> returnType = new TypeNode(Type::VoidType);
+			node -> setData(lamda);
+			return node;
+		}
 		throw Program::Error(
 			currentUnit,
 			"Expected 'type' but found '" + current.lexeme + "'!",
@@ -413,10 +433,6 @@ namespace Spin {
 				}); break;
 				case   Type::ComplexType: emitOperation(OPCode::PEC); break;
 				case    Type::StringType: emitOperation(OPCode::PES); break;
-				/*case     Type::LamdaType:
-					emitOperation({ OPCode::PSH, { .index = 0 } });
-					lamdaReturn.push(Type::VoidType);
-				break;*/
 				default: emitOperation({
 					OPCode::PSH, { .value = { .integer = 0 } }
 				}); break;
@@ -544,7 +560,15 @@ namespace Spin {
 		// value of its index will be at the top of the
 		// stack, making it not empty:
 		const Boolean isInRoutine = !routineIndexes.isEmpty();
-		locals.push_back({ id, scopeDepth, nullptr, false, false, isInRoutine });
+
+		const SizeType currentLocal = locals.size();
+		
+		locals.push_back({
+			id, scopeDepth,
+			nullptr,
+			false, false,
+			isInRoutine
+		});
 
 		Boolean hasType = false;
 
@@ -608,9 +632,9 @@ namespace Spin {
 		}
 
 		// Locals sentinel:
-		locals[locals.size() - 1].ready = true;
+		locals[currentLocal].ready = true;
 		// Type addition:
-		locals[locals.size() - 1].type = typeA;
+		locals[currentLocal].type = typeA;
 
 		rethrow(consume(Token::Type::semicolon, ";"));
 	}
@@ -635,7 +659,15 @@ namespace Spin {
 		// value of its index will be at the top of the
 		// stack, making it not empty:
 		const Boolean isInRoutine = !routineIndexes.isEmpty();
-		locals.push_back({ id, scopeDepth, nullptr, false, true, isInRoutine });
+		
+		const SizeType currentLocal = locals.size();
+		
+		locals.push_back({
+			id, scopeDepth,
+			nullptr,
+			false, true,
+			isInRoutine
+		});
 
 		Boolean hasType = false;
 
@@ -707,19 +739,19 @@ namespace Spin {
 		}
 
 		// Locals sentinel:
-		locals[locals.size() - 1].ready = true;
+		locals[currentLocal].ready = true;
 		// Type addition:
-		locals[locals.size() - 1].type = typeA;
+		locals[currentLocal].type = typeA;
 
 		rethrow(consume(Token::Type::semicolon, ";"));
 	}
 	void Compiler::identifier() {
-		Local local;
-		SizeType argument;
-		rethrow(argument = resolve(previous.lexeme, local));
-		TypeNode * typeA = new TypeNode(* local.type);
+		Local local = resolve(previous.lexeme);
+		TypeNode * typeA = TypeNode::copy(local.type);
 		if (typeA && (typeA -> type == Type::RoutineType)) {
+			delete local.type;
 			if (current.type != Token::Type::openParenthesis) {
+				delete typeA;
 				throw Program::Error(
 					currentUnit,
 					"Routine identifier '" +
@@ -727,11 +759,11 @@ namespace Spin {
 					previous, ErrorCode::lgc
 				);
 			}
-			pushType(Type::RoutineType);
+			pushType(typeA);
 			return;
 		}
 		const Token token = previous;
-		if (argument == - 1) {
+		if (local.index == - 1) {
 			throw Program::Error(
 				currentUnit,
 				"Unexpected identifier '" +
@@ -768,7 +800,7 @@ namespace Spin {
 				// Get the item before mutation:
 				emitOperation({
 					(local.isStack ? OPCode::GLF : OPCode::GET),
-					{ .index = (UInt64)argument }
+					{ .index = local.index }
 				});
 			}
 			rethrow(expression());
@@ -832,13 +864,13 @@ namespace Spin {
 			}
 			emitOperation({
 				(local.isStack ? OPCode::SLF : OPCode::SET),
-				{ .index = (UInt64)argument }
+				{ .index = local.index }
 			});
 			delete typeB;
 		} else {
 			emitOperation({
 				(local.isStack ? OPCode::GLF : OPCode::GET),
-				{ .index = (UInt64)argument }
+				{ .index = local.index }
 			});
 		}
 		pushType(typeA);
@@ -895,29 +927,49 @@ namespace Spin {
 		);
 	}
 	void Compiler::functional() {
-		/*if (typeStack.pop() != Type::LamdaType) {
+		TypeNode * node = typeStack.pop();
+		const Token token = previous;
+		if (node -> type != Type::LamdaType) {
 			throw Program::Error(
 				currentUnit,
 				"Expected valid lamda function before call operator '()'!",
-				previous, ErrorCode::lgc
+				token, ErrorCode::lgc
 			);
 		}
 		// Load the lambda address to later call:
 		emitOperation(OPCode::LLA);
-		Stack<Type> types;
-		if (!match(Token::Type::closeParenthesis)) {
+		Array<TypeNode *> types;
+		if (!check(Token::Type::closeParenthesis)) {
 			do {
 				rethrow(expression());
-				types.push(typeStack.pop());
+				types.push_back(typeStack.pop());
 			} while (match(Token::Type::comma));
-			rethrow(consume(Token::Type::closeParenthesis, ")"));
+		}
+		rethrow(consume(Token::Type::closeParenthesis, ")"));
+		LamdaType * lamda = (LamdaType *)(node -> getData());
+		delete node;
+		const SizeType size = lamda -> parameters.size();
+		if (size != types.size()) {
+			throw Program::Error(
+				currentUnit,
+				"Invalid arguments for lamda '" +
+				node -> description() +"'!",
+				token, ErrorCode::lgc
+			);
+		}
+		for (SizeType i = 0; i < size; i += 1) {
+			if (!match(lamda -> parameters[i], types[i])) {
+				throw Program::Error(
+					currentUnit,
+					"Invalid arguments for lamda '" +
+					node -> description() +"'!",
+					token, ErrorCode::lgc
+				);
+			}
 		}
 		emitOperation({ OPCode::SSF, { .index = types.size() } });
-		while (!types.isEmpty()) {
-			emitOperation({ OPCode::PSH, { .type = types.pop() } });
-		}
 		emitOperation(OPCode::LAM);
-		pushType(lamdaReturn.pop());*/
+		pushType(TypeNode::copy(lamda -> returnType));
 	}
 	void Compiler::subscription() {
 		const Token token = previous;
@@ -970,10 +1022,10 @@ namespace Spin {
 		pushType(typeA);
 	}
 	void Compiler::call() {
-		/*if (typeStack.top() == Type::LamdaType) {
+		if (typeStack.top() -> type == Type::LamdaType) {
 			functional();
 			return;
-		}*/
+		}
 		if (popAbsoluteType() != Type::RoutineType) {
 			throw Program::Error(
 				currentUnit,
@@ -1025,28 +1077,23 @@ namespace Spin {
 		);
 	}
 	void Compiler::lamda() {
-		/*Token token = previous;
+		Token token = previous;
 		const SizeType scope = scopeDepth;
 		beginVirtualScope();
 		cycleScopes.push(- 1);
 		rethrow(consume(Token::Type::openParenthesis, "("));
-		Array<Type> types; String name;
+		const SizeType frame = locals.size();
+		Array<TypeNode *> types; String name;
 		const SizeType cutPosition = sourcePosition();
 		if (!check(Token::Type::closeParenthesis)) {
 			do {
 				rethrow(consume(Token::Type::symbol, "identifier"));
 				name = previous.lexeme;
-				rethrow(consume(Token::Type::colon, ":"));
-				if (!match(Token::Type::basicType)) {
-					throw Program::Error(
-						currentUnit,
-						"Expected type in parameter declaration but found '" +
-						current.lexeme + "' instead!",
-						current, ErrorCode::lgc
-					);
-				}
-				// Notifying the compiler stack about the new variables:
-				const Type type = Converter::stringToType(previous.lexeme);
+				TypeNode * node;
+				rethrow(
+					consume(Token::Type::colon, ":");
+					node = type();
+				);
 				try {
 					for (Local local : locals) {
 						if (local.ready && local.depth < scopeDepth) break;
@@ -1060,21 +1107,22 @@ namespace Spin {
 						}
 					}
 				} catch (Program::Error & e) { throw; }
-				locals.push_back({ name, scopeDepth, type, true, false, true });
-				emitOperation({ OPCode::TYP, { .type = type } });
-				types.push_back(type);
+				locals.push_back({
+					name, scopeDepth, node,
+					true, false, true
+				});
+				types.push_back(node);
 			} while (match(Token::Type::comma));
 		}
 		rethrow(consume(Token::Type::closeParenthesis, ")"));
-		Type returnType = Type::VoidType;
+		TypeNode * returnType;
 		if (match(Token::Type::colon)) {
-			rethrow(consume(Token::Type::basicType, "Type"));
-			returnType = Converter::stringToType(previous.lexeme);
-		}
+			rethrow(returnType = type());
+		} else returnType = new TypeNode(Type::VoidType);
 		rethrow(consume(Token::Type::openBrace, "{"));
 		Routine routine;
 		routine.parameters = types; routine.scope = scope;
-		routine.returnType = returnType;
+		routine.returnType = returnType; routine.frame = frame;
 		const SizeType routineIndex = routines.size();
 		// Notifying the return statements:
 		routineIndexes.push(routineIndex);
@@ -1082,33 +1130,14 @@ namespace Spin {
 		rethrow(block());
 		emitPOP(countLocals(scope));
 		if (!routines[routineIndex].returns &&
-			returnType != Type::VoidType) {
+			returnType -> type != Type::VoidType) {
 			throw Program::Error(
 				currentUnit,
 				"Missing return statement in anonymous lamda!",
 				token, ErrorCode::lgc
 			);
 		}
-		// Return safety net:
-		switch (returnType) {
-			case   Type::BooleanType: emitOperation(OPCode::PSF); break;
-			case Type::CharacterType: 
-			case      Type::ByteType: emitOperation({
-				OPCode::PSH, { .value = { .byte = 0 } }
-			}); break;
-			case   Type::IntegerType: emitOperation({
-				OPCode::PSH, { .value = { .integer = 0 } }
-			}); break;
-			case      Type::RealType:
-			case Type::ImaginaryType: emitOperation({
-				OPCode::PSH, { .value = { .real = 0.0 } }
-			}); break;
-			case   Type::ComplexType: emitOperation(OPCode::PEC); break;
-			case    Type::StringType: emitOperation(OPCode::PES); break;
-			default: emitOperation({
-				OPCode::PSH, { .value = { .integer = 0 } }
-			}); break;
-		}
+		produceInitialiser(returnType);
 		emitRET();
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
@@ -1118,8 +1147,12 @@ namespace Spin {
 		// the real lambda address in resolveRoutines().
 		emitOperation({ OPCode::PSH, { .index = 0 } });
 		endVirtualScope();
-		lamdaReturn.push(returnType);
-		pushType(Type::LamdaType);*/
+		TypeNode * lamdaNode = new TypeNode(Type::LamdaType);
+		LamdaType * lamdaType = new LamdaType(
+			types, TypeNode::copy(returnType)
+		);
+		lamdaNode -> setData(lamdaType);
+		pushType(lamdaNode);
 	}
 	void Compiler::ternary() {
 		Token token = previous;
@@ -1552,6 +1585,7 @@ namespace Spin {
 		const String id = previous.lexeme;
 		const Token routineToken = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
+		const SizeType frame = locals.size();
 		Array<TypeNode *> types; String name;
 		if (!check(Token::Type::closeParenthesis)) {
 			do {
@@ -1575,7 +1609,10 @@ namespace Spin {
 						}
 					}
 				} catch (Program::Error & e) { throw; }
-				locals.push_back({ name, scopeDepth, node, true, false, true });
+				locals.push_back({
+					name, scopeDepth, node,
+					true, false, true
+				});
 				types.push_back(node);
 			} while (match(Token::Type::comma));
 		}
@@ -1585,6 +1622,7 @@ namespace Spin {
 		);
 		Routine routine; routine.name = id;
 		routine.parameters = types; routine.scope = scope;
+		routine.frame = frame;
 		const SizeType routineIndex = routines.size();
 		// Notifying the return statements:
 		routineIndexes.push(routineIndex);
@@ -1642,6 +1680,7 @@ namespace Spin {
 		const String id = previous.lexeme;
 		const Token routineToken = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
+		const SizeType frame = locals.size();
 		Array<TypeNode *> types; String name;
 		if (!check(Token::Type::closeParenthesis)) {
 			do {
@@ -1665,7 +1704,10 @@ namespace Spin {
 						}
 					}
 				} catch (Program::Error & e) { throw; }
-				locals.push_back({ name, scopeDepth, node, true, false, true });
+				locals.push_back({
+					name, scopeDepth, node,
+					true, false, true
+				});
 				types.push_back(node);
 			} while (match(Token::Type::comma));
 		}
@@ -1678,7 +1720,7 @@ namespace Spin {
 		rethrow(consume(Token::Type::openBrace, "{"));
 		Routine routine; routine.name = id;
 		routine.parameters = types; routine.scope = scope;
-		routine.returnType = returnType;
+		routine.returnType = returnType; routine.frame = frame;
 		const SizeType routineIndex = routines.size();
 		// Notifying the return statements:
 		routineIndexes.push(routineIndex);
@@ -1799,6 +1841,7 @@ namespace Spin {
 		}
 	}
 	void Compiler::swapStatement() {
+		// TODO: Make other stuff swappable...
 		const Token token = previous;
 		rethrow(consume(Token::Type::openParenthesis, "("));
 		rethrow(consume(Token::Type::symbol, "identifier"));
@@ -1808,10 +1851,9 @@ namespace Spin {
 			consume(Token::Type::symbol, "identifier");
 		);
 		Token varB = previous;
-		Local localA, localB;
-		SizeType argumentA = resolve(varA.lexeme, localA);
-		SizeType argumentB = resolve(varB.lexeme, localB);
-		if (argumentA == - 1) {
+		Local localA = resolve(varA.lexeme);
+		Local localB = resolve(varB.lexeme);
+		if (localA.index == - 1) {
 			throw Program::Error(
 				currentUnit,
 				"Cannot access local variable '" + varA.lexeme +
@@ -1819,7 +1861,7 @@ namespace Spin {
 				previous, ErrorCode::lgc
 			);
 		}
-		if (argumentB == - 1) {
+		if (localB.index == - 1) {
 			throw Program::Error(
 				currentUnit,
 				"Cannot access local variable '" + varA.lexeme +
@@ -1844,8 +1886,8 @@ namespace Spin {
 				token, ErrorCode::typ
 			);
 		}
-		emitOperation({ OPCode::PSH, { .index = argumentA } });
-		emitOperation({ OPCode::PSH, { .index = argumentB } });
+		emitOperation({ OPCode::PSH, { .index = localA.index } });
+		emitOperation({ OPCode::PSH, { .index = localB.index } });
 		emitOperation(OPCode::SWP);
 		rethrow(
 			consume(Token::Type::closeParenthesis, ")");
@@ -1872,9 +1914,9 @@ namespace Spin {
 		}
 		return - 1;
 	}
-	SizeType Compiler::resolve(String & name, Local & local) {
+	Compiler::Local Compiler::resolve(String & name) {
 		// Resolve local variable:
-		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
+		for (SizeType i = locals.size() - 1; i != - 1; i -= 1) {
 			if (locals[i].name == name) {
 				if (!locals[i].ready) {
 					throw Program::Error(
@@ -1884,21 +1926,26 @@ namespace Spin {
 						previous, ErrorCode::lgc
 					);
 				}
-				local = locals[i];
-				if (local.isStack) {
-					if (routineIndexes.isEmpty()) return - 1;
-					const Array<Parameter> & p = prototypes.at(
-						routines.at(routineIndexes.top()).prototypeIndex
-					).parameters;
-					for (SizeType j = 0; j < p.size(); j += 1) {
-						if (p[j].name == name) return j;
-					}
-					return - 1;
+				if (locals[i].index != - 1) return locals[i];
+				if (locals[i].isStack) {
+					const SizeType frame = routines.at(
+						routineIndexes.top()
+					).frame;
+					locals[i].index = i - frame;
+					return locals[i];
 				}
-				return i - prototypes.size();
+				locals[i].index = i;
+				return locals[i];
 			}
 		}
-		return - 1;
+		for (Prototype & p : prototypes) {
+			if (p.name == name) {
+				Local local;
+				local.type = new TypeNode(Type::RoutineType);
+				return local;
+			}
+		}
+		return Local();
 	}
 
 	void Compiler::parsePrecedence(Precedence precedence) {
@@ -1932,7 +1979,7 @@ namespace Spin {
 	}
 
 	void Compiler::foldUnary(Token token) {
-		if (!folding) return;
+		if (!options.folding) return;
 		const SizeType size = program -> instructions.size();
 		ByteCode op = program -> instructions.at(size - 2);
 		switch (op.code) {
@@ -1961,7 +2008,7 @@ namespace Spin {
 		emitOperation({ OPCode::PSH, { .value = v } });
 	}
 	void Compiler::foldBinary(Token token) {
-		if (!folding) return;
+		if (!options.folding) return;
 		const SizeType size = program -> instructions.size();
 		Array<ByteCode> codes;
 		ByteCode op;
@@ -2037,6 +2084,18 @@ namespace Spin {
 			if (!a && !b) return true;
 			return false;
 		}
+		if (a -> type == Type::LamdaType || b -> type == Type::LamdaType) {
+			if (a -> type != b -> type) return false;
+			LamdaType * aL = (LamdaType *)(a -> getData());
+			LamdaType * bL = (LamdaType *)(b -> getData());
+			if (!match(aL -> returnType, bL -> returnType)) return false;
+			if (aL -> parameters.size() != bL -> parameters.size()) return false;
+			const SizeType size = aL -> parameters.size();
+			for (SizeType i = 0; i < size; i += 1) {
+				if (!match(aL -> parameters[i], bL -> parameters[i])) return false;
+			}
+			return true;
+		}
 		return (a -> type) == (b -> type);
 	}
 	inline Boolean Compiler::match(Token::Type type) {
@@ -2100,15 +2159,11 @@ namespace Spin {
 				prototype.returnType = type();
 			} else prototype.returnType = new TypeNode(Type::VoidType);
 		} catch (Program::Error & e) { return; }
-		Local local;
 		Array<TypeNode *> overloading;
 		for (Parameter p : prototype.parameters) {
 			overloading.push_back(p.type);
 		}
 		if (locate(prototype.name, overloading) != - 1) return;
-		locals.push_back({
-			prototype.name, 0, new TypeNode(Type::RoutineType), true, true, false
-		});
 		prototypes.push_back(prototype);
 	}
 	inline void Compiler::preparePrototypes() {
@@ -2129,16 +2184,18 @@ namespace Spin {
 		const SizeType size = routines.size();
 		for (SizeType i = 0; i < size; i += 1) {
 			Routine routine = routines[i];
-			/*if (routine.name.length() == 0) {
+			if (routine.name.length() == 0) {
+				if (options.sectors) emitRST();
 				program -> instructions.at(lamdas[i]).as.index = sourcePosition();
 				pasteCodes(routine.code);
 				continue;
-			}*/
+			}
 			const SizeType j = locate(
 				routine.name,
 				routine.parameters
 			);
 			if (j == - 1) continue;
+			if (options.sectors) emitRST();
 			prototypes.at(j).address = sourcePosition();
 			pasteCodes(routine.code);
 		}
@@ -2275,10 +2332,14 @@ namespace Spin {
 		routineIndexes.clear();
 		strings.clear();
 		prototypes.clear();
-		// lamdas.clear();
-		// lamdaReturn.clear();
+		lamdas.clear();
+		TypeNode::resetNodes();
 	}
 
+	Program * Compiler::compile(SourceCode * source, Options options) {
+		this -> options = options;
+		return compile(source);
+	}
 	Program * Compiler::compile(SourceCode * source) {
 		if (!source) return nullptr;
 		currentUnit = source -> main;

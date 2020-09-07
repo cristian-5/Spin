@@ -49,19 +49,67 @@ namespace Spin {
 		};
 
 		class TypeNode {
+			private:
+			void * data = nullptr;
+			inline static Dictionary<void *, Type> nodes;
 			public:
 			Type type = Type::VoidType;
-			void * data = nullptr;
 			TypeNode * next = nullptr;
 			TypeNode() = default;
 			TypeNode(Type t) { type = t; }
 			~TypeNode() { if (next) delete next; }
-			inline Boolean isContainer() { return next; }
+			inline Boolean isContainer() { return next != nullptr; }
 			inline String description() {
+				String desc;
+				if (type == Type::LamdaType) {
+					desc = "ƒ(";
+					LamdaType * lamda = (LamdaType *) data;
+					if (lamda -> parameters.empty()) return desc + ")";
+					for (TypeNode * n : lamda -> parameters) {
+						desc += n -> description() + ", ";
+					}
+					desc.pop_back();
+					desc.pop_back();
+					return desc + ")";
+				}
 				if (!next) return Converter::typeToString(type);
-				String desc = Converter::typeToString(type) + "<";
+				desc = Converter::typeToString(type) + "<";
 				if (next) desc += next -> description() + ">";
 				return desc;
+			}
+			inline void * getData() { return data; }
+			inline void setData(void * d) {
+				data = d;
+				nodes.insert({ d, type });
+			}
+			inline static void resetNodes() {
+				for (auto & node : nodes) {
+					switch (node.second) {
+						case Type::LamdaType: delete (LamdaType *) node.first; break;
+						default: break;
+					}
+				}
+				nodes.clear();
+			}
+			inline static TypeNode * copy(TypeNode * node) {
+				if (!node) return nullptr;
+				TypeNode * newNode = new TypeNode(node -> type);
+				if (node -> data) newNode -> data = node -> data;
+				if (node -> next) newNode -> next = copy(node -> next);
+				return newNode;
+			}
+		};
+
+		class LamdaType {
+			public:
+			Array<TypeNode *> parameters;
+			TypeNode * returnType = nullptr;
+			LamdaType() = default;
+			LamdaType(Array<TypeNode *> p, TypeNode * r) {
+				parameters = p; returnType = r;
+			}
+			~LamdaType() {
+				if (returnType) delete returnType;
 			}
 		};
 
@@ -72,6 +120,7 @@ namespace Spin {
 			Boolean ready = false;
 			Boolean isConstant = false;
 			Boolean isStack = false;
+			SizeType index = - 1;
 		};
 
 		struct Jump {
@@ -87,6 +136,7 @@ namespace Spin {
 			Boolean returns = false;
 			SizeType scope;
 			SizeType prototypeIndex = - 1;
+			SizeType frame = 0;
 		};
 
 		struct Parameter {
@@ -117,14 +167,13 @@ namespace Spin {
 
 		Array<Prototype> prototypes;
 		Stack<TypeNode *> typeStack;
-		// Stack<Type> lamdaReturn;
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
 		Stack<SizeType> routineIndexes;
 		Stack<Jump> breakStack;
 		Stack<Jump> continueStack;
 
-		// Dictionary<SizeType, SizeType> lamdas;
+		Dictionary<SizeType, SizeType> lamdas;
 		Dictionary<String, SizeType> strings;
 
 		static const Dictionary<Binary, Type> infixTable;
@@ -205,7 +254,7 @@ namespace Spin {
 		void swapStatement();
 
 		SizeType locate(String & name, Array<TypeNode *> & types);
-		SizeType resolve(String & name, Local & local);
+		Local resolve(String & name);
 
 		void parsePrecedence(Precedence precedence);
 
@@ -226,6 +275,7 @@ namespace Spin {
 		inline void consume(Token::Type type, String lexeme);
 		inline void prototypeRoutine(Boolean function);
 		inline void preparePrototypes();
+		inline SizeType computeRoutines();
 		inline void resolveRoutines();
 		inline void resolveCalls();
 		inline SizeType countLocals(SizeType scope);
@@ -256,9 +306,12 @@ namespace Spin {
 
 		public:
 
-		// Settings:
+		struct Options {
+			Boolean folding = true;
+			Boolean sectors = false;
+		};
 
-		Boolean folding = true;
+		Options options;
 
 		Compiler(const Compiler &) = delete;
 		Compiler(Compiler &&) = delete;
@@ -269,6 +322,7 @@ namespace Spin {
 			return & instance;
 		}
 		Program * compile(SourceCode * source);
+		Program * compile(SourceCode * source, Options options);
 
 	};
 

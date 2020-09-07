@@ -36,6 +36,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 	SourceCode * code = nullptr;
 	Program * program = nullptr;
 
+	compiler -> options.sectors = true;
+
 	try {
 		code = Wings::spread("Examples/Test.spin");
 		program = compiler -> compile(code);
