@@ -173,6 +173,7 @@ namespace Spin {
 			case OPCode::PSH: constOP("PSH", byte.as.value.integer, Colour::green); break;
 			case OPCode::STR: tableOP("STR", program -> strings.at(byte.as.index)); break;
 			case OPCode::LLA: aloneOP("LLA", Colour::red, "load lamda address"); break;
+			case OPCode::ULA: aloneOP("ULA", Colour::red, "unload lamda address"); break;
 			case OPCode::LAM: aloneOP("LAM", Colour::red, "lamda call"); break;
 			case OPCode::GET: constOP("GET", byte.as.index, Colour::purple); break;
 			case OPCode::SET: constOP("SET", byte.as.index, Colour::purple); break;

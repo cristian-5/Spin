@@ -42,12 +42,9 @@ namespace Spin {
 		{ "break", Token::Type::breakKeyword },
 		{ "continue", Token::Type::continueKeyword },
 		{ "self", Token::Type::selfKeyword },
-		{ "new", Token::Type::newKeyword },
-		{ "delete", Token::Type::deleteKeyword },
 		{ "import", Token::Type::importKeyword },
 		{ "func", Token::Type::funcKeyword },
 		{ "proc", Token::Type::procKeyword },
-		{ "class", Token::Type::classKeyword },
 		{ "rest", Token::Type::restKeyword },
 		{ "return", Token::Type::returnKeyword },
 

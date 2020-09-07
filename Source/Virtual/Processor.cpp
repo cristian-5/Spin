@@ -62,6 +62,7 @@ namespace Spin {
 					});
 				break;
 				case OPCode::LLA: l = stack.pop(); break;
+				case OPCode::ULA: stack.push(l); break;
 				case OPCode::LAM:
 					call.push(ip);
 					ip = (SizeType)(l.integer);

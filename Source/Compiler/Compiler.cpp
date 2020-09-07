@@ -77,6 +77,7 @@ namespace Spin {
 		{ Token::Type::stringLiteral, { & Compiler::stringLiteral, nullptr, Precedence::none } },
 		{ Token::Type::charLiteral, { & Compiler::characterLiteral, nullptr, Precedence::none } },
 		{ Token::Type::boolLiteral, { & Compiler::booleanLiteral, nullptr, Precedence::none } },
+		{ Token::Type::selfKeyword, { & Compiler::selfLiteral, nullptr, Precedence::none } },
 
 		{ Token::Type::realIdiom, { & Compiler::realIdioms, nullptr, Precedence::none } },
 
@@ -499,6 +500,25 @@ namespace Spin {
 			{ OPCode::PSH, { .value = { .integer = literal } } }
 		);
 		pushType(Type::IntegerType);
+	}
+	void Compiler::selfLiteral() {
+		if (routineIndexes.isEmpty()) {
+			throw Program::Error(
+				currentUnit,
+				"Unexpected use of 'self' keyword outside of allowed lamda context!",
+				previous, ErrorCode::lgc
+			);
+		}
+		const Routine & lamda = routines[routineIndexes.top()];
+		if (!lamda.name.empty() || !lamda.type) {
+			throw Program::Error(
+				currentUnit,
+				"Unexpected use of 'self' keyword outside of allowed lamda context!",
+				previous, ErrorCode::lgc
+			);
+		}
+		emitOperation(OPCode::ULA);
+		typeStack.push(TypeNode::copy(lamda.type));
 	}
 
 	void Compiler::expression() {
@@ -1100,7 +1120,7 @@ namespace Spin {
 						if (local.name == name) {
 							throw Program::Error(
 								currentUnit,
-								"Variable redefinition! The identifier '" +
+								"Parameter redefinition! The identifier '" +
 								name + "' was already declared in the current scope!",
 								previous, ErrorCode::lgc
 							);
@@ -1120,7 +1140,12 @@ namespace Spin {
 			rethrow(returnType = type());
 		} else returnType = new TypeNode(Type::VoidType);
 		rethrow(consume(Token::Type::openBrace, "{"));
-		Routine routine;
+		TypeNode * lamdaNode = new TypeNode(Type::LamdaType);
+		LamdaType * lamdaType = new LamdaType(
+			types, TypeNode::copy(returnType)
+		);
+		lamdaNode -> setData(lamdaType);
+		Routine routine; routine.type = lamdaNode;
 		routine.parameters = types; routine.scope = scope;
 		routine.returnType = returnType; routine.frame = frame;
 		const SizeType routineIndex = routines.size();
@@ -1147,11 +1172,6 @@ namespace Spin {
 		// the real lambda address in resolveRoutines().
 		emitOperation({ OPCode::PSH, { .index = 0 } });
 		endVirtualScope();
-		TypeNode * lamdaNode = new TypeNode(Type::LamdaType);
-		LamdaType * lamdaType = new LamdaType(
-			types, TypeNode::copy(returnType)
-		);
-		lamdaNode -> setData(lamdaType);
 		pushType(lamdaNode);
 	}
 	void Compiler::ternary() {
@@ -2184,7 +2204,7 @@ namespace Spin {
 		const SizeType size = routines.size();
 		for (SizeType i = 0; i < size; i += 1) {
 			Routine routine = routines[i];
-			if (routine.name.length() == 0) {
+			if (routine.name.empty()) {
 				if (options.sectors) emitRST();
 				program -> instructions.at(lamdas[i]).as.index = sourcePosition();
 				pasteCodes(routine.code);

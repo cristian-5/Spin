@@ -62,7 +62,8 @@ namespace Spin {
 		PSH, // push constant
 		STR, // push string
 
-		LLA, // load lambda address
+		LLA, // load lamda address
+		ULA, // unload lamda address
 		LAM, // lamda call
 
 		GET, // get local

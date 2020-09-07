@@ -58,7 +58,7 @@ namespace Spin {
 			TypeNode() = default;
 			TypeNode(Type t) { type = t; }
 			~TypeNode() { if (next) delete next; }
-			inline Boolean isContainer() { return next != nullptr; }
+			inline Boolean isContainer() { return next; }
 			inline String description() {
 				String desc;
 				if (type == Type::LamdaType) {
@@ -137,6 +137,7 @@ namespace Spin {
 			SizeType scope;
 			SizeType prototypeIndex = - 1;
 			SizeType frame = 0;
+			TypeNode * type = nullptr;
 		};
 
 		struct Parameter {
@@ -214,6 +215,7 @@ namespace Spin {
 		void realLiteral();
 		void realIdioms();
 		void integerLiteral();
+		void selfLiteral();
 
 		void expression();
 		void statement();
