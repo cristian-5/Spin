@@ -26,15 +26,6 @@
 
 #define rethrow(A) try { A; } catch (Program::Error & e) { throw; }
 
-/*ƒ
-
-var x = ƒ(a: Integer, c: Real): Lamda {
-	if (c == 8) return z(4)();
-	return self(t, g);
-};
-
-*/
-
 namespace Spin {
 
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
