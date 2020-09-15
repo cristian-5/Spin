@@ -57,8 +57,9 @@ namespace Spin {
 			TypeNode * next = nullptr;
 			TypeNode() = default;
 			TypeNode(Type t) { type = t; }
+			TypeNode(Type t, TypeNode * n) { type = t; next = n; }
 			~TypeNode() { if (next) delete next; }
-			inline Boolean isContainer() { return next; }
+			inline Boolean isContainer() const { return next; }
 			inline String description() {
 				String desc;
 				if (type == Type::LamdaType) {
@@ -73,8 +74,7 @@ namespace Spin {
 					return desc + ")";
 				}
 				if (!next) return Converter::typeToString(type);
-				desc = Converter::typeToString(type) + "<";
-				if (next) desc += next -> description() + ">";
+				desc = "[" + next -> description() + "]";
 				return desc;
 			}
 			inline void * getData() { return data; }
@@ -231,6 +231,7 @@ namespace Spin {
 		void grouping();
 		void functional();
 		void subscription();
+		void array();
 		void cast();
 		void call();
 		void lamda();
@@ -280,16 +281,19 @@ namespace Spin {
 		inline SizeType computeRoutines();
 		inline void resolveRoutines();
 		inline void resolveCalls();
+		inline void resolveJumps();
 		inline SizeType countLocals(SizeType scope);
 		inline SizeType sourcePosition();
 		inline void emitOperation(ByteCode code);
 		inline void emitOperation(OPCode code);
+		inline SizeType emitOperationIndex(OPCode code);
 		inline void emitString(String s);
 		inline void emitJMB(SizeType jmb);
 		inline SizeType emitJMP(OPCode code);
 		inline void patchJMP(SizeType jmp);
 		inline void patchJMB(SizeType pos, SizeType jmb);
 		inline void patchOP(SizeType op, OPCode code);
+		inline void patchArgument(SizeType op, SizeType val);
 		inline Array<ByteCode> cutCodes(SizeType cut);
 		inline void pasteCodes(Array<ByteCode> codes);
 		inline void beginScope();

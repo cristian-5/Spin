@@ -40,7 +40,7 @@ namespace Spin {
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
 	
 		{ Token::Type::openParenthesis, { & Compiler::grouping, & Compiler::call, Precedence::call } },
-		{ Token::Type::openBracket, { nullptr, & Compiler::subscription, Precedence::call } },
+		{ Token::Type::openBracket, { & Compiler::array, & Compiler::subscription, Precedence::call } },
 
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
 
@@ -434,14 +434,13 @@ namespace Spin {
 				}); break;
 				case   Type::ComplexType: emitOperation(OPCode::PEC); break;
 				case    Type::StringType: emitOperation(OPCode::PES); break;
+				case     Type::ArrayType: emitOperation(OPCode::PEA); break;
 				default: emitOperation({
 					OPCode::PSH, { .value = { .integer = 0 } }
 				}); break;
 			}
 			return;
 		}
-		// TODO: I don't know how to initialise
-		//       an empty multidimensional array.
 	}
 
 	void Compiler::booleanLiteral() {
@@ -993,24 +992,260 @@ namespace Spin {
 	}
 	void Compiler::subscription() {
 		const Token token = previous;
-		if (popAbsoluteType() != Type::StringType) {
+		TypeNode * node = popType();
+		const Type type = node -> type;
+		if (type != Type::StringType && type != Type::ArrayType) {
+			delete node;
 			throw Program::Error(
 				currentUnit,
-				"Expected String expression before subscription '[ ]' operator!",
+				"Expected subscriptable expression before subscript '[ ]' operator!",
 				token, ErrorCode::lgc
 			);
 		}
 		rethrow(expression());
 		if (popAbsoluteType() != Type::IntegerType) {
+			delete node;
 			throw Program::Error(
 				currentUnit,
-				"Expected Integer expression in subscription '[ ]' operator!",
+				"Expected Integer expression inside subscription '[ ]' operator!",
 				token, ErrorCode::lgc
 			);
 		}
-		emitOperation(OPCode::SSC);
 		rethrow(consume(Token::Type::closeBracket, "]"));
-		pushType(Type::CharacterType);
+		if (type == Type::ArrayType) {
+			emitOperation(OPCode::ASC);
+			pushType(TypeNode::copy(node -> next));
+		} else {
+			emitOperation(OPCode::SSC);
+			pushType(Type::CharacterType);
+		}
+		delete node;
+	}
+	void Compiler::array() {
+		const Token token = previous;
+		if (match(Token::Type::closeBracket)) {
+			emitOperation(OPCode::PEA);
+			pushType(new TypeNode(Type::EmptyArray));
+			return;
+		}
+		Array<Array<ByteCode>> elements;
+		Array<TypeNode *> types;
+		do {
+			const SizeType i = sourcePosition();
+			rethrow(expression());
+			elements.push_back(cutCodes(i));
+			types.push_back(typeStack.pop());
+		} while (match(Token::Type::comma));
+		rethrow(consume(Token::Type::closeBracket, "]"));
+		Type topType = types[0] -> type;
+		const SizeType size = types.size();
+		TypeNode * finalType = nullptr;
+		switch (topType) {
+			case Type::BooleanType:
+				for (TypeNode * type : types) {
+					if (type -> type != Type::BooleanType) {
+						throw Program::Error(
+							currentUnit,
+							"Found incompatible types in '[ ]' array intialisation!",
+							token, ErrorCode::lgc
+						);
+					}
+				}
+				finalType = new TypeNode(Type::BooleanType);
+			break;
+			case Type::CharacterType: {
+				Boolean isString = false;
+				for (TypeNode * type : types) {
+					if (type -> type != Type::CharacterType) {
+						if (type -> type != Type::StringType) {
+							throw Program::Error(
+								currentUnit,
+								"Found incompatible types in '[ ]' array intialisation!",
+								token, ErrorCode::lgc
+							);
+						}
+						isString = true;
+					}
+				}
+				finalType = new TypeNode(
+					isString ? Type::StringType : Type::CharacterType
+				);
+			} break;
+			case Type::StringType:
+				for (TypeNode * type : types) {
+					if (type -> type != Type::CharacterType &&
+						type -> type != Type::StringType) {
+						throw Program::Error(
+							currentUnit,
+							"Found incompatible types in '[ ]' array intialisation!",
+							token, ErrorCode::lgc
+						);
+					}
+				}
+				finalType = new TypeNode(Type::StringType);
+			break;
+			case Type::ByteType:
+				for (TypeNode * type : types) {
+					if (type -> type != Type::ByteType &&
+						type -> type != Type::IntegerType ) {
+						throw Program::Error(
+							currentUnit,
+							"Found incompatible types in '[ ]' array intialisation!",
+							token, ErrorCode::lgc
+						);
+					}
+				}
+				finalType = new TypeNode(Type::ByteType);
+			break;
+			case Type::IntegerType:
+				for (TypeNode * type : types) {
+					switch (type -> type) {
+						case Type::IntegerType: break;
+						case Type::RealType:
+							if (topType == Type::ComplexType) break;
+							topType = Type::RealType;
+						break;
+						case Type::ImaginaryType:
+							topType = Type::ComplexType;
+						break;
+						case Type::ComplexType:
+							topType = Type::ComplexType;
+						break;
+						default:
+							throw Program::Error(
+								currentUnit,
+								"Found incompatible types in '[ ]' array intialisation!",
+								token, ErrorCode::lgc
+							);
+						break;
+					}
+				}
+				finalType = new TypeNode(topType);
+			break;
+			case Type::RealType:
+				for (TypeNode * type : types) {
+					switch (type -> type) {
+						case Type::IntegerType: break;
+						case Type::RealType: break;
+						case Type::ImaginaryType:
+							topType = Type::ComplexType;
+						break;
+						case Type::ComplexType:
+							topType = Type::ComplexType;
+						break;
+						default:
+							throw Program::Error(
+								currentUnit,
+								"Found incompatible types in '[ ]' array intialisation!",
+								token, ErrorCode::lgc
+							);
+						break;
+					}
+				}
+				finalType = new TypeNode(topType);
+			break;
+			case Type::ImaginaryType:
+				for (TypeNode * type : types) {
+					switch (type -> type) {
+						case Type::IntegerType:
+							topType = Type::ComplexType;
+						break;
+						case Type::RealType:
+							topType = Type::ComplexType;
+						break;
+						case Type::ImaginaryType:
+							if (topType == Type::ComplexType) break;
+							topType = Type::ImaginaryType;
+						break;
+						case Type::ComplexType:
+							topType = Type::ComplexType;
+						break;
+						default:
+							throw Program::Error(
+								currentUnit,
+								"Found incompatible types in '[ ]' array intialisation!",
+								token, ErrorCode::lgc
+							);
+						break;
+					}
+				}
+				finalType = new TypeNode(topType);
+			break;
+			case Type::ComplexType:
+				for (TypeNode * type : types) {
+					switch (type -> type) {
+						case Type::IntegerType: break;
+						case Type::RealType: break;
+						case Type::ImaginaryType: break;
+						case Type::ComplexType: break;
+						default:
+							throw Program::Error(
+								currentUnit,
+								"Found incompatible types in '[ ]' array intialisation!",
+								token, ErrorCode::lgc
+							);
+						break;
+					}
+				}
+				finalType = new TypeNode(Type::ComplexType);
+			break;
+			case Type::ArrayType:
+			case Type::LamdaType:
+				finalType = TypeNode::copy(types[0]);
+				for (SizeType i = 1; i < size; i += 1) {
+					if (!match(finalType, types[i])) {
+						throw Program::Error(
+							currentUnit,
+							"Found incompatible types in '[ ]' array intialisation!",
+							token, ErrorCode::lgc
+						);
+					}
+				}
+			break;
+			default:
+				throw Program::Error(
+					currentUnit,
+					"Found incompatible types in '[ ]' array intialisation!",
+					token, ErrorCode::lgc
+				);
+			break;
+		} 
+		if (!finalType) {
+			throw Program::Error(
+				currentUnit,
+				"Found incompatible types in '[ ]' array intialisation!",
+				token, ErrorCode::lgc
+			);
+		}
+		TypeNode * typeA = finalType;
+		for (SizeType i = 0; i < size; i += 1) {
+			pasteCodes(elements[i]);
+			TypeNode * typeB = types[i];
+			if (!match(typeA, typeB)) {
+				const Types composed = runtimeCompose(typeB -> type, typeA -> type);
+				// Since we're working with B -> A (A = B):
+				auto casting = castTable.find(composed);
+				if (casting == castTable.end()) {
+					const String descA = typeA -> description();
+					const String descB = typeA -> description();
+					throw Program::Error(
+						currentUnit,
+						"Found incompatible types in '[ ]' array intialisation!",
+						token, ErrorCode::lgc
+					);
+				}
+				// If needed produce a CAST:
+				if (casting -> second) {
+					emitOperation({ OPCode::CST, { .types = composed } });
+				}
+			}
+			delete typeB;
+		}
+		finalType = new TypeNode(
+			Type::ArrayType, finalType
+		);
+		emitOperation({ OPCode::PSA, { .index = size } });
+		typeStack.push(finalType);
 	}
 	void Compiler::cast() {
 		const Token token = previous;
@@ -1055,7 +1290,7 @@ namespace Spin {
 		}
 		Token token = tokens -> at(index - 3);
 		Array<TypeNode *> types;
-		if (!match(Token::Type::closeParenthesis)) {
+		if (!check(Token::Type::closeParenthesis)) {
 			do {
 				rethrow(expression());
 				types.push_back(popType());
@@ -1318,16 +1553,16 @@ namespace Spin {
 			expression();
 			consume(Token::Type::semicolon, ";");
 		);
-		Type type = popAbsoluteType();
-		if (type > Type::StringType) {
+		TypeNode * type = popType();
+		if (type -> type > Type::StringType) {
 			throw Program::Error(
 				currentUnit,
 				"Print statement doesn't support any operand of type '" +
-				Converter::typeToString(type) + "'!",
+				type -> description() + "'!",
 				token, ErrorCode::typ
 			);
 		}
-		emitOperation({ OPCode::PRL, { .type = type } });
+		emitOperation({ OPCode::PRL, { .type = type -> type } });
 	}
 	void Compiler::ifStatement() {
 		const Token token = previous;
@@ -1389,7 +1624,7 @@ namespace Spin {
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMB);
+			patchOP(pos, OPCode::JMP);
 			patchJMB(pos, loopStart);
 		}
 	}
@@ -1421,7 +1656,7 @@ namespace Spin {
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMB);
+			patchOP(pos, OPCode::JMP);
 			patchJMB(pos, loopStart);
 		}
 	}
@@ -1510,7 +1745,7 @@ namespace Spin {
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMB);
+			patchOP(pos, OPCode::JMP);
 			patchJMB(pos, loopStart);
 		}
 	}
@@ -1622,7 +1857,7 @@ namespace Spin {
 						if (local.name == name) {
 							throw Program::Error(
 								currentUnit,
-								"Variable redefinition! The identifier '" +
+								"Parameter redefinition! The identifier '" +
 								name + "' was already declared in the current scope!",
 								previous, ErrorCode::lgc
 							);
@@ -1717,7 +1952,7 @@ namespace Spin {
 						if (local.name == name) {
 							throw Program::Error(
 								currentUnit,
-								"Variable redefinition! The identifier '" +
+								"Parameter redefinition! The identifier '" +
 								name + "' was already declared in the current scope!",
 								previous, ErrorCode::lgc
 							);
@@ -2226,6 +2461,25 @@ namespace Spin {
 			byte.as.index = prototypes.at(byte.as.index).address;
 		}
 	}
+	inline void Compiler::resolveJumps() {
+		const SizeType size = program -> instructions.size();
+		for (SizeType i = 0; i < size; i += 1) {
+			switch (program -> instructions[i].code) {
+				case OPCode::JMP:
+				case OPCode::JIF:
+				case OPCode::JIT:
+				case OPCode::JAF:
+				case OPCode::JAT:
+					program -> instructions[i].as.index = (
+						(Int64)program -> instructions[
+							i
+						].as.index + i
+					);
+				break;
+				default: continue;
+			}
+		}
+	}
 	inline SizeType Compiler::countLocals(SizeType scope) {
 		SizeType localCount = 0;
 		for (Int64 i = locals.size() - 1; i >= 0; i -= 1) {
@@ -2262,8 +2516,8 @@ namespace Spin {
 		emitOperation({ OPCode::STR, { .index = position } });
 	}
 	inline void Compiler::emitJMB(SizeType jmb) {
-		jmb = sourcePosition() - jmb + 1;
-		emitOperation({ OPCode::JMB, { .index = jmb } });
+		jmb = sourcePosition() - jmb;
+		emitOperation({ OPCode::JMP, { .index = - jmb } });
 	}
 	inline SizeType Compiler::emitJMP(OPCode code) {
 		const SizeType count = sourcePosition();
@@ -2275,8 +2529,8 @@ namespace Spin {
 		program -> instructions[jmp].as.index = jump;
 	}
 	inline void Compiler::patchJMB(SizeType pos, SizeType jmb) {
-		jmb = pos - jmb + 1;
-		program -> instructions[pos].as.index = jmb;
+		jmb = pos - jmb;
+		program -> instructions[pos].as.index = - jmb;
 	}
 	inline void Compiler::patchOP(SizeType op, OPCode code) {
 		program -> instructions[op].code = code;
@@ -2383,6 +2637,7 @@ namespace Spin {
 
 		resolveRoutines();
 		resolveCalls();
+		resolveJumps();
 
 		reset();
 

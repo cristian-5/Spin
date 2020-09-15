@@ -27,10 +27,9 @@ namespace Spin {
 		StringType,
 
 		ArrayType,
-		VectorType,
+		EmptyArray,
 
 		RoutineType,
-
 		LamdaType,
 
 		ClassType,
@@ -85,6 +84,7 @@ namespace Spin {
 		NEG, // negate
 		INV, // bitwise inversion
 		SSC, // string subscription
+		ASC, // array subscription
 
 		CCJ, // complex conjugate
 		VCJ, // vector conjugate
@@ -96,12 +96,12 @@ namespace Spin {
 		PSU, // push undefined
 		PEC, // push empty complex
 		PES, // push empty string
-		PSA, // push empty array
+		PSA, // push array
+		PEA, // push empty array
 		POP, // pop
 		DSK, // decrease stack
 
 		JMP, // jump
-		JMB, // jump backwards
 		JIF, // jump if false
 		JAF, // jump if false, avoid pop
 		JIT, // jump if true

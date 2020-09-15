@@ -120,7 +120,7 @@ namespace Spin {
 			case Type::ComplexType: return "Complex";
 			case Type::StringType: return "String";
 			case Type::ArrayType: return "Array";
-			case Type::VectorType: return "Vector";
+			case Type::EmptyArray: return "Empty Array";
 			case Type::RoutineType: return "Routine";
 			case Type::ClassType: return "Definition";
 			case Type::InstanceType: return "Instance";

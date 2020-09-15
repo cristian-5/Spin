@@ -706,8 +706,18 @@ namespace Spin {
 						.byte = (Byte)((String *)a.pointer) -> at(b.integer)
 					});
 				break;
+				case OPCode::ASC:
+					b = stack.pop();
+					a = stack.pop();
+					if (b.integer < 0 ||
+						b.integer > (((String *)a.pointer) -> size()) - 1) throw Crash(ip, data);
+					stack.push(((Array<Value> *)a.pointer) -> at(b.integer));
+				break;
 				case OPCode::CCJ:
-					stack.push({ .pointer = new Complex(((Complex *)stack.pop().pointer) -> getConjugate()) });
+					stack.push({ .pointer = new Complex(
+						((Complex *)stack.pop().pointer) -> getConjugate()
+					)});
+					objects.push_back({ stack.top().pointer, Type::ComplexType });
 				break;
 				case OPCode::VCJ: break;
 				case OPCode::MCJ: break;
@@ -715,16 +725,37 @@ namespace Spin {
 				case OPCode::PSF: stack.push({ .boolean = false }); break;
 				case OPCode::PSI: stack.push({ .real = infinity }); break;
 				case OPCode::PSU: stack.push({ .real = undefined }); break;
-				case OPCode::PEC: stack.push({ .pointer = new Complex() }); break;
-				case OPCode::PES: stack.push({ .pointer = new String() }); break;
+				case OPCode::PEC:
+					stack.push({ .pointer = new Complex() });
+					objects.push_back({ stack.top().pointer, Type::ComplexType });
+				break;
+				case OPCode::PES:
+					stack.push({ .pointer = new String() });
+					objects.push_back({ stack.top().pointer, Type::StringType });
+				break;
+				case OPCode::PSA: {
+					Array<Value> * array = new Array<Value>();
+					SizeType i = stack.size() - data.as.index;
+					const SizeType size = stack.size();
+					while (i < size) {
+						array -> push_back(stack.at(i));
+						i += 1;
+					}
+					stack.decrease(data.as.index);
+					stack.push({ .pointer = array });
+					objects.push_back({ array, Type::ArrayType });
+				} break;
+				case OPCode::PEA:
+					stack.push({ .pointer = new Array<Value>() });
+					objects.push_back({ stack.top().pointer, Type::ArrayType });
+				break;
 				case OPCode::POP: stack.decrease(); break;
 				case OPCode::DSK: stack.decrease(data.as.index); break;
-				case OPCode::JMP: ip += data.as.index; continue;
-				case OPCode::JMB: ip -= data.as.index; continue;
-				case OPCode::JIF: if (!stack.pop().boolean) { ip += data.as.index; continue; } break;
-				case OPCode::JAF: if (!stack.top().boolean) { ip += data.as.index; continue; } break;
-				case OPCode::JIT: if  (stack.pop().boolean) { ip += data.as.index; continue; } break;
-				case OPCode::JAT: if  (stack.top().boolean) { ip += data.as.index; continue; } break;
+				case OPCode::JMP: ip = data.as.index; continue;
+				case OPCode::JIF: if (!stack.pop().boolean) { ip = data.as.index; continue; } break;
+				case OPCode::JAF: if (!stack.top().boolean) { ip = data.as.index; continue; } break;
+				case OPCode::JIT: if  (stack.pop().boolean) { ip = data.as.index; continue; } break;
+				case OPCode::JAT: if  (stack.top().boolean) { ip = data.as.index; continue; } break;
 				case OPCode::EQL:
 					b = stack.pop();
 					a = stack.pop();
@@ -1140,6 +1171,7 @@ namespace Spin {
 			switch (object.second) {
 				case Type::ComplexType: delete ((String *)object.first); break;
 				case  Type::StringType: delete ((String *)object.first); break;
+				case   Type::ArrayType: delete ((Array<Value> *)object.first); break;
 				default: break;
 			}
 		}

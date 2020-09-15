@@ -131,12 +131,12 @@ namespace Spin {
 	void Decompiler::rest_OP() {
 		if (na) {
 			OStream << "    "
-					<< "RST    -------------------------------------"
+					<< "RST    --------------------------------------------"
 					<< endLine;
 			return;
 		}
 		OStream << "    " << colours[Colour::grey]
-				<< "RST    -------------------------------------"
+				<< "RST    --------------------------------------------"
 				<< reset << endLine;
 	}
 
@@ -151,7 +151,7 @@ namespace Spin {
 			case Type::ComplexType: return "CPX";
 			case Type::StringType: return "STR";
 			case Type::ArrayType: return "ARR";
-			case Type::VectorType: return "VEC";
+			case Type::EmptyArray: return "ARR";
 			case Type::ClassType: return "DEF";
 			case Type::InstanceType: return "INS";
 			case Type::VoidType: return "VOD";
@@ -195,6 +195,7 @@ namespace Spin {
 			case OPCode::NEG: unaryOP("NEG", byte.as.type, Colour::purple, "negation"); break;
 			case OPCode::INV: unaryOP("INV", byte.as.type, Colour::purple, "inversion"); break;
 			case OPCode::SSC: aloneOP("SSC", Colour::purple, "string subscription"); break;
+			case OPCode::ASC: aloneOP("ASC", Colour::purple, "array subscription"); break;
 			case OPCode::CCJ: aloneOP("CCJ", Colour::purple, "complex conjugate"); break;
 			case OPCode::VCJ: aloneOP("VCJ", Colour::purple, "vector conjugate"); break;
 			case OPCode::MCJ: aloneOP("VCJ", Colour::purple, "matrix conjugate"); break;
@@ -202,13 +203,13 @@ namespace Spin {
 			case OPCode::PSF: aloneOP("PSF", Colour::green, "push false"); break;
 			case OPCode::PSI: aloneOP("PSI", Colour::green, "push infinity"); break;
 			case OPCode::PSU: aloneOP("PSU", Colour::green, "push undefined"); break;
-			case OPCode::PEC: aloneOP("PEC", Colour::green, "push empty Complex"); break;
-			case OPCode::PES: aloneOP("PES", Colour::green, "push empty String"); break;
-			case OPCode::PSA: aloneOP("PSA", Colour::green, "push empty Array"); break;
+			case OPCode::PEC: aloneOP("PEC", Colour::green, "push empty complex"); break;
+			case OPCode::PES: aloneOP("PES", Colour::green, "push empty string"); break;
+			case OPCode::PSA: constOP("PSA", byte.as.value.integer, Colour::green); break;
+			case OPCode::PEA: aloneOP("PEA", Colour::green, "push empty array"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
 			case OPCode::DSK: constOP("DSK", byte.as.value.integer, Colour::yellow); break;
 			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;
-			case OPCode::JMB: jmptoOP("JMB", byte.as.index, "jump backwards"); break;
 			case OPCode::JIF: jmptoOP("JIF", byte.as.index, "jump if false"); break;
 			case OPCode::JAF: jmptoOP("JAF", byte.as.index, "jump if false, avoid pop"); break;
 			case OPCode::JIT: jmptoOP("JIT", byte.as.index, "jump if true"); break;
