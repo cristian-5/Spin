@@ -240,6 +240,7 @@ namespace Spin {
 		void binary();
 		void prefix();
 		void read();
+		void clock();
 
 		void expressionStatement();
 		void writeStatement();

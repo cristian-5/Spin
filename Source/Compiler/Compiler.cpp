@@ -71,7 +71,8 @@ namespace Spin {
 
 		{ Token::Type::realIdiom, { & Compiler::realIdioms, nullptr, Precedence::none } },
 
-		{ Token::Type::readKeyword, { & Compiler::read, nullptr, Precedence::none } },
+		{  Token::Type::readKeyword, { & Compiler::read, nullptr, Precedence::none } },
+		{ Token::Type::clockKeyword, { & Compiler::clock, nullptr, Precedence::none } },
 
 		{ Token::Type::inequality, { nullptr, & Compiler::binary, Precedence::equality } },
 		{   Token::Type::equality, { nullptr, & Compiler::binary, Precedence::equality } },
@@ -1559,6 +1560,10 @@ namespace Spin {
 		}
 		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::readln } });
 		pushType(Type::StringType);
+	}
+	void Compiler::clock() {
+		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::clock } });
+		pushType(Type::IntegerType);
 	}
 
 	void Compiler::expressionStatement() {

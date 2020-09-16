@@ -43,6 +43,7 @@ namespace Spin {
 		{ "continue", Token::Type::continueKeyword },
 		{     "self", Token::Type::selfKeyword     },
 		{    "sleep", Token::Type::sleepKeyword    },
+		{    "clock", Token::Type::clockKeyword    },
 		{   "import", Token::Type::importKeyword   },
 		{     "func", Token::Type::funcKeyword     },
 		{     "proc", Token::Type::procKeyword     },

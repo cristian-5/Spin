@@ -20,6 +20,7 @@ namespace Spin {
 		read = 0xF0,
 		readln = 0x0F,
 		sleep = 0xFF,
+		clock = 0xC0,
 	};
 
 	enum Type : UInt8 {
