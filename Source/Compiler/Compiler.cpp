@@ -530,7 +530,7 @@ namespace Spin {
 			case    Token::Type::breakKeyword: advance(); breakStatement(); break;
 			case Token::Type::continueKeyword: advance(); continueStatement(); break;
 			case     Token::Type::swapKeyword: advance(); swapStatement(); break;
-			case     Token::Type::restKeyword: advance(); emitRST(); break;
+			case     Token::Type::restKeyword: advance(); emitRest(); break;
 			case       Token::Type::openBrace: advance();
 				beginScope();
 				rethrow(block());
@@ -896,7 +896,7 @@ namespace Spin {
 	void Compiler::logicAND() {
 		const Token token = previous;
 		Type typeA = popAbsoluteType();
-		const SizeType endJMP = emitJMP(OPCode::JAF);
+		const SizeType endJMP = emitJumpNext(OPCode::JAF);
 		emitOperation(OPCode::POP);
 		rethrow(parsePrecedence(Precedence::logicAND));
 		Type typeB = popAbsoluteType();
@@ -909,12 +909,12 @@ namespace Spin {
 				token, ErrorCode::typ
 			);
 		}
-		patchJMP(endJMP);
+		patchJumpNext(endJMP);
 	}
 	void Compiler::logicOR() {
 		const Token token = previous;
 		Type typeA = popAbsoluteType();
-		const SizeType endJMP = emitJMP(OPCode::JAT);
+		const SizeType endJMP = emitJumpNext(OPCode::JAT);
 		emitOperation(OPCode::POP);
 		rethrow(parsePrecedence(Precedence::logicOR));
 		Type typeB = popAbsoluteType();
@@ -927,7 +927,7 @@ namespace Spin {
 				token, ErrorCode::typ
 			);
 		}
-		patchJMP(endJMP);
+		patchJumpNext(endJMP);
 	}
 
 	void Compiler::grouping() {
@@ -1315,7 +1315,7 @@ namespace Spin {
 		// Setting the stack frame to the current position,
 		// minus the number of arguments passed in input:
 		emitOperation({ OPCode::SSF, { .index = types.size() } });
-		emitCAL(prototypeIndex);
+		emitCall(prototypeIndex);
 		pushType(
 			new TypeNode(
 				* prototypes.at(prototypeIndex).returnType
@@ -1379,7 +1379,7 @@ namespace Spin {
 		routineIndexes.push(routineIndex);
 		routines.push_back(routine);
 		rethrow(block());
-		emitPOP(countLocals(scope));
+		emitPop(countLocals(scope));
 		if (!routines[routineIndex].returns &&
 			returnType -> type != Type::VoidType) {
 			throw Program::Error(
@@ -1389,7 +1389,7 @@ namespace Spin {
 			);
 		}
 		produceInitialiser(returnType);
-		emitRET();
+		emitOperation(OPCode::RET);
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
 		cycleScopes.decrease();
@@ -1410,13 +1410,13 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType thenJMP = emitJMP(OPCode::JIF);
+		const SizeType thenJMP = emitJumpNext(OPCode::JIF);
 		// Then Condition:
 		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
 		TypeNode * typeA = popType();
 		// End then.
-		const SizeType elseJMP = emitJMP(OPCode::JMP);
-		patchJMP(thenJMP);
+		const SizeType elseJMP = emitJumpNext(OPCode::JMP);
+		patchJumpNext(thenJMP);
 
 		rethrow(consume(Token::Type::colon, ":"));
 		token = previous;
@@ -1425,7 +1425,7 @@ namespace Spin {
 		rethrow(parsePrecedence((Precedence)(rule.precedence + 1)));
 		TypeNode * typeB = popType();
 		// End else.
-		patchJMP(elseJMP);
+		patchJumpNext(elseJMP);
 
 		if (!match(typeA, typeB)) {
 			const String descA = typeA -> description();
@@ -1569,22 +1569,22 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType tempJMP = emitRST();
+		const SizeType tempJMP = emitRest();
 		const SizeType cutPosition = sourcePosition();
 		rethrow(statement());
 		if (!match(Token::Type::elseKeyword)) {
 			// If statement with only then:
-			patchOP(tempJMP, OPCode::JIF);
-			patchJMP(tempJMP);
+			patchOperation(tempJMP, OPCode::JIF);
+			patchJumpNext(tempJMP);
 		} else {
 			// If statement with then and else:
-			patchOP(tempJMP, OPCode::JIT);
+			patchOperation(tempJMP, OPCode::JIT);
 			Array<ByteCode> thenCodes = cutCodes(cutPosition);
 			rethrow(statement());
-			const SizeType endJMP = emitJMP(OPCode::JMP);
-			patchJMP(tempJMP);
+			const SizeType endJMP = emitJumpNext(OPCode::JMP);
+			patchJumpNext(tempJMP);
 			pasteCodes(thenCodes);
-			patchJMP(endJMP);
+			patchJumpNext(endJMP);
 		}
 	}
 	void Compiler::whileStatement() {
@@ -1603,20 +1603,20 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType exitJMP = emitJMP(OPCode::JIF);
+		const SizeType exitJMP = emitJumpNext(OPCode::JIF);
 		rethrow(statement());
-		emitJMB(loopStart);
-		patchJMP(exitJMP);
+		emitJumpBack(loopStart);
+		patchJumpNext(exitJMP);
 		cycleScopes.decrease();
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;
-			patchJMP(breakStack.pop().line);
+			patchJumpNext(breakStack.pop().line);
 		}
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMP);
-			patchJMB(pos, loopStart);
+			patchOperation(pos, OPCode::JMP);
+			patchJumpBack(pos, loopStart);
 		}
 	}
 	void Compiler::untilStatement() {
@@ -1635,20 +1635,20 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType exitJMP = emitJMP(OPCode::JIT);
+		const SizeType exitJMP = emitJumpNext(OPCode::JIT);
 		rethrow(statement());
-		emitJMB(loopStart);
-		patchJMP(exitJMP);
+		emitJumpBack(loopStart);
+		patchJumpNext(exitJMP);
 		cycleScopes.decrease();
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;
-			patchJMP(breakStack.pop().line);
+			patchJumpNext(breakStack.pop().line);
 		}
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMP);
-			patchJMB(pos, loopStart);
+			patchOperation(pos, OPCode::JMP);
+			patchJumpBack(pos, loopStart);
 		}
 	}
 	void Compiler::doWhileStatement() {
@@ -1663,8 +1663,8 @@ namespace Spin {
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMP);
-			patchJMP(pos);
+			patchOperation(pos, OPCode::JMP);
+			patchJumpNext(pos);
 		}
 		rethrow(
 			expression();
@@ -1678,13 +1678,13 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType exitJMP = emitJMP(OPCode::JIF);
-		emitJMB(loopStart);
-		patchJMP(exitJMP);
+		const SizeType exitJMP = emitJumpNext(OPCode::JIF);
+		emitJumpBack(loopStart);
+		patchJumpNext(exitJMP);
 		cycleScopes.decrease();
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;
-			patchJMP(breakStack.pop().line);
+			patchJumpNext(breakStack.pop().line);
 		}
 	}
 	void Compiler::repeatUntilStatement() {
@@ -1699,8 +1699,8 @@ namespace Spin {
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMP);
-			patchJMP(pos);
+			patchOperation(pos, OPCode::JMP);
+			patchJumpNext(pos);
 		}
 		rethrow(
 			expression();
@@ -1714,30 +1714,30 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType exitJMP = emitJMP(OPCode::JIT);
-		emitJMB(loopStart);
-		patchJMP(exitJMP);
+		const SizeType exitJMP = emitJumpNext(OPCode::JIT);
+		emitJumpBack(loopStart);
+		patchJumpNext(exitJMP);
 		cycleScopes.decrease();
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;
-			patchJMP(breakStack.pop().line);
+			patchJumpNext(breakStack.pop().line);
 		}
 	}
 	void Compiler::loopStatement() {
 		const SizeType loopStart = sourcePosition();
 		cycleScopes.push(scopeDepth);
 		rethrow(statement());
-		emitJMB(loopStart);
+		emitJumpBack(loopStart);
 		cycleScopes.decrease();
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;
-			patchJMP(breakStack.pop().line);
+			patchJumpNext(breakStack.pop().line);
 		}
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMP);
-			patchJMB(pos, loopStart);
+			patchOperation(pos, OPCode::JMP);
+			patchJumpBack(pos, loopStart);
 		}
 	}
 	void Compiler::forStatement() {
@@ -1769,7 +1769,7 @@ namespace Spin {
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType exitJMP = emitJMP(OPCode::JIF);
+		const SizeType exitJMP = emitJumpNext(OPCode::JIF);
 		const SizeType cutExpression = sourcePosition();
 		rethrow(expression());
 		emitOperation(OPCode::POP);
@@ -1780,16 +1780,16 @@ namespace Spin {
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
-			patchOP(pos, OPCode::JMP);
-			patchJMP(pos);
+			patchOperation(pos, OPCode::JMP);
+			patchJumpNext(pos);
 		}
 		pasteCodes(codes); // Increment.
-		emitJMB(loopStart);
-		patchJMP(exitJMP);
+		emitJumpBack(loopStart);
+		patchJumpNext(exitJMP);
 		cycleScopes.decrease();
 		while (!breakStack.isEmpty()) {
 			if (breakStack.top().scope <= scopeDepth) break;
-			patchJMP(breakStack.pop().line);
+			patchJumpNext(breakStack.pop().line);
 		}
 		endScope();
 	}
@@ -1803,8 +1803,8 @@ namespace Spin {
 			);
 		}
 		rethrow(consume(Token::Type::semicolon, ";"));
-		emitPOP(countLocals(cycleScopes.top()));
-		const SizeType breakJMP = emitJMP(OPCode::JMP);
+		emitPop(countLocals(cycleScopes.top()));
+		const SizeType breakJMP = emitJumpNext(OPCode::JMP);
 		breakStack.push({ breakJMP, scopeDepth });
 	}
 	void Compiler::continueStatement() {
@@ -1817,10 +1817,10 @@ namespace Spin {
 			);
 		}
 		rethrow(consume(Token::Type::semicolon, ";"));
-		emitPOP(countLocals(cycleScopes.top()));
+		emitPop(countLocals(cycleScopes.top()));
 		// We don't know yet if the jump is going to be
 		// JMB or JMP for a continue so we use a rest:
-		const SizeType continueJMP = emitRST();
+		const SizeType continueJMP = emitRest();
 		continueStack.push({ continueJMP, scopeDepth });
 	}
 	void Compiler::procStatement() {
@@ -1908,11 +1908,11 @@ namespace Spin {
 		// it later after the whole code:
 		const SizeType cutPosition = sourcePosition();
 		rethrow(block());
-		emitPOP(countLocals(scope));
+		emitPop(countLocals(scope));
 		// Return safety net:
 		// Pushing 0 because every <expression> returns something:
 		emitOperation({ OPCode::PSH, { .index = 0 } });
-		emitRET();
+		emitOperation(OPCode::RET);
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
 		cycleScopes.decrease();
@@ -2006,7 +2006,7 @@ namespace Spin {
 		// it later after the whole code:
 		const SizeType cutPosition = sourcePosition();
 		rethrow(block());
-		emitPOP(countLocals(scope));
+		emitPop(countLocals(scope));
 		if (!routines[routineIndex].returns) {
 			throw Program::Error(
 				currentUnit,
@@ -2017,7 +2017,7 @@ namespace Spin {
 		}
 		// Return safety net:
 		produceInitialiser(returnType);
-		emitRET();
+		emitOperation(OPCode::RET);
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
 		cycleScopes.decrease();
@@ -2043,10 +2043,9 @@ namespace Spin {
 					token, ErrorCode::lgc
 				);
 			}
-			emitPOP(countLocals(routine.scope));
+			emitPop(countLocals(routine.scope));
 			// Pushing 0 because every <expression> returns something:
 			emitOperation({ OPCode::PSH, { .index = 0 } });
-			emitRET();
 		} else {
 			// Function:
 			if (routine.returnType -> type == Type::VoidType) {
@@ -2081,10 +2080,10 @@ namespace Spin {
 			routine.returns = true;
 			// Back up of the top of the stack before POP:
 			emitOperation(OPCode::CTP);
-			emitPOP(countLocals(routine.scope));
+			emitPop(countLocals(routine.scope));
 			emitOperation(OPCode::LTP);
-			emitRET();
 		}
+		emitOperation(OPCode::RET);
 	}
 	void Compiler::swapStatement() {
 		// TODO: Make other stuff swappable...
@@ -2431,7 +2430,7 @@ namespace Spin {
 		for (SizeType i = 0; i < size; i += 1) {
 			Routine routine = routines[i];
 			if (routine.name.empty()) {
-				if (options.sectors) emitRST();
+				if (options.sectors) emitRest();
 				program -> instructions.at(lamdas[i]).as.index = sourcePosition();
 				pasteCodes(routine.code);
 				continue;
@@ -2441,7 +2440,7 @@ namespace Spin {
 				routine.parameters
 			);
 			if (j == - 1) continue;
-			if (options.sectors) emitRST();
+			if (options.sectors) emitRest();
 			prototypes.at(j).address = sourcePosition();
 			pasteCodes(routine.code);
 		}
@@ -2506,37 +2505,38 @@ namespace Spin {
 		program -> strings.push_back(s);
 		emitOperation({ OPCode::STR, { .index = position } });
 	}
-	inline void Compiler::emitJMB(SizeType jmb) {
+	inline void Compiler::emitJumpBack(SizeType jmb) {
 		jmb = sourcePosition() - jmb;
 		emitOperation({ OPCode::JMP, { .index = - jmb } });
 	}
-	inline SizeType Compiler::emitJMP(OPCode code) {
+	inline SizeType Compiler::emitJumpNext(OPCode code) {
 		const SizeType count = sourcePosition();
 		emitOperation(code);
 		return count;
 	}
-	inline void Compiler::patchJMP(SizeType jmp) {
+	inline void Compiler::patchJumpNext(SizeType jmp) {
 		const SizeType jump = (sourcePosition() - jmp);
 		program -> instructions[jmp].as.index = jump;
 	}
-	inline void Compiler::patchJMB(SizeType pos, SizeType jmb) {
+	inline void Compiler::patchJumpBack(SizeType pos, SizeType jmb) {
 		jmb = pos - jmb;
 		program -> instructions[pos].as.index = - jmb;
 	}
-	inline void Compiler::patchOP(SizeType op, OPCode code) {
+	inline void Compiler::patchOperation(SizeType op, OPCode code) {
 		program -> instructions[op].code = code;
 	}
 	inline Array<ByteCode> Compiler::cutCodes(SizeType cut) {
 		const SizeType position = sourcePosition();
-		if (cut >= position) return Array<ByteCode>();
-		Array<ByteCode> codes;
-		for (SizeType i = cut; i < position; i += 1) {
-			codes.push_back(program -> instructions.at(i));
-		}
+		if (cut >= position) return { };
+		Array<ByteCode> codes(
+			program -> instructions.begin() + cut,
+			program -> instructions.end()
+		);
 		program -> instructions.erase(
 			program -> instructions.begin() + cut,
 			program -> instructions.end()
 		);
+		codes.shrink_to_fit();
 		return codes;
 	}
 	inline void Compiler::pasteCodes(Array<ByteCode> codes) {
@@ -2558,7 +2558,7 @@ namespace Spin {
 			localCount += 1;
 			locals.pop_back();
 		}
-		emitPOP(localCount);
+		emitPop(localCount);
 	}
 	inline void Compiler::endVirtualScope() {
 		scopeDepth -= 1;
@@ -2567,24 +2567,18 @@ namespace Spin {
 			locals.pop_back();
 		}
 	}
-	inline SizeType Compiler::emitRST() {
+	inline SizeType Compiler::emitRest() {
 		const SizeType count = sourcePosition();
 		emitOperation(OPCode::RST);
 		return count;
 	}
-	inline void Compiler::emitCAL(SizeType i) {
+	inline void Compiler::emitCall(SizeType i) {
 		emitOperation({ OPCode::CAL, { .index = i } });
 	}
-	inline void Compiler::emitPOP(SizeType n) {
+	inline void Compiler::emitPop(SizeType n) {
 		if (!n) return;
 		if (n == 1) emitOperation(OPCode::POP);
 		else emitOperation({ OPCode::DSK, { .index = n } });
-	}
-	inline void Compiler::emitRET() {
-		emitOperation(OPCode::RET);
-	}
-	inline void Compiler::emitHLT() {
-		emitOperation(OPCode::HLT);
 	}
 
 	void Compiler::reset() {
@@ -2623,7 +2617,7 @@ namespace Spin {
 			beginScope();
 			while (!match(Token::Type::endFile)) declaration();
 			endScope();
-			emitHLT();
+			emitOperation(OPCode::HLT);
 		);
 
 		resolveRoutines();

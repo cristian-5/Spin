@@ -288,11 +288,11 @@ namespace Spin {
 		inline void emitOperation(OPCode code);
 		inline SizeType emitOperationIndex(OPCode code);
 		inline void emitString(String s);
-		inline void emitJMB(SizeType jmb);
-		inline SizeType emitJMP(OPCode code);
-		inline void patchJMP(SizeType jmp);
-		inline void patchJMB(SizeType pos, SizeType jmb);
-		inline void patchOP(SizeType op, OPCode code);
+		inline void emitJumpBack(SizeType jmb);
+		inline SizeType emitJumpNext(OPCode code);
+		inline void patchJumpNext(SizeType jmp);
+		inline void patchJumpBack(SizeType pos, SizeType jmb);
+		inline void patchOperation(SizeType op, OPCode code);
 		inline void patchArgument(SizeType op, SizeType val);
 		inline Array<ByteCode> cutCodes(SizeType cut);
 		inline void pasteCodes(Array<ByteCode> codes);
@@ -300,11 +300,9 @@ namespace Spin {
 		inline void beginVirtualScope();
 		inline void endScope();
 		inline void endVirtualScope();
-		inline SizeType emitRST();
-		inline void emitCAL(SizeType i);
-		inline void emitPOP(SizeType n);
-		inline void emitRET();
-		inline void emitHLT();
+		inline SizeType emitRest();
+		inline void emitCall(SizeType i);
+		inline void emitPop(SizeType n);
 
 		void reset();
 
