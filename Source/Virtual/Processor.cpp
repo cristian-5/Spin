@@ -22,6 +22,7 @@
 #define SPIN_PROCESSOR_CPP
 
 #include <limits>
+#include <thread>
 
 #include "../Utility/Converter.hpp"
 #include "../Types/Complex.hpp"
@@ -53,7 +54,8 @@ namespace Spin {
 			const ByteCode data = program -> instructions[ip];
 			switch (data.code) {
 				case OPCode::RST: break;
-				case OPCode::PSH: stack.push(data.as.value); break;
+				case OPCode::PSH:
+				case OPCode::TYP: stack.push(data.as.value); break;
 				case OPCode::STR:
 					stack.push({
 						.pointer = new String(program -> strings.at(
@@ -1107,37 +1109,61 @@ namespace Spin {
 						default: return { .integer = 0 };
 					}
 				break;
-				case OPCode::PRT:
-					switch (data.as.type) {
-						// Basic Types:
-						case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false"); break;
-						case Type::CharacterType: OStream << (Character)stack.pop().byte; break;
-						case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal; break;
-						case   Type::IntegerType: OStream << stack.pop().integer; break;
-						case      Type::RealType: OStream << Converter::realToString(stack.pop().real); break;
-						case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real); break;
-						// Basic Objects:
-						case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString(); break;
-						case    Type::StringType: OStream << (*((String *)stack.pop().pointer)); break;
-						default: return { .integer = 0 };
+				case OPCode::INT:
+					switch ((Interrupt)data.as.type) {
+						case Interrupt::write:
+							switch ((Type)stack.pop().byte) {
+								// Basic Types:
+								case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false"); break;
+								case Type::CharacterType: OStream << (Character)stack.pop().byte; break;
+								case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal; break;
+								case   Type::IntegerType: OStream << stack.pop().integer; break;
+								case      Type::RealType: OStream << Converter::realToString(stack.pop().real); break;
+								case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real); break;
+								// Basic Objects:
+								case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString(); break;
+								case    Type::StringType: OStream << (*((String *)stack.pop().pointer)); break;
+								default: return { .integer = 0 };
+							}
+						break;
+						case Interrupt::writeln:
+							switch ((Type)stack.pop().byte) {
+								// Basic Types:
+								case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false") << endLine; break;
+								case Type::CharacterType: OStream << (Character)stack.pop().byte << endLine; break;
+								case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal << endLine; break;
+								case   Type::IntegerType: OStream << stack.pop().integer << endLine; break;
+								case      Type::RealType: OStream << Converter::realToString(stack.pop().real) << endLine; break;
+								case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real) << endLine; break;
+								// Basic Objects:
+								case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString() << endLine; break;
+								case    Type::StringType: OStream << (*((String *)stack.pop().pointer)) << endLine; break;
+								default: return { .integer = 0 };
+							}
+						break;
+						case Interrupt::read: {
+							String input;
+							IStream >> input;
+							String * inputPtr = new String(input);
+							stack.push({ .pointer = inputPtr });
+							objects.push_back({ inputPtr, Type::StringType });
+						} break;
+						case Interrupt::readln: {
+							String input;
+							std::getline(IStream, input);
+							String * inputPtr = new String(input);
+							stack.push({ .pointer = inputPtr });
+							objects.push_back({ inputPtr, Type::StringType });
+						} break;
+						case Interrupt::sleep:
+							std::this_thread::sleep_for(
+								std::chrono::milliseconds(
+									(UInt64)stack.pop().integer
+								)
+							);
+						break;
 					}
 				break;
-				case OPCode::PRL:
-					switch (data.as.type) {
-						// Basic Types:
-						case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false") << endLine; break;
-						case Type::CharacterType: OStream << (Character)stack.pop().byte << endLine; break;
-						case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal << endLine; break;
-						case   Type::IntegerType: OStream << stack.pop().integer << endLine; break;
-						case      Type::RealType: OStream << Converter::realToString(stack.pop().real) << endLine; break;
-						case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real) << endLine; break;
-						// Basic Objects:
-						case   Type::ComplexType: OStream << ((Complex *)stack.pop().pointer) -> toString() << endLine; break;
-						case    Type::StringType: OStream << (*((String *)stack.pop().pointer)) << endLine; break;
-						default: return { .integer = 0 };
-					}
-				break;
-				case OPCode::NLN: OStream << endLine; break;
 				case OPCode::HLT:
 					// Free:
 					stack.clear();

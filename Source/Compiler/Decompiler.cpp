@@ -127,6 +127,19 @@ namespace Spin {
 				<< "    " << colours[Colour::grey]
 				<< "! " << h << reset << endLine;
 	}
+	void Decompiler::smallOP(String o, Byte b, Colour c, String h) {
+		if (na) {
+			OStream << "    " << o << "    "
+					<< upperCase << hexadecimal << padding(2)
+					<< (UInt64)b << "                  !" << h << endLine;
+			return;
+		}
+		OStream << "    " << colours[c] << o << reset
+				<< "    " << colours[Colour::acqua]
+				<< upperCase << hexadecimal  << padding(2)
+				<< (UInt64)b << reset << colours[Colour::grey]
+				<< "                  !" << h << endLine;
+	}
 
 	void Decompiler::rest_OP() {
 		if (na) {
@@ -137,6 +150,17 @@ namespace Spin {
 		}
 		OStream << "    " << colours[Colour::grey]
 				<< "RST    --------------------------------------------"
+				<< reset << endLine;
+	}
+	void Decompiler::type_OP(String o, Type t, Colour c) {
+		if (na) {
+			OStream << "    " << o << "    " << resolve(t)
+					<< "                   ! type info" << endLine;
+			return;
+		}
+		OStream << "    " << colours[c] << o << reset
+				<< "    " << colours[Colour::acqua] << resolve(t)
+				<< colours[Colour::grey] << "                   ! type info"
 				<< reset << endLine;
 	}
 
@@ -152,8 +176,6 @@ namespace Spin {
 			case Type::StringType: return "STR";
 			case Type::ArrayType: return "ARR";
 			case Type::EmptyArray: return "ARR";
-			case Type::ClassType: return "DEF";
-			case Type::InstanceType: return "INS";
 			case Type::VoidType: return "VOD";
 			default: return "UNK";
 		}
@@ -172,6 +194,7 @@ namespace Spin {
 			case OPCode::RST: rest_OP(); break;
 			case OPCode::PSH: constOP("PSH", byte.as.value.integer, Colour::green); break;
 			case OPCode::STR: tableOP("STR", program -> strings.at(byte.as.index)); break;
+			case OPCode::TYP: type_OP("TYP", byte.as.type, Colour::green); break;
 			case OPCode::LLA: aloneOP("LLA", Colour::red, "load lamda address"); break;
 			case OPCode::ULA: aloneOP("ULA", Colour::red, "unload lamda address"); break;
 			case OPCode::LAM: aloneOP("LAM", Colour::red, "lamda call"); break;
@@ -227,9 +250,7 @@ namespace Spin {
 			case OPCode::CAL: jmptoOP("CAL", byte.as.index, "call"); break;
 			case OPCode::RET: aloneOP("RET", Colour::red, "return"); break;
 			case OPCode::CST: typesOP("CST", byte.as.types, Colour::orange, "cast"); break;
-			case OPCode::PRT: unaryOP("PRN", byte.as.type, Colour::peach, "print"); break;
-			case OPCode::PRL: unaryOP("PRL", byte.as.type, Colour::peach, "print line"); break;
-			case OPCode::NLN: aloneOP("NLN", Colour::peach, "new line"); break;
+			case OPCode::INT: smallOP("INT", byte.as.type, Colour::peach, "interrupt"); break;
 			case OPCode::HLT: aloneOP("HLT", Colour::red, "halt"); break;
 			default: break;
 		}

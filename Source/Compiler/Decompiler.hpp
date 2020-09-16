@@ -37,8 +37,10 @@ namespace Spin {
 		static void typesOP(String o, Types x, Colour c, String h);
 		static void unaryOP(String o, Type x, Colour c, String h);
 		static void jmptoOP(String o, SizeType x, String h);
+		static void smallOP(String o, Byte b, Colour c, String h);
 
 		static void rest_OP();
+		static void type_OP(String o, Type t, Colour c);
 		
 		static String resolve(Type type);
 

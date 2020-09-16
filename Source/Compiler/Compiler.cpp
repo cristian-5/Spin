@@ -31,53 +31,54 @@ namespace Spin {
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
 	
 		{ Token::Type::openParenthesis, { & Compiler::grouping, & Compiler::call, Precedence::call } },
-		{ Token::Type::openBracket, { & Compiler::array, & Compiler::subscription, Precedence::call } },
+		{     Token::Type::openBracket, { & Compiler::array, & Compiler::subscription, Precedence::call } },
 
 		{ Token::Type::questionMark, { nullptr, & Compiler::ternary, Precedence::assignment } },
+		{        Token::Type::colon, { nullptr, & Compiler::cast, Precedence::assignment } },
 
-		{ Token::Type::colon, { nullptr, & Compiler::cast, Precedence::assignment } },
-
-		{ Token::Type::shiftL, { nullptr, & Compiler::binary, Precedence::shift } },
-		{ Token::Type::shiftR, { nullptr, & Compiler::binary, Precedence::shift } },
+		{  Token::Type::shiftL, { nullptr, & Compiler::binary, Precedence::shift } },
+		{  Token::Type::shiftR, { nullptr, & Compiler::binary, Precedence::shift } },
 		{ Token::Type::rotateL, { nullptr, & Compiler::binary, Precedence::shift } },
 		{ Token::Type::rotateR, { nullptr, & Compiler::binary, Precedence::shift } },
 
-		{ Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::call } },
+		{       Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::call } },
 		{ Token::Type::exclamationMark, { & Compiler::prefix, nullptr, Precedence::none } },
-		{ Token::Type::tilde, { & Compiler::prefix, nullptr, Precedence::term } },
-		{ Token::Type::minus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
-		{ Token::Type::plus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
-		{ Token::Type::slash, { nullptr, & Compiler::binary, Precedence::factor } },
-		{ Token::Type::modulus, { nullptr, & Compiler::binary, Precedence::factor } },
-		{ Token::Type::star, { nullptr, & Compiler::binary, Precedence::factor } },
+		{           Token::Type::tilde, { & Compiler::prefix, nullptr, Precedence::term } },
+		{           Token::Type::minus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
+		{            Token::Type::plus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
+		{           Token::Type::slash, { nullptr, & Compiler::binary, Precedence::factor } },
+		{         Token::Type::modulus, { nullptr, & Compiler::binary, Precedence::factor } },
+		{            Token::Type::star, { nullptr, & Compiler::binary, Precedence::factor } },
 
 		{ Token::Type::lamda, { & Compiler::lamda, nullptr, Precedence::none } },
 
 		{ Token::Type::symbol, { & Compiler::identifier, nullptr, Precedence::none } },
 
 		{ Token::Type::ampersand, { nullptr, & Compiler::binary, Precedence::bitwiseAND } },
-		{ Token::Type::pipe, { nullptr, & Compiler::binary, Precedence::bitwiseOR } },
-		{ Token::Type::dollar, { nullptr, & Compiler::binary, Precedence::bitwiseXOR } },
+		{      Token::Type::pipe, { nullptr, & Compiler::binary, Precedence::bitwiseOR } },
+		{    Token::Type::dollar, { nullptr, & Compiler::binary, Precedence::bitwiseXOR } },
 
 		{ Token::Type::AND, { nullptr, & Compiler::logicAND, Precedence::logicAND } },
-		{ Token::Type::OR, { nullptr, & Compiler::logicOR, Precedence::logicOR } },
+		{  Token::Type::OR, { nullptr, & Compiler::logicOR, Precedence::logicOR } },
 
-		{ Token::Type::intLiteral, { & Compiler::integerLiteral, nullptr, Precedence::none } },
-		{ Token::Type::realLiteral, { & Compiler::realLiteral, nullptr, Precedence::none } },
+		{       Token::Type::intLiteral, { & Compiler::integerLiteral, nullptr, Precedence::none } },
+		{      Token::Type::realLiteral, { & Compiler::realLiteral, nullptr, Precedence::none } },
 		{ Token::Type::imaginaryLiteral, { & Compiler::imaginaryLiteral, nullptr, Precedence::none } },
-		{ Token::Type::stringLiteral, { & Compiler::stringLiteral, nullptr, Precedence::none } },
-		{ Token::Type::charLiteral, { & Compiler::characterLiteral, nullptr, Precedence::none } },
-		{ Token::Type::boolLiteral, { & Compiler::booleanLiteral, nullptr, Precedence::none } },
-		{ Token::Type::selfKeyword, { & Compiler::selfLiteral, nullptr, Precedence::none } },
+		{    Token::Type::stringLiteral, { & Compiler::stringLiteral, nullptr, Precedence::none } },
+		{      Token::Type::charLiteral, { & Compiler::characterLiteral, nullptr, Precedence::none } },
+		{      Token::Type::boolLiteral, { & Compiler::booleanLiteral, nullptr, Precedence::none } },
+		{      Token::Type::selfKeyword, { & Compiler::selfLiteral, nullptr, Precedence::none } },
 
 		{ Token::Type::realIdiom, { & Compiler::realIdioms, nullptr, Precedence::none } },
 
-		{ Token::Type::inequality, { nullptr, & Compiler::binary, Precedence::equality } },
-		{ Token::Type::equality, { nullptr, & Compiler::binary, Precedence::equality } },
+		{ Token::Type::readKeyword, { & Compiler::read, nullptr, Precedence::none } },
 
-		{ Token::Type::major, { nullptr, & Compiler::binary, Precedence::comparison } },
+		{ Token::Type::inequality, { nullptr, & Compiler::binary, Precedence::equality } },
+		{   Token::Type::equality, { nullptr, & Compiler::binary, Precedence::equality } },
+
+		{      Token::Type::major, { nullptr, & Compiler::binary, Precedence::comparison } },
 		{ Token::Type::majorEqual, { nullptr, & Compiler::binary, Precedence::comparison } },
-		{ Token::Type::minor, { nullptr, & Compiler::binary, Precedence::comparison } },
+		{      Token::Type::minor, { nullptr, & Compiler::binary, Precedence::comparison } },
 		{ Token::Type::minorEqual, { nullptr, & Compiler::binary, Precedence::comparison } },
 
 	};
@@ -517,7 +518,7 @@ namespace Spin {
 	void Compiler::statement() {
 		switch (current.type) {
 			case       Token::Type::ifKeyword: advance(); ifStatement(); break;
-			case    Token::Type::printKeywork: advance(); printStatement(); break;
+			case    Token::Type::writeKeyword: advance(); writeStatement(); break;
 			case     Token::Type::procKeyword: advance(); procStatement(); break;
 			case     Token::Type::funcKeyword: advance(); funcStatement(); break;
 			case   Token::Type::returnKeyword: advance(); returnStatement(); break;
@@ -529,6 +530,7 @@ namespace Spin {
 			case     Token::Type::loopKeyword: advance(); loopStatement(); break;
 			case    Token::Type::breakKeyword: advance(); breakStatement(); break;
 			case Token::Type::continueKeyword: advance(); continueStatement(); break;
+			case    Token::Type::sleepKeyword: advance(); sleepStatement(); break;
 			case     Token::Type::swapKeyword: advance(); swapStatement(); break;
 			case     Token::Type::restKeyword: advance(); emitRest(); break;
 			case       Token::Type::openBrace: advance();
@@ -1529,6 +1531,35 @@ namespace Spin {
 		pushType(search -> second);
 		foldUnary(token);
 	}
+	void Compiler::read() {
+		const Token token = previous;
+		if (match(Token::Type::openParenthesis)) {
+			if (!check(Token::Type::closeParenthesis)) {
+				Array<Array<ByteCode>> codes;
+				do {
+					const SizeType cutPosition = sourcePosition();
+					rethrow(expression());
+					TypeNode * type = popType();
+					if (type -> type > Type::StringType) {
+						throw Program::Error(
+							currentUnit,
+							"Read statement doesn't support any operand of type '" +
+							type -> description() + "'!",
+							token, ErrorCode::typ
+						);
+					}
+					emitOperation({ OPCode::TYP, { .value = { .byte = type -> type } } });
+					emitOperation({ OPCode::INT, { .type = (Type)Interrupt::write } });
+					delete type;
+					codes.push_back(cutCodes(cutPosition));
+				} while (match(Token::Type::comma));
+				for (auto & code : codes) pasteCodes(code);
+			}
+			rethrow(consume(Token::Type::closeParenthesis, ")"));
+		}
+		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::readln } });
+		pushType(Type::StringType);
+	}
 
 	void Compiler::expressionStatement() {
 		rethrow(
@@ -1538,22 +1569,30 @@ namespace Spin {
 		decreaseType();
 		emitOperation(OPCode::POP);
 	}
-	void Compiler::printStatement() {
+	void Compiler::writeStatement() {
 		const Token token = previous;
-		rethrow(
-			expression();
-			consume(Token::Type::semicolon, ";");
-		);
-		TypeNode * type = popType();
-		if (type -> type > Type::StringType) {
-			throw Program::Error(
-				currentUnit,
-				"Print statement doesn't support any operand of type '" +
-				type -> description() + "'!",
-				token, ErrorCode::typ
-			);
-		}
-		emitOperation({ OPCode::PRL, { .type = type -> type } });
+		Array<Array<ByteCode>> codes;
+		do {
+			const SizeType cutPosition = sourcePosition();
+			rethrow(expression());
+			TypeNode * type = popType();
+			if (type -> type > Type::StringType) {
+				throw Program::Error(
+					currentUnit,
+					"Print statement doesn't support any operand of type '" +
+					type -> description() + "'!",
+					token, ErrorCode::typ
+				);
+			}
+			emitOperation({ OPCode::TYP, { .value = { .byte = type -> type } } });
+			emitOperation({ OPCode::INT, { .type = (Type)Interrupt::write } });
+			delete type;
+			codes.push_back(cutCodes(cutPosition));
+		} while (match(Token::Type::comma));
+		for (auto & code : codes) pasteCodes(code);
+		program -> instructions.pop_back();
+		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::writeln } });
+		rethrow(consume(Token::Type::semicolon, ";"));
 	}
 	void Compiler::ifStatement() {
 		const Token token = previous;
@@ -2138,6 +2177,18 @@ namespace Spin {
 			consume(Token::Type::closeParenthesis, ")");
 			consume(Token::Type::semicolon, ";");
 		);
+	}
+	void Compiler::sleepStatement() {
+		const Token token = previous;
+		rethrow(expression());
+		if (popAbsoluteType() != Type::IntegerType) {
+			throw Program::Error(
+				currentUnit,
+				"Expected Integer expression after 'sleep' command!",
+				token, ErrorCode::lgc
+			);
+		}
+		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::sleep } });
 	}
 
 	SizeType Compiler::locate(String & name, Array<TypeNode *> & types) {

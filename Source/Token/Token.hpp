@@ -117,8 +117,10 @@ namespace Spin {
 			breakKeyword,
 			continueKeyword,
 			selfKeyword,
+			sleepKeyword,
 
-			printKeywork,
+			writeKeyword,
+			readKeyword,
 
 			importKeyword,
 

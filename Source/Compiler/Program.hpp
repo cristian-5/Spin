@@ -14,6 +14,14 @@ namespace Spin {
 	// Never change the order of types
 	// since it's used for type check.
 
+	enum Interrupt : UInt8 {
+		write = 0xA0,
+		writeln = 0x0A,
+		read = 0xF0,
+		readln = 0x0F,
+		sleep = 0xFF,
+	};
+
 	enum Type : UInt8 {
 
 		BooleanType,
@@ -31,9 +39,6 @@ namespace Spin {
 
 		RoutineType,
 		LamdaType,
-
-		ClassType,
-		InstanceType,
 
 		VoidType,
 
@@ -60,6 +65,7 @@ namespace Spin {
 
 		PSH, // push constant
 		STR, // push string
+		TYP, // push type
 
 		LLA, // load lamda address
 		ULA, // unload lamda address
@@ -129,9 +135,7 @@ namespace Spin {
 
 		CST, // casting
 
-		PRT, // print
-		PRL, // print line
-		NLN, // new line
+		INT, // interrupt
 
 		HLT, // halt
 

@@ -239,9 +239,10 @@ namespace Spin {
 		void postfix();
 		void binary();
 		void prefix();
+		void read();
 
 		void expressionStatement();
-		void printStatement();
+		void writeStatement();
 		void ifStatement();
 		void whileStatement();
 		void untilStatement();
@@ -255,6 +256,7 @@ namespace Spin {
 		void funcStatement();
 		void returnStatement();
 		void swapStatement();
+		void sleepStatement();
 
 		SizeType locate(String & name, Array<TypeNode *> & types);
 		Local resolve(String & name);
@@ -293,7 +295,6 @@ namespace Spin {
 		inline void patchJumpNext(SizeType jmp);
 		inline void patchJumpBack(SizeType pos, SizeType jmb);
 		inline void patchOperation(SizeType op, OPCode code);
-		inline void patchArgument(SizeType op, SizeType val);
 		inline Array<ByteCode> cutCodes(SizeType cut);
 		inline void pasteCodes(Array<ByteCode> codes);
 		inline void beginScope();
