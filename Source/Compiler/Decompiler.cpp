@@ -131,14 +131,14 @@ namespace Spin {
 		if (na) {
 			OStream << "    " << o << "    "
 					<< upperCase << hexadecimal << padding(2)
-					<< (UInt64)b << "                  !" << h << endLine;
+					<< (UInt64)b << "                  ! " << h << endLine;
 			return;
 		}
 		OStream << "    " << colours[c] << o << reset
 				<< "    " << colours[Colour::acqua]
 				<< upperCase << hexadecimal  << padding(2)
 				<< (UInt64)b << reset << colours[Colour::grey]
-				<< "                  !" << h << endLine;
+				<< "                  ! " << h << endLine;
 	}
 
 	void Decompiler::rest_OP() {
@@ -150,17 +150,6 @@ namespace Spin {
 		}
 		OStream << "    " << colours[Colour::grey]
 				<< "RST    --------------------------------------------"
-				<< reset << endLine;
-	}
-	void Decompiler::type_OP(String o, Type t, Colour c) {
-		if (na) {
-			OStream << "    " << o << "    " << resolve(t)
-					<< "                   ! type info" << endLine;
-			return;
-		}
-		OStream << "    " << colours[c] << o << reset
-				<< "    " << colours[Colour::acqua] << resolve(t)
-				<< colours[Colour::grey] << "                   ! type info"
 				<< reset << endLine;
 	}
 
@@ -194,7 +183,7 @@ namespace Spin {
 			case OPCode::RST: rest_OP(); break;
 			case OPCode::PSH: constOP("PSH", byte.as.value.integer, Colour::green); break;
 			case OPCode::STR: tableOP("STR", program -> strings.at(byte.as.index)); break;
-			case OPCode::TYP: type_OP("TYP", byte.as.type, Colour::green); break;
+			case OPCode::TYP: unaryOP("TYP", byte.as.type, Colour::green, "type info"); break;
 			case OPCode::LLA: aloneOP("LLA", Colour::red, "load lamda address"); break;
 			case OPCode::ULA: aloneOP("ULA", Colour::red, "unload lamda address"); break;
 			case OPCode::LAM: aloneOP("LAM", Colour::red, "lamda call"); break;

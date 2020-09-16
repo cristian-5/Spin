@@ -631,6 +631,13 @@ namespace Spin {
 					}
 				}
 				delete typeB;
+			} else if (typeB -> type == Type::EmptyArray) {
+				throw Program::Error(
+					currentUnit,
+					"Unexpected empty array variable '" + id +
+					"' lacks of type specification!",
+					token, ErrorCode::lgc
+				);
 			} else typeA = typeB;
 		} else if (hasType) {
 			produceInitialiser(typeA);
@@ -692,34 +699,11 @@ namespace Spin {
 			rethrow(typeA = type());
 		}
 
-		if (typeA -> isContainer()) {
-			const String descA = typeA -> description();
-			delete typeA;
-			throw Program::Error(
-				currentUnit,
-				"Constant value doesn't support container type '" +
-				descA + "'!",
-				token, ErrorCode::lgc
-			);
-		}
-
 		if (match(Token::Type::equal)) {
 			token = previous;
 			rethrow(expression());
 			typeB = popType();
 			if (hasType) {
-				if (typeB -> isContainer()) {
-					const String descA = typeA -> description();
-					const String descB = typeB -> description();
-					delete typeA;
-					delete typeB;
-					throw Program::Error(
-						currentUnit,
-						"Assignment operator '=' doesn't support implicit cast of '" +
-						descB + "' in '" + descA + "'!",
-						token, ErrorCode::lgc
-					);
-				}
 				if ((typeA -> type) != (typeB -> type)) {
 					// Since we're working with B -> A (A = B):
 					const Types composed = runtimeCompose(typeB -> type, typeA -> type);
@@ -741,6 +725,12 @@ namespace Spin {
 						emitOperation({ OPCode::CST, { .types = composed } });
 					}
 				}
+			} else if (typeB -> type == Type::EmptyArray) {
+				throw Program::Error(
+					currentUnit,
+					"Found forbidden empty array assignment '[]' in constant definition!",
+					token, ErrorCode::lgc
+				);
 			} else typeA = typeB;
 		} else {
 			// Has no assignment:
@@ -2397,6 +2387,8 @@ namespace Spin {
 			}
 			return true;
 		}
+		if (a -> type == Type::EmptyArray) return b -> type == Type::ArrayType;
+		if (b -> type == Type::EmptyArray) return a -> type == Type::ArrayType;
 		return (a -> type) == (b -> type);
 	}
 	inline Boolean Compiler::match(Token::Type type) {

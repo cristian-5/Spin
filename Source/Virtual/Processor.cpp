@@ -737,6 +737,7 @@ namespace Spin {
 				break;
 				case OPCode::PSA: {
 					Array<Value> * array = new Array<Value>();
+					array -> reserve(data.as.index);
 					SizeType i = stack.size() - data.as.index;
 					const SizeType size = stack.size();
 					while (i < size) {

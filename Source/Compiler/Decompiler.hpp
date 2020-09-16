@@ -40,7 +40,6 @@ namespace Spin {
 		static void smallOP(String o, Byte b, Colour c, String h);
 
 		static void rest_OP();
-		static void type_OP(String o, Type t, Colour c);
 		
 		static String resolve(Type type);
 
