@@ -232,6 +232,7 @@ namespace Spin {
 		void functional();
 		void subscription();
 		void array();
+		void count();
 		void cast();
 		void call();
 		void lamda();

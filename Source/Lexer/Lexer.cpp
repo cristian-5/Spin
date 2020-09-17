@@ -385,7 +385,11 @@ namespace Spin {
 		);
 	}
 	void Lexer::scanSpecifier() {
-		while (isAlphaNumeric(peek())) advance();
+		if (!isAlpha(peek())) {
+			addToken("@", Token::Type::at);
+			return;
+		}
+		while (isAlpha(peek())) advance();
 		String lexeme = source -> substr(start, index - start);
 		auto search = specifiers.find(lexeme);
 		if (search != specifiers.end()) {

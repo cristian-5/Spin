@@ -43,6 +43,7 @@ namespace Spin {
 
 		{       Token::Type::conjugate, { nullptr, & Compiler::postfix, Precedence::call } },
 		{ Token::Type::exclamationMark, { & Compiler::prefix, nullptr, Precedence::none } },
+		{              Token::Type::at, { & Compiler::count, nullptr, Precedence::none } },
 		{           Token::Type::tilde, { & Compiler::prefix, nullptr, Precedence::term } },
 		{           Token::Type::minus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
 		{            Token::Type::plus, { & Compiler::prefix, & Compiler::binary, Precedence::term } },
@@ -1230,6 +1231,27 @@ namespace Spin {
 		);
 		emitOperation({ OPCode::PSA, { .index = size } });
 		typeStack.push(finalType);
+	}
+	void Compiler::count() {
+		const Token token = previous;
+		rethrow(
+			consume(Token::Type::openBracket, "[");
+			expression();
+		);
+		const TypeNode * type = popType();
+		if (type -> type == Type::StringType) {
+			emitOperation(OPCode::SCN);
+		} else if (type -> type == Type::ArrayType) {
+			emitOperation(OPCode::ACN);
+		} else {
+			throw Program::Error(
+				currentUnit,
+				"Expected countable expression inside count '@[ ]' operator!",
+				token, ErrorCode::lgc
+			);
+		}
+		rethrow(consume(Token::Type::closeBracket, "]"));
+		pushType(Type::IntegerType);
 	}
 	void Compiler::cast() {
 		const Token token = previous;

@@ -715,6 +715,20 @@ namespace Spin {
 						b.integer > (((String *)a.pointer) -> size()) - 1) throw Crash(ip, data);
 					stack.push(((Array<Value> *)a.pointer) -> at(b.integer));
 				break;
+				case OPCode::SCN:
+					stack.push({
+						.integer = (Int64)(
+							((String *)stack.pop().pointer) -> length()
+						)
+					});
+				break;
+				case OPCode::ACN:
+					stack.push({
+						.integer = (Int64)(
+							((Array<Value> *)stack.pop().pointer) -> size()
+						)
+					});
+				break;
 				case OPCode::CCJ:
 					stack.push({ .pointer = new Complex(
 						((Complex *)stack.pop().pointer) -> getConjugate()

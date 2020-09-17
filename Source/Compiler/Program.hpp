@@ -92,6 +92,8 @@ namespace Spin {
 		INV, // bitwise inversion
 		SSC, // string subscription
 		ASC, // array subscription
+		SCN, // string count
+		ACN, // array count
 
 		CCJ, // complex conjugate
 		VCJ, // vector conjugate

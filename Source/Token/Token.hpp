@@ -83,6 +83,7 @@ namespace Spin {
 
 			tilde,
 			backslash,
+			at,
 
 			lamda,
 
