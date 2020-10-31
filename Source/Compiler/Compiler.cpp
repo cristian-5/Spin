@@ -1342,6 +1342,7 @@ namespace Spin {
 		const SizeType scope = scopeDepth;
 		beginVirtualScope();
 		cycleScopes.push(- 1);
+		lamdaScopes.push(scope + 1);
 		rethrow(consume(Token::Type::openParenthesis, "("));
 		const SizeType frame = locals.size();
 		Array<TypeNode *> types; String name;
@@ -1408,10 +1409,9 @@ namespace Spin {
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
 		cycleScopes.decrease();
-		lamdas.insert({ routineIndex, sourcePosition() });
-		// Placeholder value, to be later replaced with
-		// the real lambda address in resolveRoutines().
-		emitOperation({ OPCode::PSH, { .index = 0 } });
+		lamdaScopes.decrease();
+		// Placeholder lamda tag for later:
+		emitOperation({ OPCode::TLT, { .index = routineIndex } });
 		endVirtualScope();
 		pushType(lamdaNode);
 	}
@@ -2228,8 +2228,10 @@ namespace Spin {
 		return - 1;
 	}
 	Compiler::Local Compiler::resolve(String & name) {
+		SizeType stopCycle = - 1;
+		if (!lamdaScopes.isEmpty()) stopCycle = lamdaScopes.top();
 		// Resolve local variable:
-		for (SizeType i = locals.size() - 1; i != - 1; i -= 1) {
+		for (SizeType i = locals.size() - 1; i != stopCycle; i -= 1) {
 			if (locals[i].name == name) {
 				if (!locals[i].ready) {
 					throw Program::Error(
@@ -2501,7 +2503,13 @@ namespace Spin {
 			Routine routine = routines[i];
 			if (routine.name.empty()) {
 				if (options.sectors) emitRest();
-				program -> instructions.at(lamdas[i]).as.index = sourcePosition();
+				// Using a temp lamda op to get the real position:
+				for (ByteCode & byte : program -> instructions) {
+					if (byte.code != OPCode::TLT) continue;
+					if (byte.as.index != i) continue;
+					byte.as.index = sourcePosition();
+					byte.code = OPCode::PSH;
+				}
 				pasteCodes(routine.code);
 				continue;
 			}
@@ -2661,7 +2669,6 @@ namespace Spin {
 		routineIndexes.clear();
 		strings.clear();
 		prototypes.clear();
-		lamdas.clear();
 		TypeNode::resetNodes();
 	}
 

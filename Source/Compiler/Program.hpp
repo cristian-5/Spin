@@ -142,6 +142,10 @@ namespace Spin {
 
 		HLT, // halt
 
+		// Temporary flags:
+
+		TLT, // temporary lamda tag
+
 	};
 
 	using Types = UInt16;

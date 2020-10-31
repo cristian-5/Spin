@@ -170,11 +170,11 @@ namespace Spin {
 		Stack<TypeNode *> typeStack;
 		Stack<Boolean> assignmentStack;
 		Stack<SizeType> cycleScopes;
+		Stack<SizeType> lamdaScopes;
 		Stack<SizeType> routineIndexes;
 		Stack<Jump> breakStack;
 		Stack<Jump> continueStack;
 
-		Dictionary<SizeType, SizeType> lamdas;
 		Dictionary<String, SizeType> strings;
 
 		static const Dictionary<Binary, Type> infixTable;
