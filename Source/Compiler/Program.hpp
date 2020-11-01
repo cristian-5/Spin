@@ -90,8 +90,10 @@ namespace Spin {
 		MOD, // modulus
 		NEG, // negate
 		INV, // bitwise inversion
-		SSC, // string subscription
-		ASC, // array subscription
+		SGS, // string get subscription
+		SSS, // string set subscription
+		AGS, // array get subscription
+		ASS, // array set subscription
 		SCN, // string count
 		ACN, // array count
 

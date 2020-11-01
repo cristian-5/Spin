@@ -206,8 +206,10 @@ namespace Spin {
 			case OPCode::BRR: unaryOP("BRR", byte.as.type, Colour::purple, "rotate right"); break;
 			case OPCode::NEG: unaryOP("NEG", byte.as.type, Colour::purple, "negation"); break;
 			case OPCode::INV: unaryOP("INV", byte.as.type, Colour::purple, "inversion"); break;
-			case OPCode::SSC: aloneOP("SSC", Colour::purple, "string subscription"); break;
-			case OPCode::ASC: aloneOP("ASC", Colour::purple, "array subscription"); break;
+			case OPCode::SGS: aloneOP("SGS", Colour::purple, "string get subscription"); break;
+			case OPCode::SSS: aloneOP("SSS", Colour::purple, "string set subscription"); break;
+			case OPCode::AGS: aloneOP("AGS", Colour::purple, "array get subscription"); break;
+			case OPCode::ASS: aloneOP("ASS", Colour::purple, "array set subscription"); break;
 			case OPCode::SCN: aloneOP("SCN", Colour::purple, "string count"); break;
 			case OPCode::ACN: aloneOP("ACN", Colour::purple, "array count"); break;
 			case OPCode::CCJ: aloneOP("CCJ", Colour::purple, "complex conjugate"); break;

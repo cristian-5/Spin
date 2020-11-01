@@ -88,11 +88,13 @@ namespace Spin {
 				case OPCode::PSH: case OPCode::STR:
 				case OPCode::GET: case OPCode::SET:
 				case OPCode::SSF: case OPCode::GLF:
-				case OPCode::SLF: case OPCode::SSC:
+				case OPCode::SLF: case OPCode::CAL:
 				case OPCode::DSK: case OPCode::JMP:
 				case OPCode::JIF: case OPCode::JAF:
 				case OPCode::JIT: case OPCode::JAT:
-				case OPCode::CAL: case OPCode::PSA:
+				case OPCode::SGS: case OPCode::AGS:
+				case OPCode::SSS: case OPCode::ASS:
+				case OPCode::PSA:
 					// 8 Bytes arguments:
 					Serialiser::write<UInt64>(buffer, byte.as.index);
 				break;
@@ -170,11 +172,13 @@ namespace Spin {
 				case OPCode::PSH: case OPCode::STR:
 				case OPCode::GET: case OPCode::SET:
 				case OPCode::SSF: case OPCode::GLF:
-				case OPCode::SLF: case OPCode::SSC:
+				case OPCode::SLF: case OPCode::CAL:
 				case OPCode::DSK: case OPCode::JMP:
 				case OPCode::JIF: case OPCode::JAF:
 				case OPCode::JIT: case OPCode::JAT:
-				case OPCode::CAL: case OPCode::PSA:
+				case OPCode::SGS: case OPCode::AGS:
+				case OPCode::SSS: case OPCode::ASS:
+				case OPCode::PSA:
 					// 8 Bytes arguments:
 					try {
 						byte.as.index = Serialiser::read<UInt64>(buffer);

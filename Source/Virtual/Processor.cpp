@@ -47,7 +47,7 @@ namespace Spin {
 	Value Processor::evaluate(Program * program) {
 		if (!program) return { .integer = 0 };
 		// Main:
-		Value a, b, c, l;
+		Value a, b, c, l, s;
 		SizeType base = 0, ip = 0;
 		const SizeType count = program -> instructions.size();
 		while (ip < count) {
@@ -699,7 +699,7 @@ namespace Spin {
 						default: return { .integer = 0 };
 					}
 				break;
-				case OPCode::SSC:
+				case OPCode::SGS:
 					b = stack.pop();
 					a = stack.pop();
 					if (b.integer < 0 ||
@@ -708,12 +708,30 @@ namespace Spin {
 						.byte = (Byte)((String *)a.pointer) -> at(b.integer)
 					});
 				break;
-				case OPCode::ASC:
+				case OPCode::SSS:
+					c = stack.pop(); // expression
+					b = stack.pop(); // index
+					a = stack.pop(); // string pointer
+					if (b.integer < 0 ||
+						b.integer > (((String *)a.pointer) -> size()) - 1) throw Crash(ip, data);
+					((String *)a.pointer) -> operator [] (b.integer) = (Character)c.byte;
+					stack.push(c);
+				break;
+				case OPCode::AGS:
 					b = stack.pop();
 					a = stack.pop();
 					if (b.integer < 0 ||
-						b.integer > (((String *)a.pointer) -> size()) - 1) throw Crash(ip, data);
+						b.integer > (((Array<Value> *)a.pointer) -> size()) - 1) throw Crash(ip, data);
 					stack.push(((Array<Value> *)a.pointer) -> at(b.integer));
+				break;
+				case OPCode::ASS:
+					c = stack.pop(); // expression
+					b = stack.pop(); // index
+					a = stack.pop(); // array pointer
+					if (b.integer < 0 ||
+						b.integer > (((Array<Value> *)a.pointer) -> size()) - 1) throw Crash(ip, data);
+					((Array<Value> *)a.pointer) -> operator [] (b.integer) = c;
+					stack.push(c);
 				break;
 				case OPCode::SCN:
 					stack.push({

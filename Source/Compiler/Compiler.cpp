@@ -799,7 +799,7 @@ namespace Spin {
 				case    Token::Type::dollarEqual: o = OPCode::BWX; t = Token::Type::dollar; break;
 				default: break;
 			}
-			// If we have an mutation assignment:
+			// If we have a mutation assignment:
 			if (o != OPCode::RST) {
 				// Get the item before mutation:
 				emitOperation({
@@ -809,7 +809,7 @@ namespace Spin {
 			}
 			rethrow(expression());
 			TypeNode * typeB = popType();
-			// If we have an mutation assignment:
+			// If we have a mutation assignment:
 			if (o != OPCode::RST) {
 				if (typeA -> isContainer() || typeB -> isContainer()) {
 					const String descA = typeA -> description();
@@ -997,12 +997,57 @@ namespace Spin {
 			);
 		}
 		rethrow(consume(Token::Type::closeBracket, "]"));
-		if (type == Type::ArrayType) {
-			emitOperation(OPCode::ASC);
-			pushType(TypeNode::copy(node -> next));
+		Token::Type t;
+		if (check(Token::Type::equal)) {
+			advance();
+			// Set-subscription:
+			rethrow(expression());
+			TypeNode * typeA = node -> next;
+			if (type == Type::StringType) {
+				typeA = new TypeNode(Type::CharacterType);
+			}
+			TypeNode * typeB = popType();
+			// Assignment:
+			if (!match(typeA, typeB)) {
+				const Types composed = runtimeCompose(typeB -> type, typeA -> type);
+				// Since we're working with B -> A (A = B):
+				auto casting = castTable.find(composed);
+				if (casting == castTable.end()) {
+					const String descA = typeA -> description();
+					const String descB = typeA -> description();
+					delete typeA;
+					delete typeB;
+					throw Program::Error(
+						currentUnit,
+						"Operator '" + token.lexeme + "' doesn't support implicit cast of '" +
+						descB + "' in '" + descA + "'!",
+						token, ErrorCode::lgc
+					);
+				}
+				// If needed produce a CAST:
+				if (casting -> second) {
+					emitOperation({ OPCode::CST, { .types = composed } });
+				}
+			}
+			// Assignment:
+			if (type == Type::ArrayType) {
+				emitOperation(OPCode::ASS);
+				pushType(TypeNode::copy(node -> next));
+			} else {
+				emitOperation(OPCode::SSS);
+				pushType(Type::CharacterType);
+			}
+			delete typeB;
+			if (type == Type::StringType) delete typeA;
 		} else {
-			emitOperation(OPCode::SSC);
-			pushType(Type::CharacterType);
+			// Get-subscription:
+			if (type == Type::ArrayType) {
+				emitOperation(OPCode::AGS);
+				pushType(TypeNode::copy(node -> next));
+			} else {
+				emitOperation(OPCode::SGS);
+				pushType(Type::CharacterType);
+			}
 		}
 		delete node;
 	}

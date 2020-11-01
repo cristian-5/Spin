@@ -40,7 +40,10 @@ is consulted to find what exception to raise.
 |   MOD  |   types  | Get modulus of the last two stack values (considering types)            |
 |   NEG  |   type   | Negation of the last stack value (considering type)                     |
 |   INV  |   type   | Inversion of the last stack value (considering type)                    |
-|   SSC  |   index  | String subscription of the last stack value (at position index)         |
+|   SGS  |   index  | String get subscription of the last stack value (at position index)     |
+|   SSS  |   index  | String set subscription of the last stack value (at position index)     |
+|   AGS  |   index  | Array get subscription of the last stack value (at position index)      |
+|   ASS  |   index  | Array set subscription of the last stack value (at position index)      |
 |   CCJ  |          | Conjugate the complex number on top of the stack                        |
 |   VCJ  |          | Conjugate the vector space on top of the stack                          |
 |   MCJ  |          | Conjugate the matrix on top of the stack                                |
