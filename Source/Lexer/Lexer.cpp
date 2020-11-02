@@ -44,6 +44,7 @@ namespace Spin {
 		{     "self", Token::Type::selfKeyword     },
 		{    "sleep", Token::Type::sleepKeyword    },
 		{    "clock", Token::Type::clockKeyword    },
+		{   "random", Token::Type::randomKeyword   },
 		{   "import", Token::Type::importKeyword   },
 		{     "func", Token::Type::funcKeyword     },
 		{     "proc", Token::Type::procKeyword     },

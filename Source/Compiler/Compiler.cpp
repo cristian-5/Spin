@@ -72,8 +72,9 @@ namespace Spin {
 
 		{ Token::Type::realIdiom, { & Compiler::realIdioms, nullptr, Precedence::none } },
 
-		{  Token::Type::readKeyword, { & Compiler::read, nullptr, Precedence::none } },
-		{ Token::Type::clockKeyword, { & Compiler::clock, nullptr, Precedence::none } },
+		{   Token::Type::readKeyword, { & Compiler::read, nullptr, Precedence::none   } },
+		{  Token::Type::clockKeyword, { & Compiler::clock, nullptr, Precedence::none  } },
+		{ Token::Type::randomKeyword, { & Compiler::random, nullptr, Precedence::none } },
 
 		{ Token::Type::inequality, { nullptr, & Compiler::binary, Precedence::equality } },
 		{   Token::Type::equality, { nullptr, & Compiler::binary, Precedence::equality } },
@@ -113,9 +114,9 @@ namespace Spin {
 		{ compose(Token::Type::pipe, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::pipe, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		// # $ # ------------------------------------------------------------- # Composing Bitwise XOR #
+		{ compose(Token::Type::dollar, Type::ByteType, Type::ByteType), Type::ByteType },
 		{ compose(Token::Type::dollar, Type::CharacterType, Type::CharacterType), Type::CharacterType },
-		{ compose(Token::Type::dollarEqual, Type::ByteType, Type::ByteType), Type::ByteType },
-		{ compose(Token::Type::dollarEqual, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::dollar, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		// # + # ------------------------------------------------------------- # Composing Addition #
 		{ compose(Token::Type::plus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::CharacterType, Type::ByteType), Type::IntegerType },
@@ -830,7 +831,7 @@ namespace Spin {
 				);
 				if (search == infixTable.end()) {
 					const String descA = typeA -> description();
-					const String descB = typeA -> description();
+					const String descB = typeB -> description();
 					delete typeA;
 					delete typeB;
 					throw Program::Error(
@@ -904,6 +905,7 @@ namespace Spin {
 			);
 		}
 		patchJumpNext(endJMP);
+		pushType(Type::BooleanType);
 	}
 	void Compiler::logicOR() {
 		const Token token = previous;
@@ -922,6 +924,7 @@ namespace Spin {
 			);
 		}
 		patchJumpNext(endJMP);
+		pushType(Type::BooleanType);
 	}
 
 	void Compiler::grouping() {
@@ -1547,7 +1550,7 @@ namespace Spin {
 			case Token::Type::minus: emitOperation({ OPCode::SUB, { .types = types } }); break;
 			case  Token::Type::star: emitOperation({ OPCode::MUL, { .types = types } }); break;
 			case Token::Type::slash: emitOperation({ OPCode::DIV, { .types = types } }); break;
-			case Token::Type::modulus: emitOperation({ OPCode::DIV, { .types = types } }); break;
+			case Token::Type::modulus: emitOperation({ OPCode::MOD, { .types = types } }); break;
 			case   Token::Type::equality: emitOperation({ OPCode::EQL, { .types = types } }); break;
 			case Token::Type::inequality: emitOperation({ OPCode::NEQ, { .types = types } }); break;
 			case      Token::Type::major: emitOperation({ OPCode::GRT, { .types = types } }); break;
@@ -1556,6 +1559,7 @@ namespace Spin {
 			case Token::Type::minorEqual: emitOperation({ OPCode::LEQ, { .types = types } }); break;
 			case  Token::Type::ampersand: emitOperation({ OPCode::BWA, { .types = types } }); break;
 			case       Token::Type::pipe: emitOperation({ OPCode::BWO, { .types = types } }); break;
+			case     Token::Type::dollar: emitOperation({ OPCode::BWX, { .types = types } }); break;
 			case     Token::Type::shiftL: emitOperation({ OPCode::BSL, { .type = typeA } }); break;
 			case     Token::Type::shiftR: emitOperation({ OPCode::BSR, { .type = typeA } }); break;
 			case    Token::Type::rotateL: emitOperation({ OPCode::BRL, { .type = typeA } }); break;
@@ -1620,6 +1624,10 @@ namespace Spin {
 	}
 	void Compiler::clock() {
 		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::clock } });
+		pushType(Type::IntegerType);
+	}
+	void Compiler::random() {
+		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::random } });
 		pushType(Type::IntegerType);
 	}
 
@@ -1970,6 +1978,7 @@ namespace Spin {
 		Routine routine; routine.name = id;
 		routine.parameters = types; routine.scope = scope;
 		routine.frame = frame;
+		routine.returnType = new TypeNode(Type::VoidType);
 		const SizeType routineIndex = routines.size();
 		// Notifying the return statements:
 		routineIndexes.push(routineIndex);
@@ -2274,7 +2283,7 @@ namespace Spin {
 	}
 	Compiler::Local Compiler::resolve(String & name) {
 		SizeType stopCycle = - 1;
-		if (!lamdaScopes.isEmpty()) stopCycle = lamdaScopes.top();
+		if (!lamdaScopes.isEmpty()) stopCycle = lamdaScopes.top() - 1;
 		// Resolve local variable:
 		for (SizeType i = locals.size() - 1; i != stopCycle; i -= 1) {
 			if (locals[i].name == name) {
@@ -2624,7 +2633,7 @@ namespace Spin {
 			return;
 		}
 		const SizeType position = program -> strings.size();
-		strings.insert({ s, index });
+		strings.insert({ s, position });
 		program -> strings.push_back(s);
 		emitOperation({ OPCode::STR, { .index = position } });
 	}

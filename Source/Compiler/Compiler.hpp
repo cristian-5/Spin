@@ -242,6 +242,7 @@ namespace Spin {
 		void prefix();
 		void read();
 		void clock();
+		void random();
 
 		void expressionStatement();
 		void writeStatement();

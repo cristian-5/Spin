@@ -120,6 +120,7 @@ namespace Spin {
 			selfKeyword,
 			sleepKeyword,
 			clockKeyword,
+			randomKeyword,
 
 			writeKeyword,
 			readKeyword,

@@ -22,6 +22,7 @@
 #define SPIN_PROCESSOR_CPP
 
 #include <limits>
+#include <random>
 #include <thread>
 
 #include "../Utility/Converter.hpp"
@@ -46,6 +47,10 @@ namespace Spin {
 
 	Value Processor::evaluate(Program * program) {
 		if (!program) return { .integer = 0 };
+		// Random Device:
+		std::random_device device;
+		std::mt19937_64 engine(device());
+		std::uniform_int_distribution<Int64> dist;
 		// Main:
 		Value a, b, c, l, s;
 		SizeType base = 0, ip = 0;
@@ -1202,6 +1207,9 @@ namespace Spin {
 										   (std::chrono::system_clock::now()
 										   .time_since_epoch()).count()
 							});
+						break;
+						case Interrupt::random:
+							stack.push({ .integer = dist(engine) });
 						break;
 					}
 				break;
