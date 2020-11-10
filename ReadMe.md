@@ -17,7 +17,7 @@ High level programming language for *research* in
 We aim to create a powerful language.
 
 The **Virtual Machine** is ready but the quantum part
-of the language is not ready yet;
+of the language is not ready yet;\
 Dirac notation has been implemented in the lexer and
 preprocessor, but the **VM** doesn't support it yet.
 
