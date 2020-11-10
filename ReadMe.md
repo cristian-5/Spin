@@ -14,10 +14,10 @@
 High level programming language for *research* in
 **Quantum Computing** built in *c++*.
 
-The **Virtual Machine** is almost ready.
 We aim to create a powerful language.
 
-The quantum part of the language is not ready yet,
+The **Virtual Machine** is ready but the quantum part
+of the language is not ready yet;
 Dirac notation has been implemented in the lexer and
 preprocessor, but the **VM** doesn't support it yet.
 
