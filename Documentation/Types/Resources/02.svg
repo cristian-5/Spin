@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="padding: 10px 20px; background: #fff;" height="180" width="600">
+	<style>
+		text { fill: #474747; font-family: Menlo, Monaco, monospace; font-size: 15; }
+		.keyword { fill: #00B196 !important; }
+		.specific { fill: #E40073 !important; }
+		.comment { fill: #6E6E6E !important; }
+		.dirac { fill: #0077E5 !important; }
+		.type { fill: #00A2D9 !important; }
+		.string { fill: #009FAB !important; }
+		.numeric { fill: #DC4600 !important; }
+		.literal { fill: #E62042 !important; }
+		.method { fill: #9B00C1 !important; }
+	</style>
+	<text x="0" y="25"><tspan class="keyword">type</tspan> <tspan class="type">Boolean</tspan> {</text>
+	<text x="28" y="75"><tspan class="type">@shared</tspan> <tspan class="specific">func</tspan> <tspan class="method">random</tspan>(): <tspan class="type">Boolean</tspan>;</text>
+	<text x="28" y="100"><tspan class="type">@public</tspan> <tspan class="specific">func</tspan> <tspan class="method">string</tspan>(): <tspan class="type">String</tspan>;</text>
+	<text x="0" y="150">}</text>
+</svg>

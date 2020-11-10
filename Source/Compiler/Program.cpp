@@ -105,7 +105,7 @@ namespace Spin {
 				case OPCode::LSS: case OPCode::GEQ:
 				case OPCode::LEQ: case OPCode::BWA:
 				case OPCode::BWO: case OPCode::BWX:
-				case OPCode::CST:
+				case OPCode::CST: case OPCode::CLL:
 					// 2 Bytes arguments (types):
 					Serialiser::write<UInt16>(buffer, byte.as.types);
 				break;
@@ -195,7 +195,7 @@ namespace Spin {
 				case OPCode::LSS: case OPCode::GEQ:
 				case OPCode::LEQ: case OPCode::BWA:
 				case OPCode::BWO: case OPCode::BWX:
-				case OPCode::CST:
+				case OPCode::CST: case OPCode::CLL:
 					// 2 Bytes arguments (types):
 					try {
 						byte.as.types = Serialiser::read<UInt16>(buffer);

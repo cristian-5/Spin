@@ -113,6 +113,7 @@ namespace Spin {
 			doKeyword,
 			loopKeyword,
 			forKeyword,
+			recallKeyword,
 			repeatKeyword,
 			untilKeyword,
 			breakKeyword,
@@ -120,7 +121,7 @@ namespace Spin {
 			selfKeyword,
 			sleepKeyword,
 			clockKeyword,
-			randomKeyword,
+			noiseKeyword,
 
 			writeKeyword,
 			readKeyword,

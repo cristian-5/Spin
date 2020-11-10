@@ -28,6 +28,49 @@
 
 namespace Spin {
 
+	const Dictionary<Type, Array<Compiler::Property>> Compiler::nativeObjects = {
+		{
+			Type::BooleanType, {
+				{
+					"string", [] (TypeNode * type) -> UInt8 {
+						return 0x00;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ },
+								new TypeNode(Type::StringType)
+							)
+						);
+						return method;
+					}
+				}
+			}
+		},
+		{
+			Type::StringType, {
+				{
+					"length", [] (TypeNode * type) -> UInt8 {
+						return 0x00;
+					}, [] (TypeNode * type) -> TypeNode * {
+						return new TypeNode(Type::IntegerType);
+					}
+				}
+			}
+		},
+		{
+			Type::ArrayType, {
+				{
+					"count", [] (TypeNode * type) -> UInt8 {
+						return 0x00;
+					}, [] (TypeNode * type) -> TypeNode * {
+						return new TypeNode(Type::IntegerType);
+					}
+				}
+			}
+		}
+	};
+
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
 	
 		{ Token::Type::openParenthesis, { & Compiler::grouping, & Compiler::call, Precedence::call } },
@@ -68,13 +111,13 @@ namespace Spin {
 		{    Token::Type::stringLiteral, { & Compiler::stringLiteral, nullptr, Precedence::none } },
 		{      Token::Type::charLiteral, { & Compiler::characterLiteral, nullptr, Precedence::none } },
 		{      Token::Type::boolLiteral, { & Compiler::booleanLiteral, nullptr, Precedence::none } },
-		{      Token::Type::selfKeyword, { & Compiler::selfLiteral, nullptr, Precedence::none } },
+		{    Token::Type::recallKeyword, { & Compiler::recall, nullptr, Precedence::none } },
 
 		{ Token::Type::realIdiom, { & Compiler::realIdioms, nullptr, Precedence::none } },
 
-		{   Token::Type::readKeyword, { & Compiler::read, nullptr, Precedence::none   } },
-		{  Token::Type::clockKeyword, { & Compiler::clock, nullptr, Precedence::none  } },
-		{ Token::Type::randomKeyword, { & Compiler::random, nullptr, Precedence::none } },
+		{   Token::Type::readKeyword, { & Compiler::read, nullptr, Precedence::none  } },
+		{  Token::Type::clockKeyword, { & Compiler::clock, nullptr, Precedence::none } },
+		{  Token::Type::noiseKeyword, { & Compiler::noise, nullptr, Precedence::none } },
 
 		{ Token::Type::inequality, { nullptr, & Compiler::binary, Precedence::equality } },
 		{   Token::Type::equality, { nullptr, & Compiler::binary, Precedence::equality } },
@@ -83,6 +126,8 @@ namespace Spin {
 		{ Token::Type::majorEqual, { nullptr, & Compiler::binary, Precedence::comparison } },
 		{      Token::Type::minor, { nullptr, & Compiler::binary, Precedence::comparison } },
 		{ Token::Type::minorEqual, { nullptr, & Compiler::binary, Precedence::comparison } },
+
+		{ Token::Type::dot, { nullptr, & Compiler::dot, Precedence::call } },
 
 	};
 
@@ -438,6 +483,12 @@ namespace Spin {
 		}
 	}
 
+	Boolean Compiler::isBasicType(TypeNode * node) {
+		if (!node) return false;
+		return (node -> type) >= Type::BooleanType &&
+			   (node -> type) <= Type::EmptyArray;
+	}
+
 	void Compiler::booleanLiteral() {
 		if (previous.lexeme[0] == 't') {
 			emitOperation(OPCode::PST);
@@ -494,25 +545,6 @@ namespace Spin {
 			{ OPCode::PSH, { .value = { .integer = literal } } }
 		);
 		pushType(Type::IntegerType);
-	}
-	void Compiler::selfLiteral() {
-		if (routineIndexes.isEmpty()) {
-			throw Program::Error(
-				currentUnit,
-				"Unexpected use of 'self' keyword outside of allowed lamda context!",
-				previous, ErrorCode::lgc
-			);
-		}
-		const Routine & lamda = routines[routineIndexes.top()];
-		if (!lamda.name.empty() || !lamda.type) {
-			throw Program::Error(
-				currentUnit,
-				"Unexpected use of 'self' keyword outside of allowed lamda context!",
-				previous, ErrorCode::lgc
-			);
-		}
-		emitOperation(OPCode::ULA);
-		typeStack.push(TypeNode::copy(lamda.type));
 	}
 
 	void Compiler::expression() {
@@ -974,6 +1006,7 @@ namespace Spin {
 				);
 			}
 		}
+		for (TypeNode * t : types) delete t;
 		emitOperation({ OPCode::SSF, { .index = types.size() } });
 		emitOperation(OPCode::LAM);
 		pushType(TypeNode::copy(lamda -> returnType));
@@ -1364,6 +1397,7 @@ namespace Spin {
 			String eTypes;
 			for (TypeNode * type : types) {
 				eTypes += type -> description() + ", ";
+				delete type;
 			}
 			eTypes.pop_back();
 			eTypes.pop_back();
@@ -1462,6 +1496,25 @@ namespace Spin {
 		emitOperation({ OPCode::TLT, { .index = routineIndex } });
 		endVirtualScope();
 		pushType(lamdaNode);
+	}
+	void Compiler::recall() {
+		if (routineIndexes.isEmpty()) {
+			throw Program::Error(
+				currentUnit,
+				"Unexpected use of 'recall' keyword outside of anonymous lamda context!",
+				previous, ErrorCode::lgc
+			);
+		}
+		const Routine & lamda = routines[routineIndexes.top()];
+		if (!lamda.name.empty() || !lamda.type) {
+			throw Program::Error(
+				currentUnit,
+				"Unexpected use of 'recall' keyword outside of anonymous lamda context!",
+				previous, ErrorCode::lgc
+			);
+		}
+		emitOperation(OPCode::ULA);
+		typeStack.push(TypeNode::copy(lamda.type));
 	}
 	void Compiler::ternary() {
 		Token token = previous;
@@ -1626,9 +1679,125 @@ namespace Spin {
 		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::clock } });
 		pushType(Type::IntegerType);
 	}
-	void Compiler::random() {
-		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::random } });
+	void Compiler::noise() {
+		emitOperation({ OPCode::INT, { .type = (Type)Interrupt::noise } });
 		pushType(Type::IntegerType);
+	}
+	void Compiler::dot() {
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		const Token token = previous;
+		const String name = previous.lexeme;
+		const Boolean canAssign = assignmentStack.top();
+		TypeNode * object = popType();
+		if (canAssign && match(Token::Type::equal)) {
+			// TODO: Set expression:
+		} else {
+			// Get expression:
+			if (isBasicType(object)) {
+				auto search = nativeObjects.find(object -> type);
+				if (search != nativeObjects.end()) {
+					// Need to handle calls:
+					if (match(Token::Type::openParenthesis)) {
+						// Call to class method:
+						// Collecting parameters:
+						Array<TypeNode *> types;
+						if (!check(Token::Type::closeParenthesis)) {
+							do {
+								rethrow(expression());
+								types.push_back(popType());
+							} while (match(Token::Type::comma));
+						}
+						rethrow(consume(Token::Type::closeParenthesis, ")"));
+						for (auto & property : search -> second) {
+							if (property.name != name) continue;
+							TypeNode * node = property.getType(object);
+							// Methods work like lamdas when on the type
+							// stack because it would have been unnecessary
+							// to create a new structure just for methods.
+							if (node -> type != Type::LamdaType) {
+								throw Program::Error(
+									currentUnit,
+									"Expected valid method before call operator '()'!",
+									previous, ErrorCode::lgc
+								);
+							}
+							LamdaType * lamda = (LamdaType *)(node -> getData());
+							const SizeType size = lamda -> parameters.size();
+							if (size != types.size()) continue;
+							Boolean done = false;
+							for (SizeType i = 0; i < size; i += 1) {
+								if (!match(lamda -> parameters[i], types[i])) {
+									done = true;
+									break;
+								}
+							}
+							// Not the right overload:
+							if (done) continue;
+							// Found the correct overload:
+							const UInt16 data = runtimeCompose(
+								object -> type,
+								property.getCode(object)
+							);
+							emitOperation({ OPCode::CLL, { .types = data } });
+							pushType(TypeNode::copy(lamda -> returnType));
+							for (TypeNode * t : types) delete t;
+							return;
+						}
+						// Method not found:
+						if (types.empty()) {
+							throw Program::Error(
+								currentUnit,
+								"No matching method for call '" +
+								object -> description() + "." +
+								token.lexeme + "()'!",
+								token, ErrorCode::lgc
+							);
+						}
+						String eTypes;
+						for (TypeNode * type : types) {
+							eTypes += type -> description() + ", ";
+							delete type;
+						}
+						eTypes.pop_back();
+						eTypes.pop_back();
+						throw Program::Error(
+							currentUnit,
+							"No matching method for call '" +
+							object -> description() + "." +
+							token.lexeme + "(" + eTypes + ")'!",
+							token, ErrorCode::lgc
+						);
+					} else {
+						// Property get expression:
+						for (auto & property : search -> second) {
+							if (property.name != name) continue;
+							const UInt16 data = runtimeCompose(
+								object -> type,
+								property.getCode(object)
+							);
+							emitOperation({ OPCode::CLL, { .types = data } });
+							pushType(property.getType(object));
+							return;
+						}
+						throw Program::Error(
+							currentUnit,
+							"Property '" + name + "' is not a valid member of '" +
+							object -> description() + "'!",
+							token, ErrorCode::lgc
+						);
+					}
+					return;
+				}
+				throw Program::Error(
+					currentUnit,
+					"Property '" + name + "' is not a valid member of '" +
+					object -> description() + "'!",
+					token, ErrorCode::lgc
+				);
+			} else {
+				// TODO: Custom object:
+			}
+		}
 	}
 
 	void Compiler::expressionStatement() {
@@ -1636,8 +1805,11 @@ namespace Spin {
 			expression();
 			consume(Token::Type::semicolon, ";");
 		);
-		decreaseType();
-		emitOperation(OPCode::POP);
+		TypeNode * last = popType();
+		if (last && last -> type != Type::VoidType) {
+			emitOperation(OPCode::POP);
+		}
+		delete last;
 	}
 	void Compiler::writeStatement() {
 		const Token token = previous;
@@ -2020,8 +2192,6 @@ namespace Spin {
 		rethrow(block());
 		emitPop(countLocals(scope));
 		// Return safety net:
-		// Pushing 0 because every <expression> returns something:
-		emitOperation({ OPCode::PSH, { .index = 0 } });
 		emitOperation(OPCode::RET);
 		routines[routineIndex].code = cutCodes(cutPosition);
 		routineIndexes.decrease();
@@ -2282,11 +2452,12 @@ namespace Spin {
 		return - 1;
 	}
 	Compiler::Local Compiler::resolve(String & name) {
-		SizeType stopCycle = - 1;
-		if (!lamdaScopes.isEmpty()) stopCycle = lamdaScopes.top() - 1;
+		const Boolean lamda = !lamdaScopes.isEmpty();
+		const SizeType lamdaScope = lamdaScopes.top();
 		// Resolve local variable:
-		for (SizeType i = locals.size() - 1; i != stopCycle; i -= 1) {
+		for (SizeType i = locals.size() - 1; i != - 1; i -= 1) {
 			if (locals[i].name == name) {
+				if (lamda && locals[i].depth < lamdaScope) break;
 				if (!locals[i].ready) {
 					throw Program::Error(
 						currentUnit,

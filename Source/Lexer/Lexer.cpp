@@ -41,10 +41,10 @@ namespace Spin {
 		{    "until", Token::Type::untilKeyword    },
 		{    "break", Token::Type::breakKeyword    },
 		{ "continue", Token::Type::continueKeyword },
-		{     "self", Token::Type::selfKeyword     },
+		{   "recall", Token::Type::recallKeyword   },
 		{    "sleep", Token::Type::sleepKeyword    },
 		{    "clock", Token::Type::clockKeyword    },
-		{   "random", Token::Type::randomKeyword   },
+		{    "noise", Token::Type::noiseKeyword    },
 		{   "import", Token::Type::importKeyword   },
 		{     "func", Token::Type::funcKeyword     },
 		{     "proc", Token::Type::procKeyword     },
@@ -72,15 +72,15 @@ namespace Spin {
 	};
 	const Dictionary<String, Token::Type> Lexer::specifiers = {
 
-		{ "@public", Token::Type::publicModifier },
-		{ "@hidden", Token::Type::hiddenModifier },
-		{ "@secure", Token::Type::secureModifier },
-		{ "@immune", Token::Type::immuneModifier },
-		{ "@static", Token::Type::staticModifier },
-		{ "@shared", Token::Type::sharedModifier },
+		{ "@public", Token::Type::publicModifier }, // public method / property
+		{ "@hidden", Token::Type::hiddenModifier }, // private method / property
+		{ "@secure", Token::Type::secureModifier }, // public read only property
+		{ "@immune", Token::Type::immuneModifier }, // public static read only property
+		{ "@static", Token::Type::staticModifier }, // private static method
+		{ "@shared", Token::Type::sharedModifier }, // public static method
 
-		{ "@create", Token::Type::createSpecifier },
-		{ "@delete", Token::Type::deleteSpecifier },
+		{ "@create", Token::Type::createSpecifier }, // constructor
+		{ "@delete", Token::Type::deleteSpecifier }, // destructor
 
 	};
 

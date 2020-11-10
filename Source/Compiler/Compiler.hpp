@@ -111,6 +111,9 @@ namespace Spin {
 			~LamdaType() {
 				if (returnType) delete returnType;
 			}
+			void clearParameters() {
+				for (TypeNode * p : parameters) delete p;
+			}
 		};
 
 		struct Local {
@@ -152,11 +155,18 @@ namespace Spin {
 			SizeType address = - 1;
 		};
 
+		struct Property {
+			String name;
+			UInt8 (* getCode)(TypeNode *);
+			TypeNode * (* getType)(TypeNode *);
+		};
+
 		Array<Routine> routines;
 
 		Array<Local> locals;
 		SizeType scopeDepth = 0;
 
+		static const Dictionary<Type, Array<Property>> nativeObjects;
 		static const Dictionary<Token::Type, ParseRule> rules;
 
 		Program * program = nullptr;
@@ -203,10 +213,15 @@ namespace Spin {
 		static inline Types runtimeCompose(Type a, Type b) {
 			return (Types)(((Types) a << 8) | b);
 		}
+		static inline Types runtimeCompose(Type a, UInt8 b) {
+			return (Types)(((Types) a << 8) | b);
+		}
 
 		TypeNode * type();
 
 		void produceInitialiser(TypeNode * type);
+
+		Boolean isBasicType(TypeNode * node);
 
 		void booleanLiteral();
 		void characterLiteral();
@@ -215,7 +230,6 @@ namespace Spin {
 		void realLiteral();
 		void realIdioms();
 		void integerLiteral();
-		void selfLiteral();
 
 		void expression();
 		void statement();
@@ -236,13 +250,15 @@ namespace Spin {
 		void cast();
 		void call();
 		void lamda();
+		void recall();
 		void ternary();
 		void postfix();
 		void binary();
 		void prefix();
 		void read();
 		void clock();
-		void random();
+		void noise();
+		void dot();
 
 		void expressionStatement();
 		void writeStatement();

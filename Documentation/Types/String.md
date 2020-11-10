@@ -25,6 +25,8 @@ class String {
 
 	@public proc clear();
 
+	@immune con empty: self = "";
+
 	@public func ends(with: Character): Boolean;
 	@public func ends(with: String): Boolean;
 
@@ -48,17 +50,6 @@ class String {
 	@public func toTitle(): String;
 	@public func toUpper(): String;
 	@public func toWrong(): String;
-
-	@immune String empty = "";
-
-	@shared func from(Any): String;
-
-	@define func + (String, Any): String;
-	@define func + (Any, String): String;
-	@define proc += (Any);
-	@define func [] (Integer): Character;
-
-	@define func toString(): String;
 
 }
 ```
@@ -302,71 +293,4 @@ Read-only static property representing the empty String.
 
 ``` swift
 var empty = String::empty; // empty <- "".
-```
-
-### @shared func from(Any): String;
-
-Forces a cast from an expression.
-
-``` swift
-var fromInteger = String::from(10);
-var fromBoolean = String::from(false);
-```
-
-## Operators
-
-> Comparison Operators like `==` and `!=`,
-> where the operands share the same type,
-> are always supported by every Basic Type.
-
-The **String** type allows the use of the following operators:
-
-### @define func + (String, Any): String;
-
-Infix binary operator that returns the string resulting
-from the concatenation of the string values of the operands.
-
-``` swift
-var x = "Agent " + 707; // x <- "Agent 707".
-```
-
-### @define func + (Any, String): String;
-
-Infix binary operator that returns the string resulting
-from the concatenation of the string values of the operands.
-
-``` swift
-var x = 3.5 + " seconds"; // x <- "3.5 seconds".
-```
-
-### @define proc += (Any);
-
-Infix binary operator that appends the operand to the String.
-
-``` swift
-var x = "Hello";
-x += " There"; // x <- "Hello There".
-```
-
-### @define func [] (Integer): Character;
-
-Subscript unary operator that returns the Character
-found in the specified position.\
-If the position is invalid it throws an index out
-of range exception.
-
-``` swift
-var c: Character = "ABCD"[2]; // x <- 'C'.
-```
-
-## Overrides
-
-### @define func toString(): String;
-
-Gets the string representation of the value.
-
-``` swift
-import Console;
-var value = "value";
-Console::writeLine(value.toString()); // prints "value".
 ```

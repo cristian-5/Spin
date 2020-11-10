@@ -241,6 +241,7 @@ namespace Spin {
 			case OPCode::BWO: typesOP("BWO", byte.as.types, Colour::blue, "bitwise or"); break;
 			case OPCode::BWX: typesOP("BWX", byte.as.types, Colour::blue, "bitwise xor"); break;
 			case OPCode::CAL: jmptoOP("CAL", byte.as.index, "call"); break;
+			case OPCode::CLL: jmptoOP("CLL", byte.as.types, "language call"); break;
 			case OPCode::RET: aloneOP("RET", Colour::red, "return"); break;
 			case OPCode::CST: typesOP("CST", byte.as.types, Colour::orange, "cast"); break;
 			case OPCode::INT: smallOP("INT", byte.as.type, Colour::peach, "interrupt"); break;

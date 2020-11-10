@@ -1091,6 +1091,47 @@ namespace Spin {
 						default: return { .integer = 0 };
 					}
 				break;
+				case OPCode::CLL:
+					a.byte = (UInt8)(data.as.types >> 8);
+					b.byte = (UInt8)(data.as.types & 0x00FF);
+					switch (a.byte) {
+						case Type::BooleanType:
+							switch (b.byte) {
+								case 0x00: // Boolean.string()
+									if (stack.pop().boolean) stack.push({ .pointer = new String("true") });
+									else stack.push({ .pointer = new String("false") });
+									objects.push_back({ stack.top().pointer, Type::StringType });
+								break;
+								default: throw Crash(ip, data);
+							}
+						break;
+						case Type::StringType:
+							switch (b.byte) {
+								case 0x00: // String.length
+									stack.push({
+										.integer = (Int64)(
+											(String *)(stack.pop().pointer)
+										) -> length()
+									});
+								break;
+								default: throw Crash(ip, data);
+							}
+						break;
+						case Type::ArrayType:
+							switch (b.byte) {
+								case 0x00: // Array.count
+									stack.push({
+										.integer = (Int64)(
+											(Array<Value> *)(stack.pop().pointer)
+										) -> size()
+									});
+								break;
+								default: throw Crash(ip, data);
+							}
+						break;
+						default: throw Crash(ip, data);
+					}
+				break;
 				case OPCode::CAL: call.push(ip); ip = data.as.index; continue;
 				case OPCode::RET: base = frame.pop(); ip = call.pop(); break;
 				case OPCode::CST:
@@ -1208,7 +1249,7 @@ namespace Spin {
 										   .time_since_epoch()).count()
 							});
 						break;
-						case Interrupt::random:
+						case Interrupt::noise:
 							stack.push({ .integer = dist(engine) });
 						break;
 					}
@@ -1219,7 +1260,7 @@ namespace Spin {
 					freeObjects();
 					return { .integer = 0 };
 				break;
-				default: break; // TODO: Exception.
+				default: throw Crash(ip, data);
 			}
 			ip += 1;
 		}

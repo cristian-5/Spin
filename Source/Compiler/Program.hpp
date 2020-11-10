@@ -21,7 +21,7 @@ namespace Spin {
 		readln = 0x0F,
 		sleep = 0xFF,
 		clock = 0xC0,
-		random = 0xCA,
+		noise = 0xCA,
 	};
 
 	enum Type : UInt8 {
@@ -137,6 +137,7 @@ namespace Spin {
 		BRL, // bitwise rotation left
 
 		CAL, // call
+		CLL, // call language
 		RET, // return
 
 		CST, // casting

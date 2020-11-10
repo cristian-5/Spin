@@ -48,5 +48,5 @@ test(5);
 
 Classes are always passed and returned by reference in functions
 and procedures. You can use the assignment operator to make copies.
-Basic Types are always passed by copy in functions and procedures.
+Basic types are always passed by copy in functions and procedures.
 Strings and Complex numbers are always passed by reference.
