@@ -32,11 +32,11 @@ program, just remember that statements work just like in *c++*.
 
 ### Numeric Types
 
-![Snippet 1](Examples/S1.svg)
+<kbd>![Snippet 1](Examples/S1.svg)</kbd>
 
 ### Minor Types
 
-![Snippet 2](Examples/S2.svg)
+<kbd>![Snippet 2](Examples/S2.svg)</kbd>
 
 The documentation contains the language syntax specification.
 
