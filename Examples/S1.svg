@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="padding: 10 20; background: #fff;" height="230" width="600">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="padding: 10 20; background: #fff; border-radius: 10px;" height="230" width="600">
 	<style>
 		text { fill: #474747; font-family: Menlo, Monaco, monospace; font-size: 15; }
 		.keyword { fill: #00B196 !important; }
