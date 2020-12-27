@@ -790,6 +790,7 @@ namespace Spin {
 					objects.push_back({ stack.top().pointer, Type::ArrayType });
 				break;
 				case OPCode::POP: stack.decrease(); break;
+				case OPCode::DHD: stack.push(stack.top()); break;
 				case OPCode::DSK: stack.decrease(data.as.index); break;
 				case OPCode::JMP: ip = data.as.index; continue;
 				case OPCode::JIF: if (!stack.pop().boolean) { ip = data.as.index; continue; } break;
@@ -1107,12 +1108,43 @@ namespace Spin {
 						break;
 						case Type::StringType:
 							switch (b.byte) {
-								case 0x00: // String.length
+								case 0x02: // String.length
 									stack.push({
 										.integer = (Int64)(
 											(String *)(stack.pop().pointer)
 										) -> length()
 									});
+								break;
+								case 0x03: // String.append(element: Character)
+									a = stack.pop();
+									((String *)(stack.pop().pointer)) -> push_back(a.byte);
+								break;
+								case 0x04: // String.append(sequence: String)
+									a = stack.pop();
+									((String *)(stack.pop().pointer)) -> append(
+										* ((String *)(a.pointer))
+									);
+								break;
+								case 0x05: // String.contains(element: Character)
+									a = stack.pop();
+									stack.push({
+										.boolean = ((String *)(stack.pop().pointer))
+										-> find(a.byte) != String::npos
+									});
+								break;
+								case 0x06: // String.contains(sequence: String)
+									a = stack.pop();
+									stack.push({
+										.boolean = ((String *)(stack.pop().pointer))
+										-> find(*((String *)a.pointer)) != String::npos
+									});
+								break;
+								case 0x07: // String.clear()
+									((String *)(stack.pop().pointer)) -> clear();
+								break;
+								case 0x08: // String.ends(with: Character)
+								break;
+								case 0x09: // String.ends(with: String)
 								break;
 								default: throw Crash(ip, data);
 							}
@@ -1125,6 +1157,10 @@ namespace Spin {
 											(Array<Value> *)(stack.pop().pointer)
 										) -> size()
 									});
+								break;
+								case 0x01: // Array<TYPE>.push(element: TYPE)
+									a = stack.pop();
+									((Array<Value> *)(stack.pop().pointer)) -> push_back(a);
 								break;
 								default: throw Crash(ip, data);
 							}

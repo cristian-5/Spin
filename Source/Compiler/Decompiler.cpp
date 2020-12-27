@@ -224,6 +224,7 @@ namespace Spin {
 			case OPCode::PSA: constOP("PSA", byte.as.value.integer, Colour::green); break;
 			case OPCode::PEA: aloneOP("PEA", Colour::green, "push empty array"); break;
 			case OPCode::POP: aloneOP("POP", Colour::yellow, "pop"); break;
+			case OPCode::DHD: aloneOP("DHD", Colour::yellow, "duplicate head"); break;
 			case OPCode::DSK: constOP("DSK", byte.as.value.integer, Colour::yellow); break;
 			case OPCode::JMP: jmptoOP("JMP", byte.as.index, "jump"); break;
 			case OPCode::JIF: jmptoOP("JIF", byte.as.index, "jump if false"); break;

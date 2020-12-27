@@ -259,6 +259,8 @@ namespace Spin {
 		void clock();
 		void noise();
 		void dot();
+		void arrow();
+		void constructor();
 
 		void expressionStatement();
 		void writeStatement();

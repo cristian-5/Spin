@@ -50,12 +50,141 @@ namespace Spin {
 		{
 			Type::StringType, {
 				{
-					"length", [] (TypeNode * type) -> UInt8 {
+					"@", [] (TypeNode * type) -> UInt8 {
 						return 0x00;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ },
+								new TypeNode(Type::StringType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"@", [] (TypeNode * type) -> UInt8 {
+						return 0x01;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ new TypeNode(
+									Type::ArrayType,
+									new TypeNode(Type::CharacterType)
+								) },
+								new TypeNode(Type::StringType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"length", [] (TypeNode * type) -> UInt8 {
+						return 0x02;
 					}, [] (TypeNode * type) -> TypeNode * {
 						return new TypeNode(Type::IntegerType);
 					}
-				}
+				},
+				{
+					"append", [] (TypeNode * type) -> UInt8 {
+						return 0x03;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ new TypeNode(Type::CharacterType) },
+								new TypeNode(Type::VoidType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"append", [] (TypeNode * type) -> UInt8 {
+						return 0x04;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ new TypeNode(Type::StringType) },
+								new TypeNode(Type::VoidType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"contains", [] (TypeNode * type) -> UInt8 {
+						return 0x05;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ new TypeNode(Type::CharacterType) },
+								new TypeNode(Type::BooleanType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"contains", [] (TypeNode * type) -> UInt8 {
+						return 0x06;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ new TypeNode(Type::StringType) },
+								new TypeNode(Type::BooleanType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"clear", [] (TypeNode * type) -> UInt8 {
+						return 0x07;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ },
+								new TypeNode(Type::VoidType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"ends", [] (TypeNode * type) -> UInt8 {
+						return 0x08;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ new TypeNode(Type::CharacterType) },
+								new TypeNode(Type::BooleanType)
+							)
+						);
+						return method;
+					}
+				},
+				{
+					"ends", [] (TypeNode * type) -> UInt8 {
+						return 0x09;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ new TypeNode(Type::StringType) },
+								new TypeNode(Type::BooleanType)
+							)
+						);
+						return method;
+					}
+				},
 			}
 		},
 		{
@@ -65,6 +194,20 @@ namespace Spin {
 						return 0x00;
 					}, [] (TypeNode * type) -> TypeNode * {
 						return new TypeNode(Type::IntegerType);
+					}
+				},
+				{
+					"push", [] (TypeNode * type) -> UInt8 {
+						return 0x01;
+					}, [] (TypeNode * type) -> TypeNode * {
+						TypeNode * method = new TypeNode(Type::LamdaType);
+						method -> setData(
+							new LamdaType(
+								{ TypeNode::copy(type -> next) },
+								new TypeNode(Type::VoidType)
+							)
+						);
+						return method;
 					}
 				}
 			}
@@ -127,7 +270,10 @@ namespace Spin {
 		{      Token::Type::minor, { nullptr, & Compiler::binary, Precedence::comparison } },
 		{ Token::Type::minorEqual, { nullptr, & Compiler::binary, Precedence::comparison } },
 
-		{ Token::Type::dot, { nullptr, & Compiler::dot, Precedence::call } },
+		{ Token::Type::newKeyword, { nullptr, & Compiler::constructor, Precedence::call } },
+
+		{   Token::Type::dot, { nullptr, & Compiler::dot, Precedence::call } },
+		{ Token::Type::arrow, { nullptr, & Compiler::arrow, Precedence::call } },
 
 	};
 
@@ -458,28 +604,25 @@ namespace Spin {
 	}
 
 	void Compiler::produceInitialiser(Compiler::TypeNode * type) {
-		if (!type -> isContainer()) {
-			switch (type -> type) {
-				case   Type::BooleanType: emitOperation(OPCode::PSF); break;
-				case Type::CharacterType: 
-				case      Type::ByteType: emitOperation({
-					OPCode::PSH, { .value = { .byte = 0 } }
-				}); break;
-				case   Type::IntegerType: emitOperation({
-					OPCode::PSH, { .value = { .integer = 0 } }
-				}); break;
-				case      Type::RealType:
-				case Type::ImaginaryType: emitOperation({
-					OPCode::PSH, { .value = { .real = 0.0 } }
-				}); break;
-				case   Type::ComplexType: emitOperation(OPCode::PEC); break;
-				case    Type::StringType: emitOperation(OPCode::PES); break;
-				case     Type::ArrayType: emitOperation(OPCode::PEA); break;
-				default: emitOperation({
-					OPCode::PSH, { .value = { .integer = 0 } }
-				}); break;
-			}
-			return;
+		switch (type -> type) {
+			case   Type::BooleanType: emitOperation(OPCode::PSF); break;
+			case Type::CharacterType: 
+			case      Type::ByteType: emitOperation({
+				OPCode::PSH, { .value = { .byte = 0 } }
+			}); break;
+			case   Type::IntegerType: emitOperation({
+				OPCode::PSH, { .value = { .integer = 0 } }
+			}); break;
+			case      Type::RealType:
+			case Type::ImaginaryType: emitOperation({
+				OPCode::PSH, { .value = { .real = 0.0 } }
+			}); break;
+			case   Type::ComplexType: emitOperation(OPCode::PEC); break;
+			case    Type::StringType: emitOperation(OPCode::PES); break;
+			case     Type::ArrayType: emitOperation(OPCode::PEA); break;
+			default: emitOperation({
+				OPCode::PSH, { .value = { .integer = 0 } }
+			}); break;
 		}
 	}
 
@@ -1364,6 +1507,13 @@ namespace Spin {
 		pushType(typeA);
 	}
 	void Compiler::call() {
+		if (typeStack.isEmpty()) {
+			throw Program::Error(
+				currentUnit,
+				"Call operator '()' cannot be applied to type 'Void'!",
+				previous, ErrorCode::lgc
+			);
+		}
 		if (typeStack.top() -> type == Type::LamdaType) {
 			functional();
 			return;
@@ -1798,6 +1948,132 @@ namespace Spin {
 				// TODO: Custom object:
 			}
 		}
+	}
+	void Compiler::arrow() {
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		const Token token = previous;
+		const String name = previous.lexeme;
+		const Boolean canAssign = assignmentStack.top();
+		TypeNode * object = popType();
+		if (canAssign && match(Token::Type::equal)) {
+			// Set expression:
+			throw Program::Error(
+				currentUnit,
+				"Property chaining '->' is usless and therefore forbidden by the language!",
+				token, ErrorCode::lgc
+			);
+		} else {
+			// Get expression:
+			if (isBasicType(object)) {
+				auto search = nativeObjects.find(object -> type);
+				if (search != nativeObjects.end()) {
+					// Need to handle calls:
+					if (match(Token::Type::openParenthesis)) {
+						// Call to class method (instance copy for chaining):
+						emitOperation(OPCode::DHD);
+						// Collecting parameters:
+						Array<TypeNode *> types;
+						if (!check(Token::Type::closeParenthesis)) {
+							do {
+								rethrow(expression());
+								types.push_back(popType());
+							} while (match(Token::Type::comma));
+						}
+						rethrow(consume(Token::Type::closeParenthesis, ")"));
+						for (auto & property : search -> second) {
+							if (property.name != name) continue;
+							TypeNode * node = property.getType(object);
+							// Methods work like lamdas when on the type
+							// stack because it would have been unnecessary
+							// to create a new structure just for methods.
+							if (node -> type != Type::LamdaType) {
+								throw Program::Error(
+									currentUnit,
+									"Expected valid method before call operator '()'!",
+									previous, ErrorCode::lgc
+								);
+							}
+							LamdaType * lamda = (LamdaType *)(node -> getData());
+							const SizeType size = lamda -> parameters.size();
+							if (size != types.size()) continue;
+							Boolean done = false;
+							for (SizeType i = 0; i < size; i += 1) {
+								if (!match(lamda -> parameters[i], types[i])) {
+									done = true;
+									break;
+								}
+							}
+							// Not the right overload:
+							if (done) continue;
+							// Found the correct overload:
+							const UInt16 data = runtimeCompose(
+								object -> type,
+								property.getCode(object)
+							);
+							if (lamda -> returnType -> type != Type::VoidType) {
+								throw Program::Error(
+									currentUnit,
+									"Arrow operator '->' can only chain procedures!",
+									token, ErrorCode::lgc
+								);
+							}
+							emitOperation({ OPCode::CLL, { .types = data } });
+							pushType(TypeNode::copy(object));
+							for (TypeNode * t : types) delete t;
+							return;
+						}
+						// Method not found:
+						if (types.empty()) {
+							throw Program::Error(
+								currentUnit,
+								"No matching method for chaining call '" +
+								object -> description() + " -> " +
+								token.lexeme + "()'!",
+								token, ErrorCode::lgc
+							);
+						}
+						String eTypes;
+						for (TypeNode * type : types) {
+							eTypes += type -> description() + ", ";
+							delete type;
+						}
+						eTypes.pop_back();
+						eTypes.pop_back();
+						throw Program::Error(
+							currentUnit,
+							"No matching method for chaining call '" +
+							object -> description() + " -> " +
+							token.lexeme + "(" + eTypes + ")'!",
+							token, ErrorCode::lgc
+						);
+					} else {
+						// Property get expression:
+						throw Program::Error(
+							currentUnit,
+							"Property chaining '->' is usless and therefore forbidden by the language!",
+							token, ErrorCode::lgc
+						);
+					}
+					return;
+				}
+				throw Program::Error(
+					currentUnit,
+					"Property '" + name + "' is not a valid member of '" +
+					object -> description() + "'!",
+					token, ErrorCode::lgc
+				);
+			} else {
+				// FEATURE: Custom object instance chaining.
+				throw Program::Error(
+					currentUnit,
+					"Custom object instance chaining is not currently supported!",
+					token, ErrorCode::lgc
+				);
+			}
+		}
+	}
+	void Compiler::constructor() {
+		// TODO: Implement new operator.
 	}
 
 	void Compiler::expressionStatement() {

@@ -111,6 +111,7 @@ namespace Spin {
 		PSA, // push array
 		PEA, // push empty array
 		POP, // pop
+		DHD, // duplicate head
 		DSK, // decrease stack
 
 		JMP, // jump

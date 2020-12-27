@@ -50,6 +50,7 @@ namespace Spin {
 		{     "proc", Token::Type::procKeyword     },
 		{     "rest", Token::Type::restKeyword     },
 		{   "return", Token::Type::returnKeyword   },
+		{      "new", Token::Type::newKeyword      },
 
 		{ "write", Token::Type::writeKeyword },
 		{  "read", Token::Type::readKeyword  },
