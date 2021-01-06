@@ -157,7 +157,7 @@ namespace Spin {
 
 		struct Property {
 			String name;
-			UInt8 (* getCode)(TypeNode *);
+			UInt16 code;
 			TypeNode * (* getType)(TypeNode *);
 		};
 

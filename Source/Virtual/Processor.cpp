@@ -1093,20 +1093,15 @@ namespace Spin {
 					}
 				break;
 				case OPCode::CLL:
-					a.byte = (UInt8)(data.as.types >> 8);
-					b.byte = (UInt8)(data.as.types & 0x00FF);
-					switch (a.byte) {
-						case Type::BooleanType:
-							switch (b.byte) {
-								case 0x00: // Boolean.string()
-									if (stack.pop().boolean) stack.push({ .pointer = new String("true") });
-									else stack.push({ .pointer = new String("false") });
-									objects.push_back({ stack.top().pointer, Type::StringType });
-								break;
-								default: throw Crash(ip, data);
-							}
+					switch (data.as.types) {
+						// Boolean:
+						case NativeCodes::Boolean_string:
+							if (stack.pop().boolean) stack.push({ .pointer = new String("true") });
+							else stack.push({ .pointer = new String("false") });
+							objects.push_back({ stack.top().pointer, Type::StringType });
 						break;
-						case Type::StringType:
+						
+						/*case Type::StringType:
 							switch (b.byte) {
 								case 0x02: // String.length
 									stack.push({
@@ -1164,7 +1159,7 @@ namespace Spin {
 								break;
 								default: throw Crash(ip, data);
 							}
-						break;
+						break;*/
 						default: throw Crash(ip, data);
 					}
 				break;

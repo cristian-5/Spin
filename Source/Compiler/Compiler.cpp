@@ -32,9 +32,8 @@ namespace Spin {
 		{
 			Type::BooleanType, {
 				{
-					"string", [] (TypeNode * type) -> UInt8 {
-						return 0x00;
-					}, [] (TypeNode * type) -> TypeNode * {
+					"string", NativeCodes::Boolean_string,
+					[] (TypeNode * type) -> TypeNode * {
 						TypeNode * method = new TypeNode(Type::LamdaType);
 						method -> setData(
 							new LamdaType(
@@ -47,7 +46,7 @@ namespace Spin {
 				}
 			}
 		},
-		{
+		/*{
 			Type::StringType, {
 				{
 					"@", [] (TypeNode * type) -> UInt8 {
@@ -211,7 +210,7 @@ namespace Spin {
 					}
 				}
 			}
-		}
+		}*/
 	};
 
 	const Dictionary<Token::Type, Compiler::ParseRule> Compiler::rules = {
@@ -1886,7 +1885,7 @@ namespace Spin {
 							// Found the correct overload:
 							const UInt16 data = runtimeCompose(
 								object -> type,
-								property.getCode(object)
+								property.code
 							);
 							emitOperation({ OPCode::CLL, { .types = data } });
 							pushType(TypeNode::copy(lamda -> returnType));
@@ -1921,11 +1920,7 @@ namespace Spin {
 						// Property get expression:
 						for (auto & property : search -> second) {
 							if (property.name != name) continue;
-							const UInt16 data = runtimeCompose(
-								object -> type,
-								property.getCode(object)
-							);
-							emitOperation({ OPCode::CLL, { .types = data } });
+							emitOperation({ OPCode::CLL, { .types = property.code } });
 							pushType(property.getType(object));
 							return;
 						}
@@ -2006,10 +2001,6 @@ namespace Spin {
 							// Not the right overload:
 							if (done) continue;
 							// Found the correct overload:
-							const UInt16 data = runtimeCompose(
-								object -> type,
-								property.getCode(object)
-							);
 							if (lamda -> returnType -> type != Type::VoidType) {
 								throw Program::Error(
 									currentUnit,
@@ -2017,7 +2008,7 @@ namespace Spin {
 									token, ErrorCode::lgc
 								);
 							}
-							emitOperation({ OPCode::CLL, { .types = data } });
+							emitOperation({ OPCode::CLL, { .types = property.code } });
 							pushType(TypeNode::copy(object));
 							for (TypeNode * t : types) delete t;
 							return;

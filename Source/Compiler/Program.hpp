@@ -14,7 +14,7 @@ namespace Spin {
 	// Never change the order of types
 	// since it's used for type check.
 
-	enum Interrupt : UInt8 {
+	enum Interrupt: UInt8 {
 		write = 0xA0,
 		writeln = 0x0A,
 		read = 0xF0,
@@ -24,7 +24,7 @@ namespace Spin {
 		noise = 0xCA,
 	};
 
-	enum Type : UInt8 {
+	enum Type: UInt8 {
 
 		BooleanType,
 		CharacterType,
@@ -57,11 +57,11 @@ namespace Spin {
 		~CodeUnit();
 	};
 
-	enum ErrorCode : UInt8 {
+	enum ErrorCode: UInt8 {
 		flm, lxr, ppr, syx, typ, lgc, evl
 	};
 
-	enum OPCode : UInt8 {
+	enum OPCode: UInt8 {
 
 		RST, // rest
 
@@ -208,6 +208,23 @@ namespace Spin {
 		SourceCode(CodeUnit * main,
 				   Array<CodeUnit *> * wings,
 				   Array<String> * libraries);
+	};
+
+	enum NativeCodes: UInt16 {
+
+		// Array:
+
+
+
+		// Boolean:
+
+		Boolean_random,
+		Boolean_string,
+
+		// String:
+
+
+
 	};
 
 }

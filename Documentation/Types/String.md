@@ -18,38 +18,52 @@ class String {
 
 	@secure var length: Integer = 0;
 
-	@public proc append(element: Any);
+	@create proc String();
+	@create proc String(from: [Character]);
+
+	@public proc append(element: Character);
+	@public proc append(sequence: String);
+
+	@public func conforms(to: ƒ(Character): Boolean): Boolean;
 
 	@public func contains(element: Character): Boolean;
 	@public func contains(sequence: String): Boolean;
 
 	@public proc clear();
 
-	@immune con empty: self = "";
-
 	@public func ends(with: Character): Boolean;
 	@public func ends(with: String): Boolean;
 
-	@public proc insert(element: Any, at: Integer);
+	@public func find(element: Character): Integer;
+	@public func find(sequence: String): Integer;
+
+	@public proc insert(element: Character, at: Integer);
+	@public proc insert(sequence: String, at: Integer);
 
 	@public func isEmpty(): Boolean;
 
-	@public proc prepend(element: Any);
+	@public proc map(apply: ƒ(Character): Character);
+
+	@public proc prepend(element: Character);
+	@public proc prepend(sequence: String);
 
 	@public proc remove(at: Integer);
 	@public proc remove(from: Integer, to: Integer);
+
+	@public proc replace(occurrences: String, with: String);
 
 	@public proc reverse();
 
 	@public func starts(with: Character): Boolean;
 	@public func starts(with: String): Boolean;
 
-	@public func subString(from: Integer, to: Integer = length): String;
+	@public func subrange(from: Integer, to: Integer = length): String;
 
-	@public func toLower(): String;
-	@public func toTitle(): String;
-	@public func toUpper(): String;
-	@public func toWrong(): String;
+	@public func array(): [Character];
+
+	@public func lower(): String;
+	@public func title(): String;
+	@public func upper(): String;
 
 }
 ```

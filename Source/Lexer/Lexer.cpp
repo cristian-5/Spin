@@ -210,7 +210,7 @@ namespace Spin {
 		SizeType save = index;
 		if (!isAlpha(peek())) {
 			addToken(
-				source-> substr(start, index - start),
+				source -> substr(start, index - start),
 				Token::Type::braSymbol
 			);
 			return;
@@ -219,13 +219,13 @@ namespace Spin {
 		if (!match('>')) {
 			index = save;
 			addToken(
-				source-> substr(start, index - start),
+				source -> substr(start, index - start),
 				Token::Type::braSymbol
 			);
 			return;
 		}
 		addToken(
-			source-> substr(start, index - start),
+			source -> substr(start, index - start),
 			Token::Type::braketSymbol
 		);
 	}
