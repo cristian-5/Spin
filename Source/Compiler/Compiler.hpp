@@ -271,6 +271,7 @@ namespace Spin {
 		void repeatUntilStatement();
 		void loopStatement();
 		void forStatement();
+		void forEachStatement();
 		void breakStatement();
 		void continueStatement();
 		void procStatement();

@@ -114,6 +114,7 @@ namespace Spin {
 			case Type::BooleanType: return "Boolean";
 			case Type::CharacterType: return "Character";
 			case Type::ByteType: return "Byte";
+			case Type::NaturalType: return "Natural";
 			case Type::IntegerType: return "Integer";
 			case Type::RealType: return "Real";
 			case Type::ImaginaryType: return "Imaginary";
@@ -132,6 +133,7 @@ namespace Spin {
 			{ "Boolean", Type::BooleanType },
 			{ "Character", Type::CharacterType },
 			{ "Byte", Type::ByteType },
+			{ "Natural", Type::NaturalType },
 			{ "Integer", Type::IntegerType },
 			{ "Real", Type::RealType },
 			{ "Imaginary", Type::ImaginaryType },

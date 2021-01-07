@@ -280,55 +280,75 @@ namespace Spin {
 		// # << # ------------------------------------------------------------- # Composing Bitwise Shift Left#
 		{ compose(Token::Type::shiftL, Type::CharacterType, Type::IntegerType), Type::CharacterType },
 		{ compose(Token::Type::shiftL, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::shiftL, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::shiftL, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		// # >> # ------------------------------------------------------------- # Composing Bitwise Shift Right#
 		{ compose(Token::Type::shiftR, Type::CharacterType, Type::IntegerType), Type::CharacterType },
 		{ compose(Token::Type::shiftR, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::shiftR, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::shiftR, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		// # <* # ------------------------------------------------------------- # Composing Bitwise Rotation Left #
 		{ compose(Token::Type::rotateL, Type::CharacterType, Type::IntegerType), Type::CharacterType },
 		{ compose(Token::Type::rotateL, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::rotateL, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::rotateL, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		// # *> # ------------------------------------------------------------- # Composing Bitwise Rotation Right #
 		{ compose(Token::Type::rotateR, Type::CharacterType, Type::IntegerType), Type::CharacterType },
 		{ compose(Token::Type::rotateR, Type::ByteType, Type::IntegerType), Type::ByteType },
+		{ compose(Token::Type::rotateR, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::rotateR, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		// # & # ------------------------------------------------------------- # Composing Bitwise AND #
 		{ compose(Token::Type::ampersand, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::ampersand, Type::ByteType, Type::ByteType), Type::ByteType },
+		{ compose(Token::Type::ampersand, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::ampersand, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::ampersand, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		// # | # ------------------------------------------------------------- # Composing Bitwise OR #
 		{ compose(Token::Type::pipe, Type::CharacterType, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::pipe, Type::ByteType, Type::ByteType), Type::ByteType },
+		{ compose(Token::Type::pipe, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::pipe, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::pipe, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		// # $ # ------------------------------------------------------------- # Composing Bitwise XOR #
 		{ compose(Token::Type::dollar, Type::ByteType, Type::ByteType), Type::ByteType },
 		{ compose(Token::Type::dollar, Type::CharacterType, Type::CharacterType), Type::CharacterType },
+		{ compose(Token::Type::dollar, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::dollar, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		// # + # ------------------------------------------------------------- # Composing Addition #
 		{ compose(Token::Type::plus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::CharacterType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::CharacterType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::ByteType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::ByteType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::NaturalType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::NaturalType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::NaturalType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::plus, Type::NaturalType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::NaturalType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::plus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::IntegerType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::plus, Type::IntegerType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::IntegerType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::plus, Type::RealType, Type::NaturalType), Type::RealType },
 		{ compose(Token::Type::plus, Type::RealType, Type::IntegerType), Type::RealType },
 		{ compose(Token::Type::plus, Type::RealType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::plus, Type::ImaginaryType, Type::ImaginaryType), Type::ImaginaryType },
 
+		{ compose(Token::Type::plus, Type::NaturalType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::NaturalType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::IntegerType, Type::ImaginaryType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::IntegerType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::RealType, Type::ImaginaryType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::RealType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ImaginaryType, Type::NaturalType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::ImaginaryType, Type::IntegerType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::ImaginaryType, Type::RealType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::plus, Type::ComplexType, Type::NaturalType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::ComplexType, Type::IntegerType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::ComplexType, Type::RealType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
@@ -340,25 +360,37 @@ namespace Spin {
 		// # - # ------------------------------------------------------------- # Composing Subtraction #
 		{ compose(Token::Type::minus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::CharacterType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::CharacterType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::ByteType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::ByteType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::NaturalType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::NaturalType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::NaturalType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::NaturalType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::NaturalType, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::minus, Type::RealType, Type::NaturalType), Type::RealType },
 		{ compose(Token::Type::minus, Type::RealType, Type::IntegerType), Type::RealType },
 		{ compose(Token::Type::minus, Type::RealType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::minus, Type::ImaginaryType, Type::ImaginaryType), Type::ImaginaryType },
 
+		{ compose(Token::Type::minus, Type::NaturalType, Type::ImaginaryType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::NaturalType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::ImaginaryType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::RealType, Type::ImaginaryType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::RealType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ImaginaryType, Type::NaturalType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::ImaginaryType, Type::IntegerType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::ImaginaryType, Type::RealType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::minus, Type::ComplexType, Type::NaturalType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::ComplexType, Type::IntegerType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::ComplexType, Type::RealType), Type::ComplexType },
 		{ compose(Token::Type::minus, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
@@ -366,25 +398,38 @@ namespace Spin {
 		// # * # ------------------------------------------------------------- # Composing Multiplication #
 		{ compose(Token::Type::star, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::star, Type::CharacterType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::CharacterType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::ByteType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::star, Type::ByteType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::star, Type::NaturalType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::star, Type::NaturalType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::star, Type::NaturalType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::star, Type::NaturalType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::star, Type::NaturalType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::star, Type::NaturalType, Type::ImaginaryType), Type::ImaginaryType },
 		{ compose(Token::Type::star, Type::IntegerType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::IntegerType, Type::ByteType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::star, Type::IntegerType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::star, Type::IntegerType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::star, Type::IntegerType, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::star, Type::RealType, Type::NaturalType), Type::RealType },
 		{ compose(Token::Type::star, Type::RealType, Type::IntegerType), Type::RealType },
 		{ compose(Token::Type::star, Type::RealType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::star, Type::RealType, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::star, Type::ImaginaryType, Type::NaturalType), Type::ImaginaryType },
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::IntegerType), Type::ImaginaryType },
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::RealType), Type::ImaginaryType },
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::ImaginaryType), Type::RealType },
 
+		{ compose(Token::Type::star, Type::NaturalType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::star, Type::IntegerType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::star, Type::RealType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::star, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::star, Type::ComplexType, Type::NaturalType), Type::ComplexType },
 		{ compose(Token::Type::star, Type::ComplexType, Type::IntegerType), Type::ComplexType },
 		{ compose(Token::Type::star, Type::ComplexType, Type::RealType), Type::ComplexType },
 		{ compose(Token::Type::star, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
@@ -392,39 +437,59 @@ namespace Spin {
 		// # / # ------------------------------------------------------------- # Composing Division #
 		{ compose(Token::Type::slash, Type::CharacterType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::CharacterType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::CharacterType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::CharacterType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::ByteType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::ByteType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::ByteType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::ByteType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::NaturalType, Type::CharacterType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::NaturalType, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::NaturalType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::NaturalType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::slash, Type::NaturalType, Type::RealType), Type::RealType },
+		{ compose(Token::Type::slash, Type::NaturalType, Type::ImaginaryType), Type::ImaginaryType },
 		{ compose(Token::Type::slash, Type::IntegerType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::IntegerType, Type::ByteType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::slash, Type::IntegerType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::slash, Type::IntegerType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::slash, Type::IntegerType, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::slash, Type::RealType, Type::NaturalType), Type::RealType },
 		{ compose(Token::Type::slash, Type::RealType, Type::IntegerType), Type::RealType },
 		{ compose(Token::Type::slash, Type::RealType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::slash, Type::RealType, Type::ImaginaryType), Type::ImaginaryType },
+		{ compose(Token::Type::slash, Type::ImaginaryType, Type::NaturalType), Type::ImaginaryType },
 		{ compose(Token::Type::slash, Type::ImaginaryType, Type::IntegerType), Type::ImaginaryType },
 		{ compose(Token::Type::slash, Type::ImaginaryType, Type::RealType), Type::ImaginaryType },
 		{ compose(Token::Type::slash, Type::ImaginaryType, Type::ImaginaryType), Type::RealType },
 
+		{ compose(Token::Type::slash, Type::NaturalType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::slash, Type::IntegerType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::slash, Type::RealType, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::slash, Type::ImaginaryType, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::slash, Type::ComplexType, Type::NaturalType), Type::ComplexType },
 		{ compose(Token::Type::slash, Type::ComplexType, Type::IntegerType), Type::ComplexType },
 		{ compose(Token::Type::slash, Type::ComplexType, Type::RealType), Type::ComplexType },
 		{ compose(Token::Type::slash, Type::ComplexType, Type::ImaginaryType), Type::ComplexType },
 		{ compose(Token::Type::slash, Type::ComplexType, Type::ComplexType), Type::ComplexType },
 		// # % # ------------------------------------------------------------- # Composing Modulus #
-		{ compose(Token::Type::modulus, Type::CharacterType, Type::CharacterType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::CharacterType, Type::ByteType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::CharacterType, Type::IntegerType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::ByteType, Type::CharacterType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::ByteType, Type::ByteType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::ByteType, Type::IntegerType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::IntegerType, Type::ByteType), Type::IntegerType },
-		{ compose(Token::Type::modulus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
+		{ compose(Token::Type::modulus, Type::CharacterType, Type::CharacterType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::CharacterType, Type::ByteType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::CharacterType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::CharacterType, Type::IntegerType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::ByteType, Type::CharacterType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::ByteType, Type::ByteType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::ByteType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::ByteType, Type::IntegerType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::IntegerType, Type::CharacterType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::IntegerType, Type::ByteType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::IntegerType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::IntegerType, Type::IntegerType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::NaturalType, Type::CharacterType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::NaturalType, Type::ByteType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::NaturalType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::modulus, Type::NaturalType, Type::IntegerType), Type::NaturalType },
 		// # == # ------------------------------------------------------------- # Composing Comparison #
 		{ compose(Token::Type::equality, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::CharacterType, Type::CharacterType), Type::BooleanType },
@@ -432,11 +497,18 @@ namespace Spin {
 		{ compose(Token::Type::equality, Type::CharacterType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::ByteType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::ByteType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::NaturalType, Type::NaturalType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::NaturalType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::NaturalType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::NaturalType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::IntegerType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::IntegerType, Type::ByteType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::IntegerType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::equality, Type::RealType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::RealType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::RealType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::equality, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
@@ -448,11 +520,18 @@ namespace Spin {
 		{ compose(Token::Type::inequality, Type::CharacterType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::ByteType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::ByteType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::NaturalType, Type::NaturalType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::NaturalType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::NaturalType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::NaturalType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::IntegerType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::IntegerType, Type::ByteType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::IntegerType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::inequality, Type::RealType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::RealType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::RealType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::inequality, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
@@ -464,14 +543,22 @@ namespace Spin {
 		{ compose(Token::Type::minor, Type::CharacterType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::ByteType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::ByteType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::NaturalType, Type::NaturalType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::NaturalType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::NaturalType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::NaturalType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::IntegerType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::IntegerType, Type::ByteType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::IntegerType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::RealType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::RealType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::RealType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::minor, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		{ compose(Token::Type::minor, Type::StringType, Type::StringType), Type::BooleanType },
 		// # <= # ------------------------------------------------------------- # Composing Comparison #
 		{ compose(Token::Type::minorEqual, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::CharacterType, Type::CharacterType), Type::BooleanType },
@@ -479,14 +566,22 @@ namespace Spin {
 		{ compose(Token::Type::minorEqual, Type::CharacterType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::ByteType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::ByteType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::NaturalType, Type::NaturalType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::NaturalType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::NaturalType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::NaturalType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::ByteType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::RealType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::RealType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::RealType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::minorEqual, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		{ compose(Token::Type::minorEqual, Type::StringType, Type::StringType), Type::BooleanType },
 		// # > # ------------------------------------------------------------- # Composing Comparison #
 		{ compose(Token::Type::major, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::CharacterType, Type::CharacterType), Type::BooleanType },
@@ -494,14 +589,22 @@ namespace Spin {
 		{ compose(Token::Type::major, Type::CharacterType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::ByteType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::ByteType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::NaturalType, Type::NaturalType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::NaturalType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::NaturalType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::NaturalType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::IntegerType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::IntegerType, Type::ByteType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::IntegerType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::RealType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::RealType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::RealType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::major, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		{ compose(Token::Type::major, Type::StringType, Type::StringType), Type::BooleanType },
 		// # >= # ------------------------------------------------------------- # Composing Comparison #
 		{ compose(Token::Type::majorEqual, Type::BooleanType, Type::BooleanType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::CharacterType, Type::CharacterType), Type::BooleanType },
@@ -509,29 +612,40 @@ namespace Spin {
 		{ compose(Token::Type::majorEqual, Type::CharacterType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::ByteType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::ByteType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::ByteType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::ByteType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::NaturalType, Type::NaturalType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::NaturalType, Type::ByteType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::NaturalType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::NaturalType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::CharacterType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::ByteType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::IntegerType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::IntegerType, Type::RealType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::RealType, Type::NaturalType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::RealType, Type::IntegerType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::RealType, Type::RealType), Type::BooleanType },
 		{ compose(Token::Type::majorEqual, Type::ImaginaryType, Type::ImaginaryType), Type::BooleanType },
+		{ compose(Token::Type::majorEqual, Type::StringType, Type::StringType), Type::BooleanType },
 	};
 	const Dictionary<Unary, Type> Compiler::prefixTable = {
 		{ compose(Token::Type::exclamationMark, Type::BooleanType), Type::BooleanType },
 		{ compose(Token::Type::minus, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::ByteType), Type::IntegerType },
+		{ compose(Token::Type::minus, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::RealType), Type::RealType },
 		{ compose(Token::Type::minus, Type::ImaginaryType), Type::ImaginaryType },
 		{ compose(Token::Type::minus, Type::ComplexType), Type::ComplexType },
 		{ compose(Token::Type::plus, Type::CharacterType), Type::CharacterType },
 		{ compose(Token::Type::plus, Type::ByteType), Type::ByteType },
+		{ compose(Token::Type::plus, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::plus, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::plus, Type::RealType), Type::RealType },
 		{ compose(Token::Type::plus, Type::ImaginaryType), Type::ImaginaryType },
 		{ compose(Token::Type::plus, Type::ComplexType), Type::ComplexType },
+		{ compose(Token::Type::tilde, Type::NaturalType), Type::NaturalType },
 		{ compose(Token::Type::tilde, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::tilde, Type::ByteType), Type::ByteType },
 	};
@@ -543,16 +657,24 @@ namespace Spin {
 		{ compose(Type::CharacterType, Type::ByteType), false },
 		{ compose(Type::CharacterType, Type::IntegerType), true },
 		{ compose(Type::ByteType, Type::CharacterType), false },
+		{ compose(Type::ByteType, Type::NaturalType), true },
 		{ compose(Type::ByteType, Type::IntegerType), true },
+		{ compose(Type::NaturalType, Type::ByteType), true },
+		{ compose(Type::NaturalType, Type::IntegerType), false },
+		{ compose(Type::NaturalType, Type::RealType), true },
 		{ compose(Type::IntegerType, Type::CharacterType), true },
 		{ compose(Type::IntegerType, Type::ByteType), true },
 		{ compose(Type::IntegerType, Type::RealType), true },
+		{ compose(Type::IntegerType, Type::NaturalType), false },
 		{ compose(Type::RealType, Type::IntegerType), true },
+		{ compose(Type::RealType, Type::NaturalType), true },
 		// Basic Objects:
+		{ compose(Type::NaturalType, Type::ComplexType), true },
 		{ compose(Type::IntegerType, Type::ComplexType), true },
 		{ compose(Type::RealType, Type::ComplexType), true },
 		{ compose(Type::ImaginaryType, Type::ComplexType), true },
 		{ compose(Type::CharacterType, Type::StringType), true },
+		{ compose(Type::ComplexType, Type::NaturalType), true },
 		{ compose(Type::ComplexType, Type::IntegerType), true },
 		{ compose(Type::ComplexType, Type::RealType), true },
 		{ compose(Type::ComplexType, Type::ImaginaryType), true },
@@ -609,6 +731,7 @@ namespace Spin {
 			case      Type::ByteType: emitOperation({
 				OPCode::PSH, { .value = { .byte = 0 } }
 			}); break;
+			case   Type::NaturalType:
 			case   Type::IntegerType: emitOperation({
 				OPCode::PSH, { .value = { .integer = 0 } }
 			}); break;
@@ -700,6 +823,7 @@ namespace Spin {
 			case     Token::Type::funcKeyword: advance(); funcStatement(); break;
 			case   Token::Type::returnKeyword: advance(); returnStatement(); break;
 			case      Token::Type::forKeyword: advance(); forStatement(); break;
+			case     Token::Type::eachKeyword: advance(); forEachStatement(); break;
 			case    Token::Type::whileKeyword: advance(); whileStatement(); break;
 			case    Token::Type::untilKeyword: advance(); untilStatement(); break;
 			case       Token::Type::doKeyword: advance(); doWhileStatement(); break;
@@ -2289,6 +2413,10 @@ namespace Spin {
 		}
 	}
 	void Compiler::forStatement() {
+		if (match(Token::Type::eachKeyword)) {
+			forEachStatement();
+			return;
+		}
 		beginScope();
 		cycleScopes.push(scopeDepth);
 		const Token token = previous;
@@ -2340,6 +2468,54 @@ namespace Spin {
 			patchJumpNext(breakStack.pop().line);
 		}
 		endScope();
+	}
+	void Compiler::forEachStatement() {
+		/*beginScope();
+		cycleScopes.push(scopeDepth);
+		const Token token = previous;
+		rethrow(consume(Token::Type::openParenthesis, "("));
+		if (!match(Token::Type::varKeyword) &&
+			!match(Token::Type::conKeyword)) {
+			throw Program::Error(
+				currentUnit,
+				"Expected variable or constant definition in 'for each' loop!",
+				token, ErrorCode::syx
+			);
+		}
+		const Boolean constant = previous.type == Token::Type::conKeyword;
+		rethrow(consume(Token::Type::symbol, "identifier"));
+		const String id = previous.lexeme;
+		Token idToken = previous;
+		for (Local local : locals) {
+			if (local.ready && local.depth < scopeDepth) break;
+			if (local.name == id) {
+				const String defType = (constant ? "Constant" : "Variable");
+				throw Program::Error(
+					currentUnit,
+					defType + " redefinition! The identifier '" + id + 
+					"' was already declared in the current scope!",
+					token, ErrorCode::lgc
+				);
+			}
+		}
+		// If we are compiling stuff inside a routine, the
+		// value of its index will be at the top of the
+		// stack, making it not empty:
+		const Boolean isInRoutine = !routineIndexes.isEmpty();
+		const SizeType currentLocal = locals.size();
+		locals.push_back({
+			id, scopeDepth,
+			nullptr,
+			false, constant,
+			isInRoutine
+		});
+
+		cycleScopes.decrease();
+		while (!breakStack.isEmpty()) {
+			if (breakStack.top().scope <= scopeDepth) break;
+			patchJumpNext(breakStack.pop().line);
+		}
+		endScope();*/
 	}
 	void Compiler::breakStatement() {
 		const Token token = previous;

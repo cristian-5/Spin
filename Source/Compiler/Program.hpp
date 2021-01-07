@@ -29,6 +29,7 @@ namespace Spin {
 		BooleanType,
 		CharacterType,
 		ByteType,
+		NaturalType,
 		IntegerType,
 		RealType,
 		ImaginaryType,

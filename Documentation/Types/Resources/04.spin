@@ -1,1 +1,0 @@
-con x = Boolean::random();

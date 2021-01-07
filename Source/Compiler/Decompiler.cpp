@@ -158,6 +158,7 @@ namespace Spin {
 			case Type::BooleanType: return "BLN";
 			case Type::CharacterType: return "CHR";
 			case Type::ByteType: return "BYT";
+			case Type::NaturalType: return "NAT";
 			case Type::IntegerType: return "INT";
 			case Type::RealType: return "REA";
 			case Type::ImaginaryType: return "IMG";

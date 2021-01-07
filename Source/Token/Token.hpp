@@ -113,6 +113,7 @@ namespace Spin {
 			doKeyword,
 			loopKeyword,
 			forKeyword,
+			eachKeyword,
 			recallKeyword,
 			repeatKeyword,
 			untilKeyword,

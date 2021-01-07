@@ -102,18 +102,31 @@ namespace Spin {
 							stack.push({ .integer = (Int64)((Int64)(a.byte) + (Int64)(b.byte)) });
 						break;
 						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::CharacterType, Type::NaturalType):
 						case compose(Type::ByteType, Type::IntegerType):
+						case compose(Type::ByteType, Type::NaturalType):
 							stack.push({ .integer = (Int64)((Int64)(a.byte) + b.integer) });
 						break;
+						case compose(Type::NaturalType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::NaturalType, Type::ByteType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .integer = (Int64)(a.integer + (Int64)(b.byte)) });
 						break;
+						case compose(Type::NaturalType, Type::NaturalType):
 						case compose(Type::IntegerType, Type::IntegerType):
+						case compose(Type::IntegerType, Type::NaturalType):
+						case compose(Type::NaturalType, Type::IntegerType):
 							stack.push({ .integer = a.integer + b.integer });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .real = ((UInt64)a.integer) + b.real });
 						break;
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .real = a.integer + b.real });
+						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .real = a.real + ((UInt64)b.integer) });
 						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .real = a.real + b.integer });
@@ -123,6 +136,20 @@ namespace Spin {
 							stack.push({ .real = a.real + b.real });
 						break;
 						// Basic Objects:
+						case compose(Type::NaturalType, Type::ImaginaryType): {
+							Complex * complex = new Complex((Real)((UInt64)a.integer), b.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
+						case compose(Type::NaturalType, Type::ComplexType): {
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(complex -> a) + (Real)((UInt64)a.integer),
+								(complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
 						case compose(Type::IntegerType, Type::ImaginaryType): {
 							Complex * complex = new Complex((Real)a.integer, b.real);
 							objects.push_back({ complex, Type::ComplexType });
@@ -151,6 +178,11 @@ namespace Spin {
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
 						} break;
+						case compose(Type::ImaginaryType, Type::NaturalType): {
+							Complex * complex = new Complex((Real)((UInt64)b.integer), a.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
 						case compose(Type::ImaginaryType, Type::IntegerType): {
 							Complex * complex = new Complex((Real)b.integer, a.real);
 							objects.push_back({ complex, Type::ComplexType });
@@ -166,6 +198,15 @@ namespace Spin {
 							complex = new Complex(
 								(complex -> a),
 								(complex -> b) + a.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
+						case compose(Type::ComplexType, Type::NaturalType): {
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) + (Real)((UInt64)b.integer),
+								(complex -> b)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
@@ -241,19 +282,32 @@ namespace Spin {
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .integer = (Int64)((Int64)(a.byte) - (Int64)(b.byte)) });
 						break;
+						case compose(Type::CharacterType, Type::NaturalType):
 						case compose(Type::CharacterType, Type::IntegerType):
+						case compose(Type::ByteType, Type::NaturalType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .integer = (Int64)((Int64)(a.byte) - b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::CharacterType):
+						case compose(Type::NaturalType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
+						case compose(Type::NaturalType, Type::ByteType):
 							stack.push({ .integer = (Int64)(a.integer - (Int64)(b.byte)) });
 						break;
+						case compose(Type::NaturalType, Type::NaturalType):
 						case compose(Type::IntegerType, Type::IntegerType):
+						case compose(Type::IntegerType, Type::NaturalType):
+						case compose(Type::NaturalType, Type::IntegerType):
 							stack.push({ .integer = a.integer - b.integer });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .real = (UInt64)a.integer - b.real });
 						break;
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .real = a.integer - b.real });
+						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .real = a.real - (UInt64)b.integer });
 						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .real = a.real - b.integer });
@@ -263,6 +317,20 @@ namespace Spin {
 							stack.push({ .real = a.real - b.real });
 						break;
 						// Basic Objects:
+						case compose(Type::NaturalType, Type::ImaginaryType): {
+							Complex * complex = new Complex((Real)((UInt64)a.integer), - b.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
+						case compose(Type::NaturalType, Type::ComplexType): {
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(Real)((UInt64)a.integer) - (complex -> a),
+								- (complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
 						case compose(Type::IntegerType, Type::ImaginaryType): {
 							Complex * complex = new Complex((Real)a.integer, - b.real);
 							objects.push_back({ complex, Type::ComplexType });
@@ -291,6 +359,11 @@ namespace Spin {
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
 						} break;
+						case compose(Type::ImaginaryType, Type::NaturalType): {
+							Complex * complex = new Complex(-((Real)((UInt64)b.integer)), a.real);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
 						case compose(Type::ImaginaryType, Type::IntegerType): {
 							Complex * complex = new Complex(-((Real)b.integer), a.real);
 							objects.push_back({ complex, Type::ComplexType });
@@ -306,6 +379,15 @@ namespace Spin {
 							complex = new Complex(
 								- (complex -> a),
 								a.real - (complex -> b)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
+						case compose(Type::ComplexType, Type::NaturalType): {
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) - (Real)((UInt64)b.integer),
+								(complex -> b)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
@@ -359,20 +441,41 @@ namespace Spin {
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .integer = (Int64)((Int64)(a.byte) * (Int64)(b.byte)) });
 						break;
+						case compose(Type::CharacterType, Type::NaturalType):
+						case compose(Type::ByteType, Type::NaturalType):
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) * (UInt64)b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .integer = (Int64)((Int64)(a.byte) * b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::CharacterType):
+						case compose(Type::NaturalType, Type::ByteType):
+							stack.push({ .integer = (Int64)((UInt64)a.integer * (UInt64)(b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .integer = (Int64)(a.integer * (Int64)(b.byte)) });
 						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							stack.push({ .integer = (Int64)((UInt64)a.integer * (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							stack.push({ .integer = (Int64)((UInt64)a.integer * b.integer) });
+						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .integer = a.integer * b.integer });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+						case compose(Type::NaturalType, Type::ImaginaryType):
+							stack.push({ .real = (UInt64)a.integer * b.real });
 						break;
 						case compose(Type::IntegerType, Type::RealType):
 						case compose(Type::IntegerType, Type::ImaginaryType):
 							stack.push({ .real = a.integer * b.real });
+						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .real = a.real * (UInt64)b.integer });
 						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .real = a.real * b.integer });
@@ -382,6 +485,9 @@ namespace Spin {
 						case compose(Type::ImaginaryType, Type::ImaginaryType):
 							stack.push({ .real = a.real * b.real });
 						break;
+						case compose(Type::ImaginaryType, Type::NaturalType):
+							stack.push({ .real = a.real * (UInt64)b.integer });
+						break;
 						case compose(Type::ImaginaryType, Type::IntegerType):
 							stack.push({ .real = a.real * b.integer });
 						break;
@@ -389,6 +495,15 @@ namespace Spin {
 							stack.push({ .real = a.real * b.real });
 						break;
 						// Basic Objects:
+						case compose(Type::NaturalType, Type::ComplexType): {
+							Complex * complex = (Complex *)b.pointer;
+							complex = new Complex(
+								(complex -> a) * (Real)((UInt64)a.integer),
+								(complex -> b) * (Real)((UInt64)a.integer)
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
 						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							complex = new Complex(
@@ -412,6 +527,15 @@ namespace Spin {
 							complex = new Complex(
 								- ((complex -> b) * a.real),
 								(complex -> a) * a.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
+						case compose(Type::ComplexType, Type::NaturalType): {
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) * (Real)((UInt64)b.integer),
+								(complex -> b) * (Real)((UInt64)b.integer)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
@@ -466,25 +590,48 @@ namespace Spin {
 							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) / (Int64)(b.byte)) });
 						break;
+						case compose(Type::CharacterType, Type::NaturalType):
+						case compose(Type::ByteType, Type::NaturalType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) / (UInt64)b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)((Int64)(a.byte) / b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::CharacterType):
+						case compose(Type::NaturalType, Type::ByteType):
+							if (!b.byte) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)a.integer / (UInt64)(b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							if (!b.byte) throw Crash(ip, data);
 							stack.push({ .integer = (Int64)(a.integer / (Int64)(b.byte)) });
 						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)a.integer / (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)a.integer / b.integer) });
+						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = a.integer / b.integer });
 						break;
-						case compose(Type::IntegerType, Type::RealType):
-							stack.push({ .real = (Real)(a.integer) / b.real });
+						case compose(Type::NaturalType, Type::RealType):
+						case compose(Type::NaturalType, Type::ImaginaryType):
+							stack.push({ .real = (Real)((UInt64)a.integer) / b.real });
 						break;
+						case compose(Type::IntegerType, Type::RealType):
 						case compose(Type::IntegerType, Type::ImaginaryType):
 							stack.push({ .real = (Real)(a.integer) / b.real });
+						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .real = a.real / (Real)((UInt64)b.integer) });
 						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .real = a.real / (Real)(b.integer) });
@@ -495,10 +642,23 @@ namespace Spin {
 						case compose(Type::ImaginaryType, Type::RealType):
 							stack.push({ .real = a.real / b.real });
 						break;
+						case compose(Type::ImaginaryType, Type::NaturalType):
+							stack.push({ .real = a.real / (Real)((UInt64)b.integer) });
+						break;
 						case compose(Type::ImaginaryType, Type::IntegerType):
 							stack.push({ .real = a.real / (Real)(b.integer) });
 						break;
 						// Basic Objects:
+						case compose(Type::NaturalType, Type::ComplexType): {
+							Complex * complex = (Complex *)b.pointer;
+							a.real = ((Real)(UInt64)a.integer) / (complex -> getNormalised());
+							complex = new Complex(
+								a.real * (complex -> a),
+								a.real * (- (complex -> b))
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
 						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = (Complex *)b.pointer;
 							a.real = ((Real)a.integer) / (complex -> getNormalised());
@@ -525,6 +685,15 @@ namespace Spin {
 							complex = new Complex(
 								(complex -> b) * a.real,
 								(complex -> a) * a.real
+							);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
+						case compose(Type::ComplexType, Type::NaturalType): {
+							Complex * complex = (Complex *)a.pointer;
+							complex = new Complex(
+								(complex -> a) / (Real)((UInt64)b.integer),
+								(complex -> b) / (Real)((UInt64)b.integer)
 							);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
@@ -572,40 +741,56 @@ namespace Spin {
 					a = stack.pop();
 					switch (data.as.types) {
 						case compose(Type::CharacterType, Type::CharacterType):
-							if (!b.byte) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
-						break;
 						case compose(Type::CharacterType, Type::ByteType):
 							if (!b.byte) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) % (UInt64)(b.byte)) });
+						break;
+						case compose(Type::CharacterType, Type::NaturalType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) % (UInt64)b.integer) });
 						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 							if (!b.integer) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)((Int64)(a.byte) % b.integer) });
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) % b.integer) });
 						break;
 						case compose(Type::ByteType, Type::CharacterType):
-							if (!b.byte) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
-						break;
 						case compose(Type::ByteType, Type::ByteType):
 							if (!b.byte) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)((Int64)(a.byte) % (Int64)(b.byte)) });
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) % (UInt64)(b.byte)) });
+						break;
+						case compose(Type::ByteType, Type::NaturalType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) % (UInt64)b.integer) });
 						break;
 						case compose(Type::ByteType, Type::IntegerType):
 							if (!b.integer) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)((Int64)(a.byte) % b.integer) });
+							stack.push({ .integer = (Int64)((UInt64)(a.byte) % b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::CharacterType):
-							if (!b.byte) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)(a.integer % (Int64)(b.byte)) });
-						break;
 						case compose(Type::IntegerType, Type::ByteType):
 							if (!b.byte) throw Crash(ip, data);
-							stack.push({ .integer = (Int64)(a.integer % (Int64)(b.byte)) });
+							stack.push({ .integer = (Int64)(a.integer % (UInt64)(b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::NaturalType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)(a.integer % (UInt64)b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							if (!b.integer) throw Crash(ip, data);
 							stack.push({ .integer = a.integer % b.integer });
+						break;
+						case compose(Type::NaturalType, Type::CharacterType):
+						case compose(Type::NaturalType, Type::ByteType):
+							if (!b.byte) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)a.integer % (UInt64)(b.byte)) });
+						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)a.integer % (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							if (!b.integer) throw Crash(ip, data);
+							stack.push({ .integer = (Int64)((UInt64)a.integer % b.integer) });
 						break;
 						default: return { .integer = 0 };
 					}
@@ -618,6 +803,7 @@ namespace Spin {
 						case      Type::ByteType:
 							stack.push({ .byte = (Byte)(a.byte << (SizeType)b.integer) });
 						break;
+						case   Type::NaturalType:
 						case   Type::IntegerType:
 							stack.push({ .integer = (a.integer << (SizeType)b.integer) });
 						break;
@@ -632,6 +818,7 @@ namespace Spin {
 						case      Type::ByteType:
 							stack.push({ .byte = (Byte)(a.byte >> (SizeType)b.integer) });
 						break;
+						case   Type::NaturalType:
 						case   Type::IntegerType:
 							stack.push({ .integer = (a.integer >> (SizeType)b.integer) });
 						break;
@@ -649,6 +836,7 @@ namespace Spin {
 								a.byte >> (8 - (SizeType)b.integer)
 							) });
 						break;
+						case   Type::NaturalType:
 						case   Type::IntegerType:
 							stack.push({ .integer = (
 								a.integer << (SizeType)b.integer |
@@ -669,6 +857,7 @@ namespace Spin {
 								a.byte << (8 - (SizeType)b.integer)
 							) });
 						break;
+						case   Type::NaturalType:
 						case   Type::IntegerType:
 							stack.push({ .integer = (
 								a.integer >> (SizeType)b.integer |
@@ -682,6 +871,7 @@ namespace Spin {
 					switch (data.as.type) {
 						case Type::CharacterType:
 						case      Type::ByteType: stack.push({ .integer = - stack.pop().byte }); break;
+						case   Type::NaturalType:
 						case   Type::IntegerType: stack.push({ .integer = - stack.pop().integer }); break;
 						case      Type::RealType:
 						case Type::ImaginaryType: stack.push({ .real = - stack.pop().real }); break;
@@ -699,6 +889,7 @@ namespace Spin {
 				break;
 				case OPCode::INV:
 					switch (data.as.type) {
+						case Type::NaturalType: stack.push({ .integer = (Int64)(~((UInt64)stack.pop().integer)) });
 						case Type::IntegerType: stack.push({ .integer = ~(stack.pop().integer) });
 						case    Type::ByteType: stack.push({ .byte = (Byte)(~(stack.pop().byte)) });
 						default: return { .integer = 0 };
@@ -811,19 +1002,40 @@ namespace Spin {
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .boolean = (a.byte == b.byte) });
 						break;
+						case compose(Type::ByteType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.byte) == b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .boolean = (((Int64)a.byte) == b.integer) });
 						break;
+						case compose(Type::NaturalType, Type::ByteType):
+							stack.push({ .boolean = (((UInt64)a.integer) == (UInt64)b.byte) });
+						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.integer) == (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							stack.push({ .boolean = (((UInt64)a.integer) == b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .boolean = (((UInt64)a.integer) == b.real) });
+						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .boolean = (a.integer == ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::NaturalType):
+							stack.push({ .boolean = (a.integer == (UInt64)b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer == b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .boolean = (((Real)a.integer) == b.real) });
+						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .boolean = (a.real == ((Real)((UInt64)b.integer))) });
 						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .boolean = (a.real == ((Real)b.integer)) });
@@ -856,19 +1068,40 @@ namespace Spin {
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .boolean = (a.byte != b.byte) });
 						break;
+						case compose(Type::ByteType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.byte) != b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .boolean = (((Int64)a.byte) != b.integer) });
 						break;
+						case compose(Type::NaturalType, Type::ByteType):
+							stack.push({ .boolean = (((UInt64)a.integer) != (UInt64)b.byte) });
+						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.integer) != (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							stack.push({ .boolean = (((UInt64)a.integer) != b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .boolean = (((UInt64)a.integer) != b.real) });
+						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .boolean = (a.integer != ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::NaturalType):
+							stack.push({ .boolean = (a.integer != (UInt64)b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer != b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .boolean = (((Real)a.integer) != b.real) });
+						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .boolean = (a.real != ((Real)((UInt64)b.integer))) });
 						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .boolean = (a.real != ((Real)b.integer)) });
@@ -892,19 +1125,40 @@ namespace Spin {
 					a = stack.pop();
 					switch (data.as.types) {
 						// Basic Types:
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = (a.boolean > b.boolean) });
+						break;
 						case compose(Type::CharacterType, Type::CharacterType):
 						case compose(Type::CharacterType, Type::ByteType):
 						case compose(Type::ByteType, Type::CharacterType):
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .boolean = (a.byte > b.byte) });
 						break;
+						case compose(Type::ByteType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.byte) > b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .boolean = (((Int64)a.byte) > b.integer) });
 						break;
+						case compose(Type::NaturalType, Type::ByteType):
+							stack.push({ .boolean = (((UInt64)a.integer) > (UInt64)b.byte) });
+						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.integer) > (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							stack.push({ .boolean = (((UInt64)a.integer) > b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .boolean = (((UInt64)a.integer) > b.real) });
+						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .boolean = (a.integer > ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::NaturalType):
+							stack.push({ .boolean = (a.integer > (UInt64)b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer > b.integer) });
@@ -912,16 +1166,15 @@ namespace Spin {
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .boolean = (((Real)a.integer) > b.real) });
 						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .boolean = (a.real > ((Real)((UInt64)b.integer))) });
+						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .boolean = (a.real > ((Real)b.integer)) });
 						break;
 						case compose(Type::RealType, Type::RealType):
 						case compose(Type::ImaginaryType, Type::ImaginaryType):
 							stack.push({ .boolean = (a.real > b.real) });
-						break;
-						// Basic Objects:
-						case compose(Type::StringType, Type::StringType):
-							stack.push({ .boolean = ((*((String *)a.pointer)) > (*(String *)b.pointer)) });
 						break;
 						default: return { .integer = 0 };
 					}
@@ -931,19 +1184,40 @@ namespace Spin {
 					a = stack.pop();
 					switch (data.as.types) {
 						// Basic Types:
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = (a.boolean >= b.boolean) });
+						break;
 						case compose(Type::CharacterType, Type::CharacterType):
 						case compose(Type::CharacterType, Type::ByteType):
 						case compose(Type::ByteType, Type::CharacterType):
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .boolean = (a.byte >= b.byte) });
 						break;
+						case compose(Type::ByteType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.byte) >= b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .boolean = (((Int64)a.byte) >= b.integer) });
 						break;
+						case compose(Type::NaturalType, Type::ByteType):
+							stack.push({ .boolean = (((UInt64)a.integer) >= (UInt64)b.byte) });
+						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.integer) >= (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							stack.push({ .boolean = (((UInt64)a.integer) >= b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .boolean = (((UInt64)a.integer) >= b.real) });
+						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .boolean = (a.integer >= ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::NaturalType):
+							stack.push({ .boolean = (a.integer >= (UInt64)b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer >= b.integer) });
@@ -951,16 +1225,15 @@ namespace Spin {
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .boolean = (((Real)a.integer) >= b.real) });
 						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .boolean = (a.real >= ((Real)((UInt64)b.integer))) });
+						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .boolean = (a.real >= ((Real)b.integer)) });
 						break;
 						case compose(Type::RealType, Type::RealType):
 						case compose(Type::ImaginaryType, Type::ImaginaryType):
 							stack.push({ .boolean = (a.real >= b.real) });
-						break;
-						// Basic Objects:
-						case compose(Type::StringType, Type::StringType):
-							stack.push({ .boolean = ((*((String *)a.pointer)) >= (*(String *)b.pointer)) });
 						break;
 						default: return { .integer = 0 };
 					}
@@ -970,19 +1243,40 @@ namespace Spin {
 					a = stack.pop();
 					switch (data.as.types) {
 						// Basic Types:
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = (a.boolean < b.boolean) });
+						break;
 						case compose(Type::CharacterType, Type::CharacterType):
 						case compose(Type::CharacterType, Type::ByteType):
 						case compose(Type::ByteType, Type::CharacterType):
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .boolean = (a.byte < b.byte) });
 						break;
+						case compose(Type::ByteType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.byte) < b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .boolean = (((Int64)a.byte) < b.integer) });
 						break;
+						case compose(Type::NaturalType, Type::ByteType):
+							stack.push({ .boolean = (((UInt64)a.integer) < (UInt64)b.byte) });
+						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.integer) < (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							stack.push({ .boolean = (((UInt64)a.integer) < b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .boolean = (((UInt64)a.integer) < b.real) });
+						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .boolean = (a.integer < ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::NaturalType):
+							stack.push({ .boolean = (a.integer < (UInt64)b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer < b.integer) });
@@ -990,16 +1284,15 @@ namespace Spin {
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .boolean = (((Real)a.integer) < b.real) });
 						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .boolean = (a.real < ((Real)((UInt64)b.integer))) });
+						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .boolean = (a.real < ((Real)b.integer)) });
 						break;
 						case compose(Type::RealType, Type::RealType):
 						case compose(Type::ImaginaryType, Type::ImaginaryType):
 							stack.push({ .boolean = (a.real < b.real) });
-						break;
-						// Basic Objects:
-						case compose(Type::StringType, Type::StringType):
-							stack.push({ .boolean = ((*((String *)a.pointer)) < (*(String *)b.pointer)) });
 						break;
 						default: return { .integer = 0 };
 					}
@@ -1009,19 +1302,40 @@ namespace Spin {
 					a = stack.pop();
 					switch (data.as.types) {
 						// Basic Types:
+						case compose(Type::BooleanType, Type::BooleanType):
+							stack.push({ .boolean = (a.boolean <= b.boolean) });
+						break;
 						case compose(Type::CharacterType, Type::CharacterType):
 						case compose(Type::CharacterType, Type::ByteType):
 						case compose(Type::ByteType, Type::CharacterType):
 						case compose(Type::ByteType, Type::ByteType):
 							stack.push({ .boolean = (a.byte <= b.byte) });
 						break;
+						case compose(Type::ByteType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.byte) <= b.integer) });
+						break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
 							stack.push({ .boolean = (((Int64)a.byte) <= b.integer) });
 						break;
+						case compose(Type::NaturalType, Type::ByteType):
+							stack.push({ .boolean = (((UInt64)a.integer) <= (UInt64)b.byte) });
+						break;
+						case compose(Type::NaturalType, Type::NaturalType):
+							stack.push({ .boolean = (((UInt64)a.integer) <= (UInt64)b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::IntegerType):
+							stack.push({ .boolean = (((UInt64)a.integer) <= b.integer) });
+						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .boolean = (((UInt64)a.integer) <= b.real) });
+						break;
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .boolean = (a.integer <= ((Int64)b.byte)) });
+						break;
+						case compose(Type::IntegerType, Type::NaturalType):
+							stack.push({ .boolean = (a.integer <= (UInt64)b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer <= b.integer) });
@@ -1029,16 +1343,15 @@ namespace Spin {
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .boolean = (((Real)a.integer) <= b.real) });
 						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .boolean = (a.real <= ((Real)((UInt64)b.integer))) });
+						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .boolean = (a.real <= ((Real)b.integer)) });
 						break;
 						case compose(Type::RealType, Type::RealType):
 						case compose(Type::ImaginaryType, Type::ImaginaryType):
 							stack.push({ .boolean = (a.real <= b.real) });
-						break;
-						// Basic Objects:
-						case compose(Type::StringType, Type::StringType):
-							stack.push({ .boolean = ((*((String *)a.pointer)) <= (*(String *)b.pointer)) });
 						break;
 						default: return { .integer = 0 };
 					}
@@ -1048,8 +1361,9 @@ namespace Spin {
 					b = stack.pop();
 					a = stack.pop();
 					switch (data.as.types) {
+						case compose(Type::NaturalType, Type::NaturalType):
 						case compose(Type::IntegerType, Type::IntegerType):
-							stack.push({ .integer = a.integer & b.integer });
+							stack.push({ .integer = (Int64)((UInt64)a.integer & (UInt64)b.integer) });
 						break;
 						case compose(Type::ByteType, Type::ByteType):
 						case compose(Type::CharacterType, Type::CharacterType):
@@ -1065,8 +1379,9 @@ namespace Spin {
 					b = stack.pop();
 					a = stack.pop();
 					switch (data.as.types) {
+						case compose(Type::NaturalType, Type::NaturalType):
 						case compose(Type::IntegerType, Type::IntegerType):
-							stack.push({ .integer = a.integer | b.integer });
+							stack.push({ .integer = (Int64)((UInt64)a.integer | (UInt64)b.integer) });
 						break;
 						case compose(Type::ByteType, Type::ByteType):
 						case compose(Type::CharacterType, Type::CharacterType):
@@ -1082,8 +1397,9 @@ namespace Spin {
 					b = stack.pop();
 					a = stack.pop();
 					switch (data.as.types) {
+						case compose(Type::NaturalType, Type::NaturalType):
 						case compose(Type::IntegerType, Type::IntegerType):
-							stack.push({ .integer = a.integer ^ b.integer });
+							stack.push({ .integer = (Int64)((UInt64)a.integer ^ (UInt64)b.integer) });
 						break;
 						case compose(Type::ByteType, Type::ByteType):
 						case compose(Type::CharacterType, Type::CharacterType):
@@ -1174,19 +1490,32 @@ namespace Spin {
 						case compose(Type::ByteType, Type::CharacterType): break;
 						case compose(Type::CharacterType, Type::IntegerType):
 						case compose(Type::ByteType, Type::IntegerType):
+						case compose(Type::ByteType, Type::NaturalType):
 							stack.push({ .integer = (Int64)stack.pop().byte });
 						break;
+						case compose(Type::NaturalType, Type::ByteType):
 						case compose(Type::IntegerType, Type::CharacterType):
 						case compose(Type::IntegerType, Type::ByteType):
 							stack.push({ .byte = (Byte)stack.pop().integer });
 						break;
+						case compose(Type::NaturalType, Type::RealType):
+							stack.push({ .real = (Real)((UInt64)stack.pop().integer) });
+						break;
 						case compose(Type::IntegerType, Type::RealType):
 							stack.push({ .real = (Real)stack.pop().integer });
+						break;
+						case compose(Type::RealType, Type::NaturalType):
+							stack.push({ .integer = (Int64)((UInt64)stack.pop().real) });
 						break;
 						case compose(Type::RealType, Type::IntegerType):
 							stack.push({ .integer = (Int64)stack.pop().real });
 						break;
 						// Basic Objects:
+						case compose(Type::NaturalType, Type::ComplexType): {
+							Complex * complex = new Complex((Real)((UInt64)stack.pop().integer), 0.0);
+							objects.push_back({ complex, Type::ComplexType });
+							stack.push({ .pointer = complex });
+						} break;
 						case compose(Type::IntegerType, Type::ComplexType): {
 							Complex * complex = new Complex((Real)stack.pop().integer, 0.0);
 							objects.push_back({ complex, Type::ComplexType });
@@ -1201,6 +1530,9 @@ namespace Spin {
 							Complex * complex = new Complex(0.0, stack.pop().real);
 							objects.push_back({ complex, Type::ComplexType });
 							stack.push({ .pointer = complex });
+						} break;
+						case compose(Type::ComplexType, Type::NaturalType): {
+							stack.push({ .integer = (Int64)((UInt64)(((Complex *)stack.pop().pointer) -> a)) });
 						} break;
 						case compose(Type::ComplexType, Type::IntegerType): {
 							stack.push({ .integer = (Int64)(((Complex *)stack.pop().pointer) -> a) });
@@ -1227,6 +1559,7 @@ namespace Spin {
 								case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false"); break;
 								case Type::CharacterType: OStream << (Character)stack.pop().byte; break;
 								case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal; break;
+								case   Type::NaturalType: OStream << (UInt64)stack.pop().integer; break;
 								case   Type::IntegerType: OStream << stack.pop().integer; break;
 								case      Type::RealType: OStream << Converter::realToString(stack.pop().real); break;
 								case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real); break;
@@ -1242,6 +1575,7 @@ namespace Spin {
 								case   Type::BooleanType: OStream << (stack.pop().boolean ? "true" : "false") << endLine; break;
 								case Type::CharacterType: OStream << (Character)stack.pop().byte << endLine; break;
 								case      Type::ByteType: OStream << hexadecimal << (Int64)stack.pop().byte << decimal << endLine; break;
+								case   Type::NaturalType: OStream << (UInt64)stack.pop().integer << endLine; break;
 								case   Type::IntegerType: OStream << stack.pop().integer << endLine; break;
 								case      Type::RealType: OStream << Converter::realToString(stack.pop().real) << endLine; break;
 								case Type::ImaginaryType: OStream << Converter::imaginaryToString(stack.pop().real) << endLine; break;
