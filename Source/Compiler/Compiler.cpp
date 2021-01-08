@@ -803,13 +803,13 @@ namespace Spin {
 		pushType(Type::RealType);
 	}
 	void Compiler::integerLiteral() {
-		Int64 literal = Converter::stringToInteger(
+		UInt64 literal = Converter::stringToNatural(
 			previous.lexeme
 		);
 		emitOperation(
-			{ OPCode::PSH, { .value = { .integer = literal } } }
+			{ OPCode::PSH, { .value = { .integer = (Int64)literal } } }
 		);
-		pushType(Type::IntegerType);
+		pushType(Type::NaturalType);
 	}
 
 	void Compiler::expression() {

@@ -18,18 +18,18 @@ namespace Spin {
 		static inline Boolean test(Regex r, String & s);
 		static Boolean isHexChar(Character & c);
 		static Character hexToChar(String & s);
-		static Int64 decToInteger(String & s);
+		static UInt64 decToNatural(String & s);
 		static UInt8 charToHex(Character & c);
-		static Int64 hexToInteger(String & s);
+		static UInt64 hexToNatural(String & s);
 		static UInt32 hexToUInt32(String & s);
-		static Int64 octToInteger(String & s);
-		static Int64 binToInteger(String & s);
+		static UInt64 octToNatural(String & s);
+		static UInt64 binToNatural(String & s);
 		public:
 		Converter() = delete;
 		static String typeToString(Type & t);
 		static Type stringToType(String & s);
 		static Boolean stringToBoolean(String & s);
-		static Int64 stringToInteger(String & s);
+		static UInt64 stringToNatural(String & s);
 		static Real stringToReal(String & s);
 		static Real stringToImaginary(String & s);
 		static String escapeString(String & s);

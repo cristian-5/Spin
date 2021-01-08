@@ -57,7 +57,7 @@ namespace Spin {
 		}
 		return result;
 	}
-	Int64 Converter::decToInteger(String & s) {
+	UInt64 Converter::decToNatural(String & s) {
 		if (s.length() == 0) return 0;
 		if (!checkBase(Regex("^[0-9]+$"), s)) return 0;
 		Int64 result = 0;
@@ -72,7 +72,7 @@ namespace Spin {
 		if (c >= 'A' && c <= 'F') return c - 'A' + 0xA;
 		return 0x00;
 	}
-	Int64 Converter::hexToInteger(String & s) {
+	UInt64 Converter::hexToNatural(String & s) {
 		if (s.length() == 0) return 0;
 		if (!checkBase(Regex(HEX), s)) return 0;
 		Int64 result = 0;
@@ -90,7 +90,7 @@ namespace Spin {
 		}
 		return result;
 	}
-	Int64 Converter::octToInteger(String & s) {
+	UInt64 Converter::octToNatural(String & s) {
 		if (s.length() == 0) return 0;
 		if (!checkBase(Regex("^[0-7]+$"), s)) return 0;
 		Int64 result = 0;
@@ -99,7 +99,7 @@ namespace Spin {
 		}
 		return result;
 	}
-	Int64 Converter::binToInteger(String & s) {
+	UInt64 Converter::binToNatural(String & s) {
 		if (s.length() == 0) return 0;
 		if (!checkBase(Regex("^[01]+$"), s)) return 0;
 		Int64 result = 0;
@@ -148,32 +148,32 @@ namespace Spin {
 	Boolean Converter::stringToBoolean(String & s) {
 		return s == "true";
 	}
-	Int64 Converter::stringToInteger(String & s) {
+	UInt64 Converter::stringToNatural(String & s) {
 		if (s.length() == 0) return 0;
 		if (s.length() > 2) {
 			if (s[0] == '0') {
 				switch (s[1]) {
 					case 'x': {
 						String hex = s.substr(2);
-						return hexToInteger(hex);
+						return hexToNatural(hex);
 					} break;
 					case 'o': {
 						String oct = s.substr(2);
-						return octToInteger(oct);
+						return octToNatural(oct);
 					} break;
 					case 'b': {
 						String bin = s.substr(2);
-						return binToInteger(bin);
+						return binToNatural(bin);
 					} break;
 					case 'd': {
 						String dec = s.substr(2);
-						return decToInteger(dec);
+						return decToNatural(dec);
 					} break;
-					default: return decToInteger(s);
+					default: return decToNatural(s);
 				}
 			}
 		}
-		return decToInteger(s);
+		return decToNatural(s);
 	}
 	Real Converter::stringToReal(String & s) {
 		if (!test(Regex(REAL), s)) return 0.0;
