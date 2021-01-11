@@ -1290,11 +1290,11 @@ namespace Spin {
 			);
 		}
 		rethrow(expression());
-		if (popAbsoluteType() != Type::IntegerType) {
+		if (popAbsoluteType() != Type::NaturalType) {
 			delete node;
 			throw Program::Error(
 				currentUnit,
-				"Expected Integer expression inside subscription '[ ]' operator!",
+				"Expected Natural expression inside subscription '[ ]' operator!",
 				token, ErrorCode::lgc
 			);
 		}
@@ -1419,7 +1419,8 @@ namespace Spin {
 			case Type::ByteType:
 				for (TypeNode * type : types) {
 					if (type -> type != Type::ByteType &&
-						type -> type != Type::IntegerType ) {
+						type -> type != Type::IntegerType &&
+						type -> type != Type::NaturalType) {
 						throw Program::Error(
 							currentUnit,
 							"Found incompatible types in '[ ]' array intialisation!",
@@ -1429,9 +1430,11 @@ namespace Spin {
 				}
 				finalType = new TypeNode(Type::ByteType);
 			break;
+			case Type::NaturalType:
 			case Type::IntegerType:
 				for (TypeNode * type : types) {
 					switch (type -> type) {
+						case Type::NaturalType:
 						case Type::IntegerType: break;
 						case Type::RealType:
 							if (topType == Type::ComplexType) break;
@@ -1457,6 +1460,7 @@ namespace Spin {
 			case Type::RealType:
 				for (TypeNode * type : types) {
 					switch (type -> type) {
+						case Type::NaturalType:
 						case Type::IntegerType: break;
 						case Type::RealType: break;
 						case Type::ImaginaryType:
@@ -1479,18 +1483,15 @@ namespace Spin {
 			case Type::ImaginaryType:
 				for (TypeNode * type : types) {
 					switch (type -> type) {
+						case Type::NaturalType:
 						case Type::IntegerType:
-							topType = Type::ComplexType;
-						break;
 						case Type::RealType:
+						case Type::ComplexType:
 							topType = Type::ComplexType;
 						break;
 						case Type::ImaginaryType:
 							if (topType == Type::ComplexType) break;
 							topType = Type::ImaginaryType;
-						break;
-						case Type::ComplexType:
-							topType = Type::ComplexType;
 						break;
 						default:
 							throw Program::Error(
@@ -1506,9 +1507,10 @@ namespace Spin {
 			case Type::ComplexType:
 				for (TypeNode * type : types) {
 					switch (type -> type) {
-						case Type::IntegerType: break;
-						case Type::RealType: break;
-						case Type::ImaginaryType: break;
+						case Type::NaturalType:
+						case Type::IntegerType:
+						case Type::RealType:
+						case Type::ImaginaryType:
 						case Type::ComplexType: break;
 						default:
 							throw Program::Error(

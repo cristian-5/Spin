@@ -38,9 +38,8 @@ program, just remember that statements work just like in *c++*.
 
 ![Snippet 2](Examples/S2.svg)
 
-The documentation contains the language syntax specification.
-
-- [**Syntax Specification**](Documentation/)
+The documentation that contains the language syntax
+specification is currently under construction.
 
 ## Code Contribution
 
