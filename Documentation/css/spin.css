@@ -1,0 +1,53 @@
+
+pre code.language-spin {
+	color: #474747;
+}
+
+pre code.language-spin .keyword {
+	color: #00B196;
+}
+
+pre code.language-spin .io,
+pre code.language-spin .lamda,
+pre code.language-spin .modifier {
+	color: #E40073;
+}
+
+pre code.language-spin .comment {
+	color: #6E6E6E;
+}
+
+pre code.language-spin .literal {
+	color: #E62042;
+}
+
+pre code.language-spin .type {
+	color: #00A2D9;
+}
+
+pre code.language-spin .property {
+	color: #0077E5;
+}
+
+pre code.language-spin .string,
+pre code.language-spin .character {
+	color: #009FAB;
+}
+
+pre code.language-spin .number {
+	color: #DC4600;
+}
+
+pre code.language-spin .method {
+	color: #9B00C1;
+}
+
+pre code.language-spin .placeholder {
+	font-size: 15px;
+	background-color: #fbfffb;
+	border: 2px solid #2fc20a;
+	border-radius: 16px;
+	color: #01670d;
+	padding: 1px 8px;
+	white-space: nowrap;
+}

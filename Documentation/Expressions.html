@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Spin Documentation - Expressions</title>
+		<link rel="stylesheet" type="text/css" href="css/primer.min.css">
+		<link rel="stylesheet" type="text/css" href="css/ebnf.css">
+		<link rel="stylesheet" type="text/css" href="css/spin.css">
+		<link rel="stylesheet" type="text/css" href="css/regex.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<script defer src="https://buttons.github.io/buttons.js"></script>
+	</head>
+	<body>
+		<div class="clearfix border-top border-bottom">
+			<div class="col-3 md-hide float-left bg-gray-light position-sticky top-0 min-vh-100">
+				<div class="p-5">
+					<h1><a href="../Index.html">Spin</a></h1>
+					<h4 class="pt-3"><strong>version 3.0.0 beta</strong></h4>
+					<p class="pt-3">
+						<a class="github-button" href="https://github.com/Cristian-A/Spin" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star Cristian-A/Spin on GitHub">Star</a>
+						<a class="github-button" href="https://github.com/Cristian-A/Spin/issues" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-issue-opened" data-size="large" data-show-count="true" aria-label="Issue Cristian-A/Spin on GitHub">Issue</a>
+					</p>
+				</div>
+				<nav class="SideNav">
+					<ul class="section">
+						<li class="border-top p-4">
+							<h3>Language Reference</h3>
+							<nav class="SideNav pl-3 pt-3">
+								<a class="SideNav-subItem" href="Syntax-Reference.html">Syntax Reference</a>
+								<a class="SideNav-subItem" href="Lexical-Structure.html">Lexical Structure</a>
+								<a class="SideNav-subItem" href="Native-Types.html">Native Types</a>
+								<a class="SideNav-subItem" href="Expressions.html" aria-current="page">Expressions</a>
+								<a class="SideNav-subItem" href="Declarations.html">Declarations</a>
+								<a class="SideNav-subItem" href="Statements.html">Statements</a>
+							</nav>
+						<li>
+					</ul>
+				</nav>
+			</div>
+			<div class="col-md-9 col-xl-9 col-lg-9 col-sm-12 float-left border-left min-vh-100">
+				<div class="Header col-12 p-4 bg-white text-gray-light box-shadow-medium border-bottom border-gray-light">
+					<div class="Header-item Header-item--full">
+						<nav aria-label="Breadcrumb">
+							<ol>
+								<li class="breadcrumb-item h4 font-w-400"><a href="../Index.html">Documentation</a></li>
+								<li class="breadcrumb-item h4 font-w-400">Language Reference</li>
+								<li class="breadcrumb-item h4 font-w-400">Expressions</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="Header-item"><a class="nav-link" href="https://github.com/Cristian-A/Spin/" target="_blank"><span class="d-none d-sm-inline">View on GitHub </span><svg version="1.1" width="16" height="16" viewBox="0 0 16 16" class="octicon octicon-mark-github" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></div>
+				</div>
+				<div class="markdown-body p-8 container-md"><h1>Expressions</h1>
+<p>In Spin, there are three kinds of expressions:
+prefix expressions, binary infix expressions,
+and postfix expressions. Evaluating an expression
+returns a value, causes a side effect, or both.
+There is also a primitive or primary expression
+that carries the smallest bit of information.</p>
+<div class="box note"><p class="title">Note</p><p class="text"> There are also mixfix ternary epressions but those
+    are threated like normal postfix expressions with
+    elements that follow the main postfix expression.
+</p></div>
+<h2>Primary Expressions</h2>
+<p>The <strong>primary expressions</strong> can be <em>literals</em> and <em>identifiers</em>.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr>
+        <td class="px-1" nowrap><span class="ebnf-rule">keyword</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-symbol">(</span><span class="ebnf-terminal">'infinity'</span><span class="ebnf-symbol">|</span><span class="ebnf-terminal">'undefined'</span><span class="ebnf-symbol">)</span></td>
+    </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-symbol">(</span><span class="ebnf-terminal">'true'</span><span class="ebnf-symbol">|</span><span class="ebnf-terminal">'false'</span><span class="ebnf-symbol">)</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-symbol">(</span><span class="ebnf-terminal">'time'</span><span class="ebnf-symbol">|</span><span class="ebnf-terminal">'noise'</span><span class="ebnf-symbol">)</span><span class="ebnf-symbol">;</span></td>
+        </tr><tr>
+        <td class="px-1" nowrap><span class="ebnf-rule">literal</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">natural literal</span></td>
+    </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">imaginary literal</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">real literal</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">boolean literal</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">character literal</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">string literal</span><span class="ebnf-symbol">;</span></td>
+        </tr><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">primary</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">keyword</span><span class="ebnf-symbol">|</span><span class="ebnf-nonterminal">literal</span><span class="ebnf-symbol">|</span><span class="ebnf-nonterminal">identifier</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h2>Prefix and Postfix Expressions</h2>
+<p><strong>Prefix epressions</strong> are composed of <em>prefix operators</em>,
+such as <code>-</code> or <code>!</code>, followed by a <em>primary expression</em>.
+<strong>Postfix epressions</strong> are composed of <em>primary expressions</em>
+followed by <em>postfix operators</em>, like the <code>°</code> operator for
+complex numbers or the adjoint <code>†</code> for matrices.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">postfix</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">mixfix</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">operator</span><span class="ebnf-symbol">;</span></td>
+    </tr><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">prefix</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">operator</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">postfix</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h2>Mixfix Ternary Expressions</h2>
+<p>The <strong>ternary conditional expression</strong> is a type of
+mixfix expression that allows conditional statements
+to be used as a result inside an expression. The
+grammar is the following:</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr>
+        <td class="px-1" nowrap><span class="ebnf-rule">mixfix</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'?'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">':'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span></td>
+    </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">primary</span><span class="ebnf-symbol">;</span></td>
+        </tr></table>
+    </div>
+<div class="box note"><p class="title">Note</p><p class="text"> The ternary operator has been called mixfix
+    because it's the only mixfix operator allowed
+    in the language.
+</p></div>
+<h2>Infix Binary Expressions</h2>
+<p><strong>Infix binary expressions</strong> are composed of a <em>prefix
+expression</em>, followed by an <em>infix operator</em>, followed by
+another <em>prefix expression</em>.</p>
+<div class="box warning"><p class="title">Warning</p><p class="text">   Like in the majority of languages Spin accounts for
+    operator precedence, however like Swift (one of the
+    most widely used languages in the world) it doesn't
+    do so in its grammar. The semantic analisys will take
+    care of operator inconsistencies, sorting the final
+    abstract syntax tree with the correct operator precence.
+</p></div>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">infix</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">prefix</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">operator</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">prefix</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h2>Special cases</h2>
+<p>We define here some special cases that can occur,
+like array and string get or set subscription in
+postfix expressions, assignment, array definitions,
+calls and lamda definitions:</p>
+<h3>Subscription</h3>
+<p><strong>Subscription</strong> is achieved with the postifix operator <code>[</code>
+preceeded by any expression, followed by any other
+expression and a closing <code>]</code>. If it is immediately
+followed by an equal sign <code>=</code> is to be considered a set
+subscription and so it will be followed by an expression.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">subscription</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'['</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">']'</span><span class="ebnf-symbol">,</span><span class="ebnf-symbol">(</span><span class="ebnf-terminal">'='</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">)</span><span class="ebnf-quantifier">?</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h3>Assignment</h3>
+<p><strong>Assignment</strong> is left associative and so must be
+evaluated carefully, hence the grammar has
+precedence over the <em>infix binary expression</em>.
+It is composed of an <em>identifier</em>, followed by
+the equal sign (or any other mutation assignment
+operators like <code>+=</code>, <code>*=</code> etc.) followed by an
+<em>expression</em>; repeated multiple times eventually.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">assignment</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-symbol">(</span><span class="ebnf-terminal">'='</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">)</span><span class="ebnf-quantifier">+</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h3>Array Definitions</h3>
+<p>The <strong>array definitions</strong> are lists of elements,
+separated by comma, encapsulated in brackets <code>[...]</code>;</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">array</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-terminal">'['</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-symbol">(</span><span class="ebnf-terminal">','</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">)</span><span class="ebnf-quantifier">*</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">']'</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h3>Function Calls</h3>
+<p><strong>Function calls</strong> are defined as <em>postfix expressions</em>
+but they have a highier precedence. A call is an
+<em>expression</em> followed by a list of expressions
+speratated by comma, encapsulated in round
+parenthesis <code>(...)</code>.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">call</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'('</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-symbol">(</span><span class="ebnf-terminal">','</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">)</span><span class="ebnf-quantifier">*</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">')'</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h3>Lamda Definitions</h3>
+<p><strong>Lamdas</strong> are defined with the lamda operator <code>ƒ</code>, followed
+by <em>parameters</em> enclosed in round parenthesis <code>(...)</code>, followed
+by <em>statements</em> enclosed in curly braces <code>{...}</code>.<br>
+Parameters are a list of identifiers, colon (<code>:</code>), type
+annotation; separated by comma. If the lamda has a return
+type, then its tag is specified just before the curly braces.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">parameter</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">identifier</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">tag</span><span class="ebnf-symbol">;</span></td>
+    </tr><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">parameters</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">parameter</span><span class="ebnf-symbol">,</span><span class="ebnf-symbol">(</span><span class="ebnf-terminal">','</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">parameter</span><span class="ebnf-symbol">)</span><span class="ebnf-quantifier">*</span><span class="ebnf-symbol">;</span></td>
+    </tr><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">lamda</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-terminal">'ƒ'</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'('</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">parameters</span><span class="ebnf-quantifier">*</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">')'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">tag</span><span class="ebnf-quantifier">?</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'{'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">statements</span><span class="ebnf-quantifier">*</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'}'</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h2>Expressions</h2>
+<p>We can now combine all the rules togeter:</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr>
+        <td class="px-1" nowrap><span class="ebnf-rule">expression</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">assignment</span></td>
+    </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">call</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">subscription</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">lamda</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">array</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">postfix</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">prefix</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">mixfix</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">infix</span></td>
+        </tr><tr>
+            <td class="px-1 pt-0" nowrap></td>
+            <td class="px-1 pt-0 text-center"><span class="ebnf-symbol">|</span></td>
+            <td class="px-1 pt-0"><span class="ebnf-nonterminal">primary</span><span class="ebnf-symbol">;</span></td>
+        </tr></table>
+    </div>
+<div class="box warning"><p class="title">Warning</p><p class="text">   The production rules are highly recursive.
+    Precedence plays a big role when parsing so
+    the general rule is try to parse the rules
+    on top before those at the bottom.
+</p></div></div>
+				<nav class="paginate-container mb-8" aria-label="Pagination">
+					<div class="pagination">
+						<a class="previous_page" rel="previous" href="Native-Types.html" aria-label="Previous Page">Previous</a>
+						<a class="next_page" rel="next" href="Declarations.html" aria-label="Next Page">Next</a>
+					</div>
+				</nav>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Spin Documentation - Statements</title>
+		<link rel="stylesheet" type="text/css" href="css/primer.min.css">
+		<link rel="stylesheet" type="text/css" href="css/ebnf.css">
+		<link rel="stylesheet" type="text/css" href="css/spin.css">
+		<link rel="stylesheet" type="text/css" href="css/regex.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<script defer src="https://buttons.github.io/buttons.js"></script>
+	</head>
+	<body>
+		<div class="clearfix border-top border-bottom">
+			<div class="col-3 md-hide float-left bg-gray-light position-sticky top-0 min-vh-100">
+				<div class="p-5">
+					<h1><a href="../Index.html">Spin</a></h1>
+					<h4 class="pt-3"><strong>version 3.0.0 beta</strong></h4>
+					<p class="pt-3">
+						<a class="github-button" href="https://github.com/Cristian-A/Spin" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star Cristian-A/Spin on GitHub">Star</a>
+						<a class="github-button" href="https://github.com/Cristian-A/Spin/issues" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-issue-opened" data-size="large" data-show-count="true" aria-label="Issue Cristian-A/Spin on GitHub">Issue</a>
+					</p>
+				</div>
+				<nav class="SideNav">
+					<ul class="section">
+						<li class="border-top p-4">
+							<h3>Language Reference</h3>
+							<nav class="SideNav pl-3 pt-3">
+								<a class="SideNav-subItem" href="Syntax-Reference.html">Syntax Reference</a>
+								<a class="SideNav-subItem" href="Lexical-Structure.html">Lexical Structure</a>
+								<a class="SideNav-subItem" href="Native-Types.html">Native Types</a>
+								<a class="SideNav-subItem" href="Expressions.html">Expressions</a>
+								<a class="SideNav-subItem" href="Declarations.html">Declarations</a>
+								<a class="SideNav-subItem" href="Statements.html" aria-current="page">Statements</a>
+							</nav>
+						<li>
+					</ul>
+				</nav>
+			</div>
+			<div class="col-md-9 col-xl-9 col-lg-9 col-sm-12 float-left border-left min-vh-100">
+				<div class="Header col-12 p-4 bg-white text-gray-light box-shadow-medium border-bottom border-gray-light">
+					<div class="Header-item Header-item--full">
+						<nav aria-label="Breadcrumb">
+							<ol>
+								<li class="breadcrumb-item h4 font-w-400"><a href="../Index.html">Documentation</a></li>
+								<li class="breadcrumb-item h4 font-w-400">Language Reference</li>
+								<li class="breadcrumb-item h4 font-w-400">Statements</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="Header-item"><a class="nav-link" href="https://github.com/Cristian-A/Spin/" target="_blank"><span class="d-none d-sm-inline">View on GitHub </span><svg version="1.1" width="16" height="16" viewBox="0 0 16 16" class="octicon octicon-mark-github" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></div>
+				</div>
+				<div class="markdown-body p-8 container-md"><h1>Statements</h1>
+<p>Spin statements are the building blocks of the language.
+They can be simple statements, control flow statements,
+branching statements and iterative statements. We provide
+a full list of the statements adopted in the language.</p>
+<div class="box note"><p class="title">Note</p><p class="text"> The expressions that determine branch and
+    loop conditions must be of Boolean type.
+</p></div>
+<h2>Expression Statement</h2>
+<p>The <em>expression statement</em> is a statement that will
+execute the expression and discard its result value.
+It's composed of an <em>expression</em> immediately followed
+by a semicolon <code>;</code>.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">expression statement</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">';'</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<h2>If Statement</h2>
+<p>The <em>if statement</em> is a branching statement that will
+execute code if a condition is met. If the condition is
+not met and there is an else branch, the instructions
+in it will be executed instead. It's composed of an <code>if</code>
+keyword, followed by a conditional <em>expression</em> wrapped
+in round parenthesis <code>(...)</code> and the statement to execute
+when the condition is met. It is optionally followed
+by an <code>else</code> keyword and a <em>statement</em> to execute when
+the condition is not met instead.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">if statement</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-terminal">'if'</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'('</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">')'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">statement</span><span class="ebnf-symbol">,</span><span class="ebnf-symbol">(</span><span class="ebnf-terminal">'else'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">statement</span><span class="ebnf-symbol">)</span><span class="ebnf-quantifier">?</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<p>Code examples:</p>
+<pre><code class="language-spin"><span class="begin"></span><span class="comment">// Check if a number is even or odd:</span>
+<span class="keyword">if</span> <span class="operator">(</span><span class="symbol">x</span><span class="property"> </span><span class="operator">%</span> <span class="number">2</span> <span class="operator">==</span> <span class="number">0</span><span class="operator">)</span> <span class="io">write</span> <span class="string">"even"</span><span class="operator">;</span>
+<span class="keyword">else</span> <span class="io">write</span> <span class="string">"odd"</span><span class="operator">;</span>
+<span class="comment">// Faster version:</span>
+<span class="keyword">if</span> <span class="operator">(</span><span class="symbol">x</span><span class="property"> </span><span class="operator">&</span> <span class="number">1</span> <span class="operator">==</span> <span class="number">0</span><span class="operator">)</span> <span class="operator">{</span>
+    <span class="io">write</span> <span class="string">"faster"</span><span class="operator">;</span>
+    <span class="io">write</span> <span class="string">"even"</span><span class="operator">;</span>
+<span class="operator">}</span> <span class="keyword">else</span> <span class="operator">{</span>
+    <span class="io">write</span> <span class="string">"faster"</span><span class="operator">;</span>
+    <span class="io">write</span> <span class="string">"odd"</span><span class="operator">;</span>
+<span class="operator">}</span><span class="end"></span></code></pre>
+<h1>While Statement</h1>
+<p>The <strong>while statement</strong> will run some statements while
+a condition is met. If the condition is not met at the
+start it halts itself. It is composed of a <code>while</code> keyword
+followed by a condition expression wrapped in round
+parenthesis <code>(...)</code> and the <em>statement</em> to repeat.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">while statement</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-terminal">'while'</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'('</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">')'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">statement</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<p>Code examples:</p>
+<pre><code class="language-spin"><span class="begin"></span><span class="comment">// print numbers from 1 to 10:</span>
+<span class="modifier">var</span> <span class="symbol">i</span><span class="property"> </span><span class="operator">=</span> <span class="number">1</span><span class="operator">;</span>
+<span class="keyword">while</span> <span class="operator">(</span><span class="symbol">i</span><span class="property"> </span><span class="operator"><=</span> <span class="number">10</span><span class="operator">)</span> <span class="operator">{</span>
+    <span class="io">write</span> <span class="property">i</span><span class="operator">;</span>
+    <span class="symbol">i</span><span class="property"> </span><span class="operator">+=</span> <span class="number">1</span><span class="operator">;</span>
+<span class="operator">}</span><span class="end"></span></code></pre>
+<h1>Until Statement</h1>
+<p>The <strong>until statement</strong> will run some statements until
+a condition is met. If the condition is met at the start
+it halts itself. It is composed of an <code>until</code> keyword
+followed by a condition expression wrapped in round
+parenthesis <code>(...)</code> and the <em>statement</em> to repeat.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">until statement</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-terminal">'until'</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'('</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">')'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">statement</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<p>Code examples:</p>
+<pre><code class="language-spin"><span class="begin"></span><span class="comment">// print numbers from 10 to 1:</span>
+<span class="modifier">var</span> <span class="symbol">i</span><span class="property"> </span><span class="operator">=</span> <span class="number">10</span><span class="operator">;</span>
+<span class="keyword">until</span> <span class="operator">(</span><span class="symbol">i</span><span class="property"> </span><span class="operator">==</span> <span class="number">0</span><span class="operator">)</span> <span class="operator">{</span>
+    <span class="io">write</span> <span class="property">i</span><span class="operator">;</span>
+    <span class="symbol">i</span><span class="property"> </span><span class="operator">-=</span> <span class="number">1</span><span class="operator">;</span>
+<span class="operator">}</span><span class="end"></span></code></pre>
+<h1>Repeat Statement</h1>
+<p>The <strong>repeat statement</strong> will run some statements until
+or while a condition is met. It will always repeat the
+statements at least one time. It is composed of a <code>repeat</code>
+keyword followed by the <em>statement</em> to repeat and the
+corresponding keyword (<code>while</code> or <code>until</code>) followed by
+condition expression wrapped in round parenthesis <code>(...)</code>.</p>
+<div class="box ebnf">
+        <p class="title">Production Rule</p>
+        <table class="ebnf-content"><tr class="pt-2">
+        <td class="px-1" nowrap><span class="ebnf-rule">repeat statement</span></td>
+        <td class="px-1 text-center"><span class="ebnf-symbol">→</span></td>
+        <td class="px-1"><span class="ebnf-terminal">'repeat'</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">statement</span><span class="ebnf-symbol">,</span><span class="ebnf-symbol">(</span><span class="ebnf-terminal">'while'</span><span class="ebnf-symbol">|</span><span class="ebnf-terminal">'until'</span><span class="ebnf-symbol">)</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">'('</span><span class="ebnf-symbol">,</span><span class="ebnf-nonterminal">expression</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">')'</span><span class="ebnf-symbol">,</span><span class="ebnf-terminal">';'</span><span class="ebnf-symbol">;</span></td>
+    </tr></table>
+    </div>
+<p>Code examples:</p>
+<div class="box warning"><p class="title">Warning</p><p class="text">   Both code examples will print '0' at least
+    one time, no matter the condition used.
+</p></div>
+<pre><code class="language-spin"><span class="begin"></span><span class="comment">// print 0 and positive even numbers <= 10;</span>
+<span class="modifier">var</span> <span class="property">p</span><span class="operator">:</span> <span class="type">Integer</span> <span class="operator">=</span> <span class="number">0</span><span class="operator">;</span>
+<span class="keyword">repeat</span> <span class="operator">{</span>
+    <span class="io">write</span> <span class="property">p</span><span class="operator">;</span>
+    <span class="symbol">p</span><span class="property"> </span><span class="operator">+=</span> <span class="number">2</span><span class="operator">;</span>
+<span class="operator">}</span> <span class="keyword">while</span> <span class="operator">(</span><span class="symbol">p</span><span class="property"> </span><span class="operator"><=</span> <span class="number">10</span><span class="operator">);</span>
+<span class="comment">// print 0 and negative even numbers >= -10;</span>
+<span class="modifier">var</span> <span class="property">n</span><span class="operator">:</span> <span class="type">Integer</span> <span class="operator">=</span> <span class="number">0</span><span class="operator">;</span>
+<span class="keyword">repeat</span> <span class="operator">{</span>
+    <span class="io">write</span> <span class="property">n</span><span class="operator">;</span>
+    <span class="symbol">n</span><span class="property"> </span><span class="operator">-=</span> <span class="number">2</span><span class="operator">;</span>
+<span class="operator">}</span> <span class="keyword">until</span> <span class="operator">(</span><span class="symbol">n</span><span class="property"> </span><span class="operator"><</span> <span class="operator">-</span><span class="number">10</span><span class="operator">);</span><span class="end"></span></code></pre></div>
+				<nav class="paginate-container mb-8" aria-label="Pagination">
+					<div class="pagination">
+						<a class="previous_page" rel="previous" href="Declarations.html" aria-label="Previous Page">Previous</a>
+						<span class="next_page" aria-disabled="true">Next</span>
+					</div>
+				</nav>
+			</div>
+		</div>
+	</body>
+</html>

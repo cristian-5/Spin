@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Spin Documentation - Lexical Structure</title>
+		<link rel="stylesheet" type="text/css" href="css/primer.min.css">
+		<link rel="stylesheet" type="text/css" href="css/ebnf.css">
+		<link rel="stylesheet" type="text/css" href="css/spin.css">
+		<link rel="stylesheet" type="text/css" href="css/regex.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<script defer src="https://buttons.github.io/buttons.js"></script>
+	</head>
+	<body>
+		<div class="clearfix border-top border-bottom">
+			<div class="col-3 md-hide float-left bg-gray-light position-sticky top-0 min-vh-100">
+				<div class="p-5">
+					<h1><a href="../Index.html">Spin</a></h1>
+					<h4 class="pt-3"><strong>version 3.0.0 beta</strong></h4>
+					<p class="pt-3">
+						<a class="github-button" href="https://github.com/Cristian-A/Spin" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star Cristian-A/Spin on GitHub">Star</a>
+						<a class="github-button" href="https://github.com/Cristian-A/Spin/issues" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-issue-opened" data-size="large" data-show-count="true" aria-label="Issue Cristian-A/Spin on GitHub">Issue</a>
+					</p>
+				</div>
+				<nav class="SideNav">
+					<ul class="section">
+						<li class="border-top p-4">
+							<h3>Language Reference</h3>
+							<nav class="SideNav pl-3 pt-3">
+								<a class="SideNav-subItem" href="Syntax-Reference.html">Syntax Reference</a>
+								<a class="SideNav-subItem" href="Lexical-Structure.html" aria-current="page">Lexical Structure</a>
+								<a class="SideNav-subItem" href="Native-Types.html">Native Types</a>
+								<a class="SideNav-subItem" href="Expressions.html">Expressions</a>
+								<a class="SideNav-subItem" href="Declarations.html">Declarations</a>
+								<a class="SideNav-subItem" href="Statements.html">Statements</a>
+							</nav>
+						<li>
+					</ul>
+				</nav>
+			</div>
+			<div class="col-md-9 col-xl-9 col-lg-9 col-sm-12 float-left border-left min-vh-100">
+				<div class="Header col-12 p-4 bg-white text-gray-light box-shadow-medium border-bottom border-gray-light">
+					<div class="Header-item Header-item--full">
+						<nav aria-label="Breadcrumb">
+							<ol>
+								<li class="breadcrumb-item h4 font-w-400"><a href="../Index.html">Documentation</a></li>
+								<li class="breadcrumb-item h4 font-w-400">Language Reference</li>
+								<li class="breadcrumb-item h4 font-w-400">Lexical Structure</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="Header-item"><a class="nav-link" href="https://github.com/Cristian-A/Spin/" target="_blank"><span class="d-none d-sm-inline">View on GitHub </span><svg version="1.1" width="16" height="16" viewBox="0 0 16 16" class="octicon octicon-mark-github" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></div>
+				</div>
+				<div class="markdown-body p-8 container-md"><h1>Lexical Structure</h1>
+<p>The <em>lexical structure</em> of <strong>Spin</strong> describes what sequence
+of characters form valid tokens of the language. These valid
+tokens form the lowest-level building blocks of the language
+and are used to describe the rest of the language in subsequent
+chapters. A token consists of an <em>identifier</em>, <em>keyword</em>,
+<em>operator</em> or <em>literal</em>.</p>
+<p>In most cases, tokens are generated from the characters of a
+Spin source file by considering the longest possible substring
+from the input text, within the constraints of the grammar that
+are specified below. This behavior is referred to as longest
+match or maximal munch, described as “greedy behaviour”.</p>
+<p>The lexical rules will be implemented as regular expressions.</p>
+<h2>Whitespace and Comments</h2>
+<p><strong>Whitespace</strong> is used to separate different tokens.
+Also <strong>comments</strong> can be used to separate tokens but
+this is considered bad practice.<br>
+Spaces, tabs, line feeds, carriage
+returns are considered <strong>whitespace</strong>.</p>
+<div class="box regex"><p class="title">Regular Expression</p><p class="regex-content"><span class="regex-delimiter">/</span><span class="regex-symbol">\s</span><span class="regex-quantifier">+</span><span class="regex-delimiter">/gm</span></p></div>
+<p><strong>Comments</strong> are treated as <strong>whitespace</strong> by the compiler.
+Single line <strong>comments</strong> begin with <code>//</code> and continue
+until a line feed or carriage return <code>\n</code>.<br>
+Multiline <strong>comments</strong> begin with <code>/*</code> and end with <code>*/</code>.</p>
+<div class="box regex"><p class="title">Regular Expression</p><p class="regex-content"><span class="regex-delimiter">/</span><span class="regex-escape">\/</span><span class="regex-escape">\/</span><span class="regex-quantifier">+</span><span class="regex-symbol">.</span><span class="regex-quantifier">*</span><span class="regex-delimiter">/gm</span></p><p class="regex-content"><span class="regex-delimiter">/</span><span class="regex-escape">\/</span><span class="regex-escape">\*</span><span class="regex-set"><span class="regex-symbol">[^</span>*<span class="regex-symbol">]</span></span><span class="regex-quantifier">*</span><span class="regex-escape">\*</span><span class="regex-quantifier">+</span><span class="regex-group">(?:</span><span class="regex-set"><span class="regex-symbol">[^</span>/*<span class="regex-symbol">]</span></span><span class="regex-set"><span class="regex-symbol">[^</span>*<span class="regex-symbol">]</span></span><span class="regex-quantifier">*</span><span class="regex-escape">\*</span><span class="regex-quantifier">+</span><span class="regex-group">)</span><span class="regex-quantifier">*</span><span class="regex-escape">\/</span><span class="regex-delimiter">/gm</span></p></div>
+<h2>Identifiers, Keywords, Basic Types and Literals</h2>
+<p><strong>Identifiers</strong>, <strong>keywords</strong>, <strong>types</strong> and <strong>literals</strong>
+are made of the same set of rules. In order to differenciate
+between the four, we provide a list of <strong>keywords</strong>, <strong>types</strong>
+and <strong>literals</strong>; if the symbol is present in one of the provided
+lists then it assumes that type, otherwise it's an <strong>identifier</strong>.</p>
+<p>The list of possible <em>keywords</em> is:</p>
+<p><code>if</code>, <code>else</code>, <code>swap</code>, <code>while</code>, <code>do</code>, <code>loop</code>, <code>for</code>,
+<code>repeat</code>, <code>until</code>, <code>break</code>, <code>continue</code>, <code>recall</code>,
+<code>sleep</code>, <code>clock</code>, <code>noise</code>, <code>import</code>, <code>func</code>,
+<code>each</code>, <code>proc</code>, <code>return</code>, <code>new</code>, <code>var</code>, <code>con</code>.</p>
+<p>The list of possible <em>basic types</em> is:</p>
+<p><code>Boolean</code>, <code>Byte</code>, <code>Character</code>,
+<code>Complex</code>, <code>Imaginary</code>, <code>Natural</code>,
+<code>Integer</code>, <code>Real</code>, <code>String</code>.</p>
+<p>The list of possible <em>literals</em> is:</p>
+<p><code>true</code>, <code>false</code>, <code>infinity</code>, <code>undefined</code>.</p>
+<p>There is an eventual expansion of <code>infinity</code> and
+<code>undefined</code> in their floating point representation
+and so, the lexer will output them as numbers while
+<code>true</code> and <code>false</code> will be expanded as boolean values.</p>
+<p>A symbol must start with a letter of the English alphabeth
+uppercase or lowercase (<code>A</code> to <code>Z</code>, <code>a</code> to <code>z</code>) or an
+underscore character (<code>_</code>) followed by zero or more letters,
+digits (<code>0</code> to <code>9</code>) or underscores <code>_</code>.<br></p>
+<div class="box regex"><p class="title">Regular Expression</p><p class="regex-content"><span class="regex-delimiter">/</span><span class="regex-set"><span class="regex-symbol">[</span>A<span class="regex-symbol">-</span>Za<span class="regex-symbol">-</span>z_<span class="regex-symbol">]</span></span><span class="regex-symbol">\w</span><span class="regex-quantifier">*</span><span class="regex-delimiter">/g</span></p></div>
+<h2>Operators</h2>
+<p>Operators are special symbols, used in arithmetical and
+logical operations. Spin has the following operators:</p>
+<p><code>(</code>, <code>)</code>, <code>=</code>, <code>+</code>, <code>-</code>, <code>*</code>, <code>&lt;</code>, <code>&gt;</code>, <code>[]</code>, <code>^</code>,
+<code>,</code>, <code>.</code>, <code>!</code>, <code>|</code>, <code>$</code>, <code>&amp;</code>, <code>%</code>, <code>:</code>, <code>~</code>, <code>ƒ</code>,
+<code>?</code>, <code>†</code>, <code>°</code>, <code>\\</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>==</code>,<code>!=</code>,
+<code>+=</code>, <code>*=</code>, <code>-=</code>, <code>/=</code>, <code>%=</code>, <code>&amp;&amp;</code>, <code>||</code>,
+<code>&amp;=</code>, <code>|=</code>, <code>$=</code>, <code>?:</code>, <code>@[]</code>, <code>::</code>, <code>-&gt;</code>,</p>
+<h2>Natural Literal</h2>
+<p>The <strong>natural literal</strong> specifies a number in base 2, 10,
+8 or 16. It consists of the following set of rules,
+applied in order. Hexadecimal symbols must be in
+uppercase. Numbers beginning with zeros do not resolve
+in octal literals. Decimal numbers can optionally
+begin with <code>0d</code>, binary numbers must begin with <code>0b</code>,
+hexadecimal numbers must begin with <code>0x</code> and octal
+numbers must begin with <code>0o</code>; all followed by valid
+base symbols. The use of scientific notation for
+natural literals is forbidden.</p>
+<div class="box regex"><p class="title">Regular Expression</p><p class="regex-content"><span class="regex-delimiter">/</span>0x<span class="regex-set"><span class="regex-symbol">[</span>0<span class="regex-symbol">-</span>9A<span class="regex-symbol">-</span>Z<span class="regex-symbol">]</span></span><span class="regex-quantifier">+</span><span class="regex-delimiter">/g</span></p><p class="regex-content"><span class="regex-delimiter">/</span>0o<span class="regex-set"><span class="regex-symbol">[</span>0<span class="regex-symbol">-</span>7<span class="regex-symbol">]</span></span><span class="regex-quantifier">+</span><span class="regex-delimiter">/g</span></p><p class="regex-content"><span class="regex-delimiter">/</span>0b<span class="regex-set"><span class="regex-symbol">[</span>01<span class="regex-symbol">]</span></span><span class="regex-quantifier">+</span><span class="regex-delimiter">/g</span></p><p class="regex-content"><span class="regex-delimiter">/</span><span class="regex-group">(?:</span>0d<span class="regex-group">)</span><span class="regex-quantifier">?</span><span class="regex-symbol">\d</span><span class="regex-quantifier">+</span><span class="regex-delimiter">/g</span></p></div>
+<h2>Real and Imaginary Literals</h2>
+<p><strong>Real</strong> and <strong>imaginary literals</strong> are always represented
+in base 10, eventually in scientific notation.<br>
+The only difference consists of a trailing lowercase
+<code>i</code> letter following the number. Since imaginary and
+real numbers in Spin are always stored as 64 bits
+<a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a>
+values, this ruleset will also apply to &quot;integer&quot;
+imaginary numbers. The lexer will produce two
+different tokens, one for the real numbers and one
+for the imaginary numbers, based off the trailing <code>i</code>.<br>
+Since this regex also covers decimal integers,
+it will be only applied after the integer literal
+ruleset that will consume the eventual integers.<br>
+Scientific notation must be denoted with a lowercase
+<code>e</code> and can recognise negative exponents.</p>
+<div class="box regex"><p class="title">Regular Expression</p><p class="regex-content"><span class="regex-delimiter">/</span><span class="regex-symbol">\d</span><span class="regex-quantifier">+</span><span class="regex-group">(?:</span><span class="regex-escape">\.</span><span class="regex-symbol">\d</span><span class="regex-group">(?:</span>e-<span class="regex-quantifier">?</span><span class="regex-symbol">\d</span><span class="regex-quantifier">+</span><span class="regex-group">)</span><span class="regex-quantifier">?</span><span class="regex-group">)</span><span class="regex-quantifier">?</span>i<span class="regex-quantifier">?</span><span class="regex-delimiter">/g</span></p></div>
+<h2>Character Literal</h2>
+<p>The <strong>character literal</strong> represents a character.
+Since characters are stored in 8 bits integer
+values, there is no need to escape a character
+inside its literal when we can just use an
+integer (in whichever base is more efficient).</p>
+<div class="box regex"><p class="title">Regular Expression</p><p class="regex-content"><span class="regex-delimiter">/</span>'<span class="regex-symbol">.</span>'<span class="regex-delimiter">/g</span></p></div>
+<h2>String Literal</h2>
+<p><strong>String literals</strong> are character sequences delimited by
+double quotation marks <code>"..."</code>. In Spin, a string literal
+is always raw, it can be multiline and will only escape
+the following characters:</p>
+<p><code>\\</code>, <code>\"</code>, <code>\0</code>, <code>\a</code>, <code>\b</code>, <code>\f</code>, <code>\n</code>, <code>\r</code>, <code>\t</code>, <code>\v</code>.</p>
+<p>It can also escape characters using their hexadecimal
+representation, preceded by a <code>\0x</code> prefix.</p>
+<div class="box regex"><p class="title">Regular Expression</p><p class="regex-content"><span class="regex-delimiter">/</span>"<span class="regex-group">(?:</span><span class="regex-set"><span class="regex-symbol">[^</span><span class="regex-escape">\\</span>"<span class="regex-symbol">]</span></span><span class="regex-or">|</span><span class="regex-escape">\\</span><span class="regex-set"><span class="regex-symbol">[</span>"<span class="regex-escape">\\</span>0abfnrtv<span class="regex-symbol">]</span></span><span class="regex-or">|</span><span class="regex-escape">\\</span>0x<span class="regex-set"><span class="regex-symbol">[</span>0<span class="regex-symbol">-</span>9A<span class="regex-symbol">-</span>F<span class="regex-symbol">]</span></span><span class="regex-quantifier">{2}</span><span class="regex-group">)</span><span class="regex-quantifier">*</span>"<span class="regex-delimiter">/gm</span></p></div></div>
+				<nav class="paginate-container mb-8" aria-label="Pagination">
+					<div class="pagination">
+						<a class="previous_page" rel="previous" href="Syntax-Reference.html" aria-label="Previous Page">Previous</a>
+						<a class="next_page" rel="next" href="Native-Types.html" aria-label="Next Page">Next</a>
+					</div>
+				</nav>
+			</div>
+		</div>
+	</body>
+</html>

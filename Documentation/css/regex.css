@@ -1,0 +1,31 @@
+
+.regex-content {
+	color: #000;
+	font-weight: normal;
+	font-style: normal;
+	font-family: 'SFMono-Regular', Consolas,
+				 'Liberation Mono', Menlo,
+				 monospace;
+	font-size: 18px;
+	font-variant-ligatures: contextual;
+	margin-bottom: 8px !important;
+}
+
+.regex-delimiter { color: #B7BCC0; }
+
+.regex-group { background: rgba(0, 238, 0, .11); }
+
+.regex-reference,
+.regex-or,
+.regex-group {
+	color: #0a0;
+}
+
+.regex-set {
+	color: #000;
+	background: rgba(255, 238, 0, .3);
+}
+.regex-quantifier { color: #58f; }
+.regex-anchor { color: #840; }
+.regex-symbol { color: #d70; }
+.regex-escape { color: #c0c; }

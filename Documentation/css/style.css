@@ -1,0 +1,102 @@
+
+.markdown-body p {
+	text-align: justify;
+	margin-bottom: 18px;
+}
+
+.markdown-body h2 { margin-top: 50px; }
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+	font-size: 16px !important;
+	background-color: #fdfdfd !important;
+    border-radius: 6px !important;
+	border-left: 5px solid #f0f0f0 !important;
+	padding: 30px 36px !important;
+}
+
+ul.section { list-style: none !important; }
+
+.breadcrumb-item { color: #000; }
+
+.breadcrumb-item::after {
+	color: #d5d5d5 !important;
+	font-weight: 400 !important;
+}
+
+a { text-decoration: none !important; }
+
+.text-black { color: #000; }
+
+.min-vh-100 { min-height: 100vh; }
+.min-vw-100 { min-width: 100vw; }
+
+.font-w-200 { font-weight: 200 !important; }
+.font-w-300 { font-weight: 300 !important; }
+.font-w-400 { font-weight: 400 !important; }
+.font-w-500 { font-weight: 500 !important; }
+.font-w-600 { font-weight: 600 !important; }
+
+.markdown-body table { margin: 40px auto; }
+
+/* BOX Components */
+
+.box {
+	padding: 20px;
+	border-radius: 5px;
+	font-size: .85em;
+	margin: 20px 0;
+}
+.box .title {
+	text-transform: uppercase;
+	font-weight: normal;
+	font-size: 12px;
+	letter-spacing: 2px;
+	margin-bottom: 12px;
+}
+.box .text {
+	color: #000;
+	margin-bottom: 10px;
+	font-size: 16px;
+	line-height: 1.5;
+	font-weight: normal;
+}
+
+.note {
+	border-left: solid 5px #ccc;
+	background-color: #f5f5f5;
+}
+.note .title { color: #777; }
+
+.danger {
+	border-left: solid 5px #fd2929;
+	background-color: #ffefef;
+}
+.danger .title { color: #f90000; }
+
+.warning {
+	border-left: solid 5px #ffbc00;
+	background-color: #fff8ef;
+}
+.warning .title { color: #f99500; }
+
+.ebnf, .regex { padding-bottom: 10px; }
+
+.ebnf {
+	border-left: 5px solid #098dfe;
+	background-color: transparent;
+}
+.ebnf .title { color: #0074d7; }
+
+.regex {
+	border-left: 5px solid #00af05;
+	background-color: transparent;
+}
+.regex .title { color: #008f04; }
+
+/* Responsive Stuff */
+
+@media (max-width: 544px) { .sm-hide { display: none !important; } }
+@media (max-width: 768px) { .md-hide { display: none !important; } }
+@media (max-width: 1012px) { .lg-hide { display: none !important; } }
+@media (max-width: 1280px) { .xl-hide { display: none !important; } }

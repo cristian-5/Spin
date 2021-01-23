@@ -1,0 +1,39 @@
+
+.ebnf-content {
+	font-size: 18px;
+	margin: 0 0 8px 0 !important;
+	text-align: left !important;
+}
+
+.ebnf span { margin: 0 3px; }
+
+table.ebnf-content tr,
+table.ebnf-content td {
+	border: none;
+}
+
+table.ebnf-content tr { background: #fff !important; }
+
+.ebnf-rule {
+	color: #808080;
+	font-style: italic;
+}
+
+.ebnf-symbol {
+	color: #000;
+	font-weight: 300;
+}
+
+.ebnf-terminal {
+	font-family: 'SFMono-Regular', Consolas,
+				 'Liberation Mono', Menlo,
+				 monospace;
+	font-size: 17px;
+	color: #333;
+}
+
+.ebnf-nonterminal { color: #0074d7; }
+.ebnf-quantifier {
+	color: #808080;
+	margin-left: 0 !important;
+}
