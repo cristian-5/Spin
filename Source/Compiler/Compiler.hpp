@@ -236,6 +236,7 @@ namespace Spin {
 		void declaration();
 		void variable();
 		void constant();
+		void vector();
 		void identifier();
 		void block();
 
@@ -267,8 +268,7 @@ namespace Spin {
 		void ifStatement();
 		void whileStatement();
 		void untilStatement();
-		void doWhileStatement();
-		void repeatUntilStatement();
+		void repeatStatement();
 		void loopStatement();
 		void forStatement();
 		void forEachStatement();
@@ -326,6 +326,8 @@ namespace Spin {
 		inline SizeType emitRest();
 		inline void emitCall(SizeType i);
 		inline void emitPop(SizeType n);
+
+		inline Boolean isNumeric(Type t);
 
 		void reset();
 

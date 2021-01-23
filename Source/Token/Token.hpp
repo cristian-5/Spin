@@ -110,7 +110,6 @@ namespace Spin {
 			elseKeyword,
 			swapKeyword,
 			whileKeyword,
-			doKeyword,
 			loopKeyword,
 			forKeyword,
 			eachKeyword,

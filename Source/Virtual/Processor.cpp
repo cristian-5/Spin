@@ -1148,7 +1148,7 @@ namespace Spin {
 							stack.push({ .boolean = (((UInt64)a.integer) > (UInt64)b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::IntegerType):
-							stack.push({ .boolean = (((UInt64)a.integer) > b.integer) });
+							stack.push({ .boolean = (a.integer > b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::RealType):
 							stack.push({ .boolean = (((UInt64)a.integer) > b.real) });
@@ -1158,7 +1158,7 @@ namespace Spin {
 							stack.push({ .boolean = (a.integer > ((Int64)b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::NaturalType):
-							stack.push({ .boolean = (a.integer > (UInt64)b.integer) });
+							stack.push({ .boolean = (a.integer > b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer > b.integer) });
@@ -1207,7 +1207,7 @@ namespace Spin {
 							stack.push({ .boolean = (((UInt64)a.integer) >= (UInt64)b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::IntegerType):
-							stack.push({ .boolean = (((UInt64)a.integer) >= b.integer) });
+							stack.push({ .boolean = (a.integer >= b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::RealType):
 							stack.push({ .boolean = (((UInt64)a.integer) >= b.real) });
@@ -1217,7 +1217,7 @@ namespace Spin {
 							stack.push({ .boolean = (a.integer >= ((Int64)b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::NaturalType):
-							stack.push({ .boolean = (a.integer >= (UInt64)b.integer) });
+							stack.push({ .boolean = (a.integer >= b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer >= b.integer) });
@@ -1266,7 +1266,7 @@ namespace Spin {
 							stack.push({ .boolean = (((UInt64)a.integer) < (UInt64)b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::IntegerType):
-							stack.push({ .boolean = (((UInt64)a.integer) < b.integer) });
+							stack.push({ .boolean = (a.integer < b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::RealType):
 							stack.push({ .boolean = (((UInt64)a.integer) < b.real) });
@@ -1276,7 +1276,7 @@ namespace Spin {
 							stack.push({ .boolean = (a.integer < ((Int64)b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::NaturalType):
-							stack.push({ .boolean = (a.integer < (UInt64)b.integer) });
+							stack.push({ .boolean = (a.integer < b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer < b.integer) });
@@ -1325,7 +1325,7 @@ namespace Spin {
 							stack.push({ .boolean = (((UInt64)a.integer) <= (UInt64)b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::IntegerType):
-							stack.push({ .boolean = (((UInt64)a.integer) <= b.integer) });
+							stack.push({ .boolean = (a.integer <= b.integer) });
 						break;
 						case compose(Type::NaturalType, Type::RealType):
 							stack.push({ .boolean = (((UInt64)a.integer) <= b.real) });
@@ -1335,7 +1335,7 @@ namespace Spin {
 							stack.push({ .boolean = (a.integer <= ((Int64)b.byte)) });
 						break;
 						case compose(Type::IntegerType, Type::NaturalType):
-							stack.push({ .boolean = (a.integer <= (UInt64)b.integer) });
+							stack.push({ .boolean = (a.integer <= b.integer) });
 						break;
 						case compose(Type::IntegerType, Type::IntegerType):
 							stack.push({ .boolean = (a.integer <= b.integer) });

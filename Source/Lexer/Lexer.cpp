@@ -34,7 +34,6 @@ namespace Spin {
 		{     "else", Token::Type::elseKeyword     },
 		{     "swap", Token::Type::swapKeyword     },
 		{    "while", Token::Type::whileKeyword    },
-		{       "do", Token::Type::doKeyword       },
 		{     "loop", Token::Type::loopKeyword     },
 		{      "for", Token::Type::forKeyword      },
 		{     "each", Token::Type::eachKeyword     },

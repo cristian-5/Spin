@@ -373,6 +373,7 @@ namespace Spin {
 		{ compose(Token::Type::minus, Type::IntegerType, Type::CharacterType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::ByteType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::NaturalType, Type::NaturalType), Type::NaturalType },
+		{ compose(Token::Type::minus, Type::IntegerType, Type::NaturalType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::IntegerType), Type::IntegerType },
 		{ compose(Token::Type::minus, Type::IntegerType, Type::RealType), Type::RealType },
 		{ compose(Token::Type::minus, Type::RealType, Type::NaturalType), Type::RealType },
@@ -826,8 +827,7 @@ namespace Spin {
 			case     Token::Type::eachKeyword: advance(); forEachStatement(); break;
 			case    Token::Type::whileKeyword: advance(); whileStatement(); break;
 			case    Token::Type::untilKeyword: advance(); untilStatement(); break;
-			case       Token::Type::doKeyword: advance(); doWhileStatement(); break;
-			case   Token::Type::repeatKeyword: advance(); repeatUntilStatement(); break;
+			case   Token::Type::repeatKeyword: advance(); repeatStatement(); break;
 			case     Token::Type::loopKeyword: advance(); loopStatement(); break;
 			case    Token::Type::breakKeyword: advance(); breakStatement(); break;
 			case Token::Type::continueKeyword: advance(); continueStatement(); break;
@@ -847,7 +847,7 @@ namespace Spin {
 		switch (current.type) {
 			case Token::Type::varKeyword: advance(); variable(); break;
 			case Token::Type::conKeyword: advance(); constant(); break;
-			case Token::Type::vecKeyword: advance(); break;
+			case Token::Type::vecKeyword: advance(); vector(); break;
 			case Token::Type::matKeyword: advance(); break;
 			default: rethrow(statement());
 		}
@@ -1047,6 +1047,33 @@ namespace Spin {
 		locals[currentLocal].type = typeA;
 
 		rethrow(consume(Token::Type::semicolon, ";"));
+	}
+	void Compiler::vector() {
+		/*
+		if (!match(Token::Type::braSymbol) &&
+			!match(Token::Type::ketSymbol)) {
+			// Throw error.
+		}
+
+		Token token = previous;
+		
+		const String complete = previous.lexeme;
+		// Get the variable name without "<|>":
+		String id = complete.substr(1); id.pop_back();
+
+		if (match(Token::Type::equal)) {
+			// Assignment:
+			rethrow(expression());
+			TypeNode * type = popType();
+			if (type -> type == Type::ArrayType &&
+				isNumeric(type -> next -> type)) {
+				// TODO: Convert the array to complex array.
+				// TODO: Emit assignment
+			} else {
+				// Throw error.
+			}
+		}*/
+
 	}
 	void Compiler::identifier() {
 		Local local = resolve(previous.lexeme);
@@ -2325,15 +2352,23 @@ namespace Spin {
 			patchJumpBack(pos, loopStart);
 		}
 	}
-	void Compiler::doWhileStatement() {
+	void Compiler::repeatStatement() {
 		const SizeType loopStart = sourcePosition();
 		cycleScopes.push(scopeDepth);
 		const Token token = previous;
-		rethrow(
-			statement();
-			consume(Token::Type::whileKeyword, "while");
-			consume(Token::Type::openParenthesis, "(");
-		);
+		rethrow(statement());
+		OPCode jumpCode;
+		if (match(Token::Type::untilKeyword)) {
+			jumpCode = OPCode::JIT;
+		} else if (match(Token::Type::whileKeyword)) {
+			jumpCode = OPCode::JIF;
+		} else {
+			throw Program::Error(
+				currentUnit,
+				"Expected 'until' or 'while' keyword ending 'repeat' statement!",
+				token, ErrorCode::lgc
+			);
+		}
 		while (!continueStack.isEmpty()) {
 			if (continueStack.top().scope <= scopeDepth) break;
 			const SizeType pos = continueStack.pop().line;
@@ -2341,42 +2376,7 @@ namespace Spin {
 			patchJumpNext(pos);
 		}
 		rethrow(
-			expression();
-			consume(Token::Type::closeParenthesis, ")");
-			consume(Token::Type::semicolon, ";");
-		);
-		if (popAbsoluteType() != Type::BooleanType) {
-			throw Program::Error(
-				currentUnit,
-				"Expected Boolean expression inside 'do while' condition!",
-				token, ErrorCode::lgc
-			);
-		}
-		const SizeType exitJMP = emitJumpNext(OPCode::JIF);
-		emitJumpBack(loopStart);
-		patchJumpNext(exitJMP);
-		cycleScopes.decrease();
-		while (!breakStack.isEmpty()) {
-			if (breakStack.top().scope <= scopeDepth) break;
-			patchJumpNext(breakStack.pop().line);
-		}
-	}
-	void Compiler::repeatUntilStatement() {
-		const SizeType loopStart = sourcePosition();
-		cycleScopes.push(scopeDepth);
-		const Token token = previous;
-		rethrow(
-			statement();
-			consume(Token::Type::untilKeyword, "until");
 			consume(Token::Type::openParenthesis, "(");
-		);
-		while (!continueStack.isEmpty()) {
-			if (continueStack.top().scope <= scopeDepth) break;
-			const SizeType pos = continueStack.pop().line;
-			patchOperation(pos, OPCode::JMP);
-			patchJumpNext(pos);
-		}
-		rethrow(
 			expression();
 			consume(Token::Type::closeParenthesis, ")");
 			consume(Token::Type::semicolon, ";");
@@ -2384,11 +2384,11 @@ namespace Spin {
 		if (popAbsoluteType() != Type::BooleanType) {
 			throw Program::Error(
 				currentUnit,
-				"Expected Boolean expression inside 'repeat until' condition!",
+				"Expected Boolean expression inside 'repeat' statement condition!",
 				token, ErrorCode::lgc
 			);
 		}
-		const SizeType exitJMP = emitJumpNext(OPCode::JIT);
+		const SizeType exitJMP = emitJumpNext(jumpCode);
 		emitJumpBack(loopStart);
 		patchJumpNext(exitJMP);
 		cycleScopes.decrease();
