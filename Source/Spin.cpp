@@ -73,9 +73,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 				<< endLine << "Usage:"
 				<< endLine << "    spin <file>"
 				<< endLine << "         Compiles and executes a file."
-				<< endLine << "    spin [-compile, -c] <file.spin> <file.sex>"
+				<< endLine << "    spin [-compile, -c] <file.spin> <file.sexy>"
 				<< endLine << "         Compiles a file into a binary."
-				<< endLine << "    spin [-decompile, -d] <file.sex>"
+				<< endLine << "    spin [-decompile, -d] <file.sexy>"
 				<< endLine << "         Decompiles a binary file."
 				<< endLine << "    spin [-version, -v]"
 				<< endLine << "         Shows the version number."
@@ -83,9 +83,9 @@ Int32 main(Int32 argc, Character * argv[]) {
 				<< endLine << "         Disable ansi output."
 				<< endLine << "  <file>: should be the main file and"
 				<< endLine << "          it should end with '.spin' or"
-				<< endLine << "          '.sex' if it's a binary file."
+				<< endLine << "          '.sexy' if it's a binary file."
 				<< endLine << "  <file.spin>: should be the source file."
-				<< endLine << "  <file.sex>:  should be the binary file."
+				<< endLine << "  <file.sexy>:  should be the binary file."
 				<< endLine << "I told you it was helpful!"
 				<< endLine << endLine;
 	};
@@ -148,7 +148,7 @@ Int32 main(Int32 argc, Character * argv[]) {
 
 	if (parameters.size() == 0) {
 		// Its either `spin file.spin`
-		//         or `spin file.sex`.
+		//         or `spin file.sexy`.
 		switch (parameters.sizeOfFree()) {
 			case 0:
 				OStream << ERROR_01;
@@ -165,8 +165,8 @@ Int32 main(Int32 argc, Character * argv[]) {
 			noAnsi, options
 		);
 	} else {
-		// Its either `spin -compile file.spin file.sex`
-		//         or `spin -decompile file.sex`
+		// Its either `spin -compile file.spin file.sexy`
+		//         or `spin -decompile file.sexy`
 		String selected = parameters.mutualExclusion({
 			"-compile", "-decompile"
 		});
@@ -254,7 +254,7 @@ Int32 processCode(String path, Boolean noAnsi, Compiler::Options options) {
 			return ExitCodes::failure;
 		}
 		delete code;
-	} else if (path.ends_with(".sex")) {
+	} else if (path.ends_with(".sexy")) {
 		try { program = Program::from(path); }
 		catch (Serialiser::ReadingError & r) {
 			printReadingError(r, path);
@@ -306,7 +306,7 @@ Int32 compileCode(String source, String destination,
 	return ExitCodes::success;
 }
 Int32 decompileCode(String source, Boolean noAnsi) {
-	if (!source.ends_with(".sex")) {
+	if (!source.ends_with(".sexy")) {
 		OStream << ERROR_04;
 		return ExitCodes::failure;
 	}

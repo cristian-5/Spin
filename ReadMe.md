@@ -61,9 +61,9 @@ file structure organised and the code clean.
 Usage:
     spin <file>
          Compiles and executes a file.
-    spin [-compile, -c] <file.spin> <file.sex>
+    spin [-compile, -c] <file.spin> <file.sexy>
          Compiles a file into a binary.
-    spin [-decompile, -d] <file.sex>
+    spin [-decompile, -d] <file.sexy>
          Decompiles a binary file.
     spin [-version, -v]
          Shows the version number.
@@ -71,9 +71,9 @@ Usage:
          Disable ansi output.
   <file>: should be the main file and
           it should end with '.spin' or
-          '.sex' if it's a binary file.
+          '.sexy' if it's a binary file.
   <file.spin>: should be the source file.
-  <file.sex>:  should be the binary file.
+  <file.sexy>:  should be the binary file.
 I told you it was helpful!
 ```
 
