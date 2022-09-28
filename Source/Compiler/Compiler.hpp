@@ -300,7 +300,7 @@ namespace Spin {
 		inline Boolean check(Token::Type type);
 		inline void advance();
 		inline void consume(Token::Type type, String lexeme);
-		inline void prototypeRoutine(Boolean function);
+		inline void prototypeRoutine();
 		inline void preparePrototypes();
 		inline SizeType computeRoutines();
 		inline void resolveRoutines();

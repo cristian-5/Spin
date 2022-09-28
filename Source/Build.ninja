@@ -47,4 +47,4 @@ build Build/Spin.o: compile Spin.cpp | $interface $header $program $token $seria
 
 # Link:
 
-build Spin: link Build/Spin.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Complex.o Build/Wings.o Build/Libraries.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o
+build spin: link Build/Spin.o Build/Token.o Build/Lexer.o Build/Manager.o Build/Converter.o Build/Regex.o Build/Complex.o Build/Wings.o Build/Libraries.o Build/Program.o Build/Compiler.o Build/Decompiler.o Build/Processor.o

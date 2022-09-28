@@ -47,7 +47,7 @@ namespace Spin {
 		{    "noise", Token::Type::noiseKeyword    },
 		{   "import", Token::Type::importKeyword   },
 		{     "func", Token::Type::funcKeyword     },
-		{     "proc", Token::Type::procKeyword     },
+		//{     "proc", Token::Type::procKeyword     },
 		{     "rest", Token::Type::restKeyword     },
 		{   "return", Token::Type::returnKeyword   },
 		{      "new", Token::Type::newKeyword      },

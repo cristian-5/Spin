@@ -682,13 +682,8 @@ namespace Spin {
 	};
 
 	Compiler::TypeNode * Compiler::type() {
-		if (match(Token::Type::basicType)) {
-			return new TypeNode(
-				Converter::stringToType(
-					previous.lexeme
-				)
-			);
-		}
+		if (match(Token::Type::basicType))
+			return new TypeNode(Converter::stringToType(previous.lexeme));
 		if (match(Token::Type::openBracket)) {
 			TypeNode * node = new TypeNode(Type::ArrayType);
 			rethrow(
@@ -2682,13 +2677,12 @@ namespace Spin {
 				types.push_back(node);
 			} while (match(Token::Type::comma));
 		}
-		TypeNode * returnType;
+		TypeNode * returnType = new TypeNode(Type::VoidType);
 		rethrow(
 			consume(Token::Type::closeParenthesis, ")");
-			consume(Token::Type::colon, ":");
-			returnType = type();
+			if (match(Token::Type::colon)) returnType = type();
+			consume(Token::Type::openBrace, "{");
 		);
-		rethrow(consume(Token::Type::openBrace, "{"));
 		Routine routine; routine.name = id;
 		routine.parameters = types; routine.scope = scope;
 		routine.returnType = returnType; routine.frame = frame;
@@ -2721,7 +2715,7 @@ namespace Spin {
 		if (routine.prototypeIndex == - 1) {
 			throw Program::Error(
 				currentUnit,
-				"Invalid prototype for routine definition '" +
+				"Invalid prototype for function definition '" +
 				routineToken.lexeme + "'!",
 				routineToken, ErrorCode::lgc
 			);
@@ -2732,7 +2726,7 @@ namespace Spin {
 		const SizeType cutPosition = sourcePosition();
 		rethrow(block());
 		emitPop(countLocals(scope));
-		if (!routines[routineIndex].returns) {
+		if (!routines[routineIndex].returns && returnType -> type != Type::VoidType) {
 			throw Program::Error(
 				currentUnit,
 				"Missing return statement in routine '" +
@@ -3123,7 +3117,7 @@ namespace Spin {
 			ErrorCode::syx
 		);
 	}
-	inline void Compiler::prototypeRoutine(Boolean function) {
+	inline void Compiler::prototypeRoutine() {
 		advance();
 		Prototype prototype;
 		try {
@@ -3141,8 +3135,7 @@ namespace Spin {
 				} while (match(Token::Type::comma));
 			}
 			consume(Token::Type::closeParenthesis, ")");
-			if (function) {
-				consume(Token::Type::colon, ":");
+			if (match(Token::Type::colon)) {
 				prototype.returnType = type();
 			} else prototype.returnType = new TypeNode(Type::VoidType);
 		} catch (Program::Error & e) { return; }
@@ -3156,8 +3149,7 @@ namespace Spin {
 	inline void Compiler::preparePrototypes() {
 		while (!match(Token::Type::endFile)) {
 			switch (current.type) {
-				case Token::Type::procKeyword: prototypeRoutine(false); break;
-				case Token::Type::funcKeyword: prototypeRoutine(true);  break;
+				case Token::Type::funcKeyword: prototypeRoutine();  break;
 				default: break;
 			}
 			advance();

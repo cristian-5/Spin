@@ -924,8 +924,9 @@ namespace Spin {
 					c = stack.pop(); // expression
 					b = stack.pop(); // index
 					a = stack.pop(); // array pointer
-					if (b.integer < 0 ||
-						b.integer > (((Array<Value> *)a.pointer) -> size()) - 1) throw Crash(ip, data);
+					if (b.integer < 0) throw Crash(ip, data);
+					while (b.integer >= ((Array<Value> *)a.pointer) -> size())
+						((Array<Value> *)a.pointer) -> push_back(c);
 					((Array<Value> *)a.pointer) -> operator [] (b.integer) = c;
 					stack.push(c);
 				break;
